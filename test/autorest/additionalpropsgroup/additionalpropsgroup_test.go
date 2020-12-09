@@ -7,6 +7,7 @@ import (
 	"context"
 	"encoding/base64"
 	"generatortests/helpers"
+	"net/http"
 	"testing"
 
 	"github.com/Azure/azure-sdk-for-go/sdk/to"
@@ -16,9 +17,35 @@ func newPetsClient() PetsClient {
 	return NewPetsClient(NewDefaultConnection(nil))
 }
 
+type myClient struct {
+	PetsClient
+}
+
+func newMyClient() myClient {
+	return myClient{
+		PetsClient: newPetsClient(),
+	}
+}
+
+// CreateApInProperties - Create a Pet which contains more properties than what is defined.
+func (client myClient) CreateApInProperties(ctx context.Context, createParameters PetApInProperties, options *PetsCreateApInPropertiesOptions) (PetApInPropertiesResponse, error) {
+	req, err := client.protocol.CreateApInPropertiesCreateRequest(ctx, createParameters, options)
+	if err != nil {
+		return PetApInPropertiesResponse{}, err
+	}
+	resp, err := client.Pipeline().Do(req)
+	if err != nil {
+		return PetApInPropertiesResponse{}, err
+	}
+	if !resp.HasStatusCode(http.StatusOK) {
+		return PetApInPropertiesResponse{}, client.protocol.CreateApInPropertiesHandleError(resp)
+	}
+	return client.protocol.CreateApInPropertiesHandleResponse(resp)
+}
+
 // CreateApInProperties - Create a Pet which contains more properties than what is defined.
 func TestCreateApInProperties(t *testing.T) {
-	client := newPetsClient()
+	client := newMyClient()
 	result, err := client.CreateApInProperties(context.Background(), PetApInProperties{
 		ID:   to.Int32Ptr(4),
 		Name: to.StringPtr("Bunny"),
@@ -45,7 +72,7 @@ func TestCreateApInProperties(t *testing.T) {
 
 // CreateApInPropertiesWithApstring - Create a Pet which contains more properties than what is defined.
 func TestCreateApInPropertiesWithApstring(t *testing.T) {
-	client := newPetsClient()
+	client := newMyClient()
 	result, err := client.CreateApInPropertiesWithApstring(context.Background(), PetApInPropertiesWithApstring{
 		ID:            to.Int32Ptr(5),
 		Name:          to.StringPtr("Funny"),
@@ -84,7 +111,7 @@ func TestCreateApInPropertiesWithApstring(t *testing.T) {
 
 // CreateApObject - Create a Pet which contains more properties than what is defined.
 func TestCreateApObject(t *testing.T) {
-	client := newPetsClient()
+	client := newMyClient()
 	result, err := client.CreateApObject(context.Background(), PetApObject{
 		ID:   to.Int32Ptr(2),
 		Name: to.StringPtr("Hira"),
