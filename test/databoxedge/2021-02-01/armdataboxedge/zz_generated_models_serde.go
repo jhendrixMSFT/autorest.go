@@ -12,8 +12,11 @@ package armdataboxedge
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/Azure/azure-sdk-for-go/sdk/azcore"
 	"reflect"
+	"strings"
+	"time"
+
+	"github.com/Azure/azure-sdk-for-go/sdk/azcore"
 )
 
 // MarshalJSON implements the json.Marshaller interface for type Addon.
@@ -25,6 +28,28 @@ func (a Addon) MarshalJSON() ([]byte, error) {
 	populate(objectMap, "systemData", a.SystemData)
 	populate(objectMap, "type", a.Type)
 	return json.Marshal(objectMap)
+}
+
+// MarshalJSON2 is a custom JSON marshaller prototype.
+func (a Addon) MarshalJSON2() ([]byte, error) {
+	sb := strings.Builder{}
+	sb.Grow(512)
+	sb.WriteRune('{')
+	populateString(&sb, "kind", (*string)(a.Kind))
+	sb.WriteRune(',')
+	populateString(&sb, "id", a.ID)
+	sb.WriteRune(',')
+	populateString(&sb, "name", a.Name)
+	sb.WriteRune(',')
+	b, _ := a.SystemData.MarshalJSON2()
+	if b != nil {
+		sb.WriteString(`"systemData":`)
+		sb.WriteString(string(b))
+	}
+	sb.WriteRune(',')
+	populateString(&sb, "type", a.Type)
+	sb.WriteRune('}')
+	return []byte(sb.String()), nil
 }
 
 // UnmarshalJSON implements the json.Unmarshaller interface for type Addon.
@@ -57,6 +82,89 @@ func (a *Addon) UnmarshalJSON(data []byte) error {
 		}
 	}
 	return nil
+}
+
+// UnmarshalJSON2 is a custom JSON unmarshaller prototype.
+func (a *Addon) UnmarshalJSON2(data []byte) error {
+	decoder := json.NewDecoder(strings.NewReader(string(data)))
+	for {
+		tk, err := decoder.Token()
+
+		if err != nil {
+			return err
+		}
+
+		switch tt := tk.(type) {
+		case json.Delim:
+			if tt == '{' {
+				continue
+			} else if tt == '}' {
+				return nil
+			} else {
+				return fmt.Errorf("unexpected token: %v", tt)
+			}
+		case string:
+			switch tt {
+			case "id":
+				tk, err := decoder.Token()
+				if err != nil {
+					return fmt.Errorf("unexpected error decoding Addon.ID: %s", err)
+				}
+				v, ok := tk.(string)
+				if !ok {
+					return fmt.Errorf("incorrect value for Addon.ID: %v", tk)
+				}
+				a.ID = &v
+			case "kind":
+				tk, err := decoder.Token()
+				if err != nil {
+					return fmt.Errorf("unexpected error decoding Addon.Kind: %s", err)
+				}
+				v, ok := tk.(string)
+				if !ok {
+					return fmt.Errorf("incorrect value for Addon.Kind: %v", tk)
+				}
+				vv := AddonType(v)
+				a.Kind = &vv
+			case "name":
+				tk, err := decoder.Token()
+				if err != nil {
+					return fmt.Errorf("unexpected error decoding Addon.Name: %s", err)
+				}
+				v, ok := tk.(string)
+				if !ok {
+					return fmt.Errorf("incorrect value for Addon.Name: %v", tk)
+				}
+				a.Name = &v
+			case "systemData":
+				a.SystemData = &SystemData{}
+				start := decoder.InputOffset()+1
+				var end int64
+				for {
+					tk, err := decoder.Token()
+					if err != nil {
+						return fmt.Errorf("unexpected error decoding Addon.SystemData: %s", err)
+					} else if d, ok := tk.(json.Delim); ok && d == '}' {
+						end = decoder.InputOffset()
+						break
+					}
+				}
+				if err := a.SystemData.UnmarshalJSON2(data[start:end]); err != nil {
+					return err
+				}
+			case "type":
+				tk, err := decoder.Token()
+				if err != nil {
+					return fmt.Errorf("unexpected error decoding Addon.Type: %s", err)
+				}
+				v, ok := tk.(string)
+				if !ok {
+					return fmt.Errorf("incorrect value for Addon.Type: %v", tk)
+				}
+				a.Type = &v
+			}
+		}
+	}
 }
 
 // MarshalJSON implements the json.Marshaller interface for type AddonList.
@@ -5230,6 +5338,26 @@ func (s SystemData) MarshalJSON() ([]byte, error) {
 	return json.Marshal(objectMap)
 }
 
+// MarshalJSON2 is a custom JSON marshaller prototype.
+func (s SystemData) MarshalJSON2() ([]byte, error) {
+	sb := strings.Builder{}
+	sb.Grow(512)
+	sb.WriteRune('{')
+	populateTimeRFC33392(&sb, "createdAt", s.CreatedAt)
+	sb.WriteRune(',')
+	populateString(&sb, "createdBy", s.CreatedBy)
+	sb.WriteRune(',')
+	populateString(&sb, "createdByType", (*string)(s.CreatedByType))
+	sb.WriteRune(',')
+	populateTimeRFC33392(&sb, "lastModifiedAt", s.LastModifiedAt)
+	sb.WriteRune(',')
+	populateString(&sb, "lastModifiedBy", s.LastModifiedBy)
+	sb.WriteRune(',')
+	populateString(&sb, "lastModifiedByType", (*string)(s.LastModifiedByType))
+	sb.WriteRune('}')
+	return []byte(sb.String()), nil
+}
+
 // UnmarshalJSON implements the json.Unmarshaller interface for type SystemData.
 func (s *SystemData) UnmarshalJSON(data []byte) error {
 	var rawMsg map[string]json.RawMessage
@@ -5263,6 +5391,102 @@ func (s *SystemData) UnmarshalJSON(data []byte) error {
 		}
 	}
 	return nil
+}
+
+// UnmarshalJSON2 is a custom JSON unmarshaller prototype.
+func (s *SystemData) UnmarshalJSON2(data []byte) error {
+	decoder := json.NewDecoder(strings.NewReader(string(data)))
+	for {
+		tk, err := decoder.Token()
+
+		if err != nil {
+			return err
+		}
+
+		switch tt := tk.(type) {
+		case json.Delim:
+			if tt == '{' {
+				continue
+			} else if tt == '}' {
+				return nil
+			} else {
+				return fmt.Errorf("unexpected token: %v", tt)
+			}
+		case string:
+			switch tt {
+			case "createdAt":
+				tk, err := decoder.Token()
+				if err != nil {
+					return fmt.Errorf("unexpected error decoding SystemData.CreatedAt: %s", err)
+				}
+				v, ok := tk.(string)
+				if !ok {
+					return fmt.Errorf("incorrect value for SystemData.CreatedAt: %v", tk)
+				}
+				t, err := time.Parse(time.RFC3339Nano, v)
+				if err != nil {
+					return fmt.Errorf("error parsing SystemData.CreatedAt: %s", err)
+				}
+				s.CreatedAt = &t
+			case "createdBy":
+				tk, err := decoder.Token()
+				if err != nil {
+					return fmt.Errorf("unexpected error decoding SystemData.CreatedBy: %s", err)
+				}
+				v, ok := tk.(string)
+				if !ok {
+					return fmt.Errorf("incorrect value for SystemData.CreatedBy: %v", tk)
+				}
+				s.CreatedBy = &v
+			case "createdByType":
+				tk, err := decoder.Token()
+				if err != nil {
+					return fmt.Errorf("unexpected error decoding SystemData.CreatedByType: %s", err)
+				}
+				v, ok := tk.(string)
+				if !ok {
+					return fmt.Errorf("incorrect value for SystemData.CreatedByType: %v", tk)
+				}
+				vv := CreatedByType(v)
+				s.CreatedByType = &vv
+			case "lastModifiedAt":
+				tk, err := decoder.Token()
+				if err != nil {
+					return fmt.Errorf("unexpected error decoding SystemData.LastModifiedAt: %s", err)
+				}
+				v, ok := tk.(string)
+				if !ok {
+					return fmt.Errorf("incorrect value for SystemData.LastModifiedAt: %v", tk)
+				}
+				t, err := time.Parse(time.RFC3339Nano, v)
+				if err != nil {
+					return fmt.Errorf("error parsing SystemData.LastModifiedAt: %s", err)
+				}
+				s.LastModifiedAt = &t
+			case "lastModifiedBy":
+				tk, err := decoder.Token()
+				if err != nil {
+					return fmt.Errorf("unexpected error decoding SystemData.LastModifiedBy: %s", err)
+				}
+				v, ok := tk.(string)
+				if !ok {
+					return fmt.Errorf("incorrect value for SystemData.LastModifiedBy: %v", tk)
+				}
+				s.LastModifiedBy = &v
+			case "lastModifiedByType":
+				tk, err := decoder.Token()
+				if err != nil {
+					return fmt.Errorf("unexpected error decoding SystemData.LastModifiedByType: %s", err)
+				}
+				v, ok := tk.(string)
+				if !ok {
+					return fmt.Errorf("incorrect value for SystemData.LastModifiedByType: %v", tk)
+				}
+				vv := CreatedByType(v)
+				s.LastModifiedByType = &vv
+			}
+		}
+	}
 }
 
 // MarshalJSON implements the json.Marshaller interface for type TrackingInfo.
@@ -5964,4 +6188,21 @@ func unpopulate(data json.RawMessage, fn string, v any) error {
 		return fmt.Errorf("struct field %s: %v", fn, err)
 	}
 	return nil
+}
+
+func populateString(sb *strings.Builder, n string, v *string) {
+	if v == nil {
+		return
+	}
+	sb.WriteRune('"')
+	sb.WriteString(n)
+	sb.WriteRune('"')
+	sb.WriteRune(':')
+	if azcore.IsNullValue(v) {
+		sb.WriteString("null")
+	} else {
+		sb.WriteRune('"')
+		sb.WriteString(*v)
+		sb.WriteRune('"')
+	}
 }

@@ -85,3 +85,20 @@ func unpopulateTimeRFC3339(data json.RawMessage, fn string, t **time.Time) error
 	*t = (*time.Time)(&aux)
 	return nil
 }
+
+func populateTimeRFC33392(sb *strings.Builder, k string, t *time.Time) {
+	if t == nil {
+		return
+	}
+	sb.WriteRune('"')
+	sb.WriteString(k)
+	sb.WriteRune('"')
+	sb.WriteRune(':')
+	if azcore.IsNullValue(t) {
+		sb.WriteString("null")
+	} else {
+		sb.WriteRune('"')
+		sb.WriteString(t.Format(time.RFC3339Nano))
+		sb.WriteRune('"')
+	}
+}
