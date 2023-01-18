@@ -315,14 +315,14 @@ function emitPagerDefinition(op: Operation, imports: ImportManager): string {
     text += `\t\t\treturn false\n`;
     text += '\t\t},\n';
   }
-  text += `\t\tFetcher: func(ctx context.Context, page *${getResponseEnvelopeName(op)}) (${getResponseEnvelopeName(op)}, error) {\n`;
+  text += `\t\tFetcher: func(ctx context.Context, page *${getResponseEnvelopeName(op)}) (result ${getResponseEnvelopeName(op)}, err error) {\n`;
+  text += emitTraceSpan(op.language.go!.clientName, `New${op.language.go!.name}Pager`);
   const reqParams = getCreateRequestParameters(op);
   if (op.language.go!.paging.nextLinkName) {
     const isLRO = isLROOperation(op);
     const defineOrAssign = isLRO ? ':=' : '=';
     if (!isLRO) {
       text += '\t\t\tvar req *policy.Request\n';
-      text += '\t\t\tvar err error\n';
       text += '\t\t\tif page == nil {\n';
       text += `\t\t\t\treq, err = client.${info.protocolNaming.requestMethod}(${reqParams})\n`;
       text += '\t\t\t} else {\n';
@@ -352,16 +352,18 @@ function emitPagerDefinition(op: Operation, imports: ImportManager): string {
     text += `\t\t\treq, err := client.${info.protocolNaming.requestMethod}(${reqParams})\n`;
   }
   text += '\t\t\tif err != nil {\n';
-  text += `\t\t\t\treturn ${getResponseEnvelopeName(op)}{}, err\n`;
+  text += `\t\t\t\treturn\n`;
   text += '\t\t\t}\n';
   text += '\t\t\tresp, err := client.internal.Pipeline().Do(req)\n';
   text += '\t\t\tif err != nil {\n';
-  text += `\t\t\t\treturn ${getResponseEnvelopeName(op)}{}, err\n`;
+  text += `\t\t\t\treturn\n`;
   text += '\t\t\t}\n';
   text += '\t\t\tif !runtime.HasStatusCode(resp, http.StatusOK) {\n';
-  text += `\t\t\t\treturn ${getResponseEnvelopeName(op)}{}, runtime.NewResponseError(resp)\n`;
+  text += `\t\t\t\terr = runtime.NewResponseError(resp)\n`;
+  text += `\t\t\t\treturn\n`;
   text += '\t\t\t}\n';
-  text += `\t\t\treturn client.${info.protocolNaming.responseMethod}(resp)\n`;
+  text += `\t\t\tresult, err = client.${info.protocolNaming.responseMethod}(resp)\n`;
+  text += `\t\t\treturn\n`;
   text += '\t\t},\n';
   text += `\t})\n`;
   return text;
@@ -376,6 +378,17 @@ function genApiVersionDoc(apiVersions?: ApiVersions): string {
     versions.push(val.version);
   })
   return `//\n// Generated from API version ${versions.join(',')}\n`;
+}
+
+function emitTraceSpan(clientName: string, opName: string): string {
+  let text = `\tctx, span := client.internal.Tracer().Start(ctx, "${clientName}.${opName}", &tracing.SpanOptions{\n`;
+  text += '\t\tKind: tracing.SpanKindInternal,\n';
+  text += '\t})\n';
+  text += '\tdefer func() {\n';
+  text += '\t\tif err != nil {\n\t\t\tspan.AddError(err)\n\t\t}\n';
+  text += '\t\tspan.End()\n';
+  text += '\t}()\n';
+  return text;
 }
 
 function generateOperation(op: Operation, imports: ImportManager): string {
@@ -408,13 +421,7 @@ function generateOperation(op: Operation, imports: ImportManager): string {
   }
   text += `func (client *${clientName}) ${opName}(${params}) (${returns.join(', ')}) {\n`;
   if (!isPageableOperation(op) && !isLROOperation(op)) {
-    text += `\tctx, span := client.internal.Tracer().Start(ctx, "${clientName}.${opName}", &tracing.SpanOptions{\n`;
-    text += '\t\tKind: tracing.SpanKindInternal,\n';
-    text += '\t})\n';
-    text += '\tdefer func() {\n';
-    text += '\t\tif err != nil {\n\t\t\tspan.AddError(err)\n\t\t}\n';
-    text += '\t\tspan.End()\n';
-    text += '\t}()\n';
+    text += emitTraceSpan(clientName, opName);
   }
   const reqParams = getCreateRequestParameters(op);
   const statusCodes = getStatusCodes(op);
@@ -1146,13 +1153,7 @@ function generateLROBeginMethod(op: Operation, imports: ImportManager): string {
     }
   }
   text += `func (client *${clientName}) Begin${op.language.go!.name}(${params}) (${returns.join(', ')}) {\n`;
-  text += `\tctx, span := client.internal.Tracer().Start(ctx, "${clientName}.Begin${op.language.go!.name}", &tracing.SpanOptions{\n`;
-  text += '\t\tKind: tracing.SpanKindInternal,\n';
-  text += '\t})\n';
-  text += '\tdefer func() {\n';
-  text += '\t\tif err != nil {\n\t\t\tspan.AddError(err)\n\t\t}\n';
-  text += '\t\tspan.End()\n';
-  text += '\t}()\n';
+  text += emitTraceSpan(clientName, `Begin${op.language.go!.name}`);
   let pollerType = 'nil';
   let pollerTypeParam = `[${getResponseEnvelopeName(op)}]`;
   if (isPageableOperation(op)) {
