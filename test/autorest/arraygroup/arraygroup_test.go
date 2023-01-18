@@ -12,12 +12,42 @@ import (
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/runtime"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/to"
+	azotel "github.com/Azure/azure-sdk-for-go/sdk/azdiagnostics/otel"
 	"github.com/google/go-cmp/cmp"
 	"github.com/stretchr/testify/require"
+	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/exporters/jaeger"
+	"go.opentelemetry.io/otel/sdk/resource"
+	tracesdk "go.opentelemetry.io/otel/sdk/trace"
+	semconv "go.opentelemetry.io/otel/semconv/v1.7.0"
 )
 
+func tracerProvider(url string) (*tracesdk.TracerProvider, error) {
+	// Create the Jaeger exporter
+	exp, err := jaeger.New(jaeger.WithCollectorEndpoint(jaeger.WithEndpoint(url)))
+	if err != nil {
+		return nil, err
+	}
+	tp := tracesdk.NewTracerProvider(
+		// Always be sure to batch in production.
+		tracesdk.WithBatcher(exp),
+		// Record information about this application in a Resource.
+		tracesdk.WithResource(resource.NewWithAttributes(
+			semconv.SchemaURL,
+			semconv.ServiceNameKey.String("arraygroup"),
+			attribute.String("environment", "test"),
+			attribute.Int64("ID", 1),
+		)),
+	)
+	return tp, nil
+}
+
 func newArrayClient(t *testing.T) *ArrayClient {
-	client, err := NewArrayClient(nil)
+	tp, err := tracerProvider("http://localhost:14268/api/traces")
+	require.NoError(t, err)
+	options := azcore.ClientOptions{}
+	options.TracingProvider = azotel.NewTracingProvider(tp, nil)
+	client, err := NewArrayClient(&options)
 	require.NoError(t, err)
 	return client
 }
