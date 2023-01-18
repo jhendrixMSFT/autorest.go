@@ -14,6 +14,7 @@ import (
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/policy"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/runtime"
+	"github.com/Azure/azure-sdk-for-go/sdk/azcore/tracing"
 	"net/http"
 )
 
@@ -28,19 +29,30 @@ type InheritanceClient struct {
 //
 // Generated from API version 2016-02-29
 //   - options - InheritanceClientGetValidOptions contains the optional parameters for the InheritanceClient.GetValid method.
-func (client *InheritanceClient) GetValid(ctx context.Context, options *InheritanceClientGetValidOptions) (InheritanceClientGetValidResponse, error) {
+func (client *InheritanceClient) GetValid(ctx context.Context, options *InheritanceClientGetValidOptions) (result InheritanceClientGetValidResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "InheritanceClient.GetValid", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.getValidCreateRequest(ctx, options)
 	if err != nil {
-		return InheritanceClientGetValidResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return InheritanceClientGetValidResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return InheritanceClientGetValidResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.getValidHandleResponse(resp)
+	result, err = client.getValidHandleResponse(resp)
+	return
 }
 
 // getValidCreateRequest creates the GetValid request.
@@ -55,10 +67,10 @@ func (client *InheritanceClient) getValidCreateRequest(ctx context.Context, opti
 }
 
 // getValidHandleResponse handles the GetValid response.
-func (client *InheritanceClient) getValidHandleResponse(resp *http.Response) (InheritanceClientGetValidResponse, error) {
-	result := InheritanceClientGetValidResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.Siamese); err != nil {
-		return InheritanceClientGetValidResponse{}, err
+func (client *InheritanceClient) getValidHandleResponse(resp *http.Response) (result InheritanceClientGetValidResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.Siamese); err != nil {
+		result = InheritanceClientGetValidResponse{}
+		return
 	}
 	return result, nil
 }
@@ -71,19 +83,29 @@ func (client *InheritanceClient) getValidHandleResponse(resp *http.Response) (In
 //     named "Potato" with id=1 and food="tomato", and the 2nd one named "Tomato" with id=-1 and
 //     food="french fries".
 //   - options - InheritanceClientPutValidOptions contains the optional parameters for the InheritanceClient.PutValid method.
-func (client *InheritanceClient) PutValid(ctx context.Context, complexBody Siamese, options *InheritanceClientPutValidOptions) (InheritanceClientPutValidResponse, error) {
+func (client *InheritanceClient) PutValid(ctx context.Context, complexBody Siamese, options *InheritanceClientPutValidOptions) (result InheritanceClientPutValidResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "InheritanceClient.PutValid", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.putValidCreateRequest(ctx, complexBody, options)
 	if err != nil {
-		return InheritanceClientPutValidResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return InheritanceClientPutValidResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return InheritanceClientPutValidResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return InheritanceClientPutValidResponse{}, nil
+	return
 }
 
 // putValidCreateRequest creates the PutValid request.

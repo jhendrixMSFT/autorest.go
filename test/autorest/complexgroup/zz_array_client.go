@@ -14,6 +14,7 @@ import (
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/policy"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/runtime"
+	"github.com/Azure/azure-sdk-for-go/sdk/azcore/tracing"
 	"net/http"
 )
 
@@ -28,19 +29,30 @@ type ArrayClient struct {
 //
 // Generated from API version 2016-02-29
 //   - options - ArrayClientGetEmptyOptions contains the optional parameters for the ArrayClient.GetEmpty method.
-func (client *ArrayClient) GetEmpty(ctx context.Context, options *ArrayClientGetEmptyOptions) (ArrayClientGetEmptyResponse, error) {
+func (client *ArrayClient) GetEmpty(ctx context.Context, options *ArrayClientGetEmptyOptions) (result ArrayClientGetEmptyResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "ArrayClient.GetEmpty", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.getEmptyCreateRequest(ctx, options)
 	if err != nil {
-		return ArrayClientGetEmptyResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return ArrayClientGetEmptyResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return ArrayClientGetEmptyResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.getEmptyHandleResponse(resp)
+	result, err = client.getEmptyHandleResponse(resp)
+	return
 }
 
 // getEmptyCreateRequest creates the GetEmpty request.
@@ -55,10 +67,10 @@ func (client *ArrayClient) getEmptyCreateRequest(ctx context.Context, options *A
 }
 
 // getEmptyHandleResponse handles the GetEmpty response.
-func (client *ArrayClient) getEmptyHandleResponse(resp *http.Response) (ArrayClientGetEmptyResponse, error) {
-	result := ArrayClientGetEmptyResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.ArrayWrapper); err != nil {
-		return ArrayClientGetEmptyResponse{}, err
+func (client *ArrayClient) getEmptyHandleResponse(resp *http.Response) (result ArrayClientGetEmptyResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.ArrayWrapper); err != nil {
+		result = ArrayClientGetEmptyResponse{}
+		return
 	}
 	return result, nil
 }
@@ -68,19 +80,30 @@ func (client *ArrayClient) getEmptyHandleResponse(resp *http.Response) (ArrayCli
 //
 // Generated from API version 2016-02-29
 //   - options - ArrayClientGetNotProvidedOptions contains the optional parameters for the ArrayClient.GetNotProvided method.
-func (client *ArrayClient) GetNotProvided(ctx context.Context, options *ArrayClientGetNotProvidedOptions) (ArrayClientGetNotProvidedResponse, error) {
+func (client *ArrayClient) GetNotProvided(ctx context.Context, options *ArrayClientGetNotProvidedOptions) (result ArrayClientGetNotProvidedResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "ArrayClient.GetNotProvided", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.getNotProvidedCreateRequest(ctx, options)
 	if err != nil {
-		return ArrayClientGetNotProvidedResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return ArrayClientGetNotProvidedResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return ArrayClientGetNotProvidedResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.getNotProvidedHandleResponse(resp)
+	result, err = client.getNotProvidedHandleResponse(resp)
+	return
 }
 
 // getNotProvidedCreateRequest creates the GetNotProvided request.
@@ -95,10 +118,10 @@ func (client *ArrayClient) getNotProvidedCreateRequest(ctx context.Context, opti
 }
 
 // getNotProvidedHandleResponse handles the GetNotProvided response.
-func (client *ArrayClient) getNotProvidedHandleResponse(resp *http.Response) (ArrayClientGetNotProvidedResponse, error) {
-	result := ArrayClientGetNotProvidedResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.ArrayWrapper); err != nil {
-		return ArrayClientGetNotProvidedResponse{}, err
+func (client *ArrayClient) getNotProvidedHandleResponse(resp *http.Response) (result ArrayClientGetNotProvidedResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.ArrayWrapper); err != nil {
+		result = ArrayClientGetNotProvidedResponse{}
+		return
 	}
 	return result, nil
 }
@@ -108,19 +131,30 @@ func (client *ArrayClient) getNotProvidedHandleResponse(resp *http.Response) (Ar
 //
 // Generated from API version 2016-02-29
 //   - options - ArrayClientGetValidOptions contains the optional parameters for the ArrayClient.GetValid method.
-func (client *ArrayClient) GetValid(ctx context.Context, options *ArrayClientGetValidOptions) (ArrayClientGetValidResponse, error) {
+func (client *ArrayClient) GetValid(ctx context.Context, options *ArrayClientGetValidOptions) (result ArrayClientGetValidResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "ArrayClient.GetValid", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.getValidCreateRequest(ctx, options)
 	if err != nil {
-		return ArrayClientGetValidResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return ArrayClientGetValidResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return ArrayClientGetValidResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.getValidHandleResponse(resp)
+	result, err = client.getValidHandleResponse(resp)
+	return
 }
 
 // getValidCreateRequest creates the GetValid request.
@@ -135,10 +169,10 @@ func (client *ArrayClient) getValidCreateRequest(ctx context.Context, options *A
 }
 
 // getValidHandleResponse handles the GetValid response.
-func (client *ArrayClient) getValidHandleResponse(resp *http.Response) (ArrayClientGetValidResponse, error) {
-	result := ArrayClientGetValidResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.ArrayWrapper); err != nil {
-		return ArrayClientGetValidResponse{}, err
+func (client *ArrayClient) getValidHandleResponse(resp *http.Response) (result ArrayClientGetValidResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.ArrayWrapper); err != nil {
+		result = ArrayClientGetValidResponse{}
+		return
 	}
 	return result, nil
 }
@@ -149,19 +183,29 @@ func (client *ArrayClient) getValidHandleResponse(resp *http.Response) (ArrayCli
 // Generated from API version 2016-02-29
 //   - complexBody - Please put an empty array
 //   - options - ArrayClientPutEmptyOptions contains the optional parameters for the ArrayClient.PutEmpty method.
-func (client *ArrayClient) PutEmpty(ctx context.Context, complexBody ArrayWrapper, options *ArrayClientPutEmptyOptions) (ArrayClientPutEmptyResponse, error) {
+func (client *ArrayClient) PutEmpty(ctx context.Context, complexBody ArrayWrapper, options *ArrayClientPutEmptyOptions) (result ArrayClientPutEmptyResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "ArrayClient.PutEmpty", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.putEmptyCreateRequest(ctx, complexBody, options)
 	if err != nil {
-		return ArrayClientPutEmptyResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return ArrayClientPutEmptyResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return ArrayClientPutEmptyResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return ArrayClientPutEmptyResponse{}, nil
+	return
 }
 
 // putEmptyCreateRequest creates the PutEmpty request.
@@ -182,19 +226,29 @@ func (client *ArrayClient) putEmptyCreateRequest(ctx context.Context, complexBod
 //   - complexBody - Please put an array with 4 items: "1, 2, 3, 4", "", null, "&S#$(*Y", "The quick brown fox jumps over the
 //     lazy dog"
 //   - options - ArrayClientPutValidOptions contains the optional parameters for the ArrayClient.PutValid method.
-func (client *ArrayClient) PutValid(ctx context.Context, complexBody ArrayWrapper, options *ArrayClientPutValidOptions) (ArrayClientPutValidResponse, error) {
+func (client *ArrayClient) PutValid(ctx context.Context, complexBody ArrayWrapper, options *ArrayClientPutValidOptions) (result ArrayClientPutValidResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "ArrayClient.PutValid", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.putValidCreateRequest(ctx, complexBody, options)
 	if err != nil {
-		return ArrayClientPutValidResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return ArrayClientPutValidResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return ArrayClientPutValidResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return ArrayClientPutValidResponse{}, nil
+	return
 }
 
 // putValidCreateRequest creates the PutValid request.

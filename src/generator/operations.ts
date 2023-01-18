@@ -35,6 +35,7 @@ export async function generateOperations(session: Session<CodeModel>): Promise<O
     imports.add('net/http');
     imports.add('github.com/Azure/azure-sdk-for-go/sdk/azcore/policy');
     imports.add('github.com/Azure/azure-sdk-for-go/sdk/azcore/runtime');
+    imports.add('github.com/Azure/azure-sdk-for-go/sdk/azcore/tracing');
 
     let clientPkg = 'azcore';
     if (azureARM) {
@@ -406,6 +407,15 @@ function generateOperation(op: Operation, imports: ImportManager): string {
     }
   }
   text += `func (client *${clientName}) ${opName}(${params}) (${returns.join(', ')}) {\n`;
+  if (!isPageableOperation(op) && !isLROOperation(op)) {
+    text += `\tctx, span := client.internal.Tracer().Start(ctx, "${clientName}.${opName}", &tracing.SpanOptions{\n`;
+    text += '\t\tKind: tracing.SpanKindInternal,\n';
+    text += '\t})\n';
+    text += '\tdefer func() {\n';
+    text += '\t\tif err != nil {\n\t\t\tspan.AddError(err)\n\t\t}\n';
+    text += '\t\tspan.End()\n';
+    text += '\t}()\n';
+  }
   const reqParams = getCreateRequestParameters(op);
   const statusCodes = getStatusCodes(op);
   if (isPageableOperation(op) && !isLROOperation(op)) {
@@ -414,34 +424,35 @@ function generateOperation(op: Operation, imports: ImportManager): string {
     text += '}\n\n';
     return text;
   }
-  const zeroResp = getZeroReturnValue(op, 'op');
   text += `\treq, err := client.${info.protocolNaming.requestMethod}(${reqParams})\n`;
   text += `\tif err != nil {\n`;
-  text += `\t\treturn ${zeroResp}, err\n`;
+  text += `\t\treturn\n`;
   text += `\t}\n`;
-  text += `\tresp, err := client.internal.Pipeline().Do(req)\n`;
+  text += '\tresp, err ';
+  if (!isLROOperation(op)) {
+    text += ':';
+  }
+  text += '= client.internal.Pipeline().Do(req)\n';
   text += `\tif err != nil {\n`;
-  text += `\t\treturn ${zeroResp}, err\n`;
+  text += `\t\treturn\n`;
   text += `\t}\n`;
   text += `\tif !runtime.HasStatusCode(resp, ${formatStatusCodes(statusCodes)}) {\n`;
-  text += `\t\treturn ${zeroResp}, runtime.NewResponseError(resp)\n`;
+  text += `\t\terr = runtime.NewResponseError(resp)\n\t\treturn\n`;
   text += '\t}\n';
   // HAB with headers response is handled in protocol responder
   if (op.language.go!.headAsBoolean && !responseHasHeaders(op)) {
-    text += `\treturn ${getResponseEnvelopeName(op)}{Success: resp.StatusCode >= 200 && resp.StatusCode < 300}, nil\n`;
+    text += `\tresult.Success = resp.StatusCode >= 200 && resp.StatusCode < 300\n`;
   } else {
     if (isLROOperation(op)) {
-      text += '\t return resp, nil\n';
+      // do nothing
     } else if (needsResponseHandler(op)) {
       // also cheating here as at present the only param to the responder is an http.Response
-      text += `\treturn client.${info.protocolNaming.responseMethod}(resp)\n`;
+      text += `\tresult, err = client.${info.protocolNaming.responseMethod}(resp)\n`;
     } else if (isBinaryResponseOperation(op)) {
-      text += `\treturn ${getResponseEnvelopeName(op)}{Body: resp.Body}, nil\n`;
-    } else {
-      text += `\treturn ${getResponseEnvelopeName(op)}{}, nil\n`;
+      text += `\tresult.Body = resp.Body\n`;
     }
   }
-  text += '}\n\n';
+  text += '\treturn\n}\n\n';
   return text;
 }
 
@@ -867,20 +878,19 @@ function needsResponseHandler(op: Operation): boolean {
 
 function generateResponseUnmarshaller(op: Operation, response: SchemaResponse, unmarshalTarget: string): string {
   let unmarshallerText = '';
-  const zeroValue = getZeroReturnValue(op, 'handler');
   if (response.schema.type === SchemaType.DateTime || response.schema.type === SchemaType.UnixTime || response.schema.type === SchemaType.Date) {
     // use the designated time type for unmarshalling
     unmarshallerText += `\tvar aux *${response.schema.language.go!.internalTimeType}\n`;
-    unmarshallerText += `\tif err := runtime.UnmarshalAs${getMediaType(response.protocol)}(resp, &aux); err != nil {\n`;
-    unmarshallerText += `\t\treturn ${zeroValue}, err\n`;
+    unmarshallerText += `\tif err = runtime.UnmarshalAs${getMediaType(response.protocol)}(resp, &aux); err != nil {\n`;
+    unmarshallerText += `\t\treturn\n`;
     unmarshallerText += '\t}\n';
     unmarshallerText += `\tresult.${getResultFieldName(op)} = (*time.Time)(aux)\n`;
     return unmarshallerText;
   } else if (isArrayOfDateTime(response.schema) || isArrayOfDate(response.schema)) {
     // unmarshalling arrays of date/time is a little more involved
     unmarshallerText += `\tvar aux []*${(<ArraySchema>response.schema).elementType.language.go!.internalTimeType}\n`;
-    unmarshallerText += `\tif err := runtime.UnmarshalAs${getMediaType(response.protocol)}(resp, &aux); err != nil {\n`;
-    unmarshallerText += `\t\treturn ${zeroValue}, err\n`;
+    unmarshallerText += `\tif err = runtime.UnmarshalAs${getMediaType(response.protocol)}(resp, &aux); err != nil {\n`;
+    unmarshallerText += `\t\treturn\n`;
     unmarshallerText += '\t}\n';
     unmarshallerText += '\tcp := make([]*time.Time, len(aux))\n';
     unmarshallerText += '\tfor i := 0; i < len(aux); i++ {\n';
@@ -890,8 +900,8 @@ function generateResponseUnmarshaller(op: Operation, response: SchemaResponse, u
     return unmarshallerText;
   } else if (isMapOfDateTime(response.schema) || isMapOfDate(response.schema)) {
     unmarshallerText += `\taux := map[string]*${(<DictionarySchema>response.schema).elementType.language.go!.internalTimeType}{}\n`;
-    unmarshallerText += `\tif err := runtime.UnmarshalAs${getMediaType(response.protocol)}(resp, &aux); err != nil {\n`;
-    unmarshallerText += `\t\treturn ${zeroValue}, err\n`;
+    unmarshallerText += `\tif err = runtime.UnmarshalAs${getMediaType(response.protocol)}(resp, &aux); err != nil {\n`;
+    unmarshallerText += `\t\treturn\n`;
     unmarshallerText += '\t}\n';
     unmarshallerText += `\tcp := map[string]*time.Time{}\n`;
     unmarshallerText += `\tfor k, v := range aux {\n`;
@@ -903,20 +913,21 @@ function generateResponseUnmarshaller(op: Operation, response: SchemaResponse, u
   const mediaType = getMediaType(response.protocol);
   if (mediaType === 'JSON' || mediaType === 'XML') {
     if (response.schema.language.go!.rawJSONAsBytes) {
-      unmarshallerText += `\tbody, err := runtime.Payload(resp)\n`;
+      unmarshallerText += `\tbody, err = runtime.Payload(resp)\n`;
       unmarshallerText += '\tif err != nil {\n';
-      unmarshallerText += `\t\treturn ${zeroValue}, err\n`;
+      unmarshallerText += `\t\treturn\n`;
       unmarshallerText += '\t}\n';
       unmarshallerText += `\t${unmarshalTarget} = body\n`;
     } else {
-      unmarshallerText += `\tif err := runtime.UnmarshalAs${getMediaFormat(response.schema, mediaType, `resp, &${unmarshalTarget}`)}; err != nil {\n`;
-      unmarshallerText += `\t\treturn ${zeroValue}, err\n`;
+      unmarshallerText += `\tif err = runtime.UnmarshalAs${getMediaFormat(response.schema, mediaType, `resp, &${unmarshalTarget}`)}; err != nil {\n`;
+      unmarshallerText += `\t\tresult = ${getResponseEnvelopeName(op)}{}\n`;
+      unmarshallerText += `\t\treturn\n`;
       unmarshallerText += '\t}\n';
     }
   } else if (mediaType === 'text') {
-    unmarshallerText += `\tbody, err := runtime.Payload(resp)\n`;
+    unmarshallerText += `\tbody, err = runtime.Payload(resp)\n`;
     unmarshallerText += '\tif err != nil {\n';
-    unmarshallerText += `\t\treturn ${zeroValue}, err\n`;
+    unmarshallerText += `\t\treturn\n`;
     unmarshallerText += '\t}\n';
     unmarshallerText += '\ttxt := string(body)\n';
     unmarshallerText += `\t${unmarshalTarget} = &txt\n`;
@@ -948,12 +959,9 @@ function createProtocolResponse(op: Operation, imports: ImportManager): string {
     }
   }
   if (!isMultiRespOperation(op)) {
-    const respEnvName = getResponseEnvelopeName(op);
-    text += `\tresult := ${respEnvName}{`;
     if (isBinaryResponseOperation(op)) {
-      text += 'Body: resp.Body';
+      text += '\tresult.Body = resp.Body';
     }
-    text += '}\n';
     // we know there's a result envelope at this point
     const respEnv = getResponseEnvelope(op);
     addHeaders(respEnv.properties);
@@ -1085,6 +1093,7 @@ function getAPIParametersSig(op: Operation, imports: ImportManager): string {
 // handler - for the response handler
 function generateReturnsInfo(op: Operation, apiType: 'api' | 'op' | 'handler'): string[] {
   let returnType = getResponseEnvelopeName(op);
+  let returnVar = 'result';
   if (isLROOperation(op)) {
     switch (apiType) {
       case 'api':
@@ -1105,6 +1114,7 @@ function generateReturnsInfo(op: Operation, apiType: 'api' | 'op' | 'handler'): 
         break;
       case 'op':
         returnType = '*http.Response';
+        returnVar = 'resp';
         break;
     }
   } else if (isPageableOperation(op)) {
@@ -1115,7 +1125,7 @@ function generateReturnsInfo(op: Operation, apiType: 'api' | 'op' | 'handler'): 
         return [`*runtime.Pager[${returnType}]`];
     }
   }
-  return [returnType, 'error'];
+  return [`${returnVar} ${returnType}`, 'err error'];
 }
 
 function generateLROBeginMethod(op: Operation, imports: ImportManager): string {
@@ -1129,7 +1139,6 @@ function generateLROBeginMethod(op: Operation, imports: ImportManager): string {
     text += `${comment(`Begin${op.language.go!.name} - ${op.language.go!.description}`, "//", undefined, commentLength)}\n`;
     text += genApiVersionDoc(op.apiVersions);
   }
-  const zeroResp = getZeroReturnValue(op, 'api');
   const methodParams = getMethodParameters(op);
   for (const param of values(methodParams)) {
     if (param.language.go!.description) {
@@ -1137,6 +1146,13 @@ function generateLROBeginMethod(op: Operation, imports: ImportManager): string {
     }
   }
   text += `func (client *${clientName}) Begin${op.language.go!.name}(${params}) (${returns.join(', ')}) {\n`;
+  text += `\tctx, span := client.internal.Tracer().Start(ctx, "${clientName}.Begin${op.language.go!.name}", &tracing.SpanOptions{\n`;
+  text += '\t\tKind: tracing.SpanKindInternal,\n';
+  text += '\t})\n';
+  text += '\tdefer func() {\n';
+  text += '\t\tif err != nil {\n\t\t\tspan.AddError(err)\n\t\t}\n';
+  text += '\t\tspan.End()\n';
+  text += '\t}()\n';
   let pollerType = 'nil';
   let pollerTypeParam = `[${getResponseEnvelopeName(op)}]`;
   if (isPageableOperation(op)) {
@@ -1148,13 +1164,14 @@ function generateLROBeginMethod(op: Operation, imports: ImportManager): string {
   }
 
   text += '\tif options == nil || options.ResumeToken == "" {\n';
+  text += '\t\tvar resp *http.Response\n';
   // creating the poller from response branch
 
   let opName = op.language.go!.name;
   opName = info.protocolNaming.internalMethod;
-  text += `\t\tresp, err := client.${opName}(${getCreateRequestParameters(op)})\n`;
+  text += `\t\tresp, err = client.${opName}(${getCreateRequestParameters(op)})\n`;
   text += `\t\tif err != nil {\n`;
-  text += `\t\t\treturn ${zeroResp}, err\n`;
+  text += `\t\t\treturn\n`;
   text += `\t\t}\n`;
 
   let finalStateVia = '';
@@ -1180,7 +1197,7 @@ function generateLROBeginMethod(op: Operation, imports: ImportManager): string {
     }
   }
 
-  text += `\t\treturn runtime.NewPoller`;
+  text += `\t\tresult, err = runtime.NewPoller`;
   if (finalStateVia === '' && pollerType === 'nil') {
     // the generic type param is redundant when it's also specified in the
     // options struct so we only include it when there's no options.
@@ -1205,7 +1222,7 @@ function generateLROBeginMethod(op: Operation, imports: ImportManager): string {
 
   // creating the poller from resume token branch
 
-  text += `\t\treturn runtime.NewPollerFromResumeToken`;
+  text += `\t\tresult, err = runtime.NewPollerFromResumeToken`;
   if (pollerType === 'nil') {
     text += pollerTypeParam;
   }
@@ -1218,7 +1235,7 @@ function generateLROBeginMethod(op: Operation, imports: ImportManager): string {
     text  += '\t\t})\n';
   }
   text += '\t}\n';
-
+  text += '\treturn\n';
   text += '}\n\n';
   return text;
 }

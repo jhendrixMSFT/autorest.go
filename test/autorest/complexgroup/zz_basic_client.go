@@ -14,6 +14,7 @@ import (
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/policy"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/runtime"
+	"github.com/Azure/azure-sdk-for-go/sdk/azcore/tracing"
 	"net/http"
 )
 
@@ -28,19 +29,30 @@ type BasicClient struct {
 //
 // Generated from API version 2016-02-29
 //   - options - BasicClientGetEmptyOptions contains the optional parameters for the BasicClient.GetEmpty method.
-func (client *BasicClient) GetEmpty(ctx context.Context, options *BasicClientGetEmptyOptions) (BasicClientGetEmptyResponse, error) {
+func (client *BasicClient) GetEmpty(ctx context.Context, options *BasicClientGetEmptyOptions) (result BasicClientGetEmptyResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "BasicClient.GetEmpty", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.getEmptyCreateRequest(ctx, options)
 	if err != nil {
-		return BasicClientGetEmptyResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return BasicClientGetEmptyResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return BasicClientGetEmptyResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.getEmptyHandleResponse(resp)
+	result, err = client.getEmptyHandleResponse(resp)
+	return
 }
 
 // getEmptyCreateRequest creates the GetEmpty request.
@@ -55,10 +67,10 @@ func (client *BasicClient) getEmptyCreateRequest(ctx context.Context, options *B
 }
 
 // getEmptyHandleResponse handles the GetEmpty response.
-func (client *BasicClient) getEmptyHandleResponse(resp *http.Response) (BasicClientGetEmptyResponse, error) {
-	result := BasicClientGetEmptyResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.Basic); err != nil {
-		return BasicClientGetEmptyResponse{}, err
+func (client *BasicClient) getEmptyHandleResponse(resp *http.Response) (result BasicClientGetEmptyResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.Basic); err != nil {
+		result = BasicClientGetEmptyResponse{}
+		return
 	}
 	return result, nil
 }
@@ -68,19 +80,30 @@ func (client *BasicClient) getEmptyHandleResponse(resp *http.Response) (BasicCli
 //
 // Generated from API version 2016-02-29
 //   - options - BasicClientGetInvalidOptions contains the optional parameters for the BasicClient.GetInvalid method.
-func (client *BasicClient) GetInvalid(ctx context.Context, options *BasicClientGetInvalidOptions) (BasicClientGetInvalidResponse, error) {
+func (client *BasicClient) GetInvalid(ctx context.Context, options *BasicClientGetInvalidOptions) (result BasicClientGetInvalidResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "BasicClient.GetInvalid", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.getInvalidCreateRequest(ctx, options)
 	if err != nil {
-		return BasicClientGetInvalidResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return BasicClientGetInvalidResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return BasicClientGetInvalidResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.getInvalidHandleResponse(resp)
+	result, err = client.getInvalidHandleResponse(resp)
+	return
 }
 
 // getInvalidCreateRequest creates the GetInvalid request.
@@ -95,10 +118,10 @@ func (client *BasicClient) getInvalidCreateRequest(ctx context.Context, options 
 }
 
 // getInvalidHandleResponse handles the GetInvalid response.
-func (client *BasicClient) getInvalidHandleResponse(resp *http.Response) (BasicClientGetInvalidResponse, error) {
-	result := BasicClientGetInvalidResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.Basic); err != nil {
-		return BasicClientGetInvalidResponse{}, err
+func (client *BasicClient) getInvalidHandleResponse(resp *http.Response) (result BasicClientGetInvalidResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.Basic); err != nil {
+		result = BasicClientGetInvalidResponse{}
+		return
 	}
 	return result, nil
 }
@@ -108,19 +131,30 @@ func (client *BasicClient) getInvalidHandleResponse(resp *http.Response) (BasicC
 //
 // Generated from API version 2016-02-29
 //   - options - BasicClientGetNotProvidedOptions contains the optional parameters for the BasicClient.GetNotProvided method.
-func (client *BasicClient) GetNotProvided(ctx context.Context, options *BasicClientGetNotProvidedOptions) (BasicClientGetNotProvidedResponse, error) {
+func (client *BasicClient) GetNotProvided(ctx context.Context, options *BasicClientGetNotProvidedOptions) (result BasicClientGetNotProvidedResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "BasicClient.GetNotProvided", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.getNotProvidedCreateRequest(ctx, options)
 	if err != nil {
-		return BasicClientGetNotProvidedResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return BasicClientGetNotProvidedResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return BasicClientGetNotProvidedResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.getNotProvidedHandleResponse(resp)
+	result, err = client.getNotProvidedHandleResponse(resp)
+	return
 }
 
 // getNotProvidedCreateRequest creates the GetNotProvided request.
@@ -135,10 +169,10 @@ func (client *BasicClient) getNotProvidedCreateRequest(ctx context.Context, opti
 }
 
 // getNotProvidedHandleResponse handles the GetNotProvided response.
-func (client *BasicClient) getNotProvidedHandleResponse(resp *http.Response) (BasicClientGetNotProvidedResponse, error) {
-	result := BasicClientGetNotProvidedResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.Basic); err != nil {
-		return BasicClientGetNotProvidedResponse{}, err
+func (client *BasicClient) getNotProvidedHandleResponse(resp *http.Response) (result BasicClientGetNotProvidedResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.Basic); err != nil {
+		result = BasicClientGetNotProvidedResponse{}
+		return
 	}
 	return result, nil
 }
@@ -148,19 +182,30 @@ func (client *BasicClient) getNotProvidedHandleResponse(resp *http.Response) (Ba
 //
 // Generated from API version 2016-02-29
 //   - options - BasicClientGetNullOptions contains the optional parameters for the BasicClient.GetNull method.
-func (client *BasicClient) GetNull(ctx context.Context, options *BasicClientGetNullOptions) (BasicClientGetNullResponse, error) {
+func (client *BasicClient) GetNull(ctx context.Context, options *BasicClientGetNullOptions) (result BasicClientGetNullResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "BasicClient.GetNull", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.getNullCreateRequest(ctx, options)
 	if err != nil {
-		return BasicClientGetNullResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return BasicClientGetNullResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return BasicClientGetNullResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.getNullHandleResponse(resp)
+	result, err = client.getNullHandleResponse(resp)
+	return
 }
 
 // getNullCreateRequest creates the GetNull request.
@@ -175,10 +220,10 @@ func (client *BasicClient) getNullCreateRequest(ctx context.Context, options *Ba
 }
 
 // getNullHandleResponse handles the GetNull response.
-func (client *BasicClient) getNullHandleResponse(resp *http.Response) (BasicClientGetNullResponse, error) {
-	result := BasicClientGetNullResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.Basic); err != nil {
-		return BasicClientGetNullResponse{}, err
+func (client *BasicClient) getNullHandleResponse(resp *http.Response) (result BasicClientGetNullResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.Basic); err != nil {
+		result = BasicClientGetNullResponse{}
+		return
 	}
 	return result, nil
 }
@@ -188,19 +233,30 @@ func (client *BasicClient) getNullHandleResponse(resp *http.Response) (BasicClie
 //
 // Generated from API version 2016-02-29
 //   - options - BasicClientGetValidOptions contains the optional parameters for the BasicClient.GetValid method.
-func (client *BasicClient) GetValid(ctx context.Context, options *BasicClientGetValidOptions) (BasicClientGetValidResponse, error) {
+func (client *BasicClient) GetValid(ctx context.Context, options *BasicClientGetValidOptions) (result BasicClientGetValidResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "BasicClient.GetValid", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.getValidCreateRequest(ctx, options)
 	if err != nil {
-		return BasicClientGetValidResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return BasicClientGetValidResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return BasicClientGetValidResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.getValidHandleResponse(resp)
+	result, err = client.getValidHandleResponse(resp)
+	return
 }
 
 // getValidCreateRequest creates the GetValid request.
@@ -215,10 +271,10 @@ func (client *BasicClient) getValidCreateRequest(ctx context.Context, options *B
 }
 
 // getValidHandleResponse handles the GetValid response.
-func (client *BasicClient) getValidHandleResponse(resp *http.Response) (BasicClientGetValidResponse, error) {
-	result := BasicClientGetValidResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.Basic); err != nil {
-		return BasicClientGetValidResponse{}, err
+func (client *BasicClient) getValidHandleResponse(resp *http.Response) (result BasicClientGetValidResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.Basic); err != nil {
+		result = BasicClientGetValidResponse{}
+		return
 	}
 	return result, nil
 }
@@ -229,19 +285,29 @@ func (client *BasicClient) getValidHandleResponse(resp *http.Response) (BasicCli
 // Generated from API version 2016-02-29
 //   - complexBody - Please put {id: 2, name: 'abc', color: 'Magenta'}
 //   - options - BasicClientPutValidOptions contains the optional parameters for the BasicClient.PutValid method.
-func (client *BasicClient) PutValid(ctx context.Context, complexBody Basic, options *BasicClientPutValidOptions) (BasicClientPutValidResponse, error) {
+func (client *BasicClient) PutValid(ctx context.Context, complexBody Basic, options *BasicClientPutValidOptions) (result BasicClientPutValidResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "BasicClient.PutValid", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.putValidCreateRequest(ctx, complexBody, options)
 	if err != nil {
-		return BasicClientPutValidResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return BasicClientPutValidResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return BasicClientPutValidResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return BasicClientPutValidResponse{}, nil
+	return
 }
 
 // putValidCreateRequest creates the PutValid request.

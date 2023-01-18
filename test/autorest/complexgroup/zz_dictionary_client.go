@@ -14,6 +14,7 @@ import (
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/policy"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/runtime"
+	"github.com/Azure/azure-sdk-for-go/sdk/azcore/tracing"
 	"net/http"
 )
 
@@ -28,19 +29,30 @@ type DictionaryClient struct {
 //
 // Generated from API version 2016-02-29
 //   - options - DictionaryClientGetEmptyOptions contains the optional parameters for the DictionaryClient.GetEmpty method.
-func (client *DictionaryClient) GetEmpty(ctx context.Context, options *DictionaryClientGetEmptyOptions) (DictionaryClientGetEmptyResponse, error) {
+func (client *DictionaryClient) GetEmpty(ctx context.Context, options *DictionaryClientGetEmptyOptions) (result DictionaryClientGetEmptyResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "DictionaryClient.GetEmpty", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.getEmptyCreateRequest(ctx, options)
 	if err != nil {
-		return DictionaryClientGetEmptyResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return DictionaryClientGetEmptyResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return DictionaryClientGetEmptyResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.getEmptyHandleResponse(resp)
+	result, err = client.getEmptyHandleResponse(resp)
+	return
 }
 
 // getEmptyCreateRequest creates the GetEmpty request.
@@ -55,10 +67,10 @@ func (client *DictionaryClient) getEmptyCreateRequest(ctx context.Context, optio
 }
 
 // getEmptyHandleResponse handles the GetEmpty response.
-func (client *DictionaryClient) getEmptyHandleResponse(resp *http.Response) (DictionaryClientGetEmptyResponse, error) {
-	result := DictionaryClientGetEmptyResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.DictionaryWrapper); err != nil {
-		return DictionaryClientGetEmptyResponse{}, err
+func (client *DictionaryClient) getEmptyHandleResponse(resp *http.Response) (result DictionaryClientGetEmptyResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.DictionaryWrapper); err != nil {
+		result = DictionaryClientGetEmptyResponse{}
+		return
 	}
 	return result, nil
 }
@@ -69,19 +81,30 @@ func (client *DictionaryClient) getEmptyHandleResponse(resp *http.Response) (Dic
 // Generated from API version 2016-02-29
 //   - options - DictionaryClientGetNotProvidedOptions contains the optional parameters for the DictionaryClient.GetNotProvided
 //     method.
-func (client *DictionaryClient) GetNotProvided(ctx context.Context, options *DictionaryClientGetNotProvidedOptions) (DictionaryClientGetNotProvidedResponse, error) {
+func (client *DictionaryClient) GetNotProvided(ctx context.Context, options *DictionaryClientGetNotProvidedOptions) (result DictionaryClientGetNotProvidedResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "DictionaryClient.GetNotProvided", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.getNotProvidedCreateRequest(ctx, options)
 	if err != nil {
-		return DictionaryClientGetNotProvidedResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return DictionaryClientGetNotProvidedResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return DictionaryClientGetNotProvidedResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.getNotProvidedHandleResponse(resp)
+	result, err = client.getNotProvidedHandleResponse(resp)
+	return
 }
 
 // getNotProvidedCreateRequest creates the GetNotProvided request.
@@ -96,10 +119,10 @@ func (client *DictionaryClient) getNotProvidedCreateRequest(ctx context.Context,
 }
 
 // getNotProvidedHandleResponse handles the GetNotProvided response.
-func (client *DictionaryClient) getNotProvidedHandleResponse(resp *http.Response) (DictionaryClientGetNotProvidedResponse, error) {
-	result := DictionaryClientGetNotProvidedResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.DictionaryWrapper); err != nil {
-		return DictionaryClientGetNotProvidedResponse{}, err
+func (client *DictionaryClient) getNotProvidedHandleResponse(resp *http.Response) (result DictionaryClientGetNotProvidedResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.DictionaryWrapper); err != nil {
+		result = DictionaryClientGetNotProvidedResponse{}
+		return
 	}
 	return result, nil
 }
@@ -109,19 +132,30 @@ func (client *DictionaryClient) getNotProvidedHandleResponse(resp *http.Response
 //
 // Generated from API version 2016-02-29
 //   - options - DictionaryClientGetNullOptions contains the optional parameters for the DictionaryClient.GetNull method.
-func (client *DictionaryClient) GetNull(ctx context.Context, options *DictionaryClientGetNullOptions) (DictionaryClientGetNullResponse, error) {
+func (client *DictionaryClient) GetNull(ctx context.Context, options *DictionaryClientGetNullOptions) (result DictionaryClientGetNullResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "DictionaryClient.GetNull", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.getNullCreateRequest(ctx, options)
 	if err != nil {
-		return DictionaryClientGetNullResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return DictionaryClientGetNullResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return DictionaryClientGetNullResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.getNullHandleResponse(resp)
+	result, err = client.getNullHandleResponse(resp)
+	return
 }
 
 // getNullCreateRequest creates the GetNull request.
@@ -136,10 +170,10 @@ func (client *DictionaryClient) getNullCreateRequest(ctx context.Context, option
 }
 
 // getNullHandleResponse handles the GetNull response.
-func (client *DictionaryClient) getNullHandleResponse(resp *http.Response) (DictionaryClientGetNullResponse, error) {
-	result := DictionaryClientGetNullResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.DictionaryWrapper); err != nil {
-		return DictionaryClientGetNullResponse{}, err
+func (client *DictionaryClient) getNullHandleResponse(resp *http.Response) (result DictionaryClientGetNullResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.DictionaryWrapper); err != nil {
+		result = DictionaryClientGetNullResponse{}
+		return
 	}
 	return result, nil
 }
@@ -149,19 +183,30 @@ func (client *DictionaryClient) getNullHandleResponse(resp *http.Response) (Dict
 //
 // Generated from API version 2016-02-29
 //   - options - DictionaryClientGetValidOptions contains the optional parameters for the DictionaryClient.GetValid method.
-func (client *DictionaryClient) GetValid(ctx context.Context, options *DictionaryClientGetValidOptions) (DictionaryClientGetValidResponse, error) {
+func (client *DictionaryClient) GetValid(ctx context.Context, options *DictionaryClientGetValidOptions) (result DictionaryClientGetValidResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "DictionaryClient.GetValid", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.getValidCreateRequest(ctx, options)
 	if err != nil {
-		return DictionaryClientGetValidResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return DictionaryClientGetValidResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return DictionaryClientGetValidResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.getValidHandleResponse(resp)
+	result, err = client.getValidHandleResponse(resp)
+	return
 }
 
 // getValidCreateRequest creates the GetValid request.
@@ -176,10 +221,10 @@ func (client *DictionaryClient) getValidCreateRequest(ctx context.Context, optio
 }
 
 // getValidHandleResponse handles the GetValid response.
-func (client *DictionaryClient) getValidHandleResponse(resp *http.Response) (DictionaryClientGetValidResponse, error) {
-	result := DictionaryClientGetValidResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.DictionaryWrapper); err != nil {
-		return DictionaryClientGetValidResponse{}, err
+func (client *DictionaryClient) getValidHandleResponse(resp *http.Response) (result DictionaryClientGetValidResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.DictionaryWrapper); err != nil {
+		result = DictionaryClientGetValidResponse{}
+		return
 	}
 	return result, nil
 }
@@ -190,19 +235,29 @@ func (client *DictionaryClient) getValidHandleResponse(resp *http.Response) (Dic
 // Generated from API version 2016-02-29
 //   - complexBody - Please put an empty dictionary
 //   - options - DictionaryClientPutEmptyOptions contains the optional parameters for the DictionaryClient.PutEmpty method.
-func (client *DictionaryClient) PutEmpty(ctx context.Context, complexBody DictionaryWrapper, options *DictionaryClientPutEmptyOptions) (DictionaryClientPutEmptyResponse, error) {
+func (client *DictionaryClient) PutEmpty(ctx context.Context, complexBody DictionaryWrapper, options *DictionaryClientPutEmptyOptions) (result DictionaryClientPutEmptyResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "DictionaryClient.PutEmpty", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.putEmptyCreateRequest(ctx, complexBody, options)
 	if err != nil {
-		return DictionaryClientPutEmptyResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return DictionaryClientPutEmptyResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return DictionaryClientPutEmptyResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return DictionaryClientPutEmptyResponse{}, nil
+	return
 }
 
 // putEmptyCreateRequest creates the PutEmpty request.
@@ -223,19 +278,29 @@ func (client *DictionaryClient) putEmptyCreateRequest(ctx context.Context, compl
 //   - complexBody - Please put a dictionary with 5 key-value pairs: "txt":"notepad", "bmp":"mspaint", "xls":"excel", "exe":"",
 //     "":null
 //   - options - DictionaryClientPutValidOptions contains the optional parameters for the DictionaryClient.PutValid method.
-func (client *DictionaryClient) PutValid(ctx context.Context, complexBody DictionaryWrapper, options *DictionaryClientPutValidOptions) (DictionaryClientPutValidResponse, error) {
+func (client *DictionaryClient) PutValid(ctx context.Context, complexBody DictionaryWrapper, options *DictionaryClientPutValidOptions) (result DictionaryClientPutValidResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "DictionaryClient.PutValid", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.putValidCreateRequest(ctx, complexBody, options)
 	if err != nil {
-		return DictionaryClientPutValidResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return DictionaryClientPutValidResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return DictionaryClientPutValidResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return DictionaryClientPutValidResponse{}, nil
+	return
 }
 
 // putValidCreateRequest creates the PutValid request.

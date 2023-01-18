@@ -14,6 +14,7 @@ import (
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/policy"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/runtime"
+	"github.com/Azure/azure-sdk-for-go/sdk/azcore/tracing"
 	"net/http"
 )
 
@@ -29,19 +30,30 @@ type ReadonlypropertyClient struct {
 // Generated from API version 2016-02-29
 //   - options - ReadonlypropertyClientGetValidOptions contains the optional parameters for the ReadonlypropertyClient.GetValid
 //     method.
-func (client *ReadonlypropertyClient) GetValid(ctx context.Context, options *ReadonlypropertyClientGetValidOptions) (ReadonlypropertyClientGetValidResponse, error) {
+func (client *ReadonlypropertyClient) GetValid(ctx context.Context, options *ReadonlypropertyClientGetValidOptions) (result ReadonlypropertyClientGetValidResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "ReadonlypropertyClient.GetValid", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.getValidCreateRequest(ctx, options)
 	if err != nil {
-		return ReadonlypropertyClientGetValidResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return ReadonlypropertyClientGetValidResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return ReadonlypropertyClientGetValidResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.getValidHandleResponse(resp)
+	result, err = client.getValidHandleResponse(resp)
+	return
 }
 
 // getValidCreateRequest creates the GetValid request.
@@ -56,10 +68,10 @@ func (client *ReadonlypropertyClient) getValidCreateRequest(ctx context.Context,
 }
 
 // getValidHandleResponse handles the GetValid response.
-func (client *ReadonlypropertyClient) getValidHandleResponse(resp *http.Response) (ReadonlypropertyClientGetValidResponse, error) {
-	result := ReadonlypropertyClientGetValidResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.ReadonlyObj); err != nil {
-		return ReadonlypropertyClientGetValidResponse{}, err
+func (client *ReadonlypropertyClient) getValidHandleResponse(resp *http.Response) (result ReadonlypropertyClientGetValidResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.ReadonlyObj); err != nil {
+		result = ReadonlypropertyClientGetValidResponse{}
+		return
 	}
 	return result, nil
 }
@@ -70,19 +82,29 @@ func (client *ReadonlypropertyClient) getValidHandleResponse(resp *http.Response
 // Generated from API version 2016-02-29
 //   - options - ReadonlypropertyClientPutValidOptions contains the optional parameters for the ReadonlypropertyClient.PutValid
 //     method.
-func (client *ReadonlypropertyClient) PutValid(ctx context.Context, complexBody ReadonlyObj, options *ReadonlypropertyClientPutValidOptions) (ReadonlypropertyClientPutValidResponse, error) {
+func (client *ReadonlypropertyClient) PutValid(ctx context.Context, complexBody ReadonlyObj, options *ReadonlypropertyClientPutValidOptions) (result ReadonlypropertyClientPutValidResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "ReadonlypropertyClient.PutValid", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.putValidCreateRequest(ctx, complexBody, options)
 	if err != nil {
-		return ReadonlypropertyClientPutValidResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return ReadonlypropertyClientPutValidResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return ReadonlypropertyClientPutValidResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return ReadonlypropertyClientPutValidResponse{}, nil
+	return
 }
 
 // putValidCreateRequest creates the PutValid request.

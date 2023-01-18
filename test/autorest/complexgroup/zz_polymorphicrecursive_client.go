@@ -14,6 +14,7 @@ import (
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/policy"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/runtime"
+	"github.com/Azure/azure-sdk-for-go/sdk/azcore/tracing"
 	"net/http"
 )
 
@@ -29,19 +30,30 @@ type PolymorphicrecursiveClient struct {
 // Generated from API version 2016-02-29
 //   - options - PolymorphicrecursiveClientGetValidOptions contains the optional parameters for the PolymorphicrecursiveClient.GetValid
 //     method.
-func (client *PolymorphicrecursiveClient) GetValid(ctx context.Context, options *PolymorphicrecursiveClientGetValidOptions) (PolymorphicrecursiveClientGetValidResponse, error) {
+func (client *PolymorphicrecursiveClient) GetValid(ctx context.Context, options *PolymorphicrecursiveClientGetValidOptions) (result PolymorphicrecursiveClientGetValidResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "PolymorphicrecursiveClient.GetValid", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.getValidCreateRequest(ctx, options)
 	if err != nil {
-		return PolymorphicrecursiveClientGetValidResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return PolymorphicrecursiveClientGetValidResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return PolymorphicrecursiveClientGetValidResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.getValidHandleResponse(resp)
+	result, err = client.getValidHandleResponse(resp)
+	return
 }
 
 // getValidCreateRequest creates the GetValid request.
@@ -56,10 +68,10 @@ func (client *PolymorphicrecursiveClient) getValidCreateRequest(ctx context.Cont
 }
 
 // getValidHandleResponse handles the GetValid response.
-func (client *PolymorphicrecursiveClient) getValidHandleResponse(resp *http.Response) (PolymorphicrecursiveClientGetValidResponse, error) {
-	result := PolymorphicrecursiveClientGetValidResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result); err != nil {
-		return PolymorphicrecursiveClientGetValidResponse{}, err
+func (client *PolymorphicrecursiveClient) getValidHandleResponse(resp *http.Response) (result PolymorphicrecursiveClientGetValidResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result); err != nil {
+		result = PolymorphicrecursiveClientGetValidResponse{}
+		return
 	}
 	return result, nil
 }
@@ -77,19 +89,29 @@ func (client *PolymorphicrecursiveClient) getValidHandleResponse(resp *http.Resp
 //     "age": 105 } ] }, { "fishtype": "sawshark", "species": "dangerous", "length": 10, "age": 105 } ] }
 //   - options - PolymorphicrecursiveClientPutValidOptions contains the optional parameters for the PolymorphicrecursiveClient.PutValid
 //     method.
-func (client *PolymorphicrecursiveClient) PutValid(ctx context.Context, complexBody FishClassification, options *PolymorphicrecursiveClientPutValidOptions) (PolymorphicrecursiveClientPutValidResponse, error) {
+func (client *PolymorphicrecursiveClient) PutValid(ctx context.Context, complexBody FishClassification, options *PolymorphicrecursiveClientPutValidOptions) (result PolymorphicrecursiveClientPutValidResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "PolymorphicrecursiveClient.PutValid", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.putValidCreateRequest(ctx, complexBody, options)
 	if err != nil {
-		return PolymorphicrecursiveClientPutValidResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return PolymorphicrecursiveClientPutValidResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return PolymorphicrecursiveClientPutValidResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return PolymorphicrecursiveClientPutValidResponse{}, nil
+	return
 }
 
 // putValidCreateRequest creates the PutValid request.

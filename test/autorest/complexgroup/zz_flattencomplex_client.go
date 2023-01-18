@@ -14,6 +14,7 @@ import (
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/policy"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/runtime"
+	"github.com/Azure/azure-sdk-for-go/sdk/azcore/tracing"
 	"net/http"
 )
 
@@ -28,19 +29,30 @@ type FlattencomplexClient struct {
 //
 // Generated from API version 2016-02-29
 //   - options - FlattencomplexClientGetValidOptions contains the optional parameters for the FlattencomplexClient.GetValid method.
-func (client *FlattencomplexClient) GetValid(ctx context.Context, options *FlattencomplexClientGetValidOptions) (FlattencomplexClientGetValidResponse, error) {
+func (client *FlattencomplexClient) GetValid(ctx context.Context, options *FlattencomplexClientGetValidOptions) (result FlattencomplexClientGetValidResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "FlattencomplexClient.GetValid", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.getValidCreateRequest(ctx, options)
 	if err != nil {
-		return FlattencomplexClientGetValidResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return FlattencomplexClientGetValidResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return FlattencomplexClientGetValidResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.getValidHandleResponse(resp)
+	result, err = client.getValidHandleResponse(resp)
+	return
 }
 
 // getValidCreateRequest creates the GetValid request.
@@ -55,10 +67,10 @@ func (client *FlattencomplexClient) getValidCreateRequest(ctx context.Context, o
 }
 
 // getValidHandleResponse handles the GetValid response.
-func (client *FlattencomplexClient) getValidHandleResponse(resp *http.Response) (FlattencomplexClientGetValidResponse, error) {
-	result := FlattencomplexClientGetValidResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result); err != nil {
-		return FlattencomplexClientGetValidResponse{}, err
+func (client *FlattencomplexClient) getValidHandleResponse(resp *http.Response) (result FlattencomplexClientGetValidResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result); err != nil {
+		result = FlattencomplexClientGetValidResponse{}
+		return
 	}
 	return result, nil
 }
