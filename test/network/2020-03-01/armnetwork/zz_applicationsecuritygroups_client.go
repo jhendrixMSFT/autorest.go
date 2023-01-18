@@ -16,6 +16,7 @@ import (
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/arm"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/policy"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/runtime"
+	"github.com/Azure/azure-sdk-for-go/sdk/azcore/tracing"
 	"net/http"
 	"net/url"
 	"strings"
@@ -54,37 +55,49 @@ func NewApplicationSecurityGroupsClient(subscriptionID string, credential azcore
 //   - parameters - Parameters supplied to the create or update ApplicationSecurityGroup operation.
 //   - options - ApplicationSecurityGroupsClientBeginCreateOrUpdateOptions contains the optional parameters for the ApplicationSecurityGroupsClient.BeginCreateOrUpdate
 //     method.
-func (client *ApplicationSecurityGroupsClient) BeginCreateOrUpdate(ctx context.Context, resourceGroupName string, applicationSecurityGroupName string, parameters ApplicationSecurityGroup, options *ApplicationSecurityGroupsClientBeginCreateOrUpdateOptions) (*runtime.Poller[ApplicationSecurityGroupsClientCreateOrUpdateResponse], error) {
-	if options == nil || options.ResumeToken == "" {
-		resp, err := client.createOrUpdate(ctx, resourceGroupName, applicationSecurityGroupName, parameters, options)
+func (client *ApplicationSecurityGroupsClient) BeginCreateOrUpdate(ctx context.Context, resourceGroupName string, applicationSecurityGroupName string, parameters ApplicationSecurityGroup, options *ApplicationSecurityGroupsClientBeginCreateOrUpdateOptions) (result *runtime.Poller[ApplicationSecurityGroupsClientCreateOrUpdateResponse], err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "ApplicationSecurityGroupsClient.BeginCreateOrUpdate", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
 		if err != nil {
-			return nil, err
+			span.AddError(err)
 		}
-		return runtime.NewPoller(resp, client.internal.Pipeline(), &runtime.NewPollerOptions[ApplicationSecurityGroupsClientCreateOrUpdateResponse]{
+		span.End()
+	}()
+	if options == nil || options.ResumeToken == "" {
+		var resp *http.Response
+		resp, err = client.createOrUpdate(ctx, resourceGroupName, applicationSecurityGroupName, parameters, options)
+		if err != nil {
+			return
+		}
+		result, err = runtime.NewPoller(resp, client.internal.Pipeline(), &runtime.NewPollerOptions[ApplicationSecurityGroupsClientCreateOrUpdateResponse]{
 			FinalStateVia: runtime.FinalStateViaAzureAsyncOp,
 		})
 	} else {
-		return runtime.NewPollerFromResumeToken[ApplicationSecurityGroupsClientCreateOrUpdateResponse](options.ResumeToken, client.internal.Pipeline(), nil)
+		result, err = runtime.NewPollerFromResumeToken[ApplicationSecurityGroupsClientCreateOrUpdateResponse](options.ResumeToken, client.internal.Pipeline(), nil)
 	}
+	return
 }
 
 // CreateOrUpdate - Creates or updates an application security group.
 // If the operation fails it returns an *azcore.ResponseError type.
 //
 // Generated from API version 2020-03-01
-func (client *ApplicationSecurityGroupsClient) createOrUpdate(ctx context.Context, resourceGroupName string, applicationSecurityGroupName string, parameters ApplicationSecurityGroup, options *ApplicationSecurityGroupsClientBeginCreateOrUpdateOptions) (*http.Response, error) {
+func (client *ApplicationSecurityGroupsClient) createOrUpdate(ctx context.Context, resourceGroupName string, applicationSecurityGroupName string, parameters ApplicationSecurityGroup, options *ApplicationSecurityGroupsClientBeginCreateOrUpdateOptions) (resp *http.Response, err error) {
 	req, err := client.createOrUpdateCreateRequest(ctx, resourceGroupName, applicationSecurityGroupName, parameters, options)
 	if err != nil {
-		return nil, err
+		return
 	}
-	resp, err := client.internal.Pipeline().Do(req)
+	resp, err = client.internal.Pipeline().Do(req)
 	if err != nil {
-		return nil, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK, http.StatusCreated) {
-		return nil, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return resp, nil
+	return
 }
 
 // createOrUpdateCreateRequest creates the CreateOrUpdate request.
@@ -121,37 +134,49 @@ func (client *ApplicationSecurityGroupsClient) createOrUpdateCreateRequest(ctx c
 //   - applicationSecurityGroupName - The name of the application security group.
 //   - options - ApplicationSecurityGroupsClientBeginDeleteOptions contains the optional parameters for the ApplicationSecurityGroupsClient.BeginDelete
 //     method.
-func (client *ApplicationSecurityGroupsClient) BeginDelete(ctx context.Context, resourceGroupName string, applicationSecurityGroupName string, options *ApplicationSecurityGroupsClientBeginDeleteOptions) (*runtime.Poller[ApplicationSecurityGroupsClientDeleteResponse], error) {
-	if options == nil || options.ResumeToken == "" {
-		resp, err := client.deleteOperation(ctx, resourceGroupName, applicationSecurityGroupName, options)
+func (client *ApplicationSecurityGroupsClient) BeginDelete(ctx context.Context, resourceGroupName string, applicationSecurityGroupName string, options *ApplicationSecurityGroupsClientBeginDeleteOptions) (result *runtime.Poller[ApplicationSecurityGroupsClientDeleteResponse], err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "ApplicationSecurityGroupsClient.BeginDelete", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
 		if err != nil {
-			return nil, err
+			span.AddError(err)
 		}
-		return runtime.NewPoller(resp, client.internal.Pipeline(), &runtime.NewPollerOptions[ApplicationSecurityGroupsClientDeleteResponse]{
+		span.End()
+	}()
+	if options == nil || options.ResumeToken == "" {
+		var resp *http.Response
+		resp, err = client.deleteOperation(ctx, resourceGroupName, applicationSecurityGroupName, options)
+		if err != nil {
+			return
+		}
+		result, err = runtime.NewPoller(resp, client.internal.Pipeline(), &runtime.NewPollerOptions[ApplicationSecurityGroupsClientDeleteResponse]{
 			FinalStateVia: runtime.FinalStateViaLocation,
 		})
 	} else {
-		return runtime.NewPollerFromResumeToken[ApplicationSecurityGroupsClientDeleteResponse](options.ResumeToken, client.internal.Pipeline(), nil)
+		result, err = runtime.NewPollerFromResumeToken[ApplicationSecurityGroupsClientDeleteResponse](options.ResumeToken, client.internal.Pipeline(), nil)
 	}
+	return
 }
 
 // Delete - Deletes the specified application security group.
 // If the operation fails it returns an *azcore.ResponseError type.
 //
 // Generated from API version 2020-03-01
-func (client *ApplicationSecurityGroupsClient) deleteOperation(ctx context.Context, resourceGroupName string, applicationSecurityGroupName string, options *ApplicationSecurityGroupsClientBeginDeleteOptions) (*http.Response, error) {
+func (client *ApplicationSecurityGroupsClient) deleteOperation(ctx context.Context, resourceGroupName string, applicationSecurityGroupName string, options *ApplicationSecurityGroupsClientBeginDeleteOptions) (resp *http.Response, err error) {
 	req, err := client.deleteCreateRequest(ctx, resourceGroupName, applicationSecurityGroupName, options)
 	if err != nil {
-		return nil, err
+		return
 	}
-	resp, err := client.internal.Pipeline().Do(req)
+	resp, err = client.internal.Pipeline().Do(req)
 	if err != nil {
-		return nil, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK, http.StatusAccepted, http.StatusNoContent) {
-		return nil, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return resp, nil
+	return
 }
 
 // deleteCreateRequest creates the Delete request.
@@ -188,19 +213,30 @@ func (client *ApplicationSecurityGroupsClient) deleteCreateRequest(ctx context.C
 //   - applicationSecurityGroupName - The name of the application security group.
 //   - options - ApplicationSecurityGroupsClientGetOptions contains the optional parameters for the ApplicationSecurityGroupsClient.Get
 //     method.
-func (client *ApplicationSecurityGroupsClient) Get(ctx context.Context, resourceGroupName string, applicationSecurityGroupName string, options *ApplicationSecurityGroupsClientGetOptions) (ApplicationSecurityGroupsClientGetResponse, error) {
+func (client *ApplicationSecurityGroupsClient) Get(ctx context.Context, resourceGroupName string, applicationSecurityGroupName string, options *ApplicationSecurityGroupsClientGetOptions) (result ApplicationSecurityGroupsClientGetResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "ApplicationSecurityGroupsClient.Get", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.getCreateRequest(ctx, resourceGroupName, applicationSecurityGroupName, options)
 	if err != nil {
-		return ApplicationSecurityGroupsClientGetResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return ApplicationSecurityGroupsClientGetResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return ApplicationSecurityGroupsClientGetResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.getHandleResponse(resp)
+	result, err = client.getHandleResponse(resp)
+	return
 }
 
 // getCreateRequest creates the Get request.
@@ -230,10 +266,10 @@ func (client *ApplicationSecurityGroupsClient) getCreateRequest(ctx context.Cont
 }
 
 // getHandleResponse handles the Get response.
-func (client *ApplicationSecurityGroupsClient) getHandleResponse(resp *http.Response) (ApplicationSecurityGroupsClientGetResponse, error) {
-	result := ApplicationSecurityGroupsClientGetResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.ApplicationSecurityGroup); err != nil {
-		return ApplicationSecurityGroupsClientGetResponse{}, err
+func (client *ApplicationSecurityGroupsClient) getHandleResponse(resp *http.Response) (result ApplicationSecurityGroupsClientGetResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.ApplicationSecurityGroup); err != nil {
+		result = ApplicationSecurityGroupsClientGetResponse{}
+		return
 	}
 	return result, nil
 }
@@ -249,25 +285,35 @@ func (client *ApplicationSecurityGroupsClient) NewListPager(resourceGroupName st
 		More: func(page ApplicationSecurityGroupsClientListResponse) bool {
 			return page.NextLink != nil && len(*page.NextLink) > 0
 		},
-		Fetcher: func(ctx context.Context, page *ApplicationSecurityGroupsClientListResponse) (ApplicationSecurityGroupsClientListResponse, error) {
+		Fetcher: func(ctx context.Context, page *ApplicationSecurityGroupsClientListResponse) (result ApplicationSecurityGroupsClientListResponse, err error) {
+			ctx, span := client.internal.Tracer().Start(ctx, "ApplicationSecurityGroupsClient.NewListPager", &tracing.SpanOptions{
+				Kind: tracing.SpanKindInternal,
+			})
+			defer func() {
+				if err != nil {
+					span.AddError(err)
+				}
+				span.End()
+			}()
 			var req *policy.Request
-			var err error
 			if page == nil {
 				req, err = client.listCreateRequest(ctx, resourceGroupName, options)
 			} else {
 				req, err = runtime.NewRequest(ctx, http.MethodGet, *page.NextLink)
 			}
 			if err != nil {
-				return ApplicationSecurityGroupsClientListResponse{}, err
+				return
 			}
 			resp, err := client.internal.Pipeline().Do(req)
 			if err != nil {
-				return ApplicationSecurityGroupsClientListResponse{}, err
+				return
 			}
 			if !runtime.HasStatusCode(resp, http.StatusOK) {
-				return ApplicationSecurityGroupsClientListResponse{}, runtime.NewResponseError(resp)
+				err = runtime.NewResponseError(resp)
+				return
 			}
-			return client.listHandleResponse(resp)
+			result, err = client.listHandleResponse(resp)
+			return
 		},
 	})
 }
@@ -295,10 +341,10 @@ func (client *ApplicationSecurityGroupsClient) listCreateRequest(ctx context.Con
 }
 
 // listHandleResponse handles the List response.
-func (client *ApplicationSecurityGroupsClient) listHandleResponse(resp *http.Response) (ApplicationSecurityGroupsClientListResponse, error) {
-	result := ApplicationSecurityGroupsClientListResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.ApplicationSecurityGroupListResult); err != nil {
-		return ApplicationSecurityGroupsClientListResponse{}, err
+func (client *ApplicationSecurityGroupsClient) listHandleResponse(resp *http.Response) (result ApplicationSecurityGroupsClientListResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.ApplicationSecurityGroupListResult); err != nil {
+		result = ApplicationSecurityGroupsClientListResponse{}
+		return
 	}
 	return result, nil
 }
@@ -313,25 +359,35 @@ func (client *ApplicationSecurityGroupsClient) NewListAllPager(options *Applicat
 		More: func(page ApplicationSecurityGroupsClientListAllResponse) bool {
 			return page.NextLink != nil && len(*page.NextLink) > 0
 		},
-		Fetcher: func(ctx context.Context, page *ApplicationSecurityGroupsClientListAllResponse) (ApplicationSecurityGroupsClientListAllResponse, error) {
+		Fetcher: func(ctx context.Context, page *ApplicationSecurityGroupsClientListAllResponse) (result ApplicationSecurityGroupsClientListAllResponse, err error) {
+			ctx, span := client.internal.Tracer().Start(ctx, "ApplicationSecurityGroupsClient.NewListAllPager", &tracing.SpanOptions{
+				Kind: tracing.SpanKindInternal,
+			})
+			defer func() {
+				if err != nil {
+					span.AddError(err)
+				}
+				span.End()
+			}()
 			var req *policy.Request
-			var err error
 			if page == nil {
 				req, err = client.listAllCreateRequest(ctx, options)
 			} else {
 				req, err = runtime.NewRequest(ctx, http.MethodGet, *page.NextLink)
 			}
 			if err != nil {
-				return ApplicationSecurityGroupsClientListAllResponse{}, err
+				return
 			}
 			resp, err := client.internal.Pipeline().Do(req)
 			if err != nil {
-				return ApplicationSecurityGroupsClientListAllResponse{}, err
+				return
 			}
 			if !runtime.HasStatusCode(resp, http.StatusOK) {
-				return ApplicationSecurityGroupsClientListAllResponse{}, runtime.NewResponseError(resp)
+				err = runtime.NewResponseError(resp)
+				return
 			}
-			return client.listAllHandleResponse(resp)
+			result, err = client.listAllHandleResponse(resp)
+			return
 		},
 	})
 }
@@ -355,10 +411,10 @@ func (client *ApplicationSecurityGroupsClient) listAllCreateRequest(ctx context.
 }
 
 // listAllHandleResponse handles the ListAll response.
-func (client *ApplicationSecurityGroupsClient) listAllHandleResponse(resp *http.Response) (ApplicationSecurityGroupsClientListAllResponse, error) {
-	result := ApplicationSecurityGroupsClientListAllResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.ApplicationSecurityGroupListResult); err != nil {
-		return ApplicationSecurityGroupsClientListAllResponse{}, err
+func (client *ApplicationSecurityGroupsClient) listAllHandleResponse(resp *http.Response) (result ApplicationSecurityGroupsClientListAllResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.ApplicationSecurityGroupListResult); err != nil {
+		result = ApplicationSecurityGroupsClientListAllResponse{}
+		return
 	}
 	return result, nil
 }
@@ -372,19 +428,30 @@ func (client *ApplicationSecurityGroupsClient) listAllHandleResponse(resp *http.
 //   - parameters - Parameters supplied to update application security group tags.
 //   - options - ApplicationSecurityGroupsClientUpdateTagsOptions contains the optional parameters for the ApplicationSecurityGroupsClient.UpdateTags
 //     method.
-func (client *ApplicationSecurityGroupsClient) UpdateTags(ctx context.Context, resourceGroupName string, applicationSecurityGroupName string, parameters TagsObject, options *ApplicationSecurityGroupsClientUpdateTagsOptions) (ApplicationSecurityGroupsClientUpdateTagsResponse, error) {
+func (client *ApplicationSecurityGroupsClient) UpdateTags(ctx context.Context, resourceGroupName string, applicationSecurityGroupName string, parameters TagsObject, options *ApplicationSecurityGroupsClientUpdateTagsOptions) (result ApplicationSecurityGroupsClientUpdateTagsResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "ApplicationSecurityGroupsClient.UpdateTags", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.updateTagsCreateRequest(ctx, resourceGroupName, applicationSecurityGroupName, parameters, options)
 	if err != nil {
-		return ApplicationSecurityGroupsClientUpdateTagsResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return ApplicationSecurityGroupsClientUpdateTagsResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return ApplicationSecurityGroupsClientUpdateTagsResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.updateTagsHandleResponse(resp)
+	result, err = client.updateTagsHandleResponse(resp)
+	return
 }
 
 // updateTagsCreateRequest creates the UpdateTags request.
@@ -414,10 +481,10 @@ func (client *ApplicationSecurityGroupsClient) updateTagsCreateRequest(ctx conte
 }
 
 // updateTagsHandleResponse handles the UpdateTags response.
-func (client *ApplicationSecurityGroupsClient) updateTagsHandleResponse(resp *http.Response) (ApplicationSecurityGroupsClientUpdateTagsResponse, error) {
-	result := ApplicationSecurityGroupsClientUpdateTagsResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.ApplicationSecurityGroup); err != nil {
-		return ApplicationSecurityGroupsClientUpdateTagsResponse{}, err
+func (client *ApplicationSecurityGroupsClient) updateTagsHandleResponse(resp *http.Response) (result ApplicationSecurityGroupsClientUpdateTagsResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.ApplicationSecurityGroup); err != nil {
+		result = ApplicationSecurityGroupsClientUpdateTagsResponse{}
+		return
 	}
 	return result, nil
 }

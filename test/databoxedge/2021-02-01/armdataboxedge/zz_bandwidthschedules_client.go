@@ -16,6 +16,7 @@ import (
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/arm"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/policy"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/runtime"
+	"github.com/Azure/azure-sdk-for-go/sdk/azcore/tracing"
 	"net/http"
 	"net/url"
 	"strings"
@@ -54,35 +55,47 @@ func NewBandwidthSchedulesClient(subscriptionID string, credential azcore.TokenC
 //   - parameters - The bandwidth schedule to be added or updated.
 //   - options - BandwidthSchedulesClientBeginCreateOrUpdateOptions contains the optional parameters for the BandwidthSchedulesClient.BeginCreateOrUpdate
 //     method.
-func (client *BandwidthSchedulesClient) BeginCreateOrUpdate(ctx context.Context, deviceName string, name string, resourceGroupName string, parameters BandwidthSchedule, options *BandwidthSchedulesClientBeginCreateOrUpdateOptions) (*runtime.Poller[BandwidthSchedulesClientCreateOrUpdateResponse], error) {
-	if options == nil || options.ResumeToken == "" {
-		resp, err := client.createOrUpdate(ctx, deviceName, name, resourceGroupName, parameters, options)
+func (client *BandwidthSchedulesClient) BeginCreateOrUpdate(ctx context.Context, deviceName string, name string, resourceGroupName string, parameters BandwidthSchedule, options *BandwidthSchedulesClientBeginCreateOrUpdateOptions) (result *runtime.Poller[BandwidthSchedulesClientCreateOrUpdateResponse], err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "BandwidthSchedulesClient.BeginCreateOrUpdate", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
 		if err != nil {
-			return nil, err
+			span.AddError(err)
 		}
-		return runtime.NewPoller[BandwidthSchedulesClientCreateOrUpdateResponse](resp, client.internal.Pipeline(), nil)
+		span.End()
+	}()
+	if options == nil || options.ResumeToken == "" {
+		var resp *http.Response
+		resp, err = client.createOrUpdate(ctx, deviceName, name, resourceGroupName, parameters, options)
+		if err != nil {
+			return
+		}
+		result, err = runtime.NewPoller[BandwidthSchedulesClientCreateOrUpdateResponse](resp, client.internal.Pipeline(), nil)
 	} else {
-		return runtime.NewPollerFromResumeToken[BandwidthSchedulesClientCreateOrUpdateResponse](options.ResumeToken, client.internal.Pipeline(), nil)
+		result, err = runtime.NewPollerFromResumeToken[BandwidthSchedulesClientCreateOrUpdateResponse](options.ResumeToken, client.internal.Pipeline(), nil)
 	}
+	return
 }
 
 // CreateOrUpdate - Creates or updates a bandwidth schedule.
 // If the operation fails it returns an *azcore.ResponseError type.
 //
 // Generated from API version 2021-02-01
-func (client *BandwidthSchedulesClient) createOrUpdate(ctx context.Context, deviceName string, name string, resourceGroupName string, parameters BandwidthSchedule, options *BandwidthSchedulesClientBeginCreateOrUpdateOptions) (*http.Response, error) {
+func (client *BandwidthSchedulesClient) createOrUpdate(ctx context.Context, deviceName string, name string, resourceGroupName string, parameters BandwidthSchedule, options *BandwidthSchedulesClientBeginCreateOrUpdateOptions) (resp *http.Response, err error) {
 	req, err := client.createOrUpdateCreateRequest(ctx, deviceName, name, resourceGroupName, parameters, options)
 	if err != nil {
-		return nil, err
+		return
 	}
-	resp, err := client.internal.Pipeline().Do(req)
+	resp, err = client.internal.Pipeline().Do(req)
 	if err != nil {
-		return nil, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK, http.StatusAccepted) {
-		return nil, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return resp, nil
+	return
 }
 
 // createOrUpdateCreateRequest creates the CreateOrUpdate request.
@@ -121,35 +134,47 @@ func (client *BandwidthSchedulesClient) createOrUpdateCreateRequest(ctx context.
 //   - resourceGroupName - The resource group name.
 //   - options - BandwidthSchedulesClientBeginDeleteOptions contains the optional parameters for the BandwidthSchedulesClient.BeginDelete
 //     method.
-func (client *BandwidthSchedulesClient) BeginDelete(ctx context.Context, deviceName string, name string, resourceGroupName string, options *BandwidthSchedulesClientBeginDeleteOptions) (*runtime.Poller[BandwidthSchedulesClientDeleteResponse], error) {
-	if options == nil || options.ResumeToken == "" {
-		resp, err := client.deleteOperation(ctx, deviceName, name, resourceGroupName, options)
+func (client *BandwidthSchedulesClient) BeginDelete(ctx context.Context, deviceName string, name string, resourceGroupName string, options *BandwidthSchedulesClientBeginDeleteOptions) (result *runtime.Poller[BandwidthSchedulesClientDeleteResponse], err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "BandwidthSchedulesClient.BeginDelete", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
 		if err != nil {
-			return nil, err
+			span.AddError(err)
 		}
-		return runtime.NewPoller[BandwidthSchedulesClientDeleteResponse](resp, client.internal.Pipeline(), nil)
+		span.End()
+	}()
+	if options == nil || options.ResumeToken == "" {
+		var resp *http.Response
+		resp, err = client.deleteOperation(ctx, deviceName, name, resourceGroupName, options)
+		if err != nil {
+			return
+		}
+		result, err = runtime.NewPoller[BandwidthSchedulesClientDeleteResponse](resp, client.internal.Pipeline(), nil)
 	} else {
-		return runtime.NewPollerFromResumeToken[BandwidthSchedulesClientDeleteResponse](options.ResumeToken, client.internal.Pipeline(), nil)
+		result, err = runtime.NewPollerFromResumeToken[BandwidthSchedulesClientDeleteResponse](options.ResumeToken, client.internal.Pipeline(), nil)
 	}
+	return
 }
 
 // Delete - Deletes the specified bandwidth schedule.
 // If the operation fails it returns an *azcore.ResponseError type.
 //
 // Generated from API version 2021-02-01
-func (client *BandwidthSchedulesClient) deleteOperation(ctx context.Context, deviceName string, name string, resourceGroupName string, options *BandwidthSchedulesClientBeginDeleteOptions) (*http.Response, error) {
+func (client *BandwidthSchedulesClient) deleteOperation(ctx context.Context, deviceName string, name string, resourceGroupName string, options *BandwidthSchedulesClientBeginDeleteOptions) (resp *http.Response, err error) {
 	req, err := client.deleteCreateRequest(ctx, deviceName, name, resourceGroupName, options)
 	if err != nil {
-		return nil, err
+		return
 	}
-	resp, err := client.internal.Pipeline().Do(req)
+	resp, err = client.internal.Pipeline().Do(req)
 	if err != nil {
-		return nil, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK, http.StatusAccepted, http.StatusNoContent) {
-		return nil, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return resp, nil
+	return
 }
 
 // deleteCreateRequest creates the Delete request.
@@ -187,19 +212,30 @@ func (client *BandwidthSchedulesClient) deleteCreateRequest(ctx context.Context,
 //   - name - The bandwidth schedule name.
 //   - resourceGroupName - The resource group name.
 //   - options - BandwidthSchedulesClientGetOptions contains the optional parameters for the BandwidthSchedulesClient.Get method.
-func (client *BandwidthSchedulesClient) Get(ctx context.Context, deviceName string, name string, resourceGroupName string, options *BandwidthSchedulesClientGetOptions) (BandwidthSchedulesClientGetResponse, error) {
+func (client *BandwidthSchedulesClient) Get(ctx context.Context, deviceName string, name string, resourceGroupName string, options *BandwidthSchedulesClientGetOptions) (result BandwidthSchedulesClientGetResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "BandwidthSchedulesClient.Get", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.getCreateRequest(ctx, deviceName, name, resourceGroupName, options)
 	if err != nil {
-		return BandwidthSchedulesClientGetResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return BandwidthSchedulesClientGetResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return BandwidthSchedulesClientGetResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.getHandleResponse(resp)
+	result, err = client.getHandleResponse(resp)
+	return
 }
 
 // getCreateRequest creates the Get request.
@@ -230,10 +266,10 @@ func (client *BandwidthSchedulesClient) getCreateRequest(ctx context.Context, de
 }
 
 // getHandleResponse handles the Get response.
-func (client *BandwidthSchedulesClient) getHandleResponse(resp *http.Response) (BandwidthSchedulesClientGetResponse, error) {
-	result := BandwidthSchedulesClientGetResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.BandwidthSchedule); err != nil {
-		return BandwidthSchedulesClientGetResponse{}, err
+func (client *BandwidthSchedulesClient) getHandleResponse(resp *http.Response) (result BandwidthSchedulesClientGetResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.BandwidthSchedule); err != nil {
+		result = BandwidthSchedulesClientGetResponse{}
+		return
 	}
 	return result, nil
 }
@@ -250,25 +286,35 @@ func (client *BandwidthSchedulesClient) NewListByDataBoxEdgeDevicePager(deviceNa
 		More: func(page BandwidthSchedulesClientListByDataBoxEdgeDeviceResponse) bool {
 			return page.NextLink != nil && len(*page.NextLink) > 0
 		},
-		Fetcher: func(ctx context.Context, page *BandwidthSchedulesClientListByDataBoxEdgeDeviceResponse) (BandwidthSchedulesClientListByDataBoxEdgeDeviceResponse, error) {
+		Fetcher: func(ctx context.Context, page *BandwidthSchedulesClientListByDataBoxEdgeDeviceResponse) (result BandwidthSchedulesClientListByDataBoxEdgeDeviceResponse, err error) {
+			ctx, span := client.internal.Tracer().Start(ctx, "BandwidthSchedulesClient.NewListByDataBoxEdgeDevicePager", &tracing.SpanOptions{
+				Kind: tracing.SpanKindInternal,
+			})
+			defer func() {
+				if err != nil {
+					span.AddError(err)
+				}
+				span.End()
+			}()
 			var req *policy.Request
-			var err error
 			if page == nil {
 				req, err = client.listByDataBoxEdgeDeviceCreateRequest(ctx, deviceName, resourceGroupName, options)
 			} else {
 				req, err = runtime.NewRequest(ctx, http.MethodGet, *page.NextLink)
 			}
 			if err != nil {
-				return BandwidthSchedulesClientListByDataBoxEdgeDeviceResponse{}, err
+				return
 			}
 			resp, err := client.internal.Pipeline().Do(req)
 			if err != nil {
-				return BandwidthSchedulesClientListByDataBoxEdgeDeviceResponse{}, err
+				return
 			}
 			if !runtime.HasStatusCode(resp, http.StatusOK) {
-				return BandwidthSchedulesClientListByDataBoxEdgeDeviceResponse{}, runtime.NewResponseError(resp)
+				err = runtime.NewResponseError(resp)
+				return
 			}
-			return client.listByDataBoxEdgeDeviceHandleResponse(resp)
+			result, err = client.listByDataBoxEdgeDeviceHandleResponse(resp)
+			return
 		},
 	})
 }
@@ -297,10 +343,10 @@ func (client *BandwidthSchedulesClient) listByDataBoxEdgeDeviceCreateRequest(ctx
 }
 
 // listByDataBoxEdgeDeviceHandleResponse handles the ListByDataBoxEdgeDevice response.
-func (client *BandwidthSchedulesClient) listByDataBoxEdgeDeviceHandleResponse(resp *http.Response) (BandwidthSchedulesClientListByDataBoxEdgeDeviceResponse, error) {
-	result := BandwidthSchedulesClientListByDataBoxEdgeDeviceResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.BandwidthSchedulesList); err != nil {
-		return BandwidthSchedulesClientListByDataBoxEdgeDeviceResponse{}, err
+func (client *BandwidthSchedulesClient) listByDataBoxEdgeDeviceHandleResponse(resp *http.Response) (result BandwidthSchedulesClientListByDataBoxEdgeDeviceResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.BandwidthSchedulesList); err != nil {
+		result = BandwidthSchedulesClientListByDataBoxEdgeDeviceResponse{}
+		return
 	}
 	return result, nil
 }

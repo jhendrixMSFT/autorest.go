@@ -16,6 +16,7 @@ import (
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/arm"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/policy"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/runtime"
+	"github.com/Azure/azure-sdk-for-go/sdk/azcore/tracing"
 	"net/http"
 	"net/url"
 	"strings"
@@ -49,19 +50,30 @@ func NewAggregatedCostClient(credential azcore.TokenCredential, options *arm.Cli
 //   - managementGroupID - Azure Management Group ID.
 //   - options - AggregatedCostClientGetByManagementGroupOptions contains the optional parameters for the AggregatedCostClient.GetByManagementGroup
 //     method.
-func (client *AggregatedCostClient) GetByManagementGroup(ctx context.Context, managementGroupID string, options *AggregatedCostClientGetByManagementGroupOptions) (AggregatedCostClientGetByManagementGroupResponse, error) {
+func (client *AggregatedCostClient) GetByManagementGroup(ctx context.Context, managementGroupID string, options *AggregatedCostClientGetByManagementGroupOptions) (result AggregatedCostClientGetByManagementGroupResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "AggregatedCostClient.GetByManagementGroup", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.getByManagementGroupCreateRequest(ctx, managementGroupID, options)
 	if err != nil {
-		return AggregatedCostClientGetByManagementGroupResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return AggregatedCostClientGetByManagementGroupResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return AggregatedCostClientGetByManagementGroupResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.getByManagementGroupHandleResponse(resp)
+	result, err = client.getByManagementGroupHandleResponse(resp)
+	return
 }
 
 // getByManagementGroupCreateRequest creates the GetByManagementGroup request.
@@ -86,10 +98,10 @@ func (client *AggregatedCostClient) getByManagementGroupCreateRequest(ctx contex
 }
 
 // getByManagementGroupHandleResponse handles the GetByManagementGroup response.
-func (client *AggregatedCostClient) getByManagementGroupHandleResponse(resp *http.Response) (AggregatedCostClientGetByManagementGroupResponse, error) {
-	result := AggregatedCostClientGetByManagementGroupResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.ManagementGroupAggregatedCostResult); err != nil {
-		return AggregatedCostClientGetByManagementGroupResponse{}, err
+func (client *AggregatedCostClient) getByManagementGroupHandleResponse(resp *http.Response) (result AggregatedCostClientGetByManagementGroupResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.ManagementGroupAggregatedCostResult); err != nil {
+		result = AggregatedCostClientGetByManagementGroupResponse{}
+		return
 	}
 	return result, nil
 }
@@ -103,19 +115,30 @@ func (client *AggregatedCostClient) getByManagementGroupHandleResponse(resp *htt
 //   - billingPeriodName - Billing Period Name.
 //   - options - AggregatedCostClientGetForBillingPeriodByManagementGroupOptions contains the optional parameters for the AggregatedCostClient.GetForBillingPeriodByManagementGroup
 //     method.
-func (client *AggregatedCostClient) GetForBillingPeriodByManagementGroup(ctx context.Context, managementGroupID string, billingPeriodName string, options *AggregatedCostClientGetForBillingPeriodByManagementGroupOptions) (AggregatedCostClientGetForBillingPeriodByManagementGroupResponse, error) {
+func (client *AggregatedCostClient) GetForBillingPeriodByManagementGroup(ctx context.Context, managementGroupID string, billingPeriodName string, options *AggregatedCostClientGetForBillingPeriodByManagementGroupOptions) (result AggregatedCostClientGetForBillingPeriodByManagementGroupResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "AggregatedCostClient.GetForBillingPeriodByManagementGroup", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.getForBillingPeriodByManagementGroupCreateRequest(ctx, managementGroupID, billingPeriodName, options)
 	if err != nil {
-		return AggregatedCostClientGetForBillingPeriodByManagementGroupResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return AggregatedCostClientGetForBillingPeriodByManagementGroupResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return AggregatedCostClientGetForBillingPeriodByManagementGroupResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.getForBillingPeriodByManagementGroupHandleResponse(resp)
+	result, err = client.getForBillingPeriodByManagementGroupHandleResponse(resp)
+	return
 }
 
 // getForBillingPeriodByManagementGroupCreateRequest creates the GetForBillingPeriodByManagementGroup request.
@@ -141,10 +164,10 @@ func (client *AggregatedCostClient) getForBillingPeriodByManagementGroupCreateRe
 }
 
 // getForBillingPeriodByManagementGroupHandleResponse handles the GetForBillingPeriodByManagementGroup response.
-func (client *AggregatedCostClient) getForBillingPeriodByManagementGroupHandleResponse(resp *http.Response) (AggregatedCostClientGetForBillingPeriodByManagementGroupResponse, error) {
-	result := AggregatedCostClientGetForBillingPeriodByManagementGroupResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.ManagementGroupAggregatedCostResult); err != nil {
-		return AggregatedCostClientGetForBillingPeriodByManagementGroupResponse{}, err
+func (client *AggregatedCostClient) getForBillingPeriodByManagementGroupHandleResponse(resp *http.Response) (result AggregatedCostClientGetForBillingPeriodByManagementGroupResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.ManagementGroupAggregatedCostResult); err != nil {
+		result = AggregatedCostClientGetForBillingPeriodByManagementGroupResponse{}
+		return
 	}
 	return result, nil
 }

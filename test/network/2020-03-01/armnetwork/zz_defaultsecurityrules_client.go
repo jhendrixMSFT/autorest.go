@@ -16,6 +16,7 @@ import (
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/arm"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/policy"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/runtime"
+	"github.com/Azure/azure-sdk-for-go/sdk/azcore/tracing"
 	"net/http"
 	"net/url"
 	"strings"
@@ -54,19 +55,30 @@ func NewDefaultSecurityRulesClient(subscriptionID string, credential azcore.Toke
 //   - defaultSecurityRuleName - The name of the default security rule.
 //   - options - DefaultSecurityRulesClientGetOptions contains the optional parameters for the DefaultSecurityRulesClient.Get
 //     method.
-func (client *DefaultSecurityRulesClient) Get(ctx context.Context, resourceGroupName string, networkSecurityGroupName string, defaultSecurityRuleName string, options *DefaultSecurityRulesClientGetOptions) (DefaultSecurityRulesClientGetResponse, error) {
+func (client *DefaultSecurityRulesClient) Get(ctx context.Context, resourceGroupName string, networkSecurityGroupName string, defaultSecurityRuleName string, options *DefaultSecurityRulesClientGetOptions) (result DefaultSecurityRulesClientGetResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "DefaultSecurityRulesClient.Get", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.getCreateRequest(ctx, resourceGroupName, networkSecurityGroupName, defaultSecurityRuleName, options)
 	if err != nil {
-		return DefaultSecurityRulesClientGetResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return DefaultSecurityRulesClientGetResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return DefaultSecurityRulesClientGetResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.getHandleResponse(resp)
+	result, err = client.getHandleResponse(resp)
+	return
 }
 
 // getCreateRequest creates the Get request.
@@ -100,10 +112,10 @@ func (client *DefaultSecurityRulesClient) getCreateRequest(ctx context.Context, 
 }
 
 // getHandleResponse handles the Get response.
-func (client *DefaultSecurityRulesClient) getHandleResponse(resp *http.Response) (DefaultSecurityRulesClientGetResponse, error) {
-	result := DefaultSecurityRulesClientGetResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.SecurityRule); err != nil {
-		return DefaultSecurityRulesClientGetResponse{}, err
+func (client *DefaultSecurityRulesClient) getHandleResponse(resp *http.Response) (result DefaultSecurityRulesClientGetResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.SecurityRule); err != nil {
+		result = DefaultSecurityRulesClientGetResponse{}
+		return
 	}
 	return result, nil
 }
@@ -120,25 +132,35 @@ func (client *DefaultSecurityRulesClient) NewListPager(resourceGroupName string,
 		More: func(page DefaultSecurityRulesClientListResponse) bool {
 			return page.NextLink != nil && len(*page.NextLink) > 0
 		},
-		Fetcher: func(ctx context.Context, page *DefaultSecurityRulesClientListResponse) (DefaultSecurityRulesClientListResponse, error) {
+		Fetcher: func(ctx context.Context, page *DefaultSecurityRulesClientListResponse) (result DefaultSecurityRulesClientListResponse, err error) {
+			ctx, span := client.internal.Tracer().Start(ctx, "DefaultSecurityRulesClient.NewListPager", &tracing.SpanOptions{
+				Kind: tracing.SpanKindInternal,
+			})
+			defer func() {
+				if err != nil {
+					span.AddError(err)
+				}
+				span.End()
+			}()
 			var req *policy.Request
-			var err error
 			if page == nil {
 				req, err = client.listCreateRequest(ctx, resourceGroupName, networkSecurityGroupName, options)
 			} else {
 				req, err = runtime.NewRequest(ctx, http.MethodGet, *page.NextLink)
 			}
 			if err != nil {
-				return DefaultSecurityRulesClientListResponse{}, err
+				return
 			}
 			resp, err := client.internal.Pipeline().Do(req)
 			if err != nil {
-				return DefaultSecurityRulesClientListResponse{}, err
+				return
 			}
 			if !runtime.HasStatusCode(resp, http.StatusOK) {
-				return DefaultSecurityRulesClientListResponse{}, runtime.NewResponseError(resp)
+				err = runtime.NewResponseError(resp)
+				return
 			}
-			return client.listHandleResponse(resp)
+			result, err = client.listHandleResponse(resp)
+			return
 		},
 	})
 }
@@ -170,10 +192,10 @@ func (client *DefaultSecurityRulesClient) listCreateRequest(ctx context.Context,
 }
 
 // listHandleResponse handles the List response.
-func (client *DefaultSecurityRulesClient) listHandleResponse(resp *http.Response) (DefaultSecurityRulesClientListResponse, error) {
-	result := DefaultSecurityRulesClientListResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.SecurityRuleListResult); err != nil {
-		return DefaultSecurityRulesClientListResponse{}, err
+func (client *DefaultSecurityRulesClient) listHandleResponse(resp *http.Response) (result DefaultSecurityRulesClientListResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.SecurityRuleListResult); err != nil {
+		result = DefaultSecurityRulesClientListResponse{}
+		return
 	}
 	return result, nil
 }

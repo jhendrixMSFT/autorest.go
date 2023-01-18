@@ -15,6 +15,7 @@ import (
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/arm"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/policy"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/runtime"
+	"github.com/Azure/azure-sdk-for-go/sdk/azcore/tracing"
 	"net/http"
 	"strings"
 )
@@ -57,19 +58,30 @@ func NewChargesClient(credential azcore.TokenCredential, options *arm.ClientOpti
 //     for invoiceSection scope, and
 //     'providers/Microsoft.Billing/billingAccounts/{billingAccountId}/customers/{customerId}' specific for partners.
 //   - options - ChargesClientListOptions contains the optional parameters for the ChargesClient.List method.
-func (client *ChargesClient) List(ctx context.Context, scope string, options *ChargesClientListOptions) (ChargesClientListResponse, error) {
+func (client *ChargesClient) List(ctx context.Context, scope string, options *ChargesClientListOptions) (result ChargesClientListResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "ChargesClient.List", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.listCreateRequest(ctx, scope, options)
 	if err != nil {
-		return ChargesClientListResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return ChargesClientListResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return ChargesClientListResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.listHandleResponse(resp)
+	result, err = client.listHandleResponse(resp)
+	return
 }
 
 // listCreateRequest creates the List request.
@@ -100,10 +112,10 @@ func (client *ChargesClient) listCreateRequest(ctx context.Context, scope string
 }
 
 // listHandleResponse handles the List response.
-func (client *ChargesClient) listHandleResponse(resp *http.Response) (ChargesClientListResponse, error) {
-	result := ChargesClientListResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.ChargesListResult); err != nil {
-		return ChargesClientListResponse{}, err
+func (client *ChargesClient) listHandleResponse(resp *http.Response) (result ChargesClientListResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.ChargesListResult); err != nil {
+		result = ChargesClientListResponse{}
+		return
 	}
 	return result, nil
 }

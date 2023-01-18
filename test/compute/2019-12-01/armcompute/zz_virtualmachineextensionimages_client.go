@@ -16,6 +16,7 @@ import (
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/arm"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/policy"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/runtime"
+	"github.com/Azure/azure-sdk-for-go/sdk/azcore/tracing"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -53,19 +54,30 @@ func NewVirtualMachineExtensionImagesClient(subscriptionID string, credential az
 //   - location - The name of a supported Azure region.
 //   - options - VirtualMachineExtensionImagesClientGetOptions contains the optional parameters for the VirtualMachineExtensionImagesClient.Get
 //     method.
-func (client *VirtualMachineExtensionImagesClient) Get(ctx context.Context, location string, publisherName string, typeParam string, version string, options *VirtualMachineExtensionImagesClientGetOptions) (VirtualMachineExtensionImagesClientGetResponse, error) {
+func (client *VirtualMachineExtensionImagesClient) Get(ctx context.Context, location string, publisherName string, typeParam string, version string, options *VirtualMachineExtensionImagesClientGetOptions) (result VirtualMachineExtensionImagesClientGetResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "VirtualMachineExtensionImagesClient.Get", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.getCreateRequest(ctx, location, publisherName, typeParam, version, options)
 	if err != nil {
-		return VirtualMachineExtensionImagesClientGetResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return VirtualMachineExtensionImagesClientGetResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return VirtualMachineExtensionImagesClientGetResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.getHandleResponse(resp)
+	result, err = client.getHandleResponse(resp)
+	return
 }
 
 // getCreateRequest creates the Get request.
@@ -103,10 +115,10 @@ func (client *VirtualMachineExtensionImagesClient) getCreateRequest(ctx context.
 }
 
 // getHandleResponse handles the Get response.
-func (client *VirtualMachineExtensionImagesClient) getHandleResponse(resp *http.Response) (VirtualMachineExtensionImagesClientGetResponse, error) {
-	result := VirtualMachineExtensionImagesClientGetResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.VirtualMachineExtensionImage); err != nil {
-		return VirtualMachineExtensionImagesClientGetResponse{}, err
+func (client *VirtualMachineExtensionImagesClient) getHandleResponse(resp *http.Response) (result VirtualMachineExtensionImagesClientGetResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.VirtualMachineExtensionImage); err != nil {
+		result = VirtualMachineExtensionImagesClientGetResponse{}
+		return
 	}
 	return result, nil
 }
@@ -118,19 +130,30 @@ func (client *VirtualMachineExtensionImagesClient) getHandleResponse(resp *http.
 //   - location - The name of a supported Azure region.
 //   - options - VirtualMachineExtensionImagesClientListTypesOptions contains the optional parameters for the VirtualMachineExtensionImagesClient.ListTypes
 //     method.
-func (client *VirtualMachineExtensionImagesClient) ListTypes(ctx context.Context, location string, publisherName string, options *VirtualMachineExtensionImagesClientListTypesOptions) (VirtualMachineExtensionImagesClientListTypesResponse, error) {
+func (client *VirtualMachineExtensionImagesClient) ListTypes(ctx context.Context, location string, publisherName string, options *VirtualMachineExtensionImagesClientListTypesOptions) (result VirtualMachineExtensionImagesClientListTypesResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "VirtualMachineExtensionImagesClient.ListTypes", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.listTypesCreateRequest(ctx, location, publisherName, options)
 	if err != nil {
-		return VirtualMachineExtensionImagesClientListTypesResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return VirtualMachineExtensionImagesClientListTypesResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return VirtualMachineExtensionImagesClientListTypesResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.listTypesHandleResponse(resp)
+	result, err = client.listTypesHandleResponse(resp)
+	return
 }
 
 // listTypesCreateRequest creates the ListTypes request.
@@ -160,10 +183,10 @@ func (client *VirtualMachineExtensionImagesClient) listTypesCreateRequest(ctx co
 }
 
 // listTypesHandleResponse handles the ListTypes response.
-func (client *VirtualMachineExtensionImagesClient) listTypesHandleResponse(resp *http.Response) (VirtualMachineExtensionImagesClientListTypesResponse, error) {
-	result := VirtualMachineExtensionImagesClientListTypesResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.VirtualMachineExtensionImageArray); err != nil {
-		return VirtualMachineExtensionImagesClientListTypesResponse{}, err
+func (client *VirtualMachineExtensionImagesClient) listTypesHandleResponse(resp *http.Response) (result VirtualMachineExtensionImagesClientListTypesResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.VirtualMachineExtensionImageArray); err != nil {
+		result = VirtualMachineExtensionImagesClientListTypesResponse{}
+		return
 	}
 	return result, nil
 }
@@ -175,19 +198,30 @@ func (client *VirtualMachineExtensionImagesClient) listTypesHandleResponse(resp 
 //   - location - The name of a supported Azure region.
 //   - options - VirtualMachineExtensionImagesClientListVersionsOptions contains the optional parameters for the VirtualMachineExtensionImagesClient.ListVersions
 //     method.
-func (client *VirtualMachineExtensionImagesClient) ListVersions(ctx context.Context, location string, publisherName string, typeParam string, options *VirtualMachineExtensionImagesClientListVersionsOptions) (VirtualMachineExtensionImagesClientListVersionsResponse, error) {
+func (client *VirtualMachineExtensionImagesClient) ListVersions(ctx context.Context, location string, publisherName string, typeParam string, options *VirtualMachineExtensionImagesClientListVersionsOptions) (result VirtualMachineExtensionImagesClientListVersionsResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "VirtualMachineExtensionImagesClient.ListVersions", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.listVersionsCreateRequest(ctx, location, publisherName, typeParam, options)
 	if err != nil {
-		return VirtualMachineExtensionImagesClientListVersionsResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return VirtualMachineExtensionImagesClientListVersionsResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return VirtualMachineExtensionImagesClientListVersionsResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.listVersionsHandleResponse(resp)
+	result, err = client.listVersionsHandleResponse(resp)
+	return
 }
 
 // listVersionsCreateRequest creates the ListVersions request.
@@ -230,10 +264,10 @@ func (client *VirtualMachineExtensionImagesClient) listVersionsCreateRequest(ctx
 }
 
 // listVersionsHandleResponse handles the ListVersions response.
-func (client *VirtualMachineExtensionImagesClient) listVersionsHandleResponse(resp *http.Response) (VirtualMachineExtensionImagesClientListVersionsResponse, error) {
-	result := VirtualMachineExtensionImagesClientListVersionsResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.VirtualMachineExtensionImageArray); err != nil {
-		return VirtualMachineExtensionImagesClientListVersionsResponse{}, err
+func (client *VirtualMachineExtensionImagesClient) listVersionsHandleResponse(resp *http.Response) (result VirtualMachineExtensionImagesClientListVersionsResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.VirtualMachineExtensionImageArray); err != nil {
+		result = VirtualMachineExtensionImagesClientListVersionsResponse{}
+		return
 	}
 	return result, nil
 }

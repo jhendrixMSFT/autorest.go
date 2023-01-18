@@ -16,6 +16,7 @@ import (
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/arm"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/policy"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/runtime"
+	"github.com/Azure/azure-sdk-for-go/sdk/azcore/tracing"
 	"net/http"
 	"net/url"
 	"strings"
@@ -55,25 +56,35 @@ func (client *ReservationsDetailsClient) NewListPager(scope string, options *Res
 		More: func(page ReservationsDetailsClientListResponse) bool {
 			return page.NextLink != nil && len(*page.NextLink) > 0
 		},
-		Fetcher: func(ctx context.Context, page *ReservationsDetailsClientListResponse) (ReservationsDetailsClientListResponse, error) {
+		Fetcher: func(ctx context.Context, page *ReservationsDetailsClientListResponse) (result ReservationsDetailsClientListResponse, err error) {
+			ctx, span := client.internal.Tracer().Start(ctx, "ReservationsDetailsClient.NewListPager", &tracing.SpanOptions{
+				Kind: tracing.SpanKindInternal,
+			})
+			defer func() {
+				if err != nil {
+					span.AddError(err)
+				}
+				span.End()
+			}()
 			var req *policy.Request
-			var err error
 			if page == nil {
 				req, err = client.listCreateRequest(ctx, scope, options)
 			} else {
 				req, err = runtime.NewRequest(ctx, http.MethodGet, *page.NextLink)
 			}
 			if err != nil {
-				return ReservationsDetailsClientListResponse{}, err
+				return
 			}
 			resp, err := client.internal.Pipeline().Do(req)
 			if err != nil {
-				return ReservationsDetailsClientListResponse{}, err
+				return
 			}
 			if !runtime.HasStatusCode(resp, http.StatusOK) {
-				return ReservationsDetailsClientListResponse{}, runtime.NewResponseError(resp)
+				err = runtime.NewResponseError(resp)
+				return
 			}
-			return client.listHandleResponse(resp)
+			result, err = client.listHandleResponse(resp)
+			return
 		},
 	})
 }
@@ -109,10 +120,10 @@ func (client *ReservationsDetailsClient) listCreateRequest(ctx context.Context, 
 }
 
 // listHandleResponse handles the List response.
-func (client *ReservationsDetailsClient) listHandleResponse(resp *http.Response) (ReservationsDetailsClientListResponse, error) {
-	result := ReservationsDetailsClientListResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.ReservationDetailsListResult); err != nil {
-		return ReservationsDetailsClientListResponse{}, err
+func (client *ReservationsDetailsClient) listHandleResponse(resp *http.Response) (result ReservationsDetailsClientListResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.ReservationDetailsListResult); err != nil {
+		result = ReservationsDetailsClientListResponse{}
+		return
 	}
 	return result, nil
 }
@@ -130,25 +141,35 @@ func (client *ReservationsDetailsClient) NewListByReservationOrderPager(reservat
 		More: func(page ReservationsDetailsClientListByReservationOrderResponse) bool {
 			return page.NextLink != nil && len(*page.NextLink) > 0
 		},
-		Fetcher: func(ctx context.Context, page *ReservationsDetailsClientListByReservationOrderResponse) (ReservationsDetailsClientListByReservationOrderResponse, error) {
+		Fetcher: func(ctx context.Context, page *ReservationsDetailsClientListByReservationOrderResponse) (result ReservationsDetailsClientListByReservationOrderResponse, err error) {
+			ctx, span := client.internal.Tracer().Start(ctx, "ReservationsDetailsClient.NewListByReservationOrderPager", &tracing.SpanOptions{
+				Kind: tracing.SpanKindInternal,
+			})
+			defer func() {
+				if err != nil {
+					span.AddError(err)
+				}
+				span.End()
+			}()
 			var req *policy.Request
-			var err error
 			if page == nil {
 				req, err = client.listByReservationOrderCreateRequest(ctx, reservationOrderID, filter, options)
 			} else {
 				req, err = runtime.NewRequest(ctx, http.MethodGet, *page.NextLink)
 			}
 			if err != nil {
-				return ReservationsDetailsClientListByReservationOrderResponse{}, err
+				return
 			}
 			resp, err := client.internal.Pipeline().Do(req)
 			if err != nil {
-				return ReservationsDetailsClientListByReservationOrderResponse{}, err
+				return
 			}
 			if !runtime.HasStatusCode(resp, http.StatusOK) {
-				return ReservationsDetailsClientListByReservationOrderResponse{}, runtime.NewResponseError(resp)
+				err = runtime.NewResponseError(resp)
+				return
 			}
-			return client.listByReservationOrderHandleResponse(resp)
+			result, err = client.listByReservationOrderHandleResponse(resp)
+			return
 		},
 	})
 }
@@ -173,10 +194,10 @@ func (client *ReservationsDetailsClient) listByReservationOrderCreateRequest(ctx
 }
 
 // listByReservationOrderHandleResponse handles the ListByReservationOrder response.
-func (client *ReservationsDetailsClient) listByReservationOrderHandleResponse(resp *http.Response) (ReservationsDetailsClientListByReservationOrderResponse, error) {
-	result := ReservationsDetailsClientListByReservationOrderResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.ReservationDetailsListResult); err != nil {
-		return ReservationsDetailsClientListByReservationOrderResponse{}, err
+func (client *ReservationsDetailsClient) listByReservationOrderHandleResponse(resp *http.Response) (result ReservationsDetailsClientListByReservationOrderResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.ReservationDetailsListResult); err != nil {
+		result = ReservationsDetailsClientListByReservationOrderResponse{}
+		return
 	}
 	return result, nil
 }
@@ -195,25 +216,35 @@ func (client *ReservationsDetailsClient) NewListByReservationOrderAndReservation
 		More: func(page ReservationsDetailsClientListByReservationOrderAndReservationResponse) bool {
 			return page.NextLink != nil && len(*page.NextLink) > 0
 		},
-		Fetcher: func(ctx context.Context, page *ReservationsDetailsClientListByReservationOrderAndReservationResponse) (ReservationsDetailsClientListByReservationOrderAndReservationResponse, error) {
+		Fetcher: func(ctx context.Context, page *ReservationsDetailsClientListByReservationOrderAndReservationResponse) (result ReservationsDetailsClientListByReservationOrderAndReservationResponse, err error) {
+			ctx, span := client.internal.Tracer().Start(ctx, "ReservationsDetailsClient.NewListByReservationOrderAndReservationPager", &tracing.SpanOptions{
+				Kind: tracing.SpanKindInternal,
+			})
+			defer func() {
+				if err != nil {
+					span.AddError(err)
+				}
+				span.End()
+			}()
 			var req *policy.Request
-			var err error
 			if page == nil {
 				req, err = client.listByReservationOrderAndReservationCreateRequest(ctx, reservationOrderID, reservationID, filter, options)
 			} else {
 				req, err = runtime.NewRequest(ctx, http.MethodGet, *page.NextLink)
 			}
 			if err != nil {
-				return ReservationsDetailsClientListByReservationOrderAndReservationResponse{}, err
+				return
 			}
 			resp, err := client.internal.Pipeline().Do(req)
 			if err != nil {
-				return ReservationsDetailsClientListByReservationOrderAndReservationResponse{}, err
+				return
 			}
 			if !runtime.HasStatusCode(resp, http.StatusOK) {
-				return ReservationsDetailsClientListByReservationOrderAndReservationResponse{}, runtime.NewResponseError(resp)
+				err = runtime.NewResponseError(resp)
+				return
 			}
-			return client.listByReservationOrderAndReservationHandleResponse(resp)
+			result, err = client.listByReservationOrderAndReservationHandleResponse(resp)
+			return
 		},
 	})
 }
@@ -242,10 +273,10 @@ func (client *ReservationsDetailsClient) listByReservationOrderAndReservationCre
 }
 
 // listByReservationOrderAndReservationHandleResponse handles the ListByReservationOrderAndReservation response.
-func (client *ReservationsDetailsClient) listByReservationOrderAndReservationHandleResponse(resp *http.Response) (ReservationsDetailsClientListByReservationOrderAndReservationResponse, error) {
-	result := ReservationsDetailsClientListByReservationOrderAndReservationResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.ReservationDetailsListResult); err != nil {
-		return ReservationsDetailsClientListByReservationOrderAndReservationResponse{}, err
+func (client *ReservationsDetailsClient) listByReservationOrderAndReservationHandleResponse(resp *http.Response) (result ReservationsDetailsClientListByReservationOrderAndReservationResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.ReservationDetailsListResult); err != nil {
+		result = ReservationsDetailsClientListByReservationOrderAndReservationResponse{}
+		return
 	}
 	return result, nil
 }

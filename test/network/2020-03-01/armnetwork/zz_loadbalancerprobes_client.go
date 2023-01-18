@@ -16,6 +16,7 @@ import (
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/arm"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/policy"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/runtime"
+	"github.com/Azure/azure-sdk-for-go/sdk/azcore/tracing"
 	"net/http"
 	"net/url"
 	"strings"
@@ -53,19 +54,30 @@ func NewLoadBalancerProbesClient(subscriptionID string, credential azcore.TokenC
 //   - loadBalancerName - The name of the load balancer.
 //   - probeName - The name of the probe.
 //   - options - LoadBalancerProbesClientGetOptions contains the optional parameters for the LoadBalancerProbesClient.Get method.
-func (client *LoadBalancerProbesClient) Get(ctx context.Context, resourceGroupName string, loadBalancerName string, probeName string, options *LoadBalancerProbesClientGetOptions) (LoadBalancerProbesClientGetResponse, error) {
+func (client *LoadBalancerProbesClient) Get(ctx context.Context, resourceGroupName string, loadBalancerName string, probeName string, options *LoadBalancerProbesClientGetOptions) (result LoadBalancerProbesClientGetResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "LoadBalancerProbesClient.Get", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.getCreateRequest(ctx, resourceGroupName, loadBalancerName, probeName, options)
 	if err != nil {
-		return LoadBalancerProbesClientGetResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return LoadBalancerProbesClientGetResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return LoadBalancerProbesClientGetResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.getHandleResponse(resp)
+	result, err = client.getHandleResponse(resp)
+	return
 }
 
 // getCreateRequest creates the Get request.
@@ -99,10 +111,10 @@ func (client *LoadBalancerProbesClient) getCreateRequest(ctx context.Context, re
 }
 
 // getHandleResponse handles the Get response.
-func (client *LoadBalancerProbesClient) getHandleResponse(resp *http.Response) (LoadBalancerProbesClientGetResponse, error) {
-	result := LoadBalancerProbesClientGetResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.Probe); err != nil {
-		return LoadBalancerProbesClientGetResponse{}, err
+func (client *LoadBalancerProbesClient) getHandleResponse(resp *http.Response) (result LoadBalancerProbesClientGetResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.Probe); err != nil {
+		result = LoadBalancerProbesClientGetResponse{}
+		return
 	}
 	return result, nil
 }
@@ -119,25 +131,35 @@ func (client *LoadBalancerProbesClient) NewListPager(resourceGroupName string, l
 		More: func(page LoadBalancerProbesClientListResponse) bool {
 			return page.NextLink != nil && len(*page.NextLink) > 0
 		},
-		Fetcher: func(ctx context.Context, page *LoadBalancerProbesClientListResponse) (LoadBalancerProbesClientListResponse, error) {
+		Fetcher: func(ctx context.Context, page *LoadBalancerProbesClientListResponse) (result LoadBalancerProbesClientListResponse, err error) {
+			ctx, span := client.internal.Tracer().Start(ctx, "LoadBalancerProbesClient.NewListPager", &tracing.SpanOptions{
+				Kind: tracing.SpanKindInternal,
+			})
+			defer func() {
+				if err != nil {
+					span.AddError(err)
+				}
+				span.End()
+			}()
 			var req *policy.Request
-			var err error
 			if page == nil {
 				req, err = client.listCreateRequest(ctx, resourceGroupName, loadBalancerName, options)
 			} else {
 				req, err = runtime.NewRequest(ctx, http.MethodGet, *page.NextLink)
 			}
 			if err != nil {
-				return LoadBalancerProbesClientListResponse{}, err
+				return
 			}
 			resp, err := client.internal.Pipeline().Do(req)
 			if err != nil {
-				return LoadBalancerProbesClientListResponse{}, err
+				return
 			}
 			if !runtime.HasStatusCode(resp, http.StatusOK) {
-				return LoadBalancerProbesClientListResponse{}, runtime.NewResponseError(resp)
+				err = runtime.NewResponseError(resp)
+				return
 			}
-			return client.listHandleResponse(resp)
+			result, err = client.listHandleResponse(resp)
+			return
 		},
 	})
 }
@@ -169,10 +191,10 @@ func (client *LoadBalancerProbesClient) listCreateRequest(ctx context.Context, r
 }
 
 // listHandleResponse handles the List response.
-func (client *LoadBalancerProbesClient) listHandleResponse(resp *http.Response) (LoadBalancerProbesClientListResponse, error) {
-	result := LoadBalancerProbesClientListResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.LoadBalancerProbeListResult); err != nil {
-		return LoadBalancerProbesClientListResponse{}, err
+func (client *LoadBalancerProbesClient) listHandleResponse(resp *http.Response) (result LoadBalancerProbesClientListResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.LoadBalancerProbeListResult); err != nil {
+		result = LoadBalancerProbesClientListResponse{}
+		return
 	}
 	return result, nil
 }

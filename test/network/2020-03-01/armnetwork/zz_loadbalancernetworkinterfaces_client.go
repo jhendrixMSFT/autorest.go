@@ -16,6 +16,7 @@ import (
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/arm"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/policy"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/runtime"
+	"github.com/Azure/azure-sdk-for-go/sdk/azcore/tracing"
 	"net/http"
 	"net/url"
 	"strings"
@@ -57,25 +58,35 @@ func (client *LoadBalancerNetworkInterfacesClient) NewListPager(resourceGroupNam
 		More: func(page LoadBalancerNetworkInterfacesClientListResponse) bool {
 			return page.NextLink != nil && len(*page.NextLink) > 0
 		},
-		Fetcher: func(ctx context.Context, page *LoadBalancerNetworkInterfacesClientListResponse) (LoadBalancerNetworkInterfacesClientListResponse, error) {
+		Fetcher: func(ctx context.Context, page *LoadBalancerNetworkInterfacesClientListResponse) (result LoadBalancerNetworkInterfacesClientListResponse, err error) {
+			ctx, span := client.internal.Tracer().Start(ctx, "LoadBalancerNetworkInterfacesClient.NewListPager", &tracing.SpanOptions{
+				Kind: tracing.SpanKindInternal,
+			})
+			defer func() {
+				if err != nil {
+					span.AddError(err)
+				}
+				span.End()
+			}()
 			var req *policy.Request
-			var err error
 			if page == nil {
 				req, err = client.listCreateRequest(ctx, resourceGroupName, loadBalancerName, options)
 			} else {
 				req, err = runtime.NewRequest(ctx, http.MethodGet, *page.NextLink)
 			}
 			if err != nil {
-				return LoadBalancerNetworkInterfacesClientListResponse{}, err
+				return
 			}
 			resp, err := client.internal.Pipeline().Do(req)
 			if err != nil {
-				return LoadBalancerNetworkInterfacesClientListResponse{}, err
+				return
 			}
 			if !runtime.HasStatusCode(resp, http.StatusOK) {
-				return LoadBalancerNetworkInterfacesClientListResponse{}, runtime.NewResponseError(resp)
+				err = runtime.NewResponseError(resp)
+				return
 			}
-			return client.listHandleResponse(resp)
+			result, err = client.listHandleResponse(resp)
+			return
 		},
 	})
 }
@@ -107,10 +118,10 @@ func (client *LoadBalancerNetworkInterfacesClient) listCreateRequest(ctx context
 }
 
 // listHandleResponse handles the List response.
-func (client *LoadBalancerNetworkInterfacesClient) listHandleResponse(resp *http.Response) (LoadBalancerNetworkInterfacesClientListResponse, error) {
-	result := LoadBalancerNetworkInterfacesClientListResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.InterfaceListResult); err != nil {
-		return LoadBalancerNetworkInterfacesClientListResponse{}, err
+func (client *LoadBalancerNetworkInterfacesClient) listHandleResponse(resp *http.Response) (result LoadBalancerNetworkInterfacesClientListResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.InterfaceListResult); err != nil {
+		result = LoadBalancerNetworkInterfacesClientListResponse{}
+		return
 	}
 	return result, nil
 }

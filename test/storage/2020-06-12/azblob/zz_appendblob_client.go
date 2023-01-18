@@ -15,6 +15,7 @@ import (
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/policy"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/runtime"
+	"github.com/Azure/azure-sdk-for-go/sdk/azcore/tracing"
 	"io"
 	"net/http"
 	"strconv"
@@ -44,19 +45,30 @@ type AppendBlobClient struct {
 //   - CpkInfo - CpkInfo contains a group of parameters for the Client.Download method.
 //   - CpkScopeInfo - CpkScopeInfo contains a group of parameters for the Client.SetMetadata method.
 //   - ModifiedAccessConditions - ModifiedAccessConditions contains a group of parameters for the ContainerClient.Delete method.
-func (client *AppendBlobClient) AppendBlock(ctx context.Context, comp Enum38, contentLength int64, body io.ReadSeekCloser, options *AppendBlobClientAppendBlockOptions, leaseAccessConditions *LeaseAccessConditions, appendPositionAccessConditions *AppendPositionAccessConditions, cpkInfo *CpkInfo, cpkScopeInfo *CpkScopeInfo, modifiedAccessConditions *ModifiedAccessConditions) (AppendBlobClientAppendBlockResponse, error) {
+func (client *AppendBlobClient) AppendBlock(ctx context.Context, comp Enum38, contentLength int64, body io.ReadSeekCloser, options *AppendBlobClientAppendBlockOptions, leaseAccessConditions *LeaseAccessConditions, appendPositionAccessConditions *AppendPositionAccessConditions, cpkInfo *CpkInfo, cpkScopeInfo *CpkScopeInfo, modifiedAccessConditions *ModifiedAccessConditions) (result AppendBlobClientAppendBlockResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "AppendBlobClient.AppendBlock", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.appendBlockCreateRequest(ctx, comp, contentLength, body, options, leaseAccessConditions, appendPositionAccessConditions, cpkInfo, cpkScopeInfo, modifiedAccessConditions)
 	if err != nil {
-		return AppendBlobClientAppendBlockResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return AppendBlobClientAppendBlockResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusCreated) {
-		return AppendBlobClientAppendBlockResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.appendBlockHandleResponse(resp)
+	result, err = client.appendBlockHandleResponse(resp)
+	return
 }
 
 // appendBlockCreateRequest creates the AppendBlock request.
@@ -123,8 +135,7 @@ func (client *AppendBlobClient) appendBlockCreateRequest(ctx context.Context, co
 }
 
 // appendBlockHandleResponse handles the AppendBlock response.
-func (client *AppendBlobClient) appendBlockHandleResponse(resp *http.Response) (AppendBlobClientAppendBlockResponse, error) {
-	result := AppendBlobClientAppendBlockResponse{}
+func (client *AppendBlobClient) appendBlockHandleResponse(resp *http.Response) (result AppendBlobClientAppendBlockResponse, err error) {
 	if val := resp.Header.Get("ETag"); val != "" {
 		result.ETag = &val
 	}
@@ -210,19 +221,30 @@ func (client *AppendBlobClient) appendBlockHandleResponse(resp *http.Response) (
 //   - ModifiedAccessConditions - ModifiedAccessConditions contains a group of parameters for the ContainerClient.Delete method.
 //   - SourceModifiedAccessConditions - SourceModifiedAccessConditions contains a group of parameters for the DirectoryClient.Rename
 //     method.
-func (client *AppendBlobClient) AppendBlockFromURL(ctx context.Context, comp Enum38, sourceURL string, contentLength int64, options *AppendBlobClientAppendBlockFromURLOptions, cpkInfo *CpkInfo, cpkScopeInfo *CpkScopeInfo, leaseAccessConditions *LeaseAccessConditions, appendPositionAccessConditions *AppendPositionAccessConditions, modifiedAccessConditions *ModifiedAccessConditions, sourceModifiedAccessConditions *SourceModifiedAccessConditions) (AppendBlobClientAppendBlockFromURLResponse, error) {
+func (client *AppendBlobClient) AppendBlockFromURL(ctx context.Context, comp Enum38, sourceURL string, contentLength int64, options *AppendBlobClientAppendBlockFromURLOptions, cpkInfo *CpkInfo, cpkScopeInfo *CpkScopeInfo, leaseAccessConditions *LeaseAccessConditions, appendPositionAccessConditions *AppendPositionAccessConditions, modifiedAccessConditions *ModifiedAccessConditions, sourceModifiedAccessConditions *SourceModifiedAccessConditions) (result AppendBlobClientAppendBlockFromURLResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "AppendBlobClient.AppendBlockFromURL", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.appendBlockFromURLCreateRequest(ctx, comp, sourceURL, contentLength, options, cpkInfo, cpkScopeInfo, leaseAccessConditions, appendPositionAccessConditions, modifiedAccessConditions, sourceModifiedAccessConditions)
 	if err != nil {
-		return AppendBlobClientAppendBlockFromURLResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return AppendBlobClientAppendBlockFromURLResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusCreated) {
-		return AppendBlobClientAppendBlockFromURLResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.appendBlockFromURLHandleResponse(resp)
+	result, err = client.appendBlockFromURLHandleResponse(resp)
+	return
 }
 
 // appendBlockFromURLCreateRequest creates the AppendBlockFromURL request.
@@ -308,8 +330,7 @@ func (client *AppendBlobClient) appendBlockFromURLCreateRequest(ctx context.Cont
 }
 
 // appendBlockFromURLHandleResponse handles the AppendBlockFromURL response.
-func (client *AppendBlobClient) appendBlockFromURLHandleResponse(resp *http.Response) (AppendBlobClientAppendBlockFromURLResponse, error) {
-	result := AppendBlobClientAppendBlockFromURLResponse{}
+func (client *AppendBlobClient) appendBlockFromURLHandleResponse(resp *http.Response) (result AppendBlobClientAppendBlockFromURLResponse, err error) {
 	if val := resp.Header.Get("ETag"); val != "" {
 		result.ETag = &val
 	}
@@ -385,19 +406,30 @@ func (client *AppendBlobClient) appendBlockFromURLHandleResponse(resp *http.Resp
 //   - CpkInfo - CpkInfo contains a group of parameters for the Client.Download method.
 //   - CpkScopeInfo - CpkScopeInfo contains a group of parameters for the Client.SetMetadata method.
 //   - ModifiedAccessConditions - ModifiedAccessConditions contains a group of parameters for the ContainerClient.Delete method.
-func (client *AppendBlobClient) Create(ctx context.Context, contentLength int64, options *AppendBlobClientCreateOptions, blobHTTPHeaders *BlobHTTPHeaders, leaseAccessConditions *LeaseAccessConditions, cpkInfo *CpkInfo, cpkScopeInfo *CpkScopeInfo, modifiedAccessConditions *ModifiedAccessConditions) (AppendBlobClientCreateResponse, error) {
+func (client *AppendBlobClient) Create(ctx context.Context, contentLength int64, options *AppendBlobClientCreateOptions, blobHTTPHeaders *BlobHTTPHeaders, leaseAccessConditions *LeaseAccessConditions, cpkInfo *CpkInfo, cpkScopeInfo *CpkScopeInfo, modifiedAccessConditions *ModifiedAccessConditions) (result AppendBlobClientCreateResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "AppendBlobClient.Create", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.createCreateRequest(ctx, contentLength, options, blobHTTPHeaders, leaseAccessConditions, cpkInfo, cpkScopeInfo, modifiedAccessConditions)
 	if err != nil {
-		return AppendBlobClientCreateResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return AppendBlobClientCreateResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusCreated) {
-		return AppendBlobClientCreateResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.createHandleResponse(resp)
+	result, err = client.createHandleResponse(resp)
+	return
 }
 
 // createCreateRequest creates the Create request.
@@ -489,8 +521,7 @@ func (client *AppendBlobClient) createCreateRequest(ctx context.Context, content
 }
 
 // createHandleResponse handles the Create response.
-func (client *AppendBlobClient) createHandleResponse(resp *http.Response) (AppendBlobClientCreateResponse, error) {
-	result := AppendBlobClientCreateResponse{}
+func (client *AppendBlobClient) createHandleResponse(resp *http.Response) (result AppendBlobClientCreateResponse, err error) {
 	if val := resp.Header.Get("ETag"); val != "" {
 		result.ETag = &val
 	}
@@ -553,19 +584,30 @@ func (client *AppendBlobClient) createHandleResponse(resp *http.Response) (Appen
 //   - ModifiedAccessConditions - ModifiedAccessConditions contains a group of parameters for the ContainerClient.Delete method.
 //   - AppendPositionAccessConditions - AppendPositionAccessConditions contains a group of parameters for the AppendBlobClient.AppendBlock
 //     method.
-func (client *AppendBlobClient) Seal(ctx context.Context, comp Enum39, options *AppendBlobClientSealOptions, leaseAccessConditions *LeaseAccessConditions, modifiedAccessConditions *ModifiedAccessConditions, appendPositionAccessConditions *AppendPositionAccessConditions) (AppendBlobClientSealResponse, error) {
+func (client *AppendBlobClient) Seal(ctx context.Context, comp Enum39, options *AppendBlobClientSealOptions, leaseAccessConditions *LeaseAccessConditions, modifiedAccessConditions *ModifiedAccessConditions, appendPositionAccessConditions *AppendPositionAccessConditions) (result AppendBlobClientSealResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "AppendBlobClient.Seal", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.sealCreateRequest(ctx, comp, options, leaseAccessConditions, modifiedAccessConditions, appendPositionAccessConditions)
 	if err != nil {
-		return AppendBlobClientSealResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return AppendBlobClientSealResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return AppendBlobClientSealResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.sealHandleResponse(resp)
+	result, err = client.sealHandleResponse(resp)
+	return
 }
 
 // sealCreateRequest creates the Seal request.
@@ -607,8 +649,7 @@ func (client *AppendBlobClient) sealCreateRequest(ctx context.Context, comp Enum
 }
 
 // sealHandleResponse handles the Seal response.
-func (client *AppendBlobClient) sealHandleResponse(resp *http.Response) (AppendBlobClientSealResponse, error) {
-	result := AppendBlobClientSealResponse{}
+func (client *AppendBlobClient) sealHandleResponse(resp *http.Response) (result AppendBlobClientSealResponse, err error) {
 	if val := resp.Header.Get("ETag"); val != "" {
 		result.ETag = &val
 	}

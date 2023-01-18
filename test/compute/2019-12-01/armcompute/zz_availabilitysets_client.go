@@ -16,6 +16,7 @@ import (
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/arm"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/policy"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/runtime"
+	"github.com/Azure/azure-sdk-for-go/sdk/azcore/tracing"
 	"net/http"
 	"net/url"
 	"strings"
@@ -54,19 +55,30 @@ func NewAvailabilitySetsClient(subscriptionID string, credential azcore.TokenCre
 //   - parameters - Parameters supplied to the Create Availability Set operation.
 //   - options - AvailabilitySetsClientCreateOrUpdateOptions contains the optional parameters for the AvailabilitySetsClient.CreateOrUpdate
 //     method.
-func (client *AvailabilitySetsClient) CreateOrUpdate(ctx context.Context, resourceGroupName string, availabilitySetName string, parameters AvailabilitySet, options *AvailabilitySetsClientCreateOrUpdateOptions) (AvailabilitySetsClientCreateOrUpdateResponse, error) {
+func (client *AvailabilitySetsClient) CreateOrUpdate(ctx context.Context, resourceGroupName string, availabilitySetName string, parameters AvailabilitySet, options *AvailabilitySetsClientCreateOrUpdateOptions) (result AvailabilitySetsClientCreateOrUpdateResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "AvailabilitySetsClient.CreateOrUpdate", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.createOrUpdateCreateRequest(ctx, resourceGroupName, availabilitySetName, parameters, options)
 	if err != nil {
-		return AvailabilitySetsClientCreateOrUpdateResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return AvailabilitySetsClientCreateOrUpdateResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return AvailabilitySetsClientCreateOrUpdateResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.createOrUpdateHandleResponse(resp)
+	result, err = client.createOrUpdateHandleResponse(resp)
+	return
 }
 
 // createOrUpdateCreateRequest creates the CreateOrUpdate request.
@@ -96,10 +108,10 @@ func (client *AvailabilitySetsClient) createOrUpdateCreateRequest(ctx context.Co
 }
 
 // createOrUpdateHandleResponse handles the CreateOrUpdate response.
-func (client *AvailabilitySetsClient) createOrUpdateHandleResponse(resp *http.Response) (AvailabilitySetsClientCreateOrUpdateResponse, error) {
-	result := AvailabilitySetsClientCreateOrUpdateResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.AvailabilitySet); err != nil {
-		return AvailabilitySetsClientCreateOrUpdateResponse{}, err
+func (client *AvailabilitySetsClient) createOrUpdateHandleResponse(resp *http.Response) (result AvailabilitySetsClientCreateOrUpdateResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.AvailabilitySet); err != nil {
+		result = AvailabilitySetsClientCreateOrUpdateResponse{}
+		return
 	}
 	return result, nil
 }
@@ -111,19 +123,29 @@ func (client *AvailabilitySetsClient) createOrUpdateHandleResponse(resp *http.Re
 //   - resourceGroupName - The name of the resource group.
 //   - availabilitySetName - The name of the availability set.
 //   - options - AvailabilitySetsClientDeleteOptions contains the optional parameters for the AvailabilitySetsClient.Delete method.
-func (client *AvailabilitySetsClient) Delete(ctx context.Context, resourceGroupName string, availabilitySetName string, options *AvailabilitySetsClientDeleteOptions) (AvailabilitySetsClientDeleteResponse, error) {
+func (client *AvailabilitySetsClient) Delete(ctx context.Context, resourceGroupName string, availabilitySetName string, options *AvailabilitySetsClientDeleteOptions) (result AvailabilitySetsClientDeleteResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "AvailabilitySetsClient.Delete", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.deleteCreateRequest(ctx, resourceGroupName, availabilitySetName, options)
 	if err != nil {
-		return AvailabilitySetsClientDeleteResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return AvailabilitySetsClientDeleteResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK, http.StatusNoContent) {
-		return AvailabilitySetsClientDeleteResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return AvailabilitySetsClientDeleteResponse{}, nil
+	return
 }
 
 // deleteCreateRequest creates the Delete request.
@@ -158,19 +180,30 @@ func (client *AvailabilitySetsClient) deleteCreateRequest(ctx context.Context, r
 //   - resourceGroupName - The name of the resource group.
 //   - availabilitySetName - The name of the availability set.
 //   - options - AvailabilitySetsClientGetOptions contains the optional parameters for the AvailabilitySetsClient.Get method.
-func (client *AvailabilitySetsClient) Get(ctx context.Context, resourceGroupName string, availabilitySetName string, options *AvailabilitySetsClientGetOptions) (AvailabilitySetsClientGetResponse, error) {
+func (client *AvailabilitySetsClient) Get(ctx context.Context, resourceGroupName string, availabilitySetName string, options *AvailabilitySetsClientGetOptions) (result AvailabilitySetsClientGetResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "AvailabilitySetsClient.Get", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.getCreateRequest(ctx, resourceGroupName, availabilitySetName, options)
 	if err != nil {
-		return AvailabilitySetsClientGetResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return AvailabilitySetsClientGetResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return AvailabilitySetsClientGetResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.getHandleResponse(resp)
+	result, err = client.getHandleResponse(resp)
+	return
 }
 
 // getCreateRequest creates the Get request.
@@ -200,10 +233,10 @@ func (client *AvailabilitySetsClient) getCreateRequest(ctx context.Context, reso
 }
 
 // getHandleResponse handles the Get response.
-func (client *AvailabilitySetsClient) getHandleResponse(resp *http.Response) (AvailabilitySetsClientGetResponse, error) {
-	result := AvailabilitySetsClientGetResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.AvailabilitySet); err != nil {
-		return AvailabilitySetsClientGetResponse{}, err
+func (client *AvailabilitySetsClient) getHandleResponse(resp *http.Response) (result AvailabilitySetsClientGetResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.AvailabilitySet); err != nil {
+		result = AvailabilitySetsClientGetResponse{}
+		return
 	}
 	return result, nil
 }
@@ -219,25 +252,35 @@ func (client *AvailabilitySetsClient) NewListPager(resourceGroupName string, opt
 		More: func(page AvailabilitySetsClientListResponse) bool {
 			return page.NextLink != nil && len(*page.NextLink) > 0
 		},
-		Fetcher: func(ctx context.Context, page *AvailabilitySetsClientListResponse) (AvailabilitySetsClientListResponse, error) {
+		Fetcher: func(ctx context.Context, page *AvailabilitySetsClientListResponse) (result AvailabilitySetsClientListResponse, err error) {
+			ctx, span := client.internal.Tracer().Start(ctx, "AvailabilitySetsClient.NewListPager", &tracing.SpanOptions{
+				Kind: tracing.SpanKindInternal,
+			})
+			defer func() {
+				if err != nil {
+					span.AddError(err)
+				}
+				span.End()
+			}()
 			var req *policy.Request
-			var err error
 			if page == nil {
 				req, err = client.listCreateRequest(ctx, resourceGroupName, options)
 			} else {
 				req, err = runtime.NewRequest(ctx, http.MethodGet, *page.NextLink)
 			}
 			if err != nil {
-				return AvailabilitySetsClientListResponse{}, err
+				return
 			}
 			resp, err := client.internal.Pipeline().Do(req)
 			if err != nil {
-				return AvailabilitySetsClientListResponse{}, err
+				return
 			}
 			if !runtime.HasStatusCode(resp, http.StatusOK) {
-				return AvailabilitySetsClientListResponse{}, runtime.NewResponseError(resp)
+				err = runtime.NewResponseError(resp)
+				return
 			}
-			return client.listHandleResponse(resp)
+			result, err = client.listHandleResponse(resp)
+			return
 		},
 	})
 }
@@ -265,10 +308,10 @@ func (client *AvailabilitySetsClient) listCreateRequest(ctx context.Context, res
 }
 
 // listHandleResponse handles the List response.
-func (client *AvailabilitySetsClient) listHandleResponse(resp *http.Response) (AvailabilitySetsClientListResponse, error) {
-	result := AvailabilitySetsClientListResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.AvailabilitySetListResult); err != nil {
-		return AvailabilitySetsClientListResponse{}, err
+func (client *AvailabilitySetsClient) listHandleResponse(resp *http.Response) (result AvailabilitySetsClientListResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.AvailabilitySetListResult); err != nil {
+		result = AvailabilitySetsClientListResponse{}
+		return
 	}
 	return result, nil
 }
@@ -286,19 +329,30 @@ func (client *AvailabilitySetsClient) NewListAvailableSizesPager(resourceGroupNa
 		More: func(page AvailabilitySetsClientListAvailableSizesResponse) bool {
 			return false
 		},
-		Fetcher: func(ctx context.Context, page *AvailabilitySetsClientListAvailableSizesResponse) (AvailabilitySetsClientListAvailableSizesResponse, error) {
+		Fetcher: func(ctx context.Context, page *AvailabilitySetsClientListAvailableSizesResponse) (result AvailabilitySetsClientListAvailableSizesResponse, err error) {
+			ctx, span := client.internal.Tracer().Start(ctx, "AvailabilitySetsClient.NewListAvailableSizesPager", &tracing.SpanOptions{
+				Kind: tracing.SpanKindInternal,
+			})
+			defer func() {
+				if err != nil {
+					span.AddError(err)
+				}
+				span.End()
+			}()
 			req, err := client.listAvailableSizesCreateRequest(ctx, resourceGroupName, availabilitySetName, options)
 			if err != nil {
-				return AvailabilitySetsClientListAvailableSizesResponse{}, err
+				return
 			}
 			resp, err := client.internal.Pipeline().Do(req)
 			if err != nil {
-				return AvailabilitySetsClientListAvailableSizesResponse{}, err
+				return
 			}
 			if !runtime.HasStatusCode(resp, http.StatusOK) {
-				return AvailabilitySetsClientListAvailableSizesResponse{}, runtime.NewResponseError(resp)
+				err = runtime.NewResponseError(resp)
+				return
 			}
-			return client.listAvailableSizesHandleResponse(resp)
+			result, err = client.listAvailableSizesHandleResponse(resp)
+			return
 		},
 	})
 }
@@ -330,10 +384,10 @@ func (client *AvailabilitySetsClient) listAvailableSizesCreateRequest(ctx contex
 }
 
 // listAvailableSizesHandleResponse handles the ListAvailableSizes response.
-func (client *AvailabilitySetsClient) listAvailableSizesHandleResponse(resp *http.Response) (AvailabilitySetsClientListAvailableSizesResponse, error) {
-	result := AvailabilitySetsClientListAvailableSizesResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.VirtualMachineSizeListResult); err != nil {
-		return AvailabilitySetsClientListAvailableSizesResponse{}, err
+func (client *AvailabilitySetsClient) listAvailableSizesHandleResponse(resp *http.Response) (result AvailabilitySetsClientListAvailableSizesResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.VirtualMachineSizeListResult); err != nil {
+		result = AvailabilitySetsClientListAvailableSizesResponse{}
+		return
 	}
 	return result, nil
 }
@@ -348,25 +402,35 @@ func (client *AvailabilitySetsClient) NewListBySubscriptionPager(options *Availa
 		More: func(page AvailabilitySetsClientListBySubscriptionResponse) bool {
 			return page.NextLink != nil && len(*page.NextLink) > 0
 		},
-		Fetcher: func(ctx context.Context, page *AvailabilitySetsClientListBySubscriptionResponse) (AvailabilitySetsClientListBySubscriptionResponse, error) {
+		Fetcher: func(ctx context.Context, page *AvailabilitySetsClientListBySubscriptionResponse) (result AvailabilitySetsClientListBySubscriptionResponse, err error) {
+			ctx, span := client.internal.Tracer().Start(ctx, "AvailabilitySetsClient.NewListBySubscriptionPager", &tracing.SpanOptions{
+				Kind: tracing.SpanKindInternal,
+			})
+			defer func() {
+				if err != nil {
+					span.AddError(err)
+				}
+				span.End()
+			}()
 			var req *policy.Request
-			var err error
 			if page == nil {
 				req, err = client.listBySubscriptionCreateRequest(ctx, options)
 			} else {
 				req, err = runtime.NewRequest(ctx, http.MethodGet, *page.NextLink)
 			}
 			if err != nil {
-				return AvailabilitySetsClientListBySubscriptionResponse{}, err
+				return
 			}
 			resp, err := client.internal.Pipeline().Do(req)
 			if err != nil {
-				return AvailabilitySetsClientListBySubscriptionResponse{}, err
+				return
 			}
 			if !runtime.HasStatusCode(resp, http.StatusOK) {
-				return AvailabilitySetsClientListBySubscriptionResponse{}, runtime.NewResponseError(resp)
+				err = runtime.NewResponseError(resp)
+				return
 			}
-			return client.listBySubscriptionHandleResponse(resp)
+			result, err = client.listBySubscriptionHandleResponse(resp)
+			return
 		},
 	})
 }
@@ -393,10 +457,10 @@ func (client *AvailabilitySetsClient) listBySubscriptionCreateRequest(ctx contex
 }
 
 // listBySubscriptionHandleResponse handles the ListBySubscription response.
-func (client *AvailabilitySetsClient) listBySubscriptionHandleResponse(resp *http.Response) (AvailabilitySetsClientListBySubscriptionResponse, error) {
-	result := AvailabilitySetsClientListBySubscriptionResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.AvailabilitySetListResult); err != nil {
-		return AvailabilitySetsClientListBySubscriptionResponse{}, err
+func (client *AvailabilitySetsClient) listBySubscriptionHandleResponse(resp *http.Response) (result AvailabilitySetsClientListBySubscriptionResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.AvailabilitySetListResult); err != nil {
+		result = AvailabilitySetsClientListBySubscriptionResponse{}
+		return
 	}
 	return result, nil
 }
@@ -409,19 +473,30 @@ func (client *AvailabilitySetsClient) listBySubscriptionHandleResponse(resp *htt
 //   - availabilitySetName - The name of the availability set.
 //   - parameters - Parameters supplied to the Update Availability Set operation.
 //   - options - AvailabilitySetsClientUpdateOptions contains the optional parameters for the AvailabilitySetsClient.Update method.
-func (client *AvailabilitySetsClient) Update(ctx context.Context, resourceGroupName string, availabilitySetName string, parameters AvailabilitySetUpdate, options *AvailabilitySetsClientUpdateOptions) (AvailabilitySetsClientUpdateResponse, error) {
+func (client *AvailabilitySetsClient) Update(ctx context.Context, resourceGroupName string, availabilitySetName string, parameters AvailabilitySetUpdate, options *AvailabilitySetsClientUpdateOptions) (result AvailabilitySetsClientUpdateResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "AvailabilitySetsClient.Update", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.updateCreateRequest(ctx, resourceGroupName, availabilitySetName, parameters, options)
 	if err != nil {
-		return AvailabilitySetsClientUpdateResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return AvailabilitySetsClientUpdateResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return AvailabilitySetsClientUpdateResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.updateHandleResponse(resp)
+	result, err = client.updateHandleResponse(resp)
+	return
 }
 
 // updateCreateRequest creates the Update request.
@@ -451,10 +526,10 @@ func (client *AvailabilitySetsClient) updateCreateRequest(ctx context.Context, r
 }
 
 // updateHandleResponse handles the Update response.
-func (client *AvailabilitySetsClient) updateHandleResponse(resp *http.Response) (AvailabilitySetsClientUpdateResponse, error) {
-	result := AvailabilitySetsClientUpdateResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.AvailabilitySet); err != nil {
-		return AvailabilitySetsClientUpdateResponse{}, err
+func (client *AvailabilitySetsClient) updateHandleResponse(resp *http.Response) (result AvailabilitySetsClientUpdateResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.AvailabilitySet); err != nil {
+		result = AvailabilitySetsClientUpdateResponse{}
+		return
 	}
 	return result, nil
 }

@@ -15,6 +15,7 @@ import (
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/arm"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/policy"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/runtime"
+	"github.com/Azure/azure-sdk-for-go/sdk/azcore/tracing"
 	"net/http"
 	"strconv"
 	"strings"
@@ -66,25 +67,35 @@ func (client *UsageDetailsClient) NewListPager(scope string, options *UsageDetai
 		More: func(page UsageDetailsClientListResponse) bool {
 			return page.NextLink != nil && len(*page.NextLink) > 0
 		},
-		Fetcher: func(ctx context.Context, page *UsageDetailsClientListResponse) (UsageDetailsClientListResponse, error) {
+		Fetcher: func(ctx context.Context, page *UsageDetailsClientListResponse) (result UsageDetailsClientListResponse, err error) {
+			ctx, span := client.internal.Tracer().Start(ctx, "UsageDetailsClient.NewListPager", &tracing.SpanOptions{
+				Kind: tracing.SpanKindInternal,
+			})
+			defer func() {
+				if err != nil {
+					span.AddError(err)
+				}
+				span.End()
+			}()
 			var req *policy.Request
-			var err error
 			if page == nil {
 				req, err = client.listCreateRequest(ctx, scope, options)
 			} else {
 				req, err = runtime.NewRequest(ctx, http.MethodGet, *page.NextLink)
 			}
 			if err != nil {
-				return UsageDetailsClientListResponse{}, err
+				return
 			}
 			resp, err := client.internal.Pipeline().Do(req)
 			if err != nil {
-				return UsageDetailsClientListResponse{}, err
+				return
 			}
 			if !runtime.HasStatusCode(resp, http.StatusOK) {
-				return UsageDetailsClientListResponse{}, runtime.NewResponseError(resp)
+				err = runtime.NewResponseError(resp)
+				return
 			}
-			return client.listHandleResponse(resp)
+			result, err = client.listHandleResponse(resp)
+			return
 		},
 	})
 }
@@ -120,10 +131,10 @@ func (client *UsageDetailsClient) listCreateRequest(ctx context.Context, scope s
 }
 
 // listHandleResponse handles the List response.
-func (client *UsageDetailsClient) listHandleResponse(resp *http.Response) (UsageDetailsClientListResponse, error) {
-	result := UsageDetailsClientListResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.UsageDetailsListResult); err != nil {
-		return UsageDetailsClientListResponse{}, err
+func (client *UsageDetailsClient) listHandleResponse(resp *http.Response) (result UsageDetailsClientListResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.UsageDetailsListResult); err != nil {
+		result = UsageDetailsClientListResponse{}
+		return
 	}
 	return result, nil
 }

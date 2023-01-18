@@ -16,6 +16,7 @@ import (
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/arm"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/policy"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/runtime"
+	"github.com/Azure/azure-sdk-for-go/sdk/azcore/tracing"
 	"net/http"
 	"net/url"
 	"strings"
@@ -56,19 +57,30 @@ func (client *VirtualMachineSizesClient) NewListPager(location string, options *
 		More: func(page VirtualMachineSizesClientListResponse) bool {
 			return false
 		},
-		Fetcher: func(ctx context.Context, page *VirtualMachineSizesClientListResponse) (VirtualMachineSizesClientListResponse, error) {
+		Fetcher: func(ctx context.Context, page *VirtualMachineSizesClientListResponse) (result VirtualMachineSizesClientListResponse, err error) {
+			ctx, span := client.internal.Tracer().Start(ctx, "VirtualMachineSizesClient.NewListPager", &tracing.SpanOptions{
+				Kind: tracing.SpanKindInternal,
+			})
+			defer func() {
+				if err != nil {
+					span.AddError(err)
+				}
+				span.End()
+			}()
 			req, err := client.listCreateRequest(ctx, location, options)
 			if err != nil {
-				return VirtualMachineSizesClientListResponse{}, err
+				return
 			}
 			resp, err := client.internal.Pipeline().Do(req)
 			if err != nil {
-				return VirtualMachineSizesClientListResponse{}, err
+				return
 			}
 			if !runtime.HasStatusCode(resp, http.StatusOK) {
-				return VirtualMachineSizesClientListResponse{}, runtime.NewResponseError(resp)
+				err = runtime.NewResponseError(resp)
+				return
 			}
-			return client.listHandleResponse(resp)
+			result, err = client.listHandleResponse(resp)
+			return
 		},
 	})
 }
@@ -96,10 +108,10 @@ func (client *VirtualMachineSizesClient) listCreateRequest(ctx context.Context, 
 }
 
 // listHandleResponse handles the List response.
-func (client *VirtualMachineSizesClient) listHandleResponse(resp *http.Response) (VirtualMachineSizesClientListResponse, error) {
-	result := VirtualMachineSizesClientListResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.VirtualMachineSizeListResult); err != nil {
-		return VirtualMachineSizesClientListResponse{}, err
+func (client *VirtualMachineSizesClient) listHandleResponse(resp *http.Response) (result VirtualMachineSizesClientListResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.VirtualMachineSizeListResult); err != nil {
+		result = VirtualMachineSizesClientListResponse{}
+		return
 	}
 	return result, nil
 }

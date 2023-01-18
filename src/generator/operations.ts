@@ -967,7 +967,7 @@ function createProtocolResponse(op: Operation, imports: ImportManager): string {
   }
   if (!isMultiRespOperation(op)) {
     if (isBinaryResponseOperation(op)) {
-      text += '\tresult.Body = resp.Body';
+      text += '\tresult.Body = resp.Body\n';
     }
     // we know there's a result envelope at this point
     const respEnv = getResponseEnvelope(op);

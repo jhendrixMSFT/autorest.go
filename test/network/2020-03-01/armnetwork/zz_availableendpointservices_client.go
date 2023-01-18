@@ -16,6 +16,7 @@ import (
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/arm"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/policy"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/runtime"
+	"github.com/Azure/azure-sdk-for-go/sdk/azcore/tracing"
 	"net/http"
 	"net/url"
 	"strings"
@@ -56,25 +57,35 @@ func (client *AvailableEndpointServicesClient) NewListPager(location string, opt
 		More: func(page AvailableEndpointServicesClientListResponse) bool {
 			return page.NextLink != nil && len(*page.NextLink) > 0
 		},
-		Fetcher: func(ctx context.Context, page *AvailableEndpointServicesClientListResponse) (AvailableEndpointServicesClientListResponse, error) {
+		Fetcher: func(ctx context.Context, page *AvailableEndpointServicesClientListResponse) (result AvailableEndpointServicesClientListResponse, err error) {
+			ctx, span := client.internal.Tracer().Start(ctx, "AvailableEndpointServicesClient.NewListPager", &tracing.SpanOptions{
+				Kind: tracing.SpanKindInternal,
+			})
+			defer func() {
+				if err != nil {
+					span.AddError(err)
+				}
+				span.End()
+			}()
 			var req *policy.Request
-			var err error
 			if page == nil {
 				req, err = client.listCreateRequest(ctx, location, options)
 			} else {
 				req, err = runtime.NewRequest(ctx, http.MethodGet, *page.NextLink)
 			}
 			if err != nil {
-				return AvailableEndpointServicesClientListResponse{}, err
+				return
 			}
 			resp, err := client.internal.Pipeline().Do(req)
 			if err != nil {
-				return AvailableEndpointServicesClientListResponse{}, err
+				return
 			}
 			if !runtime.HasStatusCode(resp, http.StatusOK) {
-				return AvailableEndpointServicesClientListResponse{}, runtime.NewResponseError(resp)
+				err = runtime.NewResponseError(resp)
+				return
 			}
-			return client.listHandleResponse(resp)
+			result, err = client.listHandleResponse(resp)
+			return
 		},
 	})
 }
@@ -102,10 +113,10 @@ func (client *AvailableEndpointServicesClient) listCreateRequest(ctx context.Con
 }
 
 // listHandleResponse handles the List response.
-func (client *AvailableEndpointServicesClient) listHandleResponse(resp *http.Response) (AvailableEndpointServicesClientListResponse, error) {
-	result := AvailableEndpointServicesClientListResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.EndpointServicesListResult); err != nil {
-		return AvailableEndpointServicesClientListResponse{}, err
+func (client *AvailableEndpointServicesClient) listHandleResponse(resp *http.Response) (result AvailableEndpointServicesClientListResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.EndpointServicesListResult); err != nil {
+		result = AvailableEndpointServicesClientListResponse{}
+		return
 	}
 	return result, nil
 }

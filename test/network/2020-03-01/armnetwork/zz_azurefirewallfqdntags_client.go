@@ -16,6 +16,7 @@ import (
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/arm"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/policy"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/runtime"
+	"github.com/Azure/azure-sdk-for-go/sdk/azcore/tracing"
 	"net/http"
 	"net/url"
 	"strings"
@@ -55,25 +56,35 @@ func (client *AzureFirewallFqdnTagsClient) NewListAllPager(options *AzureFirewal
 		More: func(page AzureFirewallFqdnTagsClientListAllResponse) bool {
 			return page.NextLink != nil && len(*page.NextLink) > 0
 		},
-		Fetcher: func(ctx context.Context, page *AzureFirewallFqdnTagsClientListAllResponse) (AzureFirewallFqdnTagsClientListAllResponse, error) {
+		Fetcher: func(ctx context.Context, page *AzureFirewallFqdnTagsClientListAllResponse) (result AzureFirewallFqdnTagsClientListAllResponse, err error) {
+			ctx, span := client.internal.Tracer().Start(ctx, "AzureFirewallFqdnTagsClient.NewListAllPager", &tracing.SpanOptions{
+				Kind: tracing.SpanKindInternal,
+			})
+			defer func() {
+				if err != nil {
+					span.AddError(err)
+				}
+				span.End()
+			}()
 			var req *policy.Request
-			var err error
 			if page == nil {
 				req, err = client.listAllCreateRequest(ctx, options)
 			} else {
 				req, err = runtime.NewRequest(ctx, http.MethodGet, *page.NextLink)
 			}
 			if err != nil {
-				return AzureFirewallFqdnTagsClientListAllResponse{}, err
+				return
 			}
 			resp, err := client.internal.Pipeline().Do(req)
 			if err != nil {
-				return AzureFirewallFqdnTagsClientListAllResponse{}, err
+				return
 			}
 			if !runtime.HasStatusCode(resp, http.StatusOK) {
-				return AzureFirewallFqdnTagsClientListAllResponse{}, runtime.NewResponseError(resp)
+				err = runtime.NewResponseError(resp)
+				return
 			}
-			return client.listAllHandleResponse(resp)
+			result, err = client.listAllHandleResponse(resp)
+			return
 		},
 	})
 }
@@ -97,10 +108,10 @@ func (client *AzureFirewallFqdnTagsClient) listAllCreateRequest(ctx context.Cont
 }
 
 // listAllHandleResponse handles the ListAll response.
-func (client *AzureFirewallFqdnTagsClient) listAllHandleResponse(resp *http.Response) (AzureFirewallFqdnTagsClientListAllResponse, error) {
-	result := AzureFirewallFqdnTagsClientListAllResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.AzureFirewallFqdnTagListResult); err != nil {
-		return AzureFirewallFqdnTagsClientListAllResponse{}, err
+func (client *AzureFirewallFqdnTagsClient) listAllHandleResponse(resp *http.Response) (result AzureFirewallFqdnTagsClientListAllResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.AzureFirewallFqdnTagListResult); err != nil {
+		result = AzureFirewallFqdnTagsClientListAllResponse{}
+		return
 	}
 	return result, nil
 }

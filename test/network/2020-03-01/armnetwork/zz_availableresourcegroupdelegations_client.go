@@ -16,6 +16,7 @@ import (
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/arm"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/policy"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/runtime"
+	"github.com/Azure/azure-sdk-for-go/sdk/azcore/tracing"
 	"net/http"
 	"net/url"
 	"strings"
@@ -57,25 +58,35 @@ func (client *AvailableResourceGroupDelegationsClient) NewListPager(location str
 		More: func(page AvailableResourceGroupDelegationsClientListResponse) bool {
 			return page.NextLink != nil && len(*page.NextLink) > 0
 		},
-		Fetcher: func(ctx context.Context, page *AvailableResourceGroupDelegationsClientListResponse) (AvailableResourceGroupDelegationsClientListResponse, error) {
+		Fetcher: func(ctx context.Context, page *AvailableResourceGroupDelegationsClientListResponse) (result AvailableResourceGroupDelegationsClientListResponse, err error) {
+			ctx, span := client.internal.Tracer().Start(ctx, "AvailableResourceGroupDelegationsClient.NewListPager", &tracing.SpanOptions{
+				Kind: tracing.SpanKindInternal,
+			})
+			defer func() {
+				if err != nil {
+					span.AddError(err)
+				}
+				span.End()
+			}()
 			var req *policy.Request
-			var err error
 			if page == nil {
 				req, err = client.listCreateRequest(ctx, location, resourceGroupName, options)
 			} else {
 				req, err = runtime.NewRequest(ctx, http.MethodGet, *page.NextLink)
 			}
 			if err != nil {
-				return AvailableResourceGroupDelegationsClientListResponse{}, err
+				return
 			}
 			resp, err := client.internal.Pipeline().Do(req)
 			if err != nil {
-				return AvailableResourceGroupDelegationsClientListResponse{}, err
+				return
 			}
 			if !runtime.HasStatusCode(resp, http.StatusOK) {
-				return AvailableResourceGroupDelegationsClientListResponse{}, runtime.NewResponseError(resp)
+				err = runtime.NewResponseError(resp)
+				return
 			}
-			return client.listHandleResponse(resp)
+			result, err = client.listHandleResponse(resp)
+			return
 		},
 	})
 }
@@ -107,10 +118,10 @@ func (client *AvailableResourceGroupDelegationsClient) listCreateRequest(ctx con
 }
 
 // listHandleResponse handles the List response.
-func (client *AvailableResourceGroupDelegationsClient) listHandleResponse(resp *http.Response) (AvailableResourceGroupDelegationsClientListResponse, error) {
-	result := AvailableResourceGroupDelegationsClientListResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.AvailableDelegationsResult); err != nil {
-		return AvailableResourceGroupDelegationsClientListResponse{}, err
+func (client *AvailableResourceGroupDelegationsClient) listHandleResponse(resp *http.Response) (result AvailableResourceGroupDelegationsClientListResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.AvailableDelegationsResult); err != nil {
+		result = AvailableResourceGroupDelegationsClientListResponse{}
+		return
 	}
 	return result, nil
 }

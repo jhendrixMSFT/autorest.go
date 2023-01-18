@@ -16,6 +16,7 @@ import (
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/arm"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/policy"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/runtime"
+	"github.com/Azure/azure-sdk-for-go/sdk/azcore/tracing"
 	"net/http"
 	"net/url"
 	"strings"
@@ -54,19 +55,30 @@ func NewInterfaceIPConfigurationsClient(subscriptionID string, credential azcore
 //   - ipConfigurationName - The name of the ip configuration name.
 //   - options - InterfaceIPConfigurationsClientGetOptions contains the optional parameters for the InterfaceIPConfigurationsClient.Get
 //     method.
-func (client *InterfaceIPConfigurationsClient) Get(ctx context.Context, resourceGroupName string, networkInterfaceName string, ipConfigurationName string, options *InterfaceIPConfigurationsClientGetOptions) (InterfaceIPConfigurationsClientGetResponse, error) {
+func (client *InterfaceIPConfigurationsClient) Get(ctx context.Context, resourceGroupName string, networkInterfaceName string, ipConfigurationName string, options *InterfaceIPConfigurationsClientGetOptions) (result InterfaceIPConfigurationsClientGetResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "InterfaceIPConfigurationsClient.Get", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.getCreateRequest(ctx, resourceGroupName, networkInterfaceName, ipConfigurationName, options)
 	if err != nil {
-		return InterfaceIPConfigurationsClientGetResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return InterfaceIPConfigurationsClientGetResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return InterfaceIPConfigurationsClientGetResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.getHandleResponse(resp)
+	result, err = client.getHandleResponse(resp)
+	return
 }
 
 // getCreateRequest creates the Get request.
@@ -100,10 +112,10 @@ func (client *InterfaceIPConfigurationsClient) getCreateRequest(ctx context.Cont
 }
 
 // getHandleResponse handles the Get response.
-func (client *InterfaceIPConfigurationsClient) getHandleResponse(resp *http.Response) (InterfaceIPConfigurationsClientGetResponse, error) {
-	result := InterfaceIPConfigurationsClientGetResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.InterfaceIPConfiguration); err != nil {
-		return InterfaceIPConfigurationsClientGetResponse{}, err
+func (client *InterfaceIPConfigurationsClient) getHandleResponse(resp *http.Response) (result InterfaceIPConfigurationsClientGetResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.InterfaceIPConfiguration); err != nil {
+		result = InterfaceIPConfigurationsClientGetResponse{}
+		return
 	}
 	return result, nil
 }
@@ -120,25 +132,35 @@ func (client *InterfaceIPConfigurationsClient) NewListPager(resourceGroupName st
 		More: func(page InterfaceIPConfigurationsClientListResponse) bool {
 			return page.NextLink != nil && len(*page.NextLink) > 0
 		},
-		Fetcher: func(ctx context.Context, page *InterfaceIPConfigurationsClientListResponse) (InterfaceIPConfigurationsClientListResponse, error) {
+		Fetcher: func(ctx context.Context, page *InterfaceIPConfigurationsClientListResponse) (result InterfaceIPConfigurationsClientListResponse, err error) {
+			ctx, span := client.internal.Tracer().Start(ctx, "InterfaceIPConfigurationsClient.NewListPager", &tracing.SpanOptions{
+				Kind: tracing.SpanKindInternal,
+			})
+			defer func() {
+				if err != nil {
+					span.AddError(err)
+				}
+				span.End()
+			}()
 			var req *policy.Request
-			var err error
 			if page == nil {
 				req, err = client.listCreateRequest(ctx, resourceGroupName, networkInterfaceName, options)
 			} else {
 				req, err = runtime.NewRequest(ctx, http.MethodGet, *page.NextLink)
 			}
 			if err != nil {
-				return InterfaceIPConfigurationsClientListResponse{}, err
+				return
 			}
 			resp, err := client.internal.Pipeline().Do(req)
 			if err != nil {
-				return InterfaceIPConfigurationsClientListResponse{}, err
+				return
 			}
 			if !runtime.HasStatusCode(resp, http.StatusOK) {
-				return InterfaceIPConfigurationsClientListResponse{}, runtime.NewResponseError(resp)
+				err = runtime.NewResponseError(resp)
+				return
 			}
-			return client.listHandleResponse(resp)
+			result, err = client.listHandleResponse(resp)
+			return
 		},
 	})
 }
@@ -170,10 +192,10 @@ func (client *InterfaceIPConfigurationsClient) listCreateRequest(ctx context.Con
 }
 
 // listHandleResponse handles the List response.
-func (client *InterfaceIPConfigurationsClient) listHandleResponse(resp *http.Response) (InterfaceIPConfigurationsClientListResponse, error) {
-	result := InterfaceIPConfigurationsClientListResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.InterfaceIPConfigurationListResult); err != nil {
-		return InterfaceIPConfigurationsClientListResponse{}, err
+func (client *InterfaceIPConfigurationsClient) listHandleResponse(resp *http.Response) (result InterfaceIPConfigurationsClientListResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.InterfaceIPConfigurationListResult); err != nil {
+		result = InterfaceIPConfigurationsClientListResponse{}
+		return
 	}
 	return result, nil
 }

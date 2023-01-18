@@ -15,6 +15,7 @@ import (
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/policy"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/runtime"
+	"github.com/Azure/azure-sdk-for-go/sdk/azcore/tracing"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -36,35 +37,47 @@ type PipelineClient struct {
 //   - pipeline - Pipeline resource definition.
 //   - options - PipelineClientBeginCreateOrUpdatePipelineOptions contains the optional parameters for the PipelineClient.BeginCreateOrUpdatePipeline
 //     method.
-func (client *PipelineClient) BeginCreateOrUpdatePipeline(ctx context.Context, pipelineName string, pipeline PipelineResource, options *PipelineClientBeginCreateOrUpdatePipelineOptions) (*runtime.Poller[PipelineClientCreateOrUpdatePipelineResponse], error) {
-	if options == nil || options.ResumeToken == "" {
-		resp, err := client.createOrUpdatePipeline(ctx, pipelineName, pipeline, options)
+func (client *PipelineClient) BeginCreateOrUpdatePipeline(ctx context.Context, pipelineName string, pipeline PipelineResource, options *PipelineClientBeginCreateOrUpdatePipelineOptions) (result *runtime.Poller[PipelineClientCreateOrUpdatePipelineResponse], err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "PipelineClient.BeginCreateOrUpdatePipeline", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
 		if err != nil {
-			return nil, err
+			span.AddError(err)
 		}
-		return runtime.NewPoller[PipelineClientCreateOrUpdatePipelineResponse](resp, client.internal.Pipeline(), nil)
+		span.End()
+	}()
+	if options == nil || options.ResumeToken == "" {
+		var resp *http.Response
+		resp, err = client.createOrUpdatePipeline(ctx, pipelineName, pipeline, options)
+		if err != nil {
+			return
+		}
+		result, err = runtime.NewPoller[PipelineClientCreateOrUpdatePipelineResponse](resp, client.internal.Pipeline(), nil)
 	} else {
-		return runtime.NewPollerFromResumeToken[PipelineClientCreateOrUpdatePipelineResponse](options.ResumeToken, client.internal.Pipeline(), nil)
+		result, err = runtime.NewPollerFromResumeToken[PipelineClientCreateOrUpdatePipelineResponse](options.ResumeToken, client.internal.Pipeline(), nil)
 	}
+	return
 }
 
 // CreateOrUpdatePipeline - Creates or updates a pipeline.
 // If the operation fails it returns an *azcore.ResponseError type.
 //
 // Generated from API version 2019-06-01-preview
-func (client *PipelineClient) createOrUpdatePipeline(ctx context.Context, pipelineName string, pipeline PipelineResource, options *PipelineClientBeginCreateOrUpdatePipelineOptions) (*http.Response, error) {
+func (client *PipelineClient) createOrUpdatePipeline(ctx context.Context, pipelineName string, pipeline PipelineResource, options *PipelineClientBeginCreateOrUpdatePipelineOptions) (resp *http.Response, err error) {
 	req, err := client.createOrUpdatePipelineCreateRequest(ctx, pipelineName, pipeline, options)
 	if err != nil {
-		return nil, err
+		return
 	}
-	resp, err := client.internal.Pipeline().Do(req)
+	resp, err = client.internal.Pipeline().Do(req)
 	if err != nil {
-		return nil, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK, http.StatusAccepted) {
-		return nil, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return resp, nil
+	return
 }
 
 // createOrUpdatePipelineCreateRequest creates the CreateOrUpdatePipeline request.
@@ -95,19 +108,30 @@ func (client *PipelineClient) createOrUpdatePipelineCreateRequest(ctx context.Co
 //   - pipelineName - The pipeline name.
 //   - options - PipelineClientCreatePipelineRunOptions contains the optional parameters for the PipelineClient.CreatePipelineRun
 //     method.
-func (client *PipelineClient) CreatePipelineRun(ctx context.Context, pipelineName string, options *PipelineClientCreatePipelineRunOptions) (PipelineClientCreatePipelineRunResponse, error) {
+func (client *PipelineClient) CreatePipelineRun(ctx context.Context, pipelineName string, options *PipelineClientCreatePipelineRunOptions) (result PipelineClientCreatePipelineRunResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "PipelineClient.CreatePipelineRun", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.createPipelineRunCreateRequest(ctx, pipelineName, options)
 	if err != nil {
-		return PipelineClientCreatePipelineRunResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return PipelineClientCreatePipelineRunResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusAccepted) {
-		return PipelineClientCreatePipelineRunResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.createPipelineRunHandleResponse(resp)
+	result, err = client.createPipelineRunHandleResponse(resp)
+	return
 }
 
 // createPipelineRunCreateRequest creates the CreatePipelineRun request.
@@ -141,10 +165,10 @@ func (client *PipelineClient) createPipelineRunCreateRequest(ctx context.Context
 }
 
 // createPipelineRunHandleResponse handles the CreatePipelineRun response.
-func (client *PipelineClient) createPipelineRunHandleResponse(resp *http.Response) (PipelineClientCreatePipelineRunResponse, error) {
-	result := PipelineClientCreatePipelineRunResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.CreateRunResponse); err != nil {
-		return PipelineClientCreatePipelineRunResponse{}, err
+func (client *PipelineClient) createPipelineRunHandleResponse(resp *http.Response) (result PipelineClientCreatePipelineRunResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.CreateRunResponse); err != nil {
+		result = PipelineClientCreatePipelineRunResponse{}
+		return
 	}
 	return result, nil
 }
@@ -156,35 +180,47 @@ func (client *PipelineClient) createPipelineRunHandleResponse(resp *http.Respons
 //   - pipelineName - The pipeline name.
 //   - options - PipelineClientBeginDeletePipelineOptions contains the optional parameters for the PipelineClient.BeginDeletePipeline
 //     method.
-func (client *PipelineClient) BeginDeletePipeline(ctx context.Context, pipelineName string, options *PipelineClientBeginDeletePipelineOptions) (*runtime.Poller[PipelineClientDeletePipelineResponse], error) {
-	if options == nil || options.ResumeToken == "" {
-		resp, err := client.deletePipeline(ctx, pipelineName, options)
+func (client *PipelineClient) BeginDeletePipeline(ctx context.Context, pipelineName string, options *PipelineClientBeginDeletePipelineOptions) (result *runtime.Poller[PipelineClientDeletePipelineResponse], err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "PipelineClient.BeginDeletePipeline", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
 		if err != nil {
-			return nil, err
+			span.AddError(err)
 		}
-		return runtime.NewPoller[PipelineClientDeletePipelineResponse](resp, client.internal.Pipeline(), nil)
+		span.End()
+	}()
+	if options == nil || options.ResumeToken == "" {
+		var resp *http.Response
+		resp, err = client.deletePipeline(ctx, pipelineName, options)
+		if err != nil {
+			return
+		}
+		result, err = runtime.NewPoller[PipelineClientDeletePipelineResponse](resp, client.internal.Pipeline(), nil)
 	} else {
-		return runtime.NewPollerFromResumeToken[PipelineClientDeletePipelineResponse](options.ResumeToken, client.internal.Pipeline(), nil)
+		result, err = runtime.NewPollerFromResumeToken[PipelineClientDeletePipelineResponse](options.ResumeToken, client.internal.Pipeline(), nil)
 	}
+	return
 }
 
 // DeletePipeline - Deletes a pipeline.
 // If the operation fails it returns an *azcore.ResponseError type.
 //
 // Generated from API version 2019-06-01-preview
-func (client *PipelineClient) deletePipeline(ctx context.Context, pipelineName string, options *PipelineClientBeginDeletePipelineOptions) (*http.Response, error) {
+func (client *PipelineClient) deletePipeline(ctx context.Context, pipelineName string, options *PipelineClientBeginDeletePipelineOptions) (resp *http.Response, err error) {
 	req, err := client.deletePipelineCreateRequest(ctx, pipelineName, options)
 	if err != nil {
-		return nil, err
+		return
 	}
-	resp, err := client.internal.Pipeline().Do(req)
+	resp, err = client.internal.Pipeline().Do(req)
 	if err != nil {
-		return nil, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK, http.StatusAccepted, http.StatusNoContent) {
-		return nil, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return resp, nil
+	return
 }
 
 // deletePipelineCreateRequest creates the DeletePipeline request.
@@ -211,19 +247,30 @@ func (client *PipelineClient) deletePipelineCreateRequest(ctx context.Context, p
 // Generated from API version 2019-06-01-preview
 //   - pipelineName - The pipeline name.
 //   - options - PipelineClientGetPipelineOptions contains the optional parameters for the PipelineClient.GetPipeline method.
-func (client *PipelineClient) GetPipeline(ctx context.Context, pipelineName string, options *PipelineClientGetPipelineOptions) (PipelineClientGetPipelineResponse, error) {
+func (client *PipelineClient) GetPipeline(ctx context.Context, pipelineName string, options *PipelineClientGetPipelineOptions) (result PipelineClientGetPipelineResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "PipelineClient.GetPipeline", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.getPipelineCreateRequest(ctx, pipelineName, options)
 	if err != nil {
-		return PipelineClientGetPipelineResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return PipelineClientGetPipelineResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK, http.StatusNotModified) {
-		return PipelineClientGetPipelineResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.getPipelineHandleResponse(resp)
+	result, err = client.getPipelineHandleResponse(resp)
+	return
 }
 
 // getPipelineCreateRequest creates the GetPipeline request.
@@ -248,10 +295,10 @@ func (client *PipelineClient) getPipelineCreateRequest(ctx context.Context, pipe
 }
 
 // getPipelineHandleResponse handles the GetPipeline response.
-func (client *PipelineClient) getPipelineHandleResponse(resp *http.Response) (PipelineClientGetPipelineResponse, error) {
-	result := PipelineClientGetPipelineResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.PipelineResource); err != nil {
-		return PipelineClientGetPipelineResponse{}, err
+func (client *PipelineClient) getPipelineHandleResponse(resp *http.Response) (result PipelineClientGetPipelineResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.PipelineResource); err != nil {
+		result = PipelineClientGetPipelineResponse{}
+		return
 	}
 	return result, nil
 }
@@ -266,25 +313,35 @@ func (client *PipelineClient) NewGetPipelinesByWorkspacePager(options *PipelineC
 		More: func(page PipelineClientGetPipelinesByWorkspaceResponse) bool {
 			return page.NextLink != nil && len(*page.NextLink) > 0
 		},
-		Fetcher: func(ctx context.Context, page *PipelineClientGetPipelinesByWorkspaceResponse) (PipelineClientGetPipelinesByWorkspaceResponse, error) {
+		Fetcher: func(ctx context.Context, page *PipelineClientGetPipelinesByWorkspaceResponse) (result PipelineClientGetPipelinesByWorkspaceResponse, err error) {
+			ctx, span := client.internal.Tracer().Start(ctx, "PipelineClient.NewGetPipelinesByWorkspacePager", &tracing.SpanOptions{
+				Kind: tracing.SpanKindInternal,
+			})
+			defer func() {
+				if err != nil {
+					span.AddError(err)
+				}
+				span.End()
+			}()
 			var req *policy.Request
-			var err error
 			if page == nil {
 				req, err = client.getPipelinesByWorkspaceCreateRequest(ctx, options)
 			} else {
 				req, err = runtime.NewRequest(ctx, http.MethodGet, *page.NextLink)
 			}
 			if err != nil {
-				return PipelineClientGetPipelinesByWorkspaceResponse{}, err
+				return
 			}
 			resp, err := client.internal.Pipeline().Do(req)
 			if err != nil {
-				return PipelineClientGetPipelinesByWorkspaceResponse{}, err
+				return
 			}
 			if !runtime.HasStatusCode(resp, http.StatusOK) {
-				return PipelineClientGetPipelinesByWorkspaceResponse{}, runtime.NewResponseError(resp)
+				err = runtime.NewResponseError(resp)
+				return
 			}
-			return client.getPipelinesByWorkspaceHandleResponse(resp)
+			result, err = client.getPipelinesByWorkspaceHandleResponse(resp)
+			return
 		},
 	})
 }
@@ -304,10 +361,10 @@ func (client *PipelineClient) getPipelinesByWorkspaceCreateRequest(ctx context.C
 }
 
 // getPipelinesByWorkspaceHandleResponse handles the GetPipelinesByWorkspace response.
-func (client *PipelineClient) getPipelinesByWorkspaceHandleResponse(resp *http.Response) (PipelineClientGetPipelinesByWorkspaceResponse, error) {
-	result := PipelineClientGetPipelinesByWorkspaceResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.PipelineListResponse); err != nil {
-		return PipelineClientGetPipelinesByWorkspaceResponse{}, err
+func (client *PipelineClient) getPipelinesByWorkspaceHandleResponse(resp *http.Response) (result PipelineClientGetPipelinesByWorkspaceResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.PipelineListResponse); err != nil {
+		result = PipelineClientGetPipelinesByWorkspaceResponse{}
+		return
 	}
 	return result, nil
 }
@@ -320,35 +377,47 @@ func (client *PipelineClient) getPipelinesByWorkspaceHandleResponse(resp *http.R
 //   - request - proposed new name.
 //   - options - PipelineClientBeginRenamePipelineOptions contains the optional parameters for the PipelineClient.BeginRenamePipeline
 //     method.
-func (client *PipelineClient) BeginRenamePipeline(ctx context.Context, pipelineName string, request ArtifactRenameRequest, options *PipelineClientBeginRenamePipelineOptions) (*runtime.Poller[PipelineClientRenamePipelineResponse], error) {
-	if options == nil || options.ResumeToken == "" {
-		resp, err := client.renamePipeline(ctx, pipelineName, request, options)
+func (client *PipelineClient) BeginRenamePipeline(ctx context.Context, pipelineName string, request ArtifactRenameRequest, options *PipelineClientBeginRenamePipelineOptions) (result *runtime.Poller[PipelineClientRenamePipelineResponse], err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "PipelineClient.BeginRenamePipeline", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
 		if err != nil {
-			return nil, err
+			span.AddError(err)
 		}
-		return runtime.NewPoller[PipelineClientRenamePipelineResponse](resp, client.internal.Pipeline(), nil)
+		span.End()
+	}()
+	if options == nil || options.ResumeToken == "" {
+		var resp *http.Response
+		resp, err = client.renamePipeline(ctx, pipelineName, request, options)
+		if err != nil {
+			return
+		}
+		result, err = runtime.NewPoller[PipelineClientRenamePipelineResponse](resp, client.internal.Pipeline(), nil)
 	} else {
-		return runtime.NewPollerFromResumeToken[PipelineClientRenamePipelineResponse](options.ResumeToken, client.internal.Pipeline(), nil)
+		result, err = runtime.NewPollerFromResumeToken[PipelineClientRenamePipelineResponse](options.ResumeToken, client.internal.Pipeline(), nil)
 	}
+	return
 }
 
 // RenamePipeline - Renames a pipeline.
 // If the operation fails it returns an *azcore.ResponseError type.
 //
 // Generated from API version 2019-06-01-preview
-func (client *PipelineClient) renamePipeline(ctx context.Context, pipelineName string, request ArtifactRenameRequest, options *PipelineClientBeginRenamePipelineOptions) (*http.Response, error) {
+func (client *PipelineClient) renamePipeline(ctx context.Context, pipelineName string, request ArtifactRenameRequest, options *PipelineClientBeginRenamePipelineOptions) (resp *http.Response, err error) {
 	req, err := client.renamePipelineCreateRequest(ctx, pipelineName, request, options)
 	if err != nil {
-		return nil, err
+		return
 	}
-	resp, err := client.internal.Pipeline().Do(req)
+	resp, err = client.internal.Pipeline().Do(req)
 	if err != nil {
-		return nil, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK, http.StatusAccepted) {
-		return nil, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return resp, nil
+	return
 }
 
 // renamePipelineCreateRequest creates the RenamePipeline request.

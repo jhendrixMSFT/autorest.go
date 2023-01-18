@@ -16,6 +16,7 @@ import (
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/arm"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/policy"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/runtime"
+	"github.com/Azure/azure-sdk-for-go/sdk/azcore/tracing"
 	"net/http"
 	"net/url"
 	"strings"
@@ -54,25 +55,35 @@ func (client *ResourceSKUsClient) NewListPager(options *ResourceSKUsClientListOp
 		More: func(page ResourceSKUsClientListResponse) bool {
 			return page.NextLink != nil && len(*page.NextLink) > 0
 		},
-		Fetcher: func(ctx context.Context, page *ResourceSKUsClientListResponse) (ResourceSKUsClientListResponse, error) {
+		Fetcher: func(ctx context.Context, page *ResourceSKUsClientListResponse) (result ResourceSKUsClientListResponse, err error) {
+			ctx, span := client.internal.Tracer().Start(ctx, "ResourceSKUsClient.NewListPager", &tracing.SpanOptions{
+				Kind: tracing.SpanKindInternal,
+			})
+			defer func() {
+				if err != nil {
+					span.AddError(err)
+				}
+				span.End()
+			}()
 			var req *policy.Request
-			var err error
 			if page == nil {
 				req, err = client.listCreateRequest(ctx, options)
 			} else {
 				req, err = runtime.NewRequest(ctx, http.MethodGet, *page.NextLink)
 			}
 			if err != nil {
-				return ResourceSKUsClientListResponse{}, err
+				return
 			}
 			resp, err := client.internal.Pipeline().Do(req)
 			if err != nil {
-				return ResourceSKUsClientListResponse{}, err
+				return
 			}
 			if !runtime.HasStatusCode(resp, http.StatusOK) {
-				return ResourceSKUsClientListResponse{}, runtime.NewResponseError(resp)
+				err = runtime.NewResponseError(resp)
+				return
 			}
-			return client.listHandleResponse(resp)
+			result, err = client.listHandleResponse(resp)
+			return
 		},
 	})
 }
@@ -99,10 +110,10 @@ func (client *ResourceSKUsClient) listCreateRequest(ctx context.Context, options
 }
 
 // listHandleResponse handles the List response.
-func (client *ResourceSKUsClient) listHandleResponse(resp *http.Response) (ResourceSKUsClientListResponse, error) {
-	result := ResourceSKUsClientListResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.ResourceSKUsResult); err != nil {
-		return ResourceSKUsClientListResponse{}, err
+func (client *ResourceSKUsClient) listHandleResponse(resp *http.Response) (result ResourceSKUsClientListResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.ResourceSKUsResult); err != nil {
+		result = ResourceSKUsClientListResponse{}
+		return
 	}
 	return result, nil
 }

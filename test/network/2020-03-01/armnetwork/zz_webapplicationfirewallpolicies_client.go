@@ -16,6 +16,7 @@ import (
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/arm"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/policy"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/runtime"
+	"github.com/Azure/azure-sdk-for-go/sdk/azcore/tracing"
 	"net/http"
 	"net/url"
 	"strings"
@@ -54,19 +55,30 @@ func NewWebApplicationFirewallPoliciesClient(subscriptionID string, credential a
 //   - parameters - Policy to be created.
 //   - options - WebApplicationFirewallPoliciesClientCreateOrUpdateOptions contains the optional parameters for the WebApplicationFirewallPoliciesClient.CreateOrUpdate
 //     method.
-func (client *WebApplicationFirewallPoliciesClient) CreateOrUpdate(ctx context.Context, resourceGroupName string, policyName string, parameters WebApplicationFirewallPolicy, options *WebApplicationFirewallPoliciesClientCreateOrUpdateOptions) (WebApplicationFirewallPoliciesClientCreateOrUpdateResponse, error) {
+func (client *WebApplicationFirewallPoliciesClient) CreateOrUpdate(ctx context.Context, resourceGroupName string, policyName string, parameters WebApplicationFirewallPolicy, options *WebApplicationFirewallPoliciesClientCreateOrUpdateOptions) (result WebApplicationFirewallPoliciesClientCreateOrUpdateResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "WebApplicationFirewallPoliciesClient.CreateOrUpdate", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.createOrUpdateCreateRequest(ctx, resourceGroupName, policyName, parameters, options)
 	if err != nil {
-		return WebApplicationFirewallPoliciesClientCreateOrUpdateResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return WebApplicationFirewallPoliciesClientCreateOrUpdateResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK, http.StatusCreated) {
-		return WebApplicationFirewallPoliciesClientCreateOrUpdateResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.createOrUpdateHandleResponse(resp)
+	result, err = client.createOrUpdateHandleResponse(resp)
+	return
 }
 
 // createOrUpdateCreateRequest creates the CreateOrUpdate request.
@@ -96,10 +108,10 @@ func (client *WebApplicationFirewallPoliciesClient) createOrUpdateCreateRequest(
 }
 
 // createOrUpdateHandleResponse handles the CreateOrUpdate response.
-func (client *WebApplicationFirewallPoliciesClient) createOrUpdateHandleResponse(resp *http.Response) (WebApplicationFirewallPoliciesClientCreateOrUpdateResponse, error) {
-	result := WebApplicationFirewallPoliciesClientCreateOrUpdateResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.WebApplicationFirewallPolicy); err != nil {
-		return WebApplicationFirewallPoliciesClientCreateOrUpdateResponse{}, err
+func (client *WebApplicationFirewallPoliciesClient) createOrUpdateHandleResponse(resp *http.Response) (result WebApplicationFirewallPoliciesClientCreateOrUpdateResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.WebApplicationFirewallPolicy); err != nil {
+		result = WebApplicationFirewallPoliciesClientCreateOrUpdateResponse{}
+		return
 	}
 	return result, nil
 }
@@ -112,37 +124,49 @@ func (client *WebApplicationFirewallPoliciesClient) createOrUpdateHandleResponse
 //   - policyName - The name of the policy.
 //   - options - WebApplicationFirewallPoliciesClientBeginDeleteOptions contains the optional parameters for the WebApplicationFirewallPoliciesClient.BeginDelete
 //     method.
-func (client *WebApplicationFirewallPoliciesClient) BeginDelete(ctx context.Context, resourceGroupName string, policyName string, options *WebApplicationFirewallPoliciesClientBeginDeleteOptions) (*runtime.Poller[WebApplicationFirewallPoliciesClientDeleteResponse], error) {
-	if options == nil || options.ResumeToken == "" {
-		resp, err := client.deleteOperation(ctx, resourceGroupName, policyName, options)
+func (client *WebApplicationFirewallPoliciesClient) BeginDelete(ctx context.Context, resourceGroupName string, policyName string, options *WebApplicationFirewallPoliciesClientBeginDeleteOptions) (result *runtime.Poller[WebApplicationFirewallPoliciesClientDeleteResponse], err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "WebApplicationFirewallPoliciesClient.BeginDelete", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
 		if err != nil {
-			return nil, err
+			span.AddError(err)
 		}
-		return runtime.NewPoller(resp, client.internal.Pipeline(), &runtime.NewPollerOptions[WebApplicationFirewallPoliciesClientDeleteResponse]{
+		span.End()
+	}()
+	if options == nil || options.ResumeToken == "" {
+		var resp *http.Response
+		resp, err = client.deleteOperation(ctx, resourceGroupName, policyName, options)
+		if err != nil {
+			return
+		}
+		result, err = runtime.NewPoller(resp, client.internal.Pipeline(), &runtime.NewPollerOptions[WebApplicationFirewallPoliciesClientDeleteResponse]{
 			FinalStateVia: runtime.FinalStateViaLocation,
 		})
 	} else {
-		return runtime.NewPollerFromResumeToken[WebApplicationFirewallPoliciesClientDeleteResponse](options.ResumeToken, client.internal.Pipeline(), nil)
+		result, err = runtime.NewPollerFromResumeToken[WebApplicationFirewallPoliciesClientDeleteResponse](options.ResumeToken, client.internal.Pipeline(), nil)
 	}
+	return
 }
 
 // Delete - Deletes Policy.
 // If the operation fails it returns an *azcore.ResponseError type.
 //
 // Generated from API version 2020-03-01
-func (client *WebApplicationFirewallPoliciesClient) deleteOperation(ctx context.Context, resourceGroupName string, policyName string, options *WebApplicationFirewallPoliciesClientBeginDeleteOptions) (*http.Response, error) {
+func (client *WebApplicationFirewallPoliciesClient) deleteOperation(ctx context.Context, resourceGroupName string, policyName string, options *WebApplicationFirewallPoliciesClientBeginDeleteOptions) (resp *http.Response, err error) {
 	req, err := client.deleteCreateRequest(ctx, resourceGroupName, policyName, options)
 	if err != nil {
-		return nil, err
+		return
 	}
-	resp, err := client.internal.Pipeline().Do(req)
+	resp, err = client.internal.Pipeline().Do(req)
 	if err != nil {
-		return nil, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK, http.StatusAccepted, http.StatusNoContent) {
-		return nil, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return resp, nil
+	return
 }
 
 // deleteCreateRequest creates the Delete request.
@@ -179,19 +203,30 @@ func (client *WebApplicationFirewallPoliciesClient) deleteCreateRequest(ctx cont
 //   - policyName - The name of the policy.
 //   - options - WebApplicationFirewallPoliciesClientGetOptions contains the optional parameters for the WebApplicationFirewallPoliciesClient.Get
 //     method.
-func (client *WebApplicationFirewallPoliciesClient) Get(ctx context.Context, resourceGroupName string, policyName string, options *WebApplicationFirewallPoliciesClientGetOptions) (WebApplicationFirewallPoliciesClientGetResponse, error) {
+func (client *WebApplicationFirewallPoliciesClient) Get(ctx context.Context, resourceGroupName string, policyName string, options *WebApplicationFirewallPoliciesClientGetOptions) (result WebApplicationFirewallPoliciesClientGetResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "WebApplicationFirewallPoliciesClient.Get", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.getCreateRequest(ctx, resourceGroupName, policyName, options)
 	if err != nil {
-		return WebApplicationFirewallPoliciesClientGetResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return WebApplicationFirewallPoliciesClientGetResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return WebApplicationFirewallPoliciesClientGetResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.getHandleResponse(resp)
+	result, err = client.getHandleResponse(resp)
+	return
 }
 
 // getCreateRequest creates the Get request.
@@ -221,10 +256,10 @@ func (client *WebApplicationFirewallPoliciesClient) getCreateRequest(ctx context
 }
 
 // getHandleResponse handles the Get response.
-func (client *WebApplicationFirewallPoliciesClient) getHandleResponse(resp *http.Response) (WebApplicationFirewallPoliciesClientGetResponse, error) {
-	result := WebApplicationFirewallPoliciesClientGetResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.WebApplicationFirewallPolicy); err != nil {
-		return WebApplicationFirewallPoliciesClientGetResponse{}, err
+func (client *WebApplicationFirewallPoliciesClient) getHandleResponse(resp *http.Response) (result WebApplicationFirewallPoliciesClientGetResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.WebApplicationFirewallPolicy); err != nil {
+		result = WebApplicationFirewallPoliciesClientGetResponse{}
+		return
 	}
 	return result, nil
 }
@@ -240,25 +275,35 @@ func (client *WebApplicationFirewallPoliciesClient) NewListPager(resourceGroupNa
 		More: func(page WebApplicationFirewallPoliciesClientListResponse) bool {
 			return page.NextLink != nil && len(*page.NextLink) > 0
 		},
-		Fetcher: func(ctx context.Context, page *WebApplicationFirewallPoliciesClientListResponse) (WebApplicationFirewallPoliciesClientListResponse, error) {
+		Fetcher: func(ctx context.Context, page *WebApplicationFirewallPoliciesClientListResponse) (result WebApplicationFirewallPoliciesClientListResponse, err error) {
+			ctx, span := client.internal.Tracer().Start(ctx, "WebApplicationFirewallPoliciesClient.NewListPager", &tracing.SpanOptions{
+				Kind: tracing.SpanKindInternal,
+			})
+			defer func() {
+				if err != nil {
+					span.AddError(err)
+				}
+				span.End()
+			}()
 			var req *policy.Request
-			var err error
 			if page == nil {
 				req, err = client.listCreateRequest(ctx, resourceGroupName, options)
 			} else {
 				req, err = runtime.NewRequest(ctx, http.MethodGet, *page.NextLink)
 			}
 			if err != nil {
-				return WebApplicationFirewallPoliciesClientListResponse{}, err
+				return
 			}
 			resp, err := client.internal.Pipeline().Do(req)
 			if err != nil {
-				return WebApplicationFirewallPoliciesClientListResponse{}, err
+				return
 			}
 			if !runtime.HasStatusCode(resp, http.StatusOK) {
-				return WebApplicationFirewallPoliciesClientListResponse{}, runtime.NewResponseError(resp)
+				err = runtime.NewResponseError(resp)
+				return
 			}
-			return client.listHandleResponse(resp)
+			result, err = client.listHandleResponse(resp)
+			return
 		},
 	})
 }
@@ -286,10 +331,10 @@ func (client *WebApplicationFirewallPoliciesClient) listCreateRequest(ctx contex
 }
 
 // listHandleResponse handles the List response.
-func (client *WebApplicationFirewallPoliciesClient) listHandleResponse(resp *http.Response) (WebApplicationFirewallPoliciesClientListResponse, error) {
-	result := WebApplicationFirewallPoliciesClientListResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.WebApplicationFirewallPolicyListResult); err != nil {
-		return WebApplicationFirewallPoliciesClientListResponse{}, err
+func (client *WebApplicationFirewallPoliciesClient) listHandleResponse(resp *http.Response) (result WebApplicationFirewallPoliciesClientListResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.WebApplicationFirewallPolicyListResult); err != nil {
+		result = WebApplicationFirewallPoliciesClientListResponse{}
+		return
 	}
 	return result, nil
 }
@@ -304,25 +349,35 @@ func (client *WebApplicationFirewallPoliciesClient) NewListAllPager(options *Web
 		More: func(page WebApplicationFirewallPoliciesClientListAllResponse) bool {
 			return page.NextLink != nil && len(*page.NextLink) > 0
 		},
-		Fetcher: func(ctx context.Context, page *WebApplicationFirewallPoliciesClientListAllResponse) (WebApplicationFirewallPoliciesClientListAllResponse, error) {
+		Fetcher: func(ctx context.Context, page *WebApplicationFirewallPoliciesClientListAllResponse) (result WebApplicationFirewallPoliciesClientListAllResponse, err error) {
+			ctx, span := client.internal.Tracer().Start(ctx, "WebApplicationFirewallPoliciesClient.NewListAllPager", &tracing.SpanOptions{
+				Kind: tracing.SpanKindInternal,
+			})
+			defer func() {
+				if err != nil {
+					span.AddError(err)
+				}
+				span.End()
+			}()
 			var req *policy.Request
-			var err error
 			if page == nil {
 				req, err = client.listAllCreateRequest(ctx, options)
 			} else {
 				req, err = runtime.NewRequest(ctx, http.MethodGet, *page.NextLink)
 			}
 			if err != nil {
-				return WebApplicationFirewallPoliciesClientListAllResponse{}, err
+				return
 			}
 			resp, err := client.internal.Pipeline().Do(req)
 			if err != nil {
-				return WebApplicationFirewallPoliciesClientListAllResponse{}, err
+				return
 			}
 			if !runtime.HasStatusCode(resp, http.StatusOK) {
-				return WebApplicationFirewallPoliciesClientListAllResponse{}, runtime.NewResponseError(resp)
+				err = runtime.NewResponseError(resp)
+				return
 			}
-			return client.listAllHandleResponse(resp)
+			result, err = client.listAllHandleResponse(resp)
+			return
 		},
 	})
 }
@@ -346,10 +401,10 @@ func (client *WebApplicationFirewallPoliciesClient) listAllCreateRequest(ctx con
 }
 
 // listAllHandleResponse handles the ListAll response.
-func (client *WebApplicationFirewallPoliciesClient) listAllHandleResponse(resp *http.Response) (WebApplicationFirewallPoliciesClientListAllResponse, error) {
-	result := WebApplicationFirewallPoliciesClientListAllResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.WebApplicationFirewallPolicyListResult); err != nil {
-		return WebApplicationFirewallPoliciesClientListAllResponse{}, err
+func (client *WebApplicationFirewallPoliciesClient) listAllHandleResponse(resp *http.Response) (result WebApplicationFirewallPoliciesClientListAllResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.WebApplicationFirewallPolicyListResult); err != nil {
+		result = WebApplicationFirewallPoliciesClientListAllResponse{}
+		return
 	}
 	return result, nil
 }

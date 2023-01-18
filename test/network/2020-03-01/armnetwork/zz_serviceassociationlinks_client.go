@@ -16,6 +16,7 @@ import (
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/arm"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/policy"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/runtime"
+	"github.com/Azure/azure-sdk-for-go/sdk/azcore/tracing"
 	"net/http"
 	"net/url"
 	"strings"
@@ -54,19 +55,30 @@ func NewServiceAssociationLinksClient(subscriptionID string, credential azcore.T
 //   - subnetName - The name of the subnet.
 //   - options - ServiceAssociationLinksClientListOptions contains the optional parameters for the ServiceAssociationLinksClient.List
 //     method.
-func (client *ServiceAssociationLinksClient) List(ctx context.Context, resourceGroupName string, virtualNetworkName string, subnetName string, options *ServiceAssociationLinksClientListOptions) (ServiceAssociationLinksClientListResponse, error) {
+func (client *ServiceAssociationLinksClient) List(ctx context.Context, resourceGroupName string, virtualNetworkName string, subnetName string, options *ServiceAssociationLinksClientListOptions) (result ServiceAssociationLinksClientListResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "ServiceAssociationLinksClient.List", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.listCreateRequest(ctx, resourceGroupName, virtualNetworkName, subnetName, options)
 	if err != nil {
-		return ServiceAssociationLinksClientListResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return ServiceAssociationLinksClientListResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return ServiceAssociationLinksClientListResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.listHandleResponse(resp)
+	result, err = client.listHandleResponse(resp)
+	return
 }
 
 // listCreateRequest creates the List request.
@@ -100,10 +112,10 @@ func (client *ServiceAssociationLinksClient) listCreateRequest(ctx context.Conte
 }
 
 // listHandleResponse handles the List response.
-func (client *ServiceAssociationLinksClient) listHandleResponse(resp *http.Response) (ServiceAssociationLinksClientListResponse, error) {
-	result := ServiceAssociationLinksClientListResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.ServiceAssociationLinksListResult); err != nil {
-		return ServiceAssociationLinksClientListResponse{}, err
+func (client *ServiceAssociationLinksClient) listHandleResponse(resp *http.Response) (result ServiceAssociationLinksClientListResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.ServiceAssociationLinksListResult); err != nil {
+		result = ServiceAssociationLinksClientListResponse{}
+		return
 	}
 	return result, nil
 }

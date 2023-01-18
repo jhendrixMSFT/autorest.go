@@ -16,6 +16,7 @@ import (
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/arm"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/policy"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/runtime"
+	"github.com/Azure/azure-sdk-for-go/sdk/azcore/tracing"
 	"net/http"
 	"net/url"
 	"strings"
@@ -53,35 +54,47 @@ func NewOrdersClient(subscriptionID string, credential azcore.TokenCredential, o
 //   - order - The order to be created or updated.
 //   - options - OrdersClientBeginCreateOrUpdateOptions contains the optional parameters for the OrdersClient.BeginCreateOrUpdate
 //     method.
-func (client *OrdersClient) BeginCreateOrUpdate(ctx context.Context, deviceName string, resourceGroupName string, order Order, options *OrdersClientBeginCreateOrUpdateOptions) (*runtime.Poller[OrdersClientCreateOrUpdateResponse], error) {
-	if options == nil || options.ResumeToken == "" {
-		resp, err := client.createOrUpdate(ctx, deviceName, resourceGroupName, order, options)
+func (client *OrdersClient) BeginCreateOrUpdate(ctx context.Context, deviceName string, resourceGroupName string, order Order, options *OrdersClientBeginCreateOrUpdateOptions) (result *runtime.Poller[OrdersClientCreateOrUpdateResponse], err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "OrdersClient.BeginCreateOrUpdate", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
 		if err != nil {
-			return nil, err
+			span.AddError(err)
 		}
-		return runtime.NewPoller[OrdersClientCreateOrUpdateResponse](resp, client.internal.Pipeline(), nil)
+		span.End()
+	}()
+	if options == nil || options.ResumeToken == "" {
+		var resp *http.Response
+		resp, err = client.createOrUpdate(ctx, deviceName, resourceGroupName, order, options)
+		if err != nil {
+			return
+		}
+		result, err = runtime.NewPoller[OrdersClientCreateOrUpdateResponse](resp, client.internal.Pipeline(), nil)
 	} else {
-		return runtime.NewPollerFromResumeToken[OrdersClientCreateOrUpdateResponse](options.ResumeToken, client.internal.Pipeline(), nil)
+		result, err = runtime.NewPollerFromResumeToken[OrdersClientCreateOrUpdateResponse](options.ResumeToken, client.internal.Pipeline(), nil)
 	}
+	return
 }
 
 // CreateOrUpdate - Creates or updates an order.
 // If the operation fails it returns an *azcore.ResponseError type.
 //
 // Generated from API version 2021-02-01
-func (client *OrdersClient) createOrUpdate(ctx context.Context, deviceName string, resourceGroupName string, order Order, options *OrdersClientBeginCreateOrUpdateOptions) (*http.Response, error) {
+func (client *OrdersClient) createOrUpdate(ctx context.Context, deviceName string, resourceGroupName string, order Order, options *OrdersClientBeginCreateOrUpdateOptions) (resp *http.Response, err error) {
 	req, err := client.createOrUpdateCreateRequest(ctx, deviceName, resourceGroupName, order, options)
 	if err != nil {
-		return nil, err
+		return
 	}
-	resp, err := client.internal.Pipeline().Do(req)
+	resp, err = client.internal.Pipeline().Do(req)
 	if err != nil {
-		return nil, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK, http.StatusAccepted) {
-		return nil, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return resp, nil
+	return
 }
 
 // createOrUpdateCreateRequest creates the CreateOrUpdate request.
@@ -114,35 +127,47 @@ func (client *OrdersClient) createOrUpdateCreateRequest(ctx context.Context, dev
 //   - deviceName - The device name.
 //   - resourceGroupName - The resource group name.
 //   - options - OrdersClientBeginDeleteOptions contains the optional parameters for the OrdersClient.BeginDelete method.
-func (client *OrdersClient) BeginDelete(ctx context.Context, deviceName string, resourceGroupName string, options *OrdersClientBeginDeleteOptions) (*runtime.Poller[OrdersClientDeleteResponse], error) {
-	if options == nil || options.ResumeToken == "" {
-		resp, err := client.deleteOperation(ctx, deviceName, resourceGroupName, options)
+func (client *OrdersClient) BeginDelete(ctx context.Context, deviceName string, resourceGroupName string, options *OrdersClientBeginDeleteOptions) (result *runtime.Poller[OrdersClientDeleteResponse], err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "OrdersClient.BeginDelete", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
 		if err != nil {
-			return nil, err
+			span.AddError(err)
 		}
-		return runtime.NewPoller[OrdersClientDeleteResponse](resp, client.internal.Pipeline(), nil)
+		span.End()
+	}()
+	if options == nil || options.ResumeToken == "" {
+		var resp *http.Response
+		resp, err = client.deleteOperation(ctx, deviceName, resourceGroupName, options)
+		if err != nil {
+			return
+		}
+		result, err = runtime.NewPoller[OrdersClientDeleteResponse](resp, client.internal.Pipeline(), nil)
 	} else {
-		return runtime.NewPollerFromResumeToken[OrdersClientDeleteResponse](options.ResumeToken, client.internal.Pipeline(), nil)
+		result, err = runtime.NewPollerFromResumeToken[OrdersClientDeleteResponse](options.ResumeToken, client.internal.Pipeline(), nil)
 	}
+	return
 }
 
 // Delete - Deletes the order related to the device.
 // If the operation fails it returns an *azcore.ResponseError type.
 //
 // Generated from API version 2021-02-01
-func (client *OrdersClient) deleteOperation(ctx context.Context, deviceName string, resourceGroupName string, options *OrdersClientBeginDeleteOptions) (*http.Response, error) {
+func (client *OrdersClient) deleteOperation(ctx context.Context, deviceName string, resourceGroupName string, options *OrdersClientBeginDeleteOptions) (resp *http.Response, err error) {
 	req, err := client.deleteCreateRequest(ctx, deviceName, resourceGroupName, options)
 	if err != nil {
-		return nil, err
+		return
 	}
-	resp, err := client.internal.Pipeline().Do(req)
+	resp, err = client.internal.Pipeline().Do(req)
 	if err != nil {
-		return nil, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK, http.StatusAccepted, http.StatusNoContent) {
-		return nil, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return resp, nil
+	return
 }
 
 // deleteCreateRequest creates the Delete request.
@@ -175,19 +200,30 @@ func (client *OrdersClient) deleteCreateRequest(ctx context.Context, deviceName 
 //   - deviceName - The device name.
 //   - resourceGroupName - The resource group name.
 //   - options - OrdersClientGetOptions contains the optional parameters for the OrdersClient.Get method.
-func (client *OrdersClient) Get(ctx context.Context, deviceName string, resourceGroupName string, options *OrdersClientGetOptions) (OrdersClientGetResponse, error) {
+func (client *OrdersClient) Get(ctx context.Context, deviceName string, resourceGroupName string, options *OrdersClientGetOptions) (result OrdersClientGetResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "OrdersClient.Get", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.getCreateRequest(ctx, deviceName, resourceGroupName, options)
 	if err != nil {
-		return OrdersClientGetResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return OrdersClientGetResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return OrdersClientGetResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.getHandleResponse(resp)
+	result, err = client.getHandleResponse(resp)
+	return
 }
 
 // getCreateRequest creates the Get request.
@@ -214,10 +250,10 @@ func (client *OrdersClient) getCreateRequest(ctx context.Context, deviceName str
 }
 
 // getHandleResponse handles the Get response.
-func (client *OrdersClient) getHandleResponse(resp *http.Response) (OrdersClientGetResponse, error) {
-	result := OrdersClientGetResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.Order); err != nil {
-		return OrdersClientGetResponse{}, err
+func (client *OrdersClient) getHandleResponse(resp *http.Response) (result OrdersClientGetResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.Order); err != nil {
+		result = OrdersClientGetResponse{}
+		return
 	}
 	return result, nil
 }
@@ -234,25 +270,35 @@ func (client *OrdersClient) NewListByDataBoxEdgeDevicePager(deviceName string, r
 		More: func(page OrdersClientListByDataBoxEdgeDeviceResponse) bool {
 			return page.NextLink != nil && len(*page.NextLink) > 0
 		},
-		Fetcher: func(ctx context.Context, page *OrdersClientListByDataBoxEdgeDeviceResponse) (OrdersClientListByDataBoxEdgeDeviceResponse, error) {
+		Fetcher: func(ctx context.Context, page *OrdersClientListByDataBoxEdgeDeviceResponse) (result OrdersClientListByDataBoxEdgeDeviceResponse, err error) {
+			ctx, span := client.internal.Tracer().Start(ctx, "OrdersClient.NewListByDataBoxEdgeDevicePager", &tracing.SpanOptions{
+				Kind: tracing.SpanKindInternal,
+			})
+			defer func() {
+				if err != nil {
+					span.AddError(err)
+				}
+				span.End()
+			}()
 			var req *policy.Request
-			var err error
 			if page == nil {
 				req, err = client.listByDataBoxEdgeDeviceCreateRequest(ctx, deviceName, resourceGroupName, options)
 			} else {
 				req, err = runtime.NewRequest(ctx, http.MethodGet, *page.NextLink)
 			}
 			if err != nil {
-				return OrdersClientListByDataBoxEdgeDeviceResponse{}, err
+				return
 			}
 			resp, err := client.internal.Pipeline().Do(req)
 			if err != nil {
-				return OrdersClientListByDataBoxEdgeDeviceResponse{}, err
+				return
 			}
 			if !runtime.HasStatusCode(resp, http.StatusOK) {
-				return OrdersClientListByDataBoxEdgeDeviceResponse{}, runtime.NewResponseError(resp)
+				err = runtime.NewResponseError(resp)
+				return
 			}
-			return client.listByDataBoxEdgeDeviceHandleResponse(resp)
+			result, err = client.listByDataBoxEdgeDeviceHandleResponse(resp)
+			return
 		},
 	})
 }
@@ -281,10 +327,10 @@ func (client *OrdersClient) listByDataBoxEdgeDeviceCreateRequest(ctx context.Con
 }
 
 // listByDataBoxEdgeDeviceHandleResponse handles the ListByDataBoxEdgeDevice response.
-func (client *OrdersClient) listByDataBoxEdgeDeviceHandleResponse(resp *http.Response) (OrdersClientListByDataBoxEdgeDeviceResponse, error) {
-	result := OrdersClientListByDataBoxEdgeDeviceResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.OrderList); err != nil {
-		return OrdersClientListByDataBoxEdgeDeviceResponse{}, err
+func (client *OrdersClient) listByDataBoxEdgeDeviceHandleResponse(resp *http.Response) (result OrdersClientListByDataBoxEdgeDeviceResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.OrderList); err != nil {
+		result = OrdersClientListByDataBoxEdgeDeviceResponse{}
+		return
 	}
 	return result, nil
 }
@@ -296,19 +342,30 @@ func (client *OrdersClient) listByDataBoxEdgeDeviceHandleResponse(resp *http.Res
 //   - deviceName - The device name
 //   - resourceGroupName - The resource group name.
 //   - options - OrdersClientListDCAccessCodeOptions contains the optional parameters for the OrdersClient.ListDCAccessCode method.
-func (client *OrdersClient) ListDCAccessCode(ctx context.Context, deviceName string, resourceGroupName string, options *OrdersClientListDCAccessCodeOptions) (OrdersClientListDCAccessCodeResponse, error) {
+func (client *OrdersClient) ListDCAccessCode(ctx context.Context, deviceName string, resourceGroupName string, options *OrdersClientListDCAccessCodeOptions) (result OrdersClientListDCAccessCodeResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "OrdersClient.ListDCAccessCode", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.listDCAccessCodeCreateRequest(ctx, deviceName, resourceGroupName, options)
 	if err != nil {
-		return OrdersClientListDCAccessCodeResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return OrdersClientListDCAccessCodeResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return OrdersClientListDCAccessCodeResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.listDCAccessCodeHandleResponse(resp)
+	result, err = client.listDCAccessCodeHandleResponse(resp)
+	return
 }
 
 // listDCAccessCodeCreateRequest creates the ListDCAccessCode request.
@@ -335,10 +392,10 @@ func (client *OrdersClient) listDCAccessCodeCreateRequest(ctx context.Context, d
 }
 
 // listDCAccessCodeHandleResponse handles the ListDCAccessCode response.
-func (client *OrdersClient) listDCAccessCodeHandleResponse(resp *http.Response) (OrdersClientListDCAccessCodeResponse, error) {
-	result := OrdersClientListDCAccessCodeResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.DCAccessCode); err != nil {
-		return OrdersClientListDCAccessCodeResponse{}, err
+func (client *OrdersClient) listDCAccessCodeHandleResponse(resp *http.Response) (result OrdersClientListDCAccessCodeResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.DCAccessCode); err != nil {
+		result = OrdersClientListDCAccessCodeResponse{}
+		return
 	}
 	return result, nil
 }

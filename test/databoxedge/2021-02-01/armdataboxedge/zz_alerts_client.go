@@ -16,6 +16,7 @@ import (
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/arm"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/policy"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/runtime"
+	"github.com/Azure/azure-sdk-for-go/sdk/azcore/tracing"
 	"net/http"
 	"net/url"
 	"strings"
@@ -52,19 +53,30 @@ func NewAlertsClient(subscriptionID string, credential azcore.TokenCredential, o
 //   - name - The alert name.
 //   - resourceGroupName - The resource group name.
 //   - options - AlertsClientGetOptions contains the optional parameters for the AlertsClient.Get method.
-func (client *AlertsClient) Get(ctx context.Context, deviceName string, name string, resourceGroupName string, options *AlertsClientGetOptions) (AlertsClientGetResponse, error) {
+func (client *AlertsClient) Get(ctx context.Context, deviceName string, name string, resourceGroupName string, options *AlertsClientGetOptions) (result AlertsClientGetResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "AlertsClient.Get", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.getCreateRequest(ctx, deviceName, name, resourceGroupName, options)
 	if err != nil {
-		return AlertsClientGetResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return AlertsClientGetResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return AlertsClientGetResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.getHandleResponse(resp)
+	result, err = client.getHandleResponse(resp)
+	return
 }
 
 // getCreateRequest creates the Get request.
@@ -95,10 +107,10 @@ func (client *AlertsClient) getCreateRequest(ctx context.Context, deviceName str
 }
 
 // getHandleResponse handles the Get response.
-func (client *AlertsClient) getHandleResponse(resp *http.Response) (AlertsClientGetResponse, error) {
-	result := AlertsClientGetResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.Alert); err != nil {
-		return AlertsClientGetResponse{}, err
+func (client *AlertsClient) getHandleResponse(resp *http.Response) (result AlertsClientGetResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.Alert); err != nil {
+		result = AlertsClientGetResponse{}
+		return
 	}
 	return result, nil
 }
@@ -115,25 +127,35 @@ func (client *AlertsClient) NewListByDataBoxEdgeDevicePager(deviceName string, r
 		More: func(page AlertsClientListByDataBoxEdgeDeviceResponse) bool {
 			return page.NextLink != nil && len(*page.NextLink) > 0
 		},
-		Fetcher: func(ctx context.Context, page *AlertsClientListByDataBoxEdgeDeviceResponse) (AlertsClientListByDataBoxEdgeDeviceResponse, error) {
+		Fetcher: func(ctx context.Context, page *AlertsClientListByDataBoxEdgeDeviceResponse) (result AlertsClientListByDataBoxEdgeDeviceResponse, err error) {
+			ctx, span := client.internal.Tracer().Start(ctx, "AlertsClient.NewListByDataBoxEdgeDevicePager", &tracing.SpanOptions{
+				Kind: tracing.SpanKindInternal,
+			})
+			defer func() {
+				if err != nil {
+					span.AddError(err)
+				}
+				span.End()
+			}()
 			var req *policy.Request
-			var err error
 			if page == nil {
 				req, err = client.listByDataBoxEdgeDeviceCreateRequest(ctx, deviceName, resourceGroupName, options)
 			} else {
 				req, err = runtime.NewRequest(ctx, http.MethodGet, *page.NextLink)
 			}
 			if err != nil {
-				return AlertsClientListByDataBoxEdgeDeviceResponse{}, err
+				return
 			}
 			resp, err := client.internal.Pipeline().Do(req)
 			if err != nil {
-				return AlertsClientListByDataBoxEdgeDeviceResponse{}, err
+				return
 			}
 			if !runtime.HasStatusCode(resp, http.StatusOK) {
-				return AlertsClientListByDataBoxEdgeDeviceResponse{}, runtime.NewResponseError(resp)
+				err = runtime.NewResponseError(resp)
+				return
 			}
-			return client.listByDataBoxEdgeDeviceHandleResponse(resp)
+			result, err = client.listByDataBoxEdgeDeviceHandleResponse(resp)
+			return
 		},
 	})
 }
@@ -162,10 +184,10 @@ func (client *AlertsClient) listByDataBoxEdgeDeviceCreateRequest(ctx context.Con
 }
 
 // listByDataBoxEdgeDeviceHandleResponse handles the ListByDataBoxEdgeDevice response.
-func (client *AlertsClient) listByDataBoxEdgeDeviceHandleResponse(resp *http.Response) (AlertsClientListByDataBoxEdgeDeviceResponse, error) {
-	result := AlertsClientListByDataBoxEdgeDeviceResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.AlertList); err != nil {
-		return AlertsClientListByDataBoxEdgeDeviceResponse{}, err
+func (client *AlertsClient) listByDataBoxEdgeDeviceHandleResponse(resp *http.Response) (result AlertsClientListByDataBoxEdgeDeviceResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.AlertList); err != nil {
+		result = AlertsClientListByDataBoxEdgeDeviceResponse{}
+		return
 	}
 	return result, nil
 }

@@ -15,6 +15,7 @@ import (
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/policy"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/runtime"
+	"github.com/Azure/azure-sdk-for-go/sdk/azcore/tracing"
 	"net/http"
 	"strconv"
 )
@@ -46,19 +47,30 @@ type Client struct {
 //
 // Generated from API version 2.0
 //   - options - ClientCreateOptions contains the optional parameters for the Client.Create method.
-func (client *Client) Create(ctx context.Context, options *ClientCreateOptions) (ClientCreateResponse, error) {
+func (client *Client) Create(ctx context.Context, options *ClientCreateOptions) (result ClientCreateResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "Client.Create", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.createCreateRequest(ctx, options)
 	if err != nil {
-		return ClientCreateResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return ClientCreateResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusCreated) {
-		return ClientCreateResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.createHandleResponse(resp)
+	result, err = client.createHandleResponse(resp)
+	return
 }
 
 // createCreateRequest creates the Create request.
@@ -92,13 +104,13 @@ func (client *Client) createCreateRequest(ctx context.Context, options *ClientCr
 }
 
 // createHandleResponse handles the Create response.
-func (client *Client) createHandleResponse(resp *http.Response) (ClientCreateResponse, error) {
-	result := ClientCreateResponse{}
+func (client *Client) createHandleResponse(resp *http.Response) (result ClientCreateResponse, err error) {
 	if val := resp.Header.Get("Access-Control-Expose-Headers"); val != "" {
 		result.AccessControlExposeHeaders = &val
 	}
-	if err := runtime.UnmarshalAsJSON(resp, &result.AliasesCreateResponse); err != nil {
-		return ClientCreateResponse{}, err
+	if err = runtime.UnmarshalAsJSON(resp, &result.AliasesCreateResponse); err != nil {
+		result = ClientCreateResponse{}
+		return
 	}
 	return result, nil
 }
@@ -108,19 +120,30 @@ func (client *Client) createHandleResponse(resp *http.Response) (ClientCreateRes
 //
 // Generated from API version 2.0
 //   - options - ClientGetScriptOptions contains the optional parameters for the Client.GetScript method.
-func (client *Client) GetScript(ctx context.Context, props GeoJSONObjectNamedCollection, options *ClientGetScriptOptions) (ClientGetScriptResponse, error) {
+func (client *Client) GetScript(ctx context.Context, props GeoJSONObjectNamedCollection, options *ClientGetScriptOptions) (result ClientGetScriptResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "Client.GetScript", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.getScriptCreateRequest(ctx, props, options)
 	if err != nil {
-		return ClientGetScriptResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return ClientGetScriptResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return ClientGetScriptResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.getScriptHandleResponse(resp)
+	result, err = client.getScriptHandleResponse(resp)
+	return
 }
 
 // getScriptCreateRequest creates the GetScript request.
@@ -135,11 +158,10 @@ func (client *Client) getScriptCreateRequest(ctx context.Context, props GeoJSONO
 }
 
 // getScriptHandleResponse handles the GetScript response.
-func (client *Client) getScriptHandleResponse(resp *http.Response) (ClientGetScriptResponse, error) {
-	result := ClientGetScriptResponse{}
+func (client *Client) getScriptHandleResponse(resp *http.Response) (result ClientGetScriptResponse, err error) {
 	body, err := runtime.Payload(resp)
 	if err != nil {
-		return ClientGetScriptResponse{}, err
+		return
 	}
 	txt := string(body)
 	result.Value = &txt
@@ -172,25 +194,35 @@ func (client *Client) NewListPager(options *ClientListOptions) *runtime.Pager[Cl
 		More: func(page ClientListResponse) bool {
 			return page.NextLink != nil && len(*page.NextLink) > 0
 		},
-		Fetcher: func(ctx context.Context, page *ClientListResponse) (ClientListResponse, error) {
+		Fetcher: func(ctx context.Context, page *ClientListResponse) (result ClientListResponse, err error) {
+			ctx, span := client.internal.Tracer().Start(ctx, "Client.NewListPager", &tracing.SpanOptions{
+				Kind: tracing.SpanKindInternal,
+			})
+			defer func() {
+				if err != nil {
+					span.AddError(err)
+				}
+				span.End()
+			}()
 			var req *policy.Request
-			var err error
 			if page == nil {
 				req, err = client.listCreateRequest(ctx, options)
 			} else {
 				req, err = runtime.NewRequest(ctx, http.MethodGet, *page.NextLink)
 			}
 			if err != nil {
-				return ClientListResponse{}, err
+				return
 			}
 			resp, err := client.internal.Pipeline().Do(req)
 			if err != nil {
-				return ClientListResponse{}, err
+				return
 			}
 			if !runtime.HasStatusCode(resp, http.StatusOK) {
-				return ClientListResponse{}, runtime.NewResponseError(resp)
+				err = runtime.NewResponseError(resp)
+				return
 			}
-			return client.listHandleResponse(resp)
+			result, err = client.listHandleResponse(resp)
+			return
 		},
 	})
 }
@@ -215,10 +247,10 @@ func (client *Client) listCreateRequest(ctx context.Context, options *ClientList
 }
 
 // listHandleResponse handles the List response.
-func (client *Client) listHandleResponse(resp *http.Response) (ClientListResponse, error) {
-	result := ClientListResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.ListResponse); err != nil {
-		return ClientListResponse{}, err
+func (client *Client) listHandleResponse(resp *http.Response) (result ClientListResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.ListResponse); err != nil {
+		result = ClientListResponse{}
+		return
 	}
 	return result, nil
 }
@@ -228,19 +260,30 @@ func (client *Client) listHandleResponse(resp *http.Response) (ClientListRespons
 //
 // Generated from API version 2.0
 //   - options - ClientPolicyAssignmentOptions contains the optional parameters for the Client.PolicyAssignment method.
-func (client *Client) PolicyAssignment(ctx context.Context, props ScheduleCreateOrUpdateProperties, options *ClientPolicyAssignmentOptions) (ClientPolicyAssignmentResponse, error) {
+func (client *Client) PolicyAssignment(ctx context.Context, props ScheduleCreateOrUpdateProperties, options *ClientPolicyAssignmentOptions) (result ClientPolicyAssignmentResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "Client.PolicyAssignment", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.policyAssignmentCreateRequest(ctx, props, options)
 	if err != nil {
-		return ClientPolicyAssignmentResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return ClientPolicyAssignmentResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return ClientPolicyAssignmentResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.policyAssignmentHandleResponse(resp)
+	result, err = client.policyAssignmentHandleResponse(resp)
+	return
 }
 
 // policyAssignmentCreateRequest creates the PolicyAssignment request.
@@ -255,10 +298,10 @@ func (client *Client) policyAssignmentCreateRequest(ctx context.Context, props S
 }
 
 // policyAssignmentHandleResponse handles the PolicyAssignment response.
-func (client *Client) policyAssignmentHandleResponse(resp *http.Response) (ClientPolicyAssignmentResponse, error) {
-	result := ClientPolicyAssignmentResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.PolicyAssignmentProperties); err != nil {
-		return ClientPolicyAssignmentResponse{}, err
+func (client *Client) policyAssignmentHandleResponse(resp *http.Response) (result ClientPolicyAssignmentResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.PolicyAssignmentProperties); err != nil {
+		result = ClientPolicyAssignmentResponse{}
+		return
 	}
 	return result, nil
 }

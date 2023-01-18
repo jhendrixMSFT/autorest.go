@@ -16,6 +16,7 @@ import (
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/arm"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/policy"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/runtime"
+	"github.com/Azure/azure-sdk-for-go/sdk/azcore/tracing"
 	"net/http"
 	"net/url"
 	"strings"
@@ -54,19 +55,30 @@ func NewProximityPlacementGroupsClient(subscriptionID string, credential azcore.
 //   - parameters - Parameters supplied to the Create Proximity Placement Group operation.
 //   - options - ProximityPlacementGroupsClientCreateOrUpdateOptions contains the optional parameters for the ProximityPlacementGroupsClient.CreateOrUpdate
 //     method.
-func (client *ProximityPlacementGroupsClient) CreateOrUpdate(ctx context.Context, resourceGroupName string, proximityPlacementGroupName string, parameters ProximityPlacementGroup, options *ProximityPlacementGroupsClientCreateOrUpdateOptions) (ProximityPlacementGroupsClientCreateOrUpdateResponse, error) {
+func (client *ProximityPlacementGroupsClient) CreateOrUpdate(ctx context.Context, resourceGroupName string, proximityPlacementGroupName string, parameters ProximityPlacementGroup, options *ProximityPlacementGroupsClientCreateOrUpdateOptions) (result ProximityPlacementGroupsClientCreateOrUpdateResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "ProximityPlacementGroupsClient.CreateOrUpdate", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.createOrUpdateCreateRequest(ctx, resourceGroupName, proximityPlacementGroupName, parameters, options)
 	if err != nil {
-		return ProximityPlacementGroupsClientCreateOrUpdateResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return ProximityPlacementGroupsClientCreateOrUpdateResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK, http.StatusCreated) {
-		return ProximityPlacementGroupsClientCreateOrUpdateResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.createOrUpdateHandleResponse(resp)
+	result, err = client.createOrUpdateHandleResponse(resp)
+	return
 }
 
 // createOrUpdateCreateRequest creates the CreateOrUpdate request.
@@ -96,10 +108,10 @@ func (client *ProximityPlacementGroupsClient) createOrUpdateCreateRequest(ctx co
 }
 
 // createOrUpdateHandleResponse handles the CreateOrUpdate response.
-func (client *ProximityPlacementGroupsClient) createOrUpdateHandleResponse(resp *http.Response) (ProximityPlacementGroupsClientCreateOrUpdateResponse, error) {
-	result := ProximityPlacementGroupsClientCreateOrUpdateResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.ProximityPlacementGroup); err != nil {
-		return ProximityPlacementGroupsClientCreateOrUpdateResponse{}, err
+func (client *ProximityPlacementGroupsClient) createOrUpdateHandleResponse(resp *http.Response) (result ProximityPlacementGroupsClientCreateOrUpdateResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.ProximityPlacementGroup); err != nil {
+		result = ProximityPlacementGroupsClientCreateOrUpdateResponse{}
+		return
 	}
 	return result, nil
 }
@@ -112,19 +124,29 @@ func (client *ProximityPlacementGroupsClient) createOrUpdateHandleResponse(resp 
 //   - proximityPlacementGroupName - The name of the proximity placement group.
 //   - options - ProximityPlacementGroupsClientDeleteOptions contains the optional parameters for the ProximityPlacementGroupsClient.Delete
 //     method.
-func (client *ProximityPlacementGroupsClient) Delete(ctx context.Context, resourceGroupName string, proximityPlacementGroupName string, options *ProximityPlacementGroupsClientDeleteOptions) (ProximityPlacementGroupsClientDeleteResponse, error) {
+func (client *ProximityPlacementGroupsClient) Delete(ctx context.Context, resourceGroupName string, proximityPlacementGroupName string, options *ProximityPlacementGroupsClientDeleteOptions) (result ProximityPlacementGroupsClientDeleteResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "ProximityPlacementGroupsClient.Delete", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.deleteCreateRequest(ctx, resourceGroupName, proximityPlacementGroupName, options)
 	if err != nil {
-		return ProximityPlacementGroupsClientDeleteResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return ProximityPlacementGroupsClientDeleteResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return ProximityPlacementGroupsClientDeleteResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return ProximityPlacementGroupsClientDeleteResponse{}, nil
+	return
 }
 
 // deleteCreateRequest creates the Delete request.
@@ -160,19 +182,30 @@ func (client *ProximityPlacementGroupsClient) deleteCreateRequest(ctx context.Co
 //   - proximityPlacementGroupName - The name of the proximity placement group.
 //   - options - ProximityPlacementGroupsClientGetOptions contains the optional parameters for the ProximityPlacementGroupsClient.Get
 //     method.
-func (client *ProximityPlacementGroupsClient) Get(ctx context.Context, resourceGroupName string, proximityPlacementGroupName string, options *ProximityPlacementGroupsClientGetOptions) (ProximityPlacementGroupsClientGetResponse, error) {
+func (client *ProximityPlacementGroupsClient) Get(ctx context.Context, resourceGroupName string, proximityPlacementGroupName string, options *ProximityPlacementGroupsClientGetOptions) (result ProximityPlacementGroupsClientGetResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "ProximityPlacementGroupsClient.Get", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.getCreateRequest(ctx, resourceGroupName, proximityPlacementGroupName, options)
 	if err != nil {
-		return ProximityPlacementGroupsClientGetResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return ProximityPlacementGroupsClientGetResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return ProximityPlacementGroupsClientGetResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.getHandleResponse(resp)
+	result, err = client.getHandleResponse(resp)
+	return
 }
 
 // getCreateRequest creates the Get request.
@@ -205,10 +238,10 @@ func (client *ProximityPlacementGroupsClient) getCreateRequest(ctx context.Conte
 }
 
 // getHandleResponse handles the Get response.
-func (client *ProximityPlacementGroupsClient) getHandleResponse(resp *http.Response) (ProximityPlacementGroupsClientGetResponse, error) {
-	result := ProximityPlacementGroupsClientGetResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.ProximityPlacementGroup); err != nil {
-		return ProximityPlacementGroupsClientGetResponse{}, err
+func (client *ProximityPlacementGroupsClient) getHandleResponse(resp *http.Response) (result ProximityPlacementGroupsClientGetResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.ProximityPlacementGroup); err != nil {
+		result = ProximityPlacementGroupsClientGetResponse{}
+		return
 	}
 	return result, nil
 }
@@ -224,25 +257,35 @@ func (client *ProximityPlacementGroupsClient) NewListByResourceGroupPager(resour
 		More: func(page ProximityPlacementGroupsClientListByResourceGroupResponse) bool {
 			return page.NextLink != nil && len(*page.NextLink) > 0
 		},
-		Fetcher: func(ctx context.Context, page *ProximityPlacementGroupsClientListByResourceGroupResponse) (ProximityPlacementGroupsClientListByResourceGroupResponse, error) {
+		Fetcher: func(ctx context.Context, page *ProximityPlacementGroupsClientListByResourceGroupResponse) (result ProximityPlacementGroupsClientListByResourceGroupResponse, err error) {
+			ctx, span := client.internal.Tracer().Start(ctx, "ProximityPlacementGroupsClient.NewListByResourceGroupPager", &tracing.SpanOptions{
+				Kind: tracing.SpanKindInternal,
+			})
+			defer func() {
+				if err != nil {
+					span.AddError(err)
+				}
+				span.End()
+			}()
 			var req *policy.Request
-			var err error
 			if page == nil {
 				req, err = client.listByResourceGroupCreateRequest(ctx, resourceGroupName, options)
 			} else {
 				req, err = runtime.NewRequest(ctx, http.MethodGet, *page.NextLink)
 			}
 			if err != nil {
-				return ProximityPlacementGroupsClientListByResourceGroupResponse{}, err
+				return
 			}
 			resp, err := client.internal.Pipeline().Do(req)
 			if err != nil {
-				return ProximityPlacementGroupsClientListByResourceGroupResponse{}, err
+				return
 			}
 			if !runtime.HasStatusCode(resp, http.StatusOK) {
-				return ProximityPlacementGroupsClientListByResourceGroupResponse{}, runtime.NewResponseError(resp)
+				err = runtime.NewResponseError(resp)
+				return
 			}
-			return client.listByResourceGroupHandleResponse(resp)
+			result, err = client.listByResourceGroupHandleResponse(resp)
+			return
 		},
 	})
 }
@@ -270,10 +313,10 @@ func (client *ProximityPlacementGroupsClient) listByResourceGroupCreateRequest(c
 }
 
 // listByResourceGroupHandleResponse handles the ListByResourceGroup response.
-func (client *ProximityPlacementGroupsClient) listByResourceGroupHandleResponse(resp *http.Response) (ProximityPlacementGroupsClientListByResourceGroupResponse, error) {
-	result := ProximityPlacementGroupsClientListByResourceGroupResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.ProximityPlacementGroupListResult); err != nil {
-		return ProximityPlacementGroupsClientListByResourceGroupResponse{}, err
+func (client *ProximityPlacementGroupsClient) listByResourceGroupHandleResponse(resp *http.Response) (result ProximityPlacementGroupsClientListByResourceGroupResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.ProximityPlacementGroupListResult); err != nil {
+		result = ProximityPlacementGroupsClientListByResourceGroupResponse{}
+		return
 	}
 	return result, nil
 }
@@ -288,25 +331,35 @@ func (client *ProximityPlacementGroupsClient) NewListBySubscriptionPager(options
 		More: func(page ProximityPlacementGroupsClientListBySubscriptionResponse) bool {
 			return page.NextLink != nil && len(*page.NextLink) > 0
 		},
-		Fetcher: func(ctx context.Context, page *ProximityPlacementGroupsClientListBySubscriptionResponse) (ProximityPlacementGroupsClientListBySubscriptionResponse, error) {
+		Fetcher: func(ctx context.Context, page *ProximityPlacementGroupsClientListBySubscriptionResponse) (result ProximityPlacementGroupsClientListBySubscriptionResponse, err error) {
+			ctx, span := client.internal.Tracer().Start(ctx, "ProximityPlacementGroupsClient.NewListBySubscriptionPager", &tracing.SpanOptions{
+				Kind: tracing.SpanKindInternal,
+			})
+			defer func() {
+				if err != nil {
+					span.AddError(err)
+				}
+				span.End()
+			}()
 			var req *policy.Request
-			var err error
 			if page == nil {
 				req, err = client.listBySubscriptionCreateRequest(ctx, options)
 			} else {
 				req, err = runtime.NewRequest(ctx, http.MethodGet, *page.NextLink)
 			}
 			if err != nil {
-				return ProximityPlacementGroupsClientListBySubscriptionResponse{}, err
+				return
 			}
 			resp, err := client.internal.Pipeline().Do(req)
 			if err != nil {
-				return ProximityPlacementGroupsClientListBySubscriptionResponse{}, err
+				return
 			}
 			if !runtime.HasStatusCode(resp, http.StatusOK) {
-				return ProximityPlacementGroupsClientListBySubscriptionResponse{}, runtime.NewResponseError(resp)
+				err = runtime.NewResponseError(resp)
+				return
 			}
-			return client.listBySubscriptionHandleResponse(resp)
+			result, err = client.listBySubscriptionHandleResponse(resp)
+			return
 		},
 	})
 }
@@ -330,10 +383,10 @@ func (client *ProximityPlacementGroupsClient) listBySubscriptionCreateRequest(ct
 }
 
 // listBySubscriptionHandleResponse handles the ListBySubscription response.
-func (client *ProximityPlacementGroupsClient) listBySubscriptionHandleResponse(resp *http.Response) (ProximityPlacementGroupsClientListBySubscriptionResponse, error) {
-	result := ProximityPlacementGroupsClientListBySubscriptionResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.ProximityPlacementGroupListResult); err != nil {
-		return ProximityPlacementGroupsClientListBySubscriptionResponse{}, err
+func (client *ProximityPlacementGroupsClient) listBySubscriptionHandleResponse(resp *http.Response) (result ProximityPlacementGroupsClientListBySubscriptionResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.ProximityPlacementGroupListResult); err != nil {
+		result = ProximityPlacementGroupsClientListBySubscriptionResponse{}
+		return
 	}
 	return result, nil
 }
@@ -347,19 +400,30 @@ func (client *ProximityPlacementGroupsClient) listBySubscriptionHandleResponse(r
 //   - parameters - Parameters supplied to the Update Proximity Placement Group operation.
 //   - options - ProximityPlacementGroupsClientUpdateOptions contains the optional parameters for the ProximityPlacementGroupsClient.Update
 //     method.
-func (client *ProximityPlacementGroupsClient) Update(ctx context.Context, resourceGroupName string, proximityPlacementGroupName string, parameters ProximityPlacementGroupUpdate, options *ProximityPlacementGroupsClientUpdateOptions) (ProximityPlacementGroupsClientUpdateResponse, error) {
+func (client *ProximityPlacementGroupsClient) Update(ctx context.Context, resourceGroupName string, proximityPlacementGroupName string, parameters ProximityPlacementGroupUpdate, options *ProximityPlacementGroupsClientUpdateOptions) (result ProximityPlacementGroupsClientUpdateResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "ProximityPlacementGroupsClient.Update", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.updateCreateRequest(ctx, resourceGroupName, proximityPlacementGroupName, parameters, options)
 	if err != nil {
-		return ProximityPlacementGroupsClientUpdateResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return ProximityPlacementGroupsClientUpdateResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return ProximityPlacementGroupsClientUpdateResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.updateHandleResponse(resp)
+	result, err = client.updateHandleResponse(resp)
+	return
 }
 
 // updateCreateRequest creates the Update request.
@@ -389,10 +453,10 @@ func (client *ProximityPlacementGroupsClient) updateCreateRequest(ctx context.Co
 }
 
 // updateHandleResponse handles the Update response.
-func (client *ProximityPlacementGroupsClient) updateHandleResponse(resp *http.Response) (ProximityPlacementGroupsClientUpdateResponse, error) {
-	result := ProximityPlacementGroupsClientUpdateResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.ProximityPlacementGroup); err != nil {
-		return ProximityPlacementGroupsClientUpdateResponse{}, err
+func (client *ProximityPlacementGroupsClient) updateHandleResponse(resp *http.Response) (result ProximityPlacementGroupsClientUpdateResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.ProximityPlacementGroup); err != nil {
+		result = ProximityPlacementGroupsClientUpdateResponse{}
+		return
 	}
 	return result, nil
 }

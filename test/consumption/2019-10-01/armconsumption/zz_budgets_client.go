@@ -16,6 +16,7 @@ import (
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/arm"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/policy"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/runtime"
+	"github.com/Azure/azure-sdk-for-go/sdk/azcore/tracing"
 	"net/http"
 	"net/url"
 	"strings"
@@ -59,19 +60,30 @@ func NewBudgetsClient(credential azcore.TokenCredential, options *arm.ClientOpti
 //   - budgetName - Budget Name.
 //   - parameters - Parameters supplied to the Create Budget operation.
 //   - options - BudgetsClientCreateOrUpdateOptions contains the optional parameters for the BudgetsClient.CreateOrUpdate method.
-func (client *BudgetsClient) CreateOrUpdate(ctx context.Context, scope string, budgetName string, parameters Budget, options *BudgetsClientCreateOrUpdateOptions) (BudgetsClientCreateOrUpdateResponse, error) {
+func (client *BudgetsClient) CreateOrUpdate(ctx context.Context, scope string, budgetName string, parameters Budget, options *BudgetsClientCreateOrUpdateOptions) (result BudgetsClientCreateOrUpdateResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "BudgetsClient.CreateOrUpdate", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.createOrUpdateCreateRequest(ctx, scope, budgetName, parameters, options)
 	if err != nil {
-		return BudgetsClientCreateOrUpdateResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return BudgetsClientCreateOrUpdateResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK, http.StatusCreated) {
-		return BudgetsClientCreateOrUpdateResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.createOrUpdateHandleResponse(resp)
+	result, err = client.createOrUpdateHandleResponse(resp)
+	return
 }
 
 // createOrUpdateCreateRequest creates the CreateOrUpdate request.
@@ -94,10 +106,10 @@ func (client *BudgetsClient) createOrUpdateCreateRequest(ctx context.Context, sc
 }
 
 // createOrUpdateHandleResponse handles the CreateOrUpdate response.
-func (client *BudgetsClient) createOrUpdateHandleResponse(resp *http.Response) (BudgetsClientCreateOrUpdateResponse, error) {
-	result := BudgetsClientCreateOrUpdateResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.Budget); err != nil {
-		return BudgetsClientCreateOrUpdateResponse{}, err
+func (client *BudgetsClient) createOrUpdateHandleResponse(resp *http.Response) (result BudgetsClientCreateOrUpdateResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.Budget); err != nil {
+		result = BudgetsClientCreateOrUpdateResponse{}
+		return
 	}
 	return result, nil
 }
@@ -117,19 +129,29 @@ func (client *BudgetsClient) createOrUpdateHandleResponse(resp *http.Response) (
 //     for invoiceSection scope.
 //   - budgetName - Budget Name.
 //   - options - BudgetsClientDeleteOptions contains the optional parameters for the BudgetsClient.Delete method.
-func (client *BudgetsClient) Delete(ctx context.Context, scope string, budgetName string, options *BudgetsClientDeleteOptions) (BudgetsClientDeleteResponse, error) {
+func (client *BudgetsClient) Delete(ctx context.Context, scope string, budgetName string, options *BudgetsClientDeleteOptions) (result BudgetsClientDeleteResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "BudgetsClient.Delete", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.deleteCreateRequest(ctx, scope, budgetName, options)
 	if err != nil {
-		return BudgetsClientDeleteResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return BudgetsClientDeleteResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return BudgetsClientDeleteResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return BudgetsClientDeleteResponse{}, nil
+	return
 }
 
 // deleteCreateRequest creates the Delete request.
@@ -166,19 +188,30 @@ func (client *BudgetsClient) deleteCreateRequest(ctx context.Context, scope stri
 //     for invoiceSection scope.
 //   - budgetName - Budget Name.
 //   - options - BudgetsClientGetOptions contains the optional parameters for the BudgetsClient.Get method.
-func (client *BudgetsClient) Get(ctx context.Context, scope string, budgetName string, options *BudgetsClientGetOptions) (BudgetsClientGetResponse, error) {
+func (client *BudgetsClient) Get(ctx context.Context, scope string, budgetName string, options *BudgetsClientGetOptions) (result BudgetsClientGetResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "BudgetsClient.Get", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.getCreateRequest(ctx, scope, budgetName, options)
 	if err != nil {
-		return BudgetsClientGetResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return BudgetsClientGetResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return BudgetsClientGetResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.getHandleResponse(resp)
+	result, err = client.getHandleResponse(resp)
+	return
 }
 
 // getCreateRequest creates the Get request.
@@ -201,10 +234,10 @@ func (client *BudgetsClient) getCreateRequest(ctx context.Context, scope string,
 }
 
 // getHandleResponse handles the Get response.
-func (client *BudgetsClient) getHandleResponse(resp *http.Response) (BudgetsClientGetResponse, error) {
-	result := BudgetsClientGetResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.Budget); err != nil {
-		return BudgetsClientGetResponse{}, err
+func (client *BudgetsClient) getHandleResponse(resp *http.Response) (result BudgetsClientGetResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.Budget); err != nil {
+		result = BudgetsClientGetResponse{}
+		return
 	}
 	return result, nil
 }
@@ -227,25 +260,35 @@ func (client *BudgetsClient) NewListPager(scope string, options *BudgetsClientLi
 		More: func(page BudgetsClientListResponse) bool {
 			return page.NextLink != nil && len(*page.NextLink) > 0
 		},
-		Fetcher: func(ctx context.Context, page *BudgetsClientListResponse) (BudgetsClientListResponse, error) {
+		Fetcher: func(ctx context.Context, page *BudgetsClientListResponse) (result BudgetsClientListResponse, err error) {
+			ctx, span := client.internal.Tracer().Start(ctx, "BudgetsClient.NewListPager", &tracing.SpanOptions{
+				Kind: tracing.SpanKindInternal,
+			})
+			defer func() {
+				if err != nil {
+					span.AddError(err)
+				}
+				span.End()
+			}()
 			var req *policy.Request
-			var err error
 			if page == nil {
 				req, err = client.listCreateRequest(ctx, scope, options)
 			} else {
 				req, err = runtime.NewRequest(ctx, http.MethodGet, *page.NextLink)
 			}
 			if err != nil {
-				return BudgetsClientListResponse{}, err
+				return
 			}
 			resp, err := client.internal.Pipeline().Do(req)
 			if err != nil {
-				return BudgetsClientListResponse{}, err
+				return
 			}
 			if !runtime.HasStatusCode(resp, http.StatusOK) {
-				return BudgetsClientListResponse{}, runtime.NewResponseError(resp)
+				err = runtime.NewResponseError(resp)
+				return
 			}
-			return client.listHandleResponse(resp)
+			result, err = client.listHandleResponse(resp)
+			return
 		},
 	})
 }
@@ -266,10 +309,10 @@ func (client *BudgetsClient) listCreateRequest(ctx context.Context, scope string
 }
 
 // listHandleResponse handles the List response.
-func (client *BudgetsClient) listHandleResponse(resp *http.Response) (BudgetsClientListResponse, error) {
-	result := BudgetsClientListResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.BudgetsListResult); err != nil {
-		return BudgetsClientListResponse{}, err
+func (client *BudgetsClient) listHandleResponse(resp *http.Response) (result BudgetsClientListResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.BudgetsListResult); err != nil {
+		result = BudgetsClientListResponse{}
+		return
 	}
 	return result, nil
 }

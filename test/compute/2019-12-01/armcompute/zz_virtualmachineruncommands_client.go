@@ -16,6 +16,7 @@ import (
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/arm"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/policy"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/runtime"
+	"github.com/Azure/azure-sdk-for-go/sdk/azcore/tracing"
 	"net/http"
 	"net/url"
 	"strings"
@@ -53,19 +54,30 @@ func NewVirtualMachineRunCommandsClient(subscriptionID string, credential azcore
 //   - commandID - The command id.
 //   - options - VirtualMachineRunCommandsClientGetOptions contains the optional parameters for the VirtualMachineRunCommandsClient.Get
 //     method.
-func (client *VirtualMachineRunCommandsClient) Get(ctx context.Context, location string, commandID string, options *VirtualMachineRunCommandsClientGetOptions) (VirtualMachineRunCommandsClientGetResponse, error) {
+func (client *VirtualMachineRunCommandsClient) Get(ctx context.Context, location string, commandID string, options *VirtualMachineRunCommandsClientGetOptions) (result VirtualMachineRunCommandsClientGetResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "VirtualMachineRunCommandsClient.Get", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.getCreateRequest(ctx, location, commandID, options)
 	if err != nil {
-		return VirtualMachineRunCommandsClientGetResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return VirtualMachineRunCommandsClientGetResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return VirtualMachineRunCommandsClientGetResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.getHandleResponse(resp)
+	result, err = client.getHandleResponse(resp)
+	return
 }
 
 // getCreateRequest creates the Get request.
@@ -95,10 +107,10 @@ func (client *VirtualMachineRunCommandsClient) getCreateRequest(ctx context.Cont
 }
 
 // getHandleResponse handles the Get response.
-func (client *VirtualMachineRunCommandsClient) getHandleResponse(resp *http.Response) (VirtualMachineRunCommandsClientGetResponse, error) {
-	result := VirtualMachineRunCommandsClientGetResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.RunCommandDocument); err != nil {
-		return VirtualMachineRunCommandsClientGetResponse{}, err
+func (client *VirtualMachineRunCommandsClient) getHandleResponse(resp *http.Response) (result VirtualMachineRunCommandsClientGetResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.RunCommandDocument); err != nil {
+		result = VirtualMachineRunCommandsClientGetResponse{}
+		return
 	}
 	return result, nil
 }
@@ -114,25 +126,35 @@ func (client *VirtualMachineRunCommandsClient) NewListPager(location string, opt
 		More: func(page VirtualMachineRunCommandsClientListResponse) bool {
 			return page.NextLink != nil && len(*page.NextLink) > 0
 		},
-		Fetcher: func(ctx context.Context, page *VirtualMachineRunCommandsClientListResponse) (VirtualMachineRunCommandsClientListResponse, error) {
+		Fetcher: func(ctx context.Context, page *VirtualMachineRunCommandsClientListResponse) (result VirtualMachineRunCommandsClientListResponse, err error) {
+			ctx, span := client.internal.Tracer().Start(ctx, "VirtualMachineRunCommandsClient.NewListPager", &tracing.SpanOptions{
+				Kind: tracing.SpanKindInternal,
+			})
+			defer func() {
+				if err != nil {
+					span.AddError(err)
+				}
+				span.End()
+			}()
 			var req *policy.Request
-			var err error
 			if page == nil {
 				req, err = client.listCreateRequest(ctx, location, options)
 			} else {
 				req, err = runtime.NewRequest(ctx, http.MethodGet, *page.NextLink)
 			}
 			if err != nil {
-				return VirtualMachineRunCommandsClientListResponse{}, err
+				return
 			}
 			resp, err := client.internal.Pipeline().Do(req)
 			if err != nil {
-				return VirtualMachineRunCommandsClientListResponse{}, err
+				return
 			}
 			if !runtime.HasStatusCode(resp, http.StatusOK) {
-				return VirtualMachineRunCommandsClientListResponse{}, runtime.NewResponseError(resp)
+				err = runtime.NewResponseError(resp)
+				return
 			}
-			return client.listHandleResponse(resp)
+			result, err = client.listHandleResponse(resp)
+			return
 		},
 	})
 }
@@ -160,10 +182,10 @@ func (client *VirtualMachineRunCommandsClient) listCreateRequest(ctx context.Con
 }
 
 // listHandleResponse handles the List response.
-func (client *VirtualMachineRunCommandsClient) listHandleResponse(resp *http.Response) (VirtualMachineRunCommandsClientListResponse, error) {
-	result := VirtualMachineRunCommandsClientListResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.RunCommandListResult); err != nil {
-		return VirtualMachineRunCommandsClientListResponse{}, err
+func (client *VirtualMachineRunCommandsClient) listHandleResponse(resp *http.Response) (result VirtualMachineRunCommandsClientListResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.RunCommandListResult); err != nil {
+		result = VirtualMachineRunCommandsClientListResponse{}
+		return
 	}
 	return result, nil
 }

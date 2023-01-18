@@ -16,6 +16,7 @@ import (
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/arm"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/policy"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/runtime"
+	"github.com/Azure/azure-sdk-for-go/sdk/azcore/tracing"
 	"net/http"
 	"net/url"
 	"strings"
@@ -53,19 +54,30 @@ func NewExpressRoutePortsLocationsClient(subscriptionID string, credential azcor
 //   - locationName - Name of the requested ExpressRoutePort peering location.
 //   - options - ExpressRoutePortsLocationsClientGetOptions contains the optional parameters for the ExpressRoutePortsLocationsClient.Get
 //     method.
-func (client *ExpressRoutePortsLocationsClient) Get(ctx context.Context, locationName string, options *ExpressRoutePortsLocationsClientGetOptions) (ExpressRoutePortsLocationsClientGetResponse, error) {
+func (client *ExpressRoutePortsLocationsClient) Get(ctx context.Context, locationName string, options *ExpressRoutePortsLocationsClientGetOptions) (result ExpressRoutePortsLocationsClientGetResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "ExpressRoutePortsLocationsClient.Get", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.getCreateRequest(ctx, locationName, options)
 	if err != nil {
-		return ExpressRoutePortsLocationsClientGetResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return ExpressRoutePortsLocationsClientGetResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return ExpressRoutePortsLocationsClientGetResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.getHandleResponse(resp)
+	result, err = client.getHandleResponse(resp)
+	return
 }
 
 // getCreateRequest creates the Get request.
@@ -91,10 +103,10 @@ func (client *ExpressRoutePortsLocationsClient) getCreateRequest(ctx context.Con
 }
 
 // getHandleResponse handles the Get response.
-func (client *ExpressRoutePortsLocationsClient) getHandleResponse(resp *http.Response) (ExpressRoutePortsLocationsClientGetResponse, error) {
-	result := ExpressRoutePortsLocationsClientGetResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.ExpressRoutePortsLocation); err != nil {
-		return ExpressRoutePortsLocationsClientGetResponse{}, err
+func (client *ExpressRoutePortsLocationsClient) getHandleResponse(resp *http.Response) (result ExpressRoutePortsLocationsClientGetResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.ExpressRoutePortsLocation); err != nil {
+		result = ExpressRoutePortsLocationsClientGetResponse{}
+		return
 	}
 	return result, nil
 }
@@ -110,25 +122,35 @@ func (client *ExpressRoutePortsLocationsClient) NewListPager(options *ExpressRou
 		More: func(page ExpressRoutePortsLocationsClientListResponse) bool {
 			return page.NextLink != nil && len(*page.NextLink) > 0
 		},
-		Fetcher: func(ctx context.Context, page *ExpressRoutePortsLocationsClientListResponse) (ExpressRoutePortsLocationsClientListResponse, error) {
+		Fetcher: func(ctx context.Context, page *ExpressRoutePortsLocationsClientListResponse) (result ExpressRoutePortsLocationsClientListResponse, err error) {
+			ctx, span := client.internal.Tracer().Start(ctx, "ExpressRoutePortsLocationsClient.NewListPager", &tracing.SpanOptions{
+				Kind: tracing.SpanKindInternal,
+			})
+			defer func() {
+				if err != nil {
+					span.AddError(err)
+				}
+				span.End()
+			}()
 			var req *policy.Request
-			var err error
 			if page == nil {
 				req, err = client.listCreateRequest(ctx, options)
 			} else {
 				req, err = runtime.NewRequest(ctx, http.MethodGet, *page.NextLink)
 			}
 			if err != nil {
-				return ExpressRoutePortsLocationsClientListResponse{}, err
+				return
 			}
 			resp, err := client.internal.Pipeline().Do(req)
 			if err != nil {
-				return ExpressRoutePortsLocationsClientListResponse{}, err
+				return
 			}
 			if !runtime.HasStatusCode(resp, http.StatusOK) {
-				return ExpressRoutePortsLocationsClientListResponse{}, runtime.NewResponseError(resp)
+				err = runtime.NewResponseError(resp)
+				return
 			}
-			return client.listHandleResponse(resp)
+			result, err = client.listHandleResponse(resp)
+			return
 		},
 	})
 }
@@ -152,10 +174,10 @@ func (client *ExpressRoutePortsLocationsClient) listCreateRequest(ctx context.Co
 }
 
 // listHandleResponse handles the List response.
-func (client *ExpressRoutePortsLocationsClient) listHandleResponse(resp *http.Response) (ExpressRoutePortsLocationsClientListResponse, error) {
-	result := ExpressRoutePortsLocationsClientListResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.ExpressRoutePortsLocationListResult); err != nil {
-		return ExpressRoutePortsLocationsClientListResponse{}, err
+func (client *ExpressRoutePortsLocationsClient) listHandleResponse(resp *http.Response) (result ExpressRoutePortsLocationsClientListResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.ExpressRoutePortsLocationListResult); err != nil {
+		result = ExpressRoutePortsLocationsClientListResponse{}
+		return
 	}
 	return result, nil
 }

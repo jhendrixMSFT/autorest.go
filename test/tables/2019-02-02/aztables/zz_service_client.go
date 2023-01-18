@@ -14,6 +14,7 @@ import (
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/policy"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/runtime"
+	"github.com/Azure/azure-sdk-for-go/sdk/azcore/tracing"
 	"net/http"
 	"strconv"
 	"time"
@@ -35,19 +36,30 @@ type ServiceClient struct {
 //   - restype - Required query string to set the service properties.
 //   - comp - Required query string to set the service properties.
 //   - options - ServiceClientGetPropertiesOptions contains the optional parameters for the ServiceClient.GetProperties method.
-func (client *ServiceClient) GetProperties(ctx context.Context, restype Enum5, comp Enum6, options *ServiceClientGetPropertiesOptions) (ServiceClientGetPropertiesResponse, error) {
+func (client *ServiceClient) GetProperties(ctx context.Context, restype Enum5, comp Enum6, options *ServiceClientGetPropertiesOptions) (result ServiceClientGetPropertiesResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "ServiceClient.GetProperties", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.getPropertiesCreateRequest(ctx, restype, comp, options)
 	if err != nil {
-		return ServiceClientGetPropertiesResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return ServiceClientGetPropertiesResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return ServiceClientGetPropertiesResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.getPropertiesHandleResponse(resp)
+	result, err = client.getPropertiesHandleResponse(resp)
+	return
 }
 
 // getPropertiesCreateRequest creates the GetProperties request.
@@ -72,8 +84,7 @@ func (client *ServiceClient) getPropertiesCreateRequest(ctx context.Context, res
 }
 
 // getPropertiesHandleResponse handles the GetProperties response.
-func (client *ServiceClient) getPropertiesHandleResponse(resp *http.Response) (ServiceClientGetPropertiesResponse, error) {
-	result := ServiceClientGetPropertiesResponse{}
+func (client *ServiceClient) getPropertiesHandleResponse(resp *http.Response) (result ServiceClientGetPropertiesResponse, err error) {
 	if val := resp.Header.Get("x-ms-client-request-id"); val != "" {
 		result.ClientRequestID = &val
 	}
@@ -83,8 +94,9 @@ func (client *ServiceClient) getPropertiesHandleResponse(resp *http.Response) (S
 	if val := resp.Header.Get("x-ms-version"); val != "" {
 		result.Version = &val
 	}
-	if err := runtime.UnmarshalAsXML(resp, &result.ServiceProperties); err != nil {
-		return ServiceClientGetPropertiesResponse{}, err
+	if err = runtime.UnmarshalAsXML(resp, &result.ServiceProperties); err != nil {
+		result = ServiceClientGetPropertiesResponse{}
+		return
 	}
 	return result, nil
 }
@@ -97,19 +109,30 @@ func (client *ServiceClient) getPropertiesHandleResponse(resp *http.Response) (S
 //   - restype - Required query string to get service stats.
 //   - comp - Required query string to get service stats.
 //   - options - ServiceClientGetStatisticsOptions contains the optional parameters for the ServiceClient.GetStatistics method.
-func (client *ServiceClient) GetStatistics(ctx context.Context, restype Enum5, comp Enum7, options *ServiceClientGetStatisticsOptions) (ServiceClientGetStatisticsResponse, error) {
+func (client *ServiceClient) GetStatistics(ctx context.Context, restype Enum5, comp Enum7, options *ServiceClientGetStatisticsOptions) (result ServiceClientGetStatisticsResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "ServiceClient.GetStatistics", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.getStatisticsCreateRequest(ctx, restype, comp, options)
 	if err != nil {
-		return ServiceClientGetStatisticsResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return ServiceClientGetStatisticsResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return ServiceClientGetStatisticsResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.getStatisticsHandleResponse(resp)
+	result, err = client.getStatisticsHandleResponse(resp)
+	return
 }
 
 // getStatisticsCreateRequest creates the GetStatistics request.
@@ -134,8 +157,7 @@ func (client *ServiceClient) getStatisticsCreateRequest(ctx context.Context, res
 }
 
 // getStatisticsHandleResponse handles the GetStatistics response.
-func (client *ServiceClient) getStatisticsHandleResponse(resp *http.Response) (ServiceClientGetStatisticsResponse, error) {
-	result := ServiceClientGetStatisticsResponse{}
+func (client *ServiceClient) getStatisticsHandleResponse(resp *http.Response) (result ServiceClientGetStatisticsResponse, err error) {
 	if val := resp.Header.Get("x-ms-client-request-id"); val != "" {
 		result.ClientRequestID = &val
 	}
@@ -152,8 +174,9 @@ func (client *ServiceClient) getStatisticsHandleResponse(resp *http.Response) (S
 		}
 		result.Date = &date
 	}
-	if err := runtime.UnmarshalAsXML(resp, &result.ServiceStats); err != nil {
-		return ServiceClientGetStatisticsResponse{}, err
+	if err = runtime.UnmarshalAsXML(resp, &result.ServiceStats); err != nil {
+		result = ServiceClientGetStatisticsResponse{}
+		return
 	}
 	return result, nil
 }
@@ -167,19 +190,30 @@ func (client *ServiceClient) getStatisticsHandleResponse(resp *http.Response) (S
 //   - comp - Required query string to set the service properties.
 //   - tableServiceProperties - The Table Service properties.
 //   - options - ServiceClientSetPropertiesOptions contains the optional parameters for the ServiceClient.SetProperties method.
-func (client *ServiceClient) SetProperties(ctx context.Context, restype Enum5, comp Enum6, tableServiceProperties ServiceProperties, options *ServiceClientSetPropertiesOptions) (ServiceClientSetPropertiesResponse, error) {
+func (client *ServiceClient) SetProperties(ctx context.Context, restype Enum5, comp Enum6, tableServiceProperties ServiceProperties, options *ServiceClientSetPropertiesOptions) (result ServiceClientSetPropertiesResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "ServiceClient.SetProperties", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.setPropertiesCreateRequest(ctx, restype, comp, tableServiceProperties, options)
 	if err != nil {
-		return ServiceClientSetPropertiesResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return ServiceClientSetPropertiesResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusAccepted) {
-		return ServiceClientSetPropertiesResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.setPropertiesHandleResponse(resp)
+	result, err = client.setPropertiesHandleResponse(resp)
+	return
 }
 
 // setPropertiesCreateRequest creates the SetProperties request.
@@ -204,8 +238,7 @@ func (client *ServiceClient) setPropertiesCreateRequest(ctx context.Context, res
 }
 
 // setPropertiesHandleResponse handles the SetProperties response.
-func (client *ServiceClient) setPropertiesHandleResponse(resp *http.Response) (ServiceClientSetPropertiesResponse, error) {
-	result := ServiceClientSetPropertiesResponse{}
+func (client *ServiceClient) setPropertiesHandleResponse(resp *http.Response) (result ServiceClientSetPropertiesResponse, err error) {
 	if val := resp.Header.Get("x-ms-client-request-id"); val != "" {
 		result.ClientRequestID = &val
 	}

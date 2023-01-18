@@ -16,6 +16,7 @@ import (
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/arm"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/policy"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/runtime"
+	"github.com/Azure/azure-sdk-for-go/sdk/azcore/tracing"
 	"net/http"
 	"net/url"
 	"strings"
@@ -54,19 +55,30 @@ func NewResourceNavigationLinksClient(subscriptionID string, credential azcore.T
 //   - subnetName - The name of the subnet.
 //   - options - ResourceNavigationLinksClientListOptions contains the optional parameters for the ResourceNavigationLinksClient.List
 //     method.
-func (client *ResourceNavigationLinksClient) List(ctx context.Context, resourceGroupName string, virtualNetworkName string, subnetName string, options *ResourceNavigationLinksClientListOptions) (ResourceNavigationLinksClientListResponse, error) {
+func (client *ResourceNavigationLinksClient) List(ctx context.Context, resourceGroupName string, virtualNetworkName string, subnetName string, options *ResourceNavigationLinksClientListOptions) (result ResourceNavigationLinksClientListResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "ResourceNavigationLinksClient.List", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.listCreateRequest(ctx, resourceGroupName, virtualNetworkName, subnetName, options)
 	if err != nil {
-		return ResourceNavigationLinksClientListResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return ResourceNavigationLinksClientListResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return ResourceNavigationLinksClientListResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.listHandleResponse(resp)
+	result, err = client.listHandleResponse(resp)
+	return
 }
 
 // listCreateRequest creates the List request.
@@ -100,10 +112,10 @@ func (client *ResourceNavigationLinksClient) listCreateRequest(ctx context.Conte
 }
 
 // listHandleResponse handles the List response.
-func (client *ResourceNavigationLinksClient) listHandleResponse(resp *http.Response) (ResourceNavigationLinksClientListResponse, error) {
-	result := ResourceNavigationLinksClientListResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.ResourceNavigationLinksListResult); err != nil {
-		return ResourceNavigationLinksClientListResponse{}, err
+func (client *ResourceNavigationLinksClient) listHandleResponse(resp *http.Response) (result ResourceNavigationLinksClientListResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.ResourceNavigationLinksListResult); err != nil {
+		result = ResourceNavigationLinksClientListResponse{}
+		return
 	}
 	return result, nil
 }

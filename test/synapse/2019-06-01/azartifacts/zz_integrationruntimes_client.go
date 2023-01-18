@@ -15,6 +15,7 @@ import (
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/policy"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/runtime"
+	"github.com/Azure/azure-sdk-for-go/sdk/azcore/tracing"
 	"net/http"
 	"net/url"
 	"strings"
@@ -33,19 +34,30 @@ type IntegrationRuntimesClient struct {
 // Generated from API version 2019-06-01-preview
 //   - integrationRuntimeName - The Integration Runtime name
 //   - options - IntegrationRuntimesClientGetOptions contains the optional parameters for the IntegrationRuntimesClient.Get method.
-func (client *IntegrationRuntimesClient) Get(ctx context.Context, integrationRuntimeName string, options *IntegrationRuntimesClientGetOptions) (IntegrationRuntimesClientGetResponse, error) {
+func (client *IntegrationRuntimesClient) Get(ctx context.Context, integrationRuntimeName string, options *IntegrationRuntimesClientGetOptions) (result IntegrationRuntimesClientGetResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "IntegrationRuntimesClient.Get", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.getCreateRequest(ctx, integrationRuntimeName, options)
 	if err != nil {
-		return IntegrationRuntimesClientGetResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return IntegrationRuntimesClientGetResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return IntegrationRuntimesClientGetResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.getHandleResponse(resp)
+	result, err = client.getHandleResponse(resp)
+	return
 }
 
 // getCreateRequest creates the Get request.
@@ -67,10 +79,10 @@ func (client *IntegrationRuntimesClient) getCreateRequest(ctx context.Context, i
 }
 
 // getHandleResponse handles the Get response.
-func (client *IntegrationRuntimesClient) getHandleResponse(resp *http.Response) (IntegrationRuntimesClientGetResponse, error) {
-	result := IntegrationRuntimesClientGetResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.IntegrationRuntimeResource); err != nil {
-		return IntegrationRuntimesClientGetResponse{}, err
+func (client *IntegrationRuntimesClient) getHandleResponse(resp *http.Response) (result IntegrationRuntimesClientGetResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.IntegrationRuntimeResource); err != nil {
+		result = IntegrationRuntimesClientGetResponse{}
+		return
 	}
 	return result, nil
 }
@@ -81,19 +93,30 @@ func (client *IntegrationRuntimesClient) getHandleResponse(resp *http.Response) 
 // Generated from API version 2019-06-01-preview
 //   - options - IntegrationRuntimesClientListOptions contains the optional parameters for the IntegrationRuntimesClient.List
 //     method.
-func (client *IntegrationRuntimesClient) List(ctx context.Context, options *IntegrationRuntimesClientListOptions) (IntegrationRuntimesClientListResponse, error) {
+func (client *IntegrationRuntimesClient) List(ctx context.Context, options *IntegrationRuntimesClientListOptions) (result IntegrationRuntimesClientListResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "IntegrationRuntimesClient.List", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.listCreateRequest(ctx, options)
 	if err != nil {
-		return IntegrationRuntimesClientListResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return IntegrationRuntimesClientListResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return IntegrationRuntimesClientListResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.listHandleResponse(resp)
+	result, err = client.listHandleResponse(resp)
+	return
 }
 
 // listCreateRequest creates the List request.
@@ -111,10 +134,10 @@ func (client *IntegrationRuntimesClient) listCreateRequest(ctx context.Context, 
 }
 
 // listHandleResponse handles the List response.
-func (client *IntegrationRuntimesClient) listHandleResponse(resp *http.Response) (IntegrationRuntimesClientListResponse, error) {
-	result := IntegrationRuntimesClientListResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.IntegrationRuntimeListResponse); err != nil {
-		return IntegrationRuntimesClientListResponse{}, err
+func (client *IntegrationRuntimesClient) listHandleResponse(resp *http.Response) (result IntegrationRuntimesClientListResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.IntegrationRuntimeListResponse); err != nil {
+		result = IntegrationRuntimesClientListResponse{}
+		return
 	}
 	return result, nil
 }

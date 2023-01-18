@@ -16,6 +16,7 @@ import (
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/arm"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/policy"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/runtime"
+	"github.com/Azure/azure-sdk-for-go/sdk/azcore/tracing"
 	"net/http"
 	"net/url"
 	"strings"
@@ -53,19 +54,30 @@ func NewServiceTagsClient(subscriptionID string, credential azcore.TokenCredenti
 //     list of service tags with prefix details across all regions but limited to the cloud that
 //     your subscription belongs to).
 //   - options - ServiceTagsClientListOptions contains the optional parameters for the ServiceTagsClient.List method.
-func (client *ServiceTagsClient) List(ctx context.Context, location string, options *ServiceTagsClientListOptions) (ServiceTagsClientListResponse, error) {
+func (client *ServiceTagsClient) List(ctx context.Context, location string, options *ServiceTagsClientListOptions) (result ServiceTagsClientListResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "ServiceTagsClient.List", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.listCreateRequest(ctx, location, options)
 	if err != nil {
-		return ServiceTagsClientListResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return ServiceTagsClientListResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return ServiceTagsClientListResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.listHandleResponse(resp)
+	result, err = client.listHandleResponse(resp)
+	return
 }
 
 // listCreateRequest creates the List request.
@@ -91,10 +103,10 @@ func (client *ServiceTagsClient) listCreateRequest(ctx context.Context, location
 }
 
 // listHandleResponse handles the List response.
-func (client *ServiceTagsClient) listHandleResponse(resp *http.Response) (ServiceTagsClientListResponse, error) {
-	result := ServiceTagsClientListResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.ServiceTagsListResult); err != nil {
-		return ServiceTagsClientListResponse{}, err
+func (client *ServiceTagsClient) listHandleResponse(resp *http.Response) (result ServiceTagsClientListResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.ServiceTagsListResult); err != nil {
+		result = ServiceTagsClientListResponse{}
+		return
 	}
 	return result, nil
 }

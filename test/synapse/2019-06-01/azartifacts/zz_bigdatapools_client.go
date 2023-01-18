@@ -15,6 +15,7 @@ import (
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/policy"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/runtime"
+	"github.com/Azure/azure-sdk-for-go/sdk/azcore/tracing"
 	"net/http"
 	"net/url"
 	"strings"
@@ -33,19 +34,30 @@ type BigDataPoolsClient struct {
 // Generated from API version 2019-06-01-preview
 //   - bigDataPoolName - The Big Data Pool name
 //   - options - BigDataPoolsClientGetOptions contains the optional parameters for the BigDataPoolsClient.Get method.
-func (client *BigDataPoolsClient) Get(ctx context.Context, bigDataPoolName string, options *BigDataPoolsClientGetOptions) (BigDataPoolsClientGetResponse, error) {
+func (client *BigDataPoolsClient) Get(ctx context.Context, bigDataPoolName string, options *BigDataPoolsClientGetOptions) (result BigDataPoolsClientGetResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "BigDataPoolsClient.Get", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.getCreateRequest(ctx, bigDataPoolName, options)
 	if err != nil {
-		return BigDataPoolsClientGetResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return BigDataPoolsClientGetResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return BigDataPoolsClientGetResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.getHandleResponse(resp)
+	result, err = client.getHandleResponse(resp)
+	return
 }
 
 // getCreateRequest creates the Get request.
@@ -67,10 +79,10 @@ func (client *BigDataPoolsClient) getCreateRequest(ctx context.Context, bigDataP
 }
 
 // getHandleResponse handles the Get response.
-func (client *BigDataPoolsClient) getHandleResponse(resp *http.Response) (BigDataPoolsClientGetResponse, error) {
-	result := BigDataPoolsClientGetResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.BigDataPoolResourceInfo); err != nil {
-		return BigDataPoolsClientGetResponse{}, err
+func (client *BigDataPoolsClient) getHandleResponse(resp *http.Response) (result BigDataPoolsClientGetResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.BigDataPoolResourceInfo); err != nil {
+		result = BigDataPoolsClientGetResponse{}
+		return
 	}
 	return result, nil
 }
@@ -80,19 +92,30 @@ func (client *BigDataPoolsClient) getHandleResponse(resp *http.Response) (BigDat
 //
 // Generated from API version 2019-06-01-preview
 //   - options - BigDataPoolsClientListOptions contains the optional parameters for the BigDataPoolsClient.List method.
-func (client *BigDataPoolsClient) List(ctx context.Context, options *BigDataPoolsClientListOptions) (BigDataPoolsClientListResponse, error) {
+func (client *BigDataPoolsClient) List(ctx context.Context, options *BigDataPoolsClientListOptions) (result BigDataPoolsClientListResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "BigDataPoolsClient.List", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.listCreateRequest(ctx, options)
 	if err != nil {
-		return BigDataPoolsClientListResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return BigDataPoolsClientListResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return BigDataPoolsClientListResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.listHandleResponse(resp)
+	result, err = client.listHandleResponse(resp)
+	return
 }
 
 // listCreateRequest creates the List request.
@@ -110,10 +133,10 @@ func (client *BigDataPoolsClient) listCreateRequest(ctx context.Context, options
 }
 
 // listHandleResponse handles the List response.
-func (client *BigDataPoolsClient) listHandleResponse(resp *http.Response) (BigDataPoolsClientListResponse, error) {
-	result := BigDataPoolsClientListResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.BigDataPoolResourceInfoListResult); err != nil {
-		return BigDataPoolsClientListResponse{}, err
+func (client *BigDataPoolsClient) listHandleResponse(resp *http.Response) (result BigDataPoolsClientListResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.BigDataPoolResourceInfoListResult); err != nil {
+		result = BigDataPoolsClientListResponse{}
+		return
 	}
 	return result, nil
 }

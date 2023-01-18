@@ -14,6 +14,7 @@ import (
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/policy"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/runtime"
+	"github.com/Azure/azure-sdk-for-go/sdk/azcore/tracing"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -34,19 +35,29 @@ type SessionClient struct {
 //   - sessionID - Identifier for the session.
 //   - options - SessionClientCancelSparkSessionOptions contains the optional parameters for the SessionClient.CancelSparkSession
 //     method.
-func (client *SessionClient) CancelSparkSession(ctx context.Context, sessionID int32, options *SessionClientCancelSparkSessionOptions) (SessionClientCancelSparkSessionResponse, error) {
+func (client *SessionClient) CancelSparkSession(ctx context.Context, sessionID int32, options *SessionClientCancelSparkSessionOptions) (result SessionClientCancelSparkSessionResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "SessionClient.CancelSparkSession", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.cancelSparkSessionCreateRequest(ctx, sessionID, options)
 	if err != nil {
-		return SessionClientCancelSparkSessionResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return SessionClientCancelSparkSessionResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return SessionClientCancelSparkSessionResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return SessionClientCancelSparkSessionResponse{}, nil
+	return
 }
 
 // cancelSparkSessionCreateRequest creates the CancelSparkSession request.
@@ -68,19 +79,30 @@ func (client *SessionClient) cancelSparkSessionCreateRequest(ctx context.Context
 //   - statementID - Identifier for the statement.
 //   - options - SessionClientCancelSparkStatementOptions contains the optional parameters for the SessionClient.CancelSparkStatement
 //     method.
-func (client *SessionClient) CancelSparkStatement(ctx context.Context, sessionID int32, statementID int32, options *SessionClientCancelSparkStatementOptions) (SessionClientCancelSparkStatementResponse, error) {
+func (client *SessionClient) CancelSparkStatement(ctx context.Context, sessionID int32, statementID int32, options *SessionClientCancelSparkStatementOptions) (result SessionClientCancelSparkStatementResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "SessionClient.CancelSparkStatement", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.cancelSparkStatementCreateRequest(ctx, sessionID, statementID, options)
 	if err != nil {
-		return SessionClientCancelSparkStatementResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return SessionClientCancelSparkStatementResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return SessionClientCancelSparkStatementResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.cancelSparkStatementHandleResponse(resp)
+	result, err = client.cancelSparkStatementHandleResponse(resp)
+	return
 }
 
 // cancelSparkStatementCreateRequest creates the CancelSparkStatement request.
@@ -97,10 +119,10 @@ func (client *SessionClient) cancelSparkStatementCreateRequest(ctx context.Conte
 }
 
 // cancelSparkStatementHandleResponse handles the CancelSparkStatement response.
-func (client *SessionClient) cancelSparkStatementHandleResponse(resp *http.Response) (SessionClientCancelSparkStatementResponse, error) {
-	result := SessionClientCancelSparkStatementResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.StatementCancellationResult); err != nil {
-		return SessionClientCancelSparkStatementResponse{}, err
+func (client *SessionClient) cancelSparkStatementHandleResponse(resp *http.Response) (result SessionClientCancelSparkStatementResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.StatementCancellationResult); err != nil {
+		result = SessionClientCancelSparkStatementResponse{}
+		return
 	}
 	return result, nil
 }
@@ -112,19 +134,30 @@ func (client *SessionClient) cancelSparkStatementHandleResponse(resp *http.Respo
 //   - sparkSessionOptions - Livy compatible batch job request payload.
 //   - options - SessionClientCreateSparkSessionOptions contains the optional parameters for the SessionClient.CreateSparkSession
 //     method.
-func (client *SessionClient) CreateSparkSession(ctx context.Context, sparkSessionOptions SessionOptions, options *SessionClientCreateSparkSessionOptions) (SessionClientCreateSparkSessionResponse, error) {
+func (client *SessionClient) CreateSparkSession(ctx context.Context, sparkSessionOptions SessionOptions, options *SessionClientCreateSparkSessionOptions) (result SessionClientCreateSparkSessionResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "SessionClient.CreateSparkSession", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.createSparkSessionCreateRequest(ctx, sparkSessionOptions, options)
 	if err != nil {
-		return SessionClientCreateSparkSessionResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return SessionClientCreateSparkSessionResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return SessionClientCreateSparkSessionResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.createSparkSessionHandleResponse(resp)
+	result, err = client.createSparkSessionHandleResponse(resp)
+	return
 }
 
 // createSparkSessionCreateRequest creates the CreateSparkSession request.
@@ -144,10 +177,10 @@ func (client *SessionClient) createSparkSessionCreateRequest(ctx context.Context
 }
 
 // createSparkSessionHandleResponse handles the CreateSparkSession response.
-func (client *SessionClient) createSparkSessionHandleResponse(resp *http.Response) (SessionClientCreateSparkSessionResponse, error) {
-	result := SessionClientCreateSparkSessionResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.Session); err != nil {
-		return SessionClientCreateSparkSessionResponse{}, err
+func (client *SessionClient) createSparkSessionHandleResponse(resp *http.Response) (result SessionClientCreateSparkSessionResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.Session); err != nil {
+		result = SessionClientCreateSparkSessionResponse{}
+		return
 	}
 	return result, nil
 }
@@ -160,19 +193,30 @@ func (client *SessionClient) createSparkSessionHandleResponse(resp *http.Respons
 //   - sparkStatementOptions - Livy compatible batch job request payload.
 //   - options - SessionClientCreateSparkStatementOptions contains the optional parameters for the SessionClient.CreateSparkStatement
 //     method.
-func (client *SessionClient) CreateSparkStatement(ctx context.Context, sessionID int32, sparkStatementOptions StatementOptions, options *SessionClientCreateSparkStatementOptions) (SessionClientCreateSparkStatementResponse, error) {
+func (client *SessionClient) CreateSparkStatement(ctx context.Context, sessionID int32, sparkStatementOptions StatementOptions, options *SessionClientCreateSparkStatementOptions) (result SessionClientCreateSparkStatementResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "SessionClient.CreateSparkStatement", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.createSparkStatementCreateRequest(ctx, sessionID, sparkStatementOptions, options)
 	if err != nil {
-		return SessionClientCreateSparkStatementResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return SessionClientCreateSparkStatementResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return SessionClientCreateSparkStatementResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.createSparkStatementHandleResponse(resp)
+	result, err = client.createSparkStatementHandleResponse(resp)
+	return
 }
 
 // createSparkStatementCreateRequest creates the CreateSparkStatement request.
@@ -188,10 +232,10 @@ func (client *SessionClient) createSparkStatementCreateRequest(ctx context.Conte
 }
 
 // createSparkStatementHandleResponse handles the CreateSparkStatement response.
-func (client *SessionClient) createSparkStatementHandleResponse(resp *http.Response) (SessionClientCreateSparkStatementResponse, error) {
-	result := SessionClientCreateSparkStatementResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.Statement); err != nil {
-		return SessionClientCreateSparkStatementResponse{}, err
+func (client *SessionClient) createSparkStatementHandleResponse(resp *http.Response) (result SessionClientCreateSparkStatementResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.Statement); err != nil {
+		result = SessionClientCreateSparkStatementResponse{}
+		return
 	}
 	return result, nil
 }
@@ -202,19 +246,30 @@ func (client *SessionClient) createSparkStatementHandleResponse(resp *http.Respo
 // Generated from API version 2019-11-01-preview
 //   - sessionID - Identifier for the session.
 //   - options - SessionClientGetSparkSessionOptions contains the optional parameters for the SessionClient.GetSparkSession method.
-func (client *SessionClient) GetSparkSession(ctx context.Context, sessionID int32, options *SessionClientGetSparkSessionOptions) (SessionClientGetSparkSessionResponse, error) {
+func (client *SessionClient) GetSparkSession(ctx context.Context, sessionID int32, options *SessionClientGetSparkSessionOptions) (result SessionClientGetSparkSessionResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "SessionClient.GetSparkSession", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.getSparkSessionCreateRequest(ctx, sessionID, options)
 	if err != nil {
-		return SessionClientGetSparkSessionResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return SessionClientGetSparkSessionResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return SessionClientGetSparkSessionResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.getSparkSessionHandleResponse(resp)
+	result, err = client.getSparkSessionHandleResponse(resp)
+	return
 }
 
 // getSparkSessionCreateRequest creates the GetSparkSession request.
@@ -235,10 +290,10 @@ func (client *SessionClient) getSparkSessionCreateRequest(ctx context.Context, s
 }
 
 // getSparkSessionHandleResponse handles the GetSparkSession response.
-func (client *SessionClient) getSparkSessionHandleResponse(resp *http.Response) (SessionClientGetSparkSessionResponse, error) {
-	result := SessionClientGetSparkSessionResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.Session); err != nil {
-		return SessionClientGetSparkSessionResponse{}, err
+func (client *SessionClient) getSparkSessionHandleResponse(resp *http.Response) (result SessionClientGetSparkSessionResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.Session); err != nil {
+		result = SessionClientGetSparkSessionResponse{}
+		return
 	}
 	return result, nil
 }
@@ -249,19 +304,30 @@ func (client *SessionClient) getSparkSessionHandleResponse(resp *http.Response) 
 // Generated from API version 2019-11-01-preview
 //   - options - SessionClientGetSparkSessionsOptions contains the optional parameters for the SessionClient.GetSparkSessions
 //     method.
-func (client *SessionClient) GetSparkSessions(ctx context.Context, options *SessionClientGetSparkSessionsOptions) (SessionClientGetSparkSessionsResponse, error) {
+func (client *SessionClient) GetSparkSessions(ctx context.Context, options *SessionClientGetSparkSessionsOptions) (result SessionClientGetSparkSessionsResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "SessionClient.GetSparkSessions", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.getSparkSessionsCreateRequest(ctx, options)
 	if err != nil {
-		return SessionClientGetSparkSessionsResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return SessionClientGetSparkSessionsResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return SessionClientGetSparkSessionsResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.getSparkSessionsHandleResponse(resp)
+	result, err = client.getSparkSessionsHandleResponse(resp)
+	return
 }
 
 // getSparkSessionsCreateRequest creates the GetSparkSessions request.
@@ -287,10 +353,10 @@ func (client *SessionClient) getSparkSessionsCreateRequest(ctx context.Context, 
 }
 
 // getSparkSessionsHandleResponse handles the GetSparkSessions response.
-func (client *SessionClient) getSparkSessionsHandleResponse(resp *http.Response) (SessionClientGetSparkSessionsResponse, error) {
-	result := SessionClientGetSparkSessionsResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.SessionCollection); err != nil {
-		return SessionClientGetSparkSessionsResponse{}, err
+func (client *SessionClient) getSparkSessionsHandleResponse(resp *http.Response) (result SessionClientGetSparkSessionsResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.SessionCollection); err != nil {
+		result = SessionClientGetSparkSessionsResponse{}
+		return
 	}
 	return result, nil
 }
@@ -303,19 +369,30 @@ func (client *SessionClient) getSparkSessionsHandleResponse(resp *http.Response)
 //   - statementID - Identifier for the statement.
 //   - options - SessionClientGetSparkStatementOptions contains the optional parameters for the SessionClient.GetSparkStatement
 //     method.
-func (client *SessionClient) GetSparkStatement(ctx context.Context, sessionID int32, statementID int32, options *SessionClientGetSparkStatementOptions) (SessionClientGetSparkStatementResponse, error) {
+func (client *SessionClient) GetSparkStatement(ctx context.Context, sessionID int32, statementID int32, options *SessionClientGetSparkStatementOptions) (result SessionClientGetSparkStatementResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "SessionClient.GetSparkStatement", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.getSparkStatementCreateRequest(ctx, sessionID, statementID, options)
 	if err != nil {
-		return SessionClientGetSparkStatementResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return SessionClientGetSparkStatementResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return SessionClientGetSparkStatementResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.getSparkStatementHandleResponse(resp)
+	result, err = client.getSparkStatementHandleResponse(resp)
+	return
 }
 
 // getSparkStatementCreateRequest creates the GetSparkStatement request.
@@ -332,10 +409,10 @@ func (client *SessionClient) getSparkStatementCreateRequest(ctx context.Context,
 }
 
 // getSparkStatementHandleResponse handles the GetSparkStatement response.
-func (client *SessionClient) getSparkStatementHandleResponse(resp *http.Response) (SessionClientGetSparkStatementResponse, error) {
-	result := SessionClientGetSparkStatementResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.Statement); err != nil {
-		return SessionClientGetSparkStatementResponse{}, err
+func (client *SessionClient) getSparkStatementHandleResponse(resp *http.Response) (result SessionClientGetSparkStatementResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.Statement); err != nil {
+		result = SessionClientGetSparkStatementResponse{}
+		return
 	}
 	return result, nil
 }
@@ -347,19 +424,30 @@ func (client *SessionClient) getSparkStatementHandleResponse(resp *http.Response
 //   - sessionID - Identifier for the session.
 //   - options - SessionClientGetSparkStatementsOptions contains the optional parameters for the SessionClient.GetSparkStatements
 //     method.
-func (client *SessionClient) GetSparkStatements(ctx context.Context, sessionID int32, options *SessionClientGetSparkStatementsOptions) (SessionClientGetSparkStatementsResponse, error) {
+func (client *SessionClient) GetSparkStatements(ctx context.Context, sessionID int32, options *SessionClientGetSparkStatementsOptions) (result SessionClientGetSparkStatementsResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "SessionClient.GetSparkStatements", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.getSparkStatementsCreateRequest(ctx, sessionID, options)
 	if err != nil {
-		return SessionClientGetSparkStatementsResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return SessionClientGetSparkStatementsResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return SessionClientGetSparkStatementsResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.getSparkStatementsHandleResponse(resp)
+	result, err = client.getSparkStatementsHandleResponse(resp)
+	return
 }
 
 // getSparkStatementsCreateRequest creates the GetSparkStatements request.
@@ -375,10 +463,10 @@ func (client *SessionClient) getSparkStatementsCreateRequest(ctx context.Context
 }
 
 // getSparkStatementsHandleResponse handles the GetSparkStatements response.
-func (client *SessionClient) getSparkStatementsHandleResponse(resp *http.Response) (SessionClientGetSparkStatementsResponse, error) {
-	result := SessionClientGetSparkStatementsResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.StatementCollection); err != nil {
-		return SessionClientGetSparkStatementsResponse{}, err
+func (client *SessionClient) getSparkStatementsHandleResponse(resp *http.Response) (result SessionClientGetSparkStatementsResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.StatementCollection); err != nil {
+		result = SessionClientGetSparkStatementsResponse{}
+		return
 	}
 	return result, nil
 }
@@ -390,19 +478,29 @@ func (client *SessionClient) getSparkStatementsHandleResponse(resp *http.Respons
 //   - sessionID - Identifier for the session.
 //   - options - SessionClientResetSparkSessionTimeoutOptions contains the optional parameters for the SessionClient.ResetSparkSessionTimeout
 //     method.
-func (client *SessionClient) ResetSparkSessionTimeout(ctx context.Context, sessionID int32, options *SessionClientResetSparkSessionTimeoutOptions) (SessionClientResetSparkSessionTimeoutResponse, error) {
+func (client *SessionClient) ResetSparkSessionTimeout(ctx context.Context, sessionID int32, options *SessionClientResetSparkSessionTimeoutOptions) (result SessionClientResetSparkSessionTimeoutResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "SessionClient.ResetSparkSessionTimeout", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.resetSparkSessionTimeoutCreateRequest(ctx, sessionID, options)
 	if err != nil {
-		return SessionClientResetSparkSessionTimeoutResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return SessionClientResetSparkSessionTimeoutResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return SessionClientResetSparkSessionTimeoutResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return SessionClientResetSparkSessionTimeoutResponse{}, nil
+	return
 }
 
 // resetSparkSessionTimeoutCreateRequest creates the ResetSparkSessionTimeout request.

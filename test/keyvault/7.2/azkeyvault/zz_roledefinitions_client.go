@@ -15,6 +15,7 @@ import (
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/policy"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/runtime"
+	"github.com/Azure/azure-sdk-for-go/sdk/azcore/tracing"
 	"net/http"
 	"net/url"
 	"strings"
@@ -36,19 +37,30 @@ type RoleDefinitionsClient struct {
 //   - parameters - Parameters for the role definition.
 //   - options - RoleDefinitionsClientCreateOrUpdateOptions contains the optional parameters for the RoleDefinitionsClient.CreateOrUpdate
 //     method.
-func (client *RoleDefinitionsClient) CreateOrUpdate(ctx context.Context, vaultBaseURL string, scope string, roleDefinitionName string, parameters RoleDefinitionCreateParameters, options *RoleDefinitionsClientCreateOrUpdateOptions) (RoleDefinitionsClientCreateOrUpdateResponse, error) {
+func (client *RoleDefinitionsClient) CreateOrUpdate(ctx context.Context, vaultBaseURL string, scope string, roleDefinitionName string, parameters RoleDefinitionCreateParameters, options *RoleDefinitionsClientCreateOrUpdateOptions) (result RoleDefinitionsClientCreateOrUpdateResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "RoleDefinitionsClient.CreateOrUpdate", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.createOrUpdateCreateRequest(ctx, vaultBaseURL, scope, roleDefinitionName, parameters, options)
 	if err != nil {
-		return RoleDefinitionsClientCreateOrUpdateResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return RoleDefinitionsClientCreateOrUpdateResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusCreated) {
-		return RoleDefinitionsClientCreateOrUpdateResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.createOrUpdateHandleResponse(resp)
+	result, err = client.createOrUpdateHandleResponse(resp)
+	return
 }
 
 // createOrUpdateCreateRequest creates the CreateOrUpdate request.
@@ -73,10 +85,10 @@ func (client *RoleDefinitionsClient) createOrUpdateCreateRequest(ctx context.Con
 }
 
 // createOrUpdateHandleResponse handles the CreateOrUpdate response.
-func (client *RoleDefinitionsClient) createOrUpdateHandleResponse(resp *http.Response) (RoleDefinitionsClientCreateOrUpdateResponse, error) {
-	result := RoleDefinitionsClientCreateOrUpdateResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.RoleDefinition); err != nil {
-		return RoleDefinitionsClientCreateOrUpdateResponse{}, err
+func (client *RoleDefinitionsClient) createOrUpdateHandleResponse(resp *http.Response) (result RoleDefinitionsClientCreateOrUpdateResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.RoleDefinition); err != nil {
+		result = RoleDefinitionsClientCreateOrUpdateResponse{}
+		return
 	}
 	return result, nil
 }
@@ -89,19 +101,30 @@ func (client *RoleDefinitionsClient) createOrUpdateHandleResponse(resp *http.Res
 //   - scope - The scope of the role definition to delete. Managed HSM only supports '/'.
 //   - roleDefinitionName - The name (GUID) of the role definition to delete.
 //   - options - RoleDefinitionsClientDeleteOptions contains the optional parameters for the RoleDefinitionsClient.Delete method.
-func (client *RoleDefinitionsClient) Delete(ctx context.Context, vaultBaseURL string, scope string, roleDefinitionName string, options *RoleDefinitionsClientDeleteOptions) (RoleDefinitionsClientDeleteResponse, error) {
+func (client *RoleDefinitionsClient) Delete(ctx context.Context, vaultBaseURL string, scope string, roleDefinitionName string, options *RoleDefinitionsClientDeleteOptions) (result RoleDefinitionsClientDeleteResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "RoleDefinitionsClient.Delete", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.deleteCreateRequest(ctx, vaultBaseURL, scope, roleDefinitionName, options)
 	if err != nil {
-		return RoleDefinitionsClientDeleteResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return RoleDefinitionsClientDeleteResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return RoleDefinitionsClientDeleteResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.deleteHandleResponse(resp)
+	result, err = client.deleteHandleResponse(resp)
+	return
 }
 
 // deleteCreateRequest creates the Delete request.
@@ -126,10 +149,10 @@ func (client *RoleDefinitionsClient) deleteCreateRequest(ctx context.Context, va
 }
 
 // deleteHandleResponse handles the Delete response.
-func (client *RoleDefinitionsClient) deleteHandleResponse(resp *http.Response) (RoleDefinitionsClientDeleteResponse, error) {
-	result := RoleDefinitionsClientDeleteResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.RoleDefinition); err != nil {
-		return RoleDefinitionsClientDeleteResponse{}, err
+func (client *RoleDefinitionsClient) deleteHandleResponse(resp *http.Response) (result RoleDefinitionsClientDeleteResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.RoleDefinition); err != nil {
+		result = RoleDefinitionsClientDeleteResponse{}
+		return
 	}
 	return result, nil
 }
@@ -142,19 +165,30 @@ func (client *RoleDefinitionsClient) deleteHandleResponse(resp *http.Response) (
 //   - scope - The scope of the role definition to get. Managed HSM only supports '/'.
 //   - roleDefinitionName - The name of the role definition to get.
 //   - options - RoleDefinitionsClientGetOptions contains the optional parameters for the RoleDefinitionsClient.Get method.
-func (client *RoleDefinitionsClient) Get(ctx context.Context, vaultBaseURL string, scope string, roleDefinitionName string, options *RoleDefinitionsClientGetOptions) (RoleDefinitionsClientGetResponse, error) {
+func (client *RoleDefinitionsClient) Get(ctx context.Context, vaultBaseURL string, scope string, roleDefinitionName string, options *RoleDefinitionsClientGetOptions) (result RoleDefinitionsClientGetResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "RoleDefinitionsClient.Get", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.getCreateRequest(ctx, vaultBaseURL, scope, roleDefinitionName, options)
 	if err != nil {
-		return RoleDefinitionsClientGetResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return RoleDefinitionsClientGetResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return RoleDefinitionsClientGetResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.getHandleResponse(resp)
+	result, err = client.getHandleResponse(resp)
+	return
 }
 
 // getCreateRequest creates the Get request.
@@ -179,10 +213,10 @@ func (client *RoleDefinitionsClient) getCreateRequest(ctx context.Context, vault
 }
 
 // getHandleResponse handles the Get response.
-func (client *RoleDefinitionsClient) getHandleResponse(resp *http.Response) (RoleDefinitionsClientGetResponse, error) {
-	result := RoleDefinitionsClientGetResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.RoleDefinition); err != nil {
-		return RoleDefinitionsClientGetResponse{}, err
+func (client *RoleDefinitionsClient) getHandleResponse(resp *http.Response) (result RoleDefinitionsClientGetResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.RoleDefinition); err != nil {
+		result = RoleDefinitionsClientGetResponse{}
+		return
 	}
 	return result, nil
 }
@@ -199,25 +233,35 @@ func (client *RoleDefinitionsClient) NewListPager(vaultBaseURL string, scope str
 		More: func(page RoleDefinitionsClientListResponse) bool {
 			return page.NextLink != nil && len(*page.NextLink) > 0
 		},
-		Fetcher: func(ctx context.Context, page *RoleDefinitionsClientListResponse) (RoleDefinitionsClientListResponse, error) {
+		Fetcher: func(ctx context.Context, page *RoleDefinitionsClientListResponse) (result RoleDefinitionsClientListResponse, err error) {
+			ctx, span := client.internal.Tracer().Start(ctx, "RoleDefinitionsClient.NewListPager", &tracing.SpanOptions{
+				Kind: tracing.SpanKindInternal,
+			})
+			defer func() {
+				if err != nil {
+					span.AddError(err)
+				}
+				span.End()
+			}()
 			var req *policy.Request
-			var err error
 			if page == nil {
 				req, err = client.listCreateRequest(ctx, vaultBaseURL, scope, options)
 			} else {
 				req, err = runtime.NewRequest(ctx, http.MethodGet, *page.NextLink)
 			}
 			if err != nil {
-				return RoleDefinitionsClientListResponse{}, err
+				return
 			}
 			resp, err := client.internal.Pipeline().Do(req)
 			if err != nil {
-				return RoleDefinitionsClientListResponse{}, err
+				return
 			}
 			if !runtime.HasStatusCode(resp, http.StatusOK) {
-				return RoleDefinitionsClientListResponse{}, runtime.NewResponseError(resp)
+				err = runtime.NewResponseError(resp)
+				return
 			}
-			return client.listHandleResponse(resp)
+			result, err = client.listHandleResponse(resp)
+			return
 		},
 	})
 }
@@ -243,10 +287,10 @@ func (client *RoleDefinitionsClient) listCreateRequest(ctx context.Context, vaul
 }
 
 // listHandleResponse handles the List response.
-func (client *RoleDefinitionsClient) listHandleResponse(resp *http.Response) (RoleDefinitionsClientListResponse, error) {
-	result := RoleDefinitionsClientListResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.RoleDefinitionListResult); err != nil {
-		return RoleDefinitionsClientListResponse{}, err
+func (client *RoleDefinitionsClient) listHandleResponse(resp *http.Response) (result RoleDefinitionsClientListResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.RoleDefinitionListResult); err != nil {
+		result = RoleDefinitionsClientListResponse{}
+		return
 	}
 	return result, nil
 }

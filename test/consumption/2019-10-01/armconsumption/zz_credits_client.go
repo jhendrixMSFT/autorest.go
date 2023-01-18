@@ -15,6 +15,7 @@ import (
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/arm"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/policy"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/runtime"
+	"github.com/Azure/azure-sdk-for-go/sdk/azcore/tracing"
 	"net/http"
 	"strings"
 )
@@ -47,19 +48,30 @@ func NewCreditsClient(credential azcore.TokenCredential, options *arm.ClientOpti
 //     for Billing Profile scope, and
 //     'providers/Microsoft.Billing/billingAccounts/{billingAccountId}/customers/{customerId}' specific for partners.
 //   - options - CreditsClientGetOptions contains the optional parameters for the CreditsClient.Get method.
-func (client *CreditsClient) Get(ctx context.Context, scope string, options *CreditsClientGetOptions) (CreditsClientGetResponse, error) {
+func (client *CreditsClient) Get(ctx context.Context, scope string, options *CreditsClientGetOptions) (result CreditsClientGetResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "CreditsClient.Get", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.getCreateRequest(ctx, scope, options)
 	if err != nil {
-		return CreditsClientGetResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return CreditsClientGetResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return CreditsClientGetResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.getHandleResponse(resp)
+	result, err = client.getHandleResponse(resp)
+	return
 }
 
 // getCreateRequest creates the Get request.
@@ -78,10 +90,10 @@ func (client *CreditsClient) getCreateRequest(ctx context.Context, scope string,
 }
 
 // getHandleResponse handles the Get response.
-func (client *CreditsClient) getHandleResponse(resp *http.Response) (CreditsClientGetResponse, error) {
-	result := CreditsClientGetResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.CreditSummary); err != nil {
-		return CreditsClientGetResponse{}, err
+func (client *CreditsClient) getHandleResponse(resp *http.Response) (result CreditsClientGetResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.CreditSummary); err != nil {
+		result = CreditsClientGetResponse{}
+		return
 	}
 	return result, nil
 }

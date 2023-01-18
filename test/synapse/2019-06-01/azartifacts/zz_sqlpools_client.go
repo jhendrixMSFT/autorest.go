@@ -15,6 +15,7 @@ import (
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/policy"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/runtime"
+	"github.com/Azure/azure-sdk-for-go/sdk/azcore/tracing"
 	"net/http"
 	"net/url"
 	"strings"
@@ -33,19 +34,30 @@ type SQLPoolsClient struct {
 // Generated from API version 2019-06-01-preview
 //   - sqlPoolName - The Sql Pool name
 //   - options - SQLPoolsClientGetOptions contains the optional parameters for the SQLPoolsClient.Get method.
-func (client *SQLPoolsClient) Get(ctx context.Context, sqlPoolName string, options *SQLPoolsClientGetOptions) (SQLPoolsClientGetResponse, error) {
+func (client *SQLPoolsClient) Get(ctx context.Context, sqlPoolName string, options *SQLPoolsClientGetOptions) (result SQLPoolsClientGetResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "SQLPoolsClient.Get", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.getCreateRequest(ctx, sqlPoolName, options)
 	if err != nil {
-		return SQLPoolsClientGetResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return SQLPoolsClientGetResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return SQLPoolsClientGetResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.getHandleResponse(resp)
+	result, err = client.getHandleResponse(resp)
+	return
 }
 
 // getCreateRequest creates the Get request.
@@ -67,10 +79,10 @@ func (client *SQLPoolsClient) getCreateRequest(ctx context.Context, sqlPoolName 
 }
 
 // getHandleResponse handles the Get response.
-func (client *SQLPoolsClient) getHandleResponse(resp *http.Response) (SQLPoolsClientGetResponse, error) {
-	result := SQLPoolsClientGetResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.SQLPool); err != nil {
-		return SQLPoolsClientGetResponse{}, err
+func (client *SQLPoolsClient) getHandleResponse(resp *http.Response) (result SQLPoolsClientGetResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.SQLPool); err != nil {
+		result = SQLPoolsClientGetResponse{}
+		return
 	}
 	return result, nil
 }
@@ -80,19 +92,30 @@ func (client *SQLPoolsClient) getHandleResponse(resp *http.Response) (SQLPoolsCl
 //
 // Generated from API version 2019-06-01-preview
 //   - options - SQLPoolsClientListOptions contains the optional parameters for the SQLPoolsClient.List method.
-func (client *SQLPoolsClient) List(ctx context.Context, options *SQLPoolsClientListOptions) (SQLPoolsClientListResponse, error) {
+func (client *SQLPoolsClient) List(ctx context.Context, options *SQLPoolsClientListOptions) (result SQLPoolsClientListResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "SQLPoolsClient.List", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.listCreateRequest(ctx, options)
 	if err != nil {
-		return SQLPoolsClientListResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return SQLPoolsClientListResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return SQLPoolsClientListResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.listHandleResponse(resp)
+	result, err = client.listHandleResponse(resp)
+	return
 }
 
 // listCreateRequest creates the List request.
@@ -110,10 +133,10 @@ func (client *SQLPoolsClient) listCreateRequest(ctx context.Context, options *SQ
 }
 
 // listHandleResponse handles the List response.
-func (client *SQLPoolsClient) listHandleResponse(resp *http.Response) (SQLPoolsClientListResponse, error) {
-	result := SQLPoolsClientListResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.SQLPoolInfoListResult); err != nil {
-		return SQLPoolsClientListResponse{}, err
+func (client *SQLPoolsClient) listHandleResponse(resp *http.Response) (result SQLPoolsClientListResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.SQLPoolInfoListResult); err != nil {
+		result = SQLPoolsClientListResponse{}
+		return
 	}
 	return result, nil
 }

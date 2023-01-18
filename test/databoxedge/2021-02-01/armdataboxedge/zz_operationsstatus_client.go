@@ -16,6 +16,7 @@ import (
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/arm"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/policy"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/runtime"
+	"github.com/Azure/azure-sdk-for-go/sdk/azcore/tracing"
 	"net/http"
 	"net/url"
 	"strings"
@@ -52,19 +53,30 @@ func NewOperationsStatusClient(subscriptionID string, credential azcore.TokenCre
 //   - name - The job name.
 //   - resourceGroupName - The resource group name.
 //   - options - OperationsStatusClientGetOptions contains the optional parameters for the OperationsStatusClient.Get method.
-func (client *OperationsStatusClient) Get(ctx context.Context, deviceName string, name string, resourceGroupName string, options *OperationsStatusClientGetOptions) (OperationsStatusClientGetResponse, error) {
+func (client *OperationsStatusClient) Get(ctx context.Context, deviceName string, name string, resourceGroupName string, options *OperationsStatusClientGetOptions) (result OperationsStatusClientGetResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "OperationsStatusClient.Get", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.getCreateRequest(ctx, deviceName, name, resourceGroupName, options)
 	if err != nil {
-		return OperationsStatusClientGetResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return OperationsStatusClientGetResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return OperationsStatusClientGetResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.getHandleResponse(resp)
+	result, err = client.getHandleResponse(resp)
+	return
 }
 
 // getCreateRequest creates the Get request.
@@ -95,10 +107,10 @@ func (client *OperationsStatusClient) getCreateRequest(ctx context.Context, devi
 }
 
 // getHandleResponse handles the Get response.
-func (client *OperationsStatusClient) getHandleResponse(resp *http.Response) (OperationsStatusClientGetResponse, error) {
-	result := OperationsStatusClientGetResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.Job); err != nil {
-		return OperationsStatusClientGetResponse{}, err
+func (client *OperationsStatusClient) getHandleResponse(resp *http.Response) (result OperationsStatusClientGetResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.Job); err != nil {
+		result = OperationsStatusClientGetResponse{}
+		return
 	}
 	return result, nil
 }

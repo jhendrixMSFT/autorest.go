@@ -15,6 +15,7 @@ import (
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/arm"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/policy"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/runtime"
+	"github.com/Azure/azure-sdk-for-go/sdk/azcore/tracing"
 	"net/http"
 	"strings"
 )
@@ -51,19 +52,30 @@ func NewTagsClient(credential azcore.TokenCredential, options *arm.ClientOptions
 //     scope and
 //     '/providers/Microsoft.Management/managementGroups/{managementGroupId}' for Management Group scope..
 //   - options - TagsClientGetOptions contains the optional parameters for the TagsClient.Get method.
-func (client *TagsClient) Get(ctx context.Context, scope string, options *TagsClientGetOptions) (TagsClientGetResponse, error) {
+func (client *TagsClient) Get(ctx context.Context, scope string, options *TagsClientGetOptions) (result TagsClientGetResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "TagsClient.Get", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.getCreateRequest(ctx, scope, options)
 	if err != nil {
-		return TagsClientGetResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return TagsClientGetResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK, http.StatusNoContent) {
-		return TagsClientGetResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.getHandleResponse(resp)
+	result, err = client.getHandleResponse(resp)
+	return
 }
 
 // getCreateRequest creates the Get request.
@@ -82,10 +94,10 @@ func (client *TagsClient) getCreateRequest(ctx context.Context, scope string, op
 }
 
 // getHandleResponse handles the Get response.
-func (client *TagsClient) getHandleResponse(resp *http.Response) (TagsClientGetResponse, error) {
-	result := TagsClientGetResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.TagsResult); err != nil {
-		return TagsClientGetResponse{}, err
+func (client *TagsClient) getHandleResponse(resp *http.Response) (result TagsClientGetResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.TagsResult); err != nil {
+		result = TagsClientGetResponse{}
+		return
 	}
 	return result, nil
 }

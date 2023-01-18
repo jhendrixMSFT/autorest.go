@@ -16,6 +16,7 @@ import (
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/arm"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/policy"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/runtime"
+	"github.com/Azure/azure-sdk-for-go/sdk/azcore/tracing"
 	"net/http"
 	"net/url"
 	"strings"
@@ -54,19 +55,30 @@ func NewLoadBalancerLoadBalancingRulesClient(subscriptionID string, credential a
 //   - loadBalancingRuleName - The name of the load balancing rule.
 //   - options - LoadBalancerLoadBalancingRulesClientGetOptions contains the optional parameters for the LoadBalancerLoadBalancingRulesClient.Get
 //     method.
-func (client *LoadBalancerLoadBalancingRulesClient) Get(ctx context.Context, resourceGroupName string, loadBalancerName string, loadBalancingRuleName string, options *LoadBalancerLoadBalancingRulesClientGetOptions) (LoadBalancerLoadBalancingRulesClientGetResponse, error) {
+func (client *LoadBalancerLoadBalancingRulesClient) Get(ctx context.Context, resourceGroupName string, loadBalancerName string, loadBalancingRuleName string, options *LoadBalancerLoadBalancingRulesClientGetOptions) (result LoadBalancerLoadBalancingRulesClientGetResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "LoadBalancerLoadBalancingRulesClient.Get", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.getCreateRequest(ctx, resourceGroupName, loadBalancerName, loadBalancingRuleName, options)
 	if err != nil {
-		return LoadBalancerLoadBalancingRulesClientGetResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return LoadBalancerLoadBalancingRulesClientGetResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return LoadBalancerLoadBalancingRulesClientGetResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.getHandleResponse(resp)
+	result, err = client.getHandleResponse(resp)
+	return
 }
 
 // getCreateRequest creates the Get request.
@@ -100,10 +112,10 @@ func (client *LoadBalancerLoadBalancingRulesClient) getCreateRequest(ctx context
 }
 
 // getHandleResponse handles the Get response.
-func (client *LoadBalancerLoadBalancingRulesClient) getHandleResponse(resp *http.Response) (LoadBalancerLoadBalancingRulesClientGetResponse, error) {
-	result := LoadBalancerLoadBalancingRulesClientGetResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.LoadBalancingRule); err != nil {
-		return LoadBalancerLoadBalancingRulesClientGetResponse{}, err
+func (client *LoadBalancerLoadBalancingRulesClient) getHandleResponse(resp *http.Response) (result LoadBalancerLoadBalancingRulesClientGetResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.LoadBalancingRule); err != nil {
+		result = LoadBalancerLoadBalancingRulesClientGetResponse{}
+		return
 	}
 	return result, nil
 }
@@ -120,25 +132,35 @@ func (client *LoadBalancerLoadBalancingRulesClient) NewListPager(resourceGroupNa
 		More: func(page LoadBalancerLoadBalancingRulesClientListResponse) bool {
 			return page.NextLink != nil && len(*page.NextLink) > 0
 		},
-		Fetcher: func(ctx context.Context, page *LoadBalancerLoadBalancingRulesClientListResponse) (LoadBalancerLoadBalancingRulesClientListResponse, error) {
+		Fetcher: func(ctx context.Context, page *LoadBalancerLoadBalancingRulesClientListResponse) (result LoadBalancerLoadBalancingRulesClientListResponse, err error) {
+			ctx, span := client.internal.Tracer().Start(ctx, "LoadBalancerLoadBalancingRulesClient.NewListPager", &tracing.SpanOptions{
+				Kind: tracing.SpanKindInternal,
+			})
+			defer func() {
+				if err != nil {
+					span.AddError(err)
+				}
+				span.End()
+			}()
 			var req *policy.Request
-			var err error
 			if page == nil {
 				req, err = client.listCreateRequest(ctx, resourceGroupName, loadBalancerName, options)
 			} else {
 				req, err = runtime.NewRequest(ctx, http.MethodGet, *page.NextLink)
 			}
 			if err != nil {
-				return LoadBalancerLoadBalancingRulesClientListResponse{}, err
+				return
 			}
 			resp, err := client.internal.Pipeline().Do(req)
 			if err != nil {
-				return LoadBalancerLoadBalancingRulesClientListResponse{}, err
+				return
 			}
 			if !runtime.HasStatusCode(resp, http.StatusOK) {
-				return LoadBalancerLoadBalancingRulesClientListResponse{}, runtime.NewResponseError(resp)
+				err = runtime.NewResponseError(resp)
+				return
 			}
-			return client.listHandleResponse(resp)
+			result, err = client.listHandleResponse(resp)
+			return
 		},
 	})
 }
@@ -170,10 +192,10 @@ func (client *LoadBalancerLoadBalancingRulesClient) listCreateRequest(ctx contex
 }
 
 // listHandleResponse handles the List response.
-func (client *LoadBalancerLoadBalancingRulesClient) listHandleResponse(resp *http.Response) (LoadBalancerLoadBalancingRulesClientListResponse, error) {
-	result := LoadBalancerLoadBalancingRulesClientListResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.LoadBalancerLoadBalancingRuleListResult); err != nil {
-		return LoadBalancerLoadBalancingRulesClientListResponse{}, err
+func (client *LoadBalancerLoadBalancingRulesClient) listHandleResponse(resp *http.Response) (result LoadBalancerLoadBalancingRulesClientListResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.LoadBalancerLoadBalancingRuleListResult); err != nil {
+		result = LoadBalancerLoadBalancingRulesClientListResponse{}
+		return
 	}
 	return result, nil
 }

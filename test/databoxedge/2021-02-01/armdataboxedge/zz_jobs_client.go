@@ -16,6 +16,7 @@ import (
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/arm"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/policy"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/runtime"
+	"github.com/Azure/azure-sdk-for-go/sdk/azcore/tracing"
 	"net/http"
 	"net/url"
 	"strings"
@@ -52,19 +53,30 @@ func NewJobsClient(subscriptionID string, credential azcore.TokenCredential, opt
 //   - name - The job name.
 //   - resourceGroupName - The resource group name.
 //   - options - JobsClientGetOptions contains the optional parameters for the JobsClient.Get method.
-func (client *JobsClient) Get(ctx context.Context, deviceName string, name string, resourceGroupName string, options *JobsClientGetOptions) (JobsClientGetResponse, error) {
+func (client *JobsClient) Get(ctx context.Context, deviceName string, name string, resourceGroupName string, options *JobsClientGetOptions) (result JobsClientGetResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "JobsClient.Get", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.getCreateRequest(ctx, deviceName, name, resourceGroupName, options)
 	if err != nil {
-		return JobsClientGetResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return JobsClientGetResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return JobsClientGetResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.getHandleResponse(resp)
+	result, err = client.getHandleResponse(resp)
+	return
 }
 
 // getCreateRequest creates the Get request.
@@ -95,10 +107,10 @@ func (client *JobsClient) getCreateRequest(ctx context.Context, deviceName strin
 }
 
 // getHandleResponse handles the Get response.
-func (client *JobsClient) getHandleResponse(resp *http.Response) (JobsClientGetResponse, error) {
-	result := JobsClientGetResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.Job); err != nil {
-		return JobsClientGetResponse{}, err
+func (client *JobsClient) getHandleResponse(resp *http.Response) (result JobsClientGetResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.Job); err != nil {
+		result = JobsClientGetResponse{}
+		return
 	}
 	return result, nil
 }

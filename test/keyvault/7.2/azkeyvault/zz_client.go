@@ -15,6 +15,7 @@ import (
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/policy"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/runtime"
+	"github.com/Azure/azure-sdk-for-go/sdk/azcore/tracing"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -35,19 +36,30 @@ type Client struct {
 //   - vaultBaseURL - The vault name, for example https://myvault.vault.azure.net.
 //   - certificateName - The name of the certificate.
 //   - options - ClientBackupCertificateOptions contains the optional parameters for the Client.BackupCertificate method.
-func (client *Client) BackupCertificate(ctx context.Context, vaultBaseURL string, certificateName string, options *ClientBackupCertificateOptions) (ClientBackupCertificateResponse, error) {
+func (client *Client) BackupCertificate(ctx context.Context, vaultBaseURL string, certificateName string, options *ClientBackupCertificateOptions) (result ClientBackupCertificateResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "Client.BackupCertificate", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.backupCertificateCreateRequest(ctx, vaultBaseURL, certificateName, options)
 	if err != nil {
-		return ClientBackupCertificateResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return ClientBackupCertificateResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return ClientBackupCertificateResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.backupCertificateHandleResponse(resp)
+	result, err = client.backupCertificateHandleResponse(resp)
+	return
 }
 
 // backupCertificateCreateRequest creates the BackupCertificate request.
@@ -71,10 +83,10 @@ func (client *Client) backupCertificateCreateRequest(ctx context.Context, vaultB
 }
 
 // backupCertificateHandleResponse handles the BackupCertificate response.
-func (client *Client) backupCertificateHandleResponse(resp *http.Response) (ClientBackupCertificateResponse, error) {
-	result := ClientBackupCertificateResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.BackupCertificateResult); err != nil {
-		return ClientBackupCertificateResponse{}, err
+func (client *Client) backupCertificateHandleResponse(resp *http.Response) (result ClientBackupCertificateResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.BackupCertificateResult); err != nil {
+		result = ClientBackupCertificateResponse{}
+		return
 	}
 	return result, nil
 }
@@ -95,19 +107,30 @@ func (client *Client) backupCertificateHandleResponse(resp *http.Response) (Clie
 //   - vaultBaseURL - The vault name, for example https://myvault.vault.azure.net.
 //   - keyName - The name of the key.
 //   - options - ClientBackupKeyOptions contains the optional parameters for the Client.BackupKey method.
-func (client *Client) BackupKey(ctx context.Context, vaultBaseURL string, keyName string, options *ClientBackupKeyOptions) (ClientBackupKeyResponse, error) {
+func (client *Client) BackupKey(ctx context.Context, vaultBaseURL string, keyName string, options *ClientBackupKeyOptions) (result ClientBackupKeyResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "Client.BackupKey", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.backupKeyCreateRequest(ctx, vaultBaseURL, keyName, options)
 	if err != nil {
-		return ClientBackupKeyResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return ClientBackupKeyResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return ClientBackupKeyResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.backupKeyHandleResponse(resp)
+	result, err = client.backupKeyHandleResponse(resp)
+	return
 }
 
 // backupKeyCreateRequest creates the BackupKey request.
@@ -131,10 +154,10 @@ func (client *Client) backupKeyCreateRequest(ctx context.Context, vaultBaseURL s
 }
 
 // backupKeyHandleResponse handles the BackupKey response.
-func (client *Client) backupKeyHandleResponse(resp *http.Response) (ClientBackupKeyResponse, error) {
-	result := ClientBackupKeyResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.BackupKeyResult); err != nil {
-		return ClientBackupKeyResponse{}, err
+func (client *Client) backupKeyHandleResponse(resp *http.Response) (result ClientBackupKeyResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.BackupKeyResult); err != nil {
+		result = ClientBackupKeyResponse{}
+		return
 	}
 	return result, nil
 }
@@ -147,19 +170,30 @@ func (client *Client) backupKeyHandleResponse(resp *http.Response) (ClientBackup
 //   - vaultBaseURL - The vault name, for example https://myvault.vault.azure.net.
 //   - secretName - The name of the secret.
 //   - options - ClientBackupSecretOptions contains the optional parameters for the Client.BackupSecret method.
-func (client *Client) BackupSecret(ctx context.Context, vaultBaseURL string, secretName string, options *ClientBackupSecretOptions) (ClientBackupSecretResponse, error) {
+func (client *Client) BackupSecret(ctx context.Context, vaultBaseURL string, secretName string, options *ClientBackupSecretOptions) (result ClientBackupSecretResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "Client.BackupSecret", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.backupSecretCreateRequest(ctx, vaultBaseURL, secretName, options)
 	if err != nil {
-		return ClientBackupSecretResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return ClientBackupSecretResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return ClientBackupSecretResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.backupSecretHandleResponse(resp)
+	result, err = client.backupSecretHandleResponse(resp)
+	return
 }
 
 // backupSecretCreateRequest creates the BackupSecret request.
@@ -183,10 +217,10 @@ func (client *Client) backupSecretCreateRequest(ctx context.Context, vaultBaseUR
 }
 
 // backupSecretHandleResponse handles the BackupSecret response.
-func (client *Client) backupSecretHandleResponse(resp *http.Response) (ClientBackupSecretResponse, error) {
-	result := ClientBackupSecretResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.BackupSecretResult); err != nil {
-		return ClientBackupSecretResponse{}, err
+func (client *Client) backupSecretHandleResponse(resp *http.Response) (result ClientBackupSecretResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.BackupSecretResult); err != nil {
+		result = ClientBackupSecretResponse{}
+		return
 	}
 	return result, nil
 }
@@ -199,19 +233,30 @@ func (client *Client) backupSecretHandleResponse(resp *http.Response) (ClientBac
 //   - vaultBaseURL - The vault name, for example https://myvault.vault.azure.net.
 //   - storageAccountName - The name of the storage account.
 //   - options - ClientBackupStorageAccountOptions contains the optional parameters for the Client.BackupStorageAccount method.
-func (client *Client) BackupStorageAccount(ctx context.Context, vaultBaseURL string, storageAccountName string, options *ClientBackupStorageAccountOptions) (ClientBackupStorageAccountResponse, error) {
+func (client *Client) BackupStorageAccount(ctx context.Context, vaultBaseURL string, storageAccountName string, options *ClientBackupStorageAccountOptions) (result ClientBackupStorageAccountResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "Client.BackupStorageAccount", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.backupStorageAccountCreateRequest(ctx, vaultBaseURL, storageAccountName, options)
 	if err != nil {
-		return ClientBackupStorageAccountResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return ClientBackupStorageAccountResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return ClientBackupStorageAccountResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.backupStorageAccountHandleResponse(resp)
+	result, err = client.backupStorageAccountHandleResponse(resp)
+	return
 }
 
 // backupStorageAccountCreateRequest creates the BackupStorageAccount request.
@@ -235,10 +280,10 @@ func (client *Client) backupStorageAccountCreateRequest(ctx context.Context, vau
 }
 
 // backupStorageAccountHandleResponse handles the BackupStorageAccount response.
-func (client *Client) backupStorageAccountHandleResponse(resp *http.Response) (ClientBackupStorageAccountResponse, error) {
-	result := ClientBackupStorageAccountResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.BackupStorageResult); err != nil {
-		return ClientBackupStorageAccountResponse{}, err
+func (client *Client) backupStorageAccountHandleResponse(resp *http.Response) (result ClientBackupStorageAccountResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.BackupStorageResult); err != nil {
+		result = ClientBackupStorageAccountResponse{}
+		return
 	}
 	return result, nil
 }
@@ -252,19 +297,30 @@ func (client *Client) backupStorageAccountHandleResponse(resp *http.Response) (C
 //   - certificateName - The name of the certificate.
 //   - parameters - The parameters to create a certificate.
 //   - options - ClientCreateCertificateOptions contains the optional parameters for the Client.CreateCertificate method.
-func (client *Client) CreateCertificate(ctx context.Context, vaultBaseURL string, certificateName string, parameters CertificateCreateParameters, options *ClientCreateCertificateOptions) (ClientCreateCertificateResponse, error) {
+func (client *Client) CreateCertificate(ctx context.Context, vaultBaseURL string, certificateName string, parameters CertificateCreateParameters, options *ClientCreateCertificateOptions) (result ClientCreateCertificateResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "Client.CreateCertificate", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.createCertificateCreateRequest(ctx, vaultBaseURL, certificateName, parameters, options)
 	if err != nil {
-		return ClientCreateCertificateResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return ClientCreateCertificateResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusAccepted) {
-		return ClientCreateCertificateResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.createCertificateHandleResponse(resp)
+	result, err = client.createCertificateHandleResponse(resp)
+	return
 }
 
 // createCertificateCreateRequest creates the CreateCertificate request.
@@ -288,10 +344,10 @@ func (client *Client) createCertificateCreateRequest(ctx context.Context, vaultB
 }
 
 // createCertificateHandleResponse handles the CreateCertificate response.
-func (client *Client) createCertificateHandleResponse(resp *http.Response) (ClientCreateCertificateResponse, error) {
-	result := ClientCreateCertificateResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.CertificateOperation); err != nil {
-		return ClientCreateCertificateResponse{}, err
+func (client *Client) createCertificateHandleResponse(resp *http.Response) (result ClientCreateCertificateResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.CertificateOperation); err != nil {
+		result = ClientCreateCertificateResponse{}
+		return
 	}
 	return result, nil
 }
@@ -306,19 +362,30 @@ func (client *Client) createCertificateHandleResponse(resp *http.Response) (Clie
 //   - keyName - The name for the new key. The system will generate the version name for the new key.
 //   - parameters - The parameters to create a key.
 //   - options - ClientCreateKeyOptions contains the optional parameters for the Client.CreateKey method.
-func (client *Client) CreateKey(ctx context.Context, vaultBaseURL string, keyName string, parameters KeyCreateParameters, options *ClientCreateKeyOptions) (ClientCreateKeyResponse, error) {
+func (client *Client) CreateKey(ctx context.Context, vaultBaseURL string, keyName string, parameters KeyCreateParameters, options *ClientCreateKeyOptions) (result ClientCreateKeyResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "Client.CreateKey", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.createKeyCreateRequest(ctx, vaultBaseURL, keyName, parameters, options)
 	if err != nil {
-		return ClientCreateKeyResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return ClientCreateKeyResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return ClientCreateKeyResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.createKeyHandleResponse(resp)
+	result, err = client.createKeyHandleResponse(resp)
+	return
 }
 
 // createKeyCreateRequest creates the CreateKey request.
@@ -342,10 +409,10 @@ func (client *Client) createKeyCreateRequest(ctx context.Context, vaultBaseURL s
 }
 
 // createKeyHandleResponse handles the CreateKey response.
-func (client *Client) createKeyHandleResponse(resp *http.Response) (ClientCreateKeyResponse, error) {
-	result := ClientCreateKeyResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.KeyBundle); err != nil {
-		return ClientCreateKeyResponse{}, err
+func (client *Client) createKeyHandleResponse(resp *http.Response) (result ClientCreateKeyResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.KeyBundle); err != nil {
+		result = ClientCreateKeyResponse{}
+		return
 	}
 	return result, nil
 }
@@ -363,19 +430,30 @@ func (client *Client) createKeyHandleResponse(resp *http.Response) (ClientCreate
 //   - keyVersion - The version of the key.
 //   - parameters - The parameters for the decryption operation.
 //   - options - ClientDecryptOptions contains the optional parameters for the Client.Decrypt method.
-func (client *Client) Decrypt(ctx context.Context, vaultBaseURL string, keyName string, keyVersion string, parameters KeyOperationsParameters, options *ClientDecryptOptions) (ClientDecryptResponse, error) {
+func (client *Client) Decrypt(ctx context.Context, vaultBaseURL string, keyName string, keyVersion string, parameters KeyOperationsParameters, options *ClientDecryptOptions) (result ClientDecryptResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "Client.Decrypt", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.decryptCreateRequest(ctx, vaultBaseURL, keyName, keyVersion, parameters, options)
 	if err != nil {
-		return ClientDecryptResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return ClientDecryptResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return ClientDecryptResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.decryptHandleResponse(resp)
+	result, err = client.decryptHandleResponse(resp)
+	return
 }
 
 // decryptCreateRequest creates the Decrypt request.
@@ -403,10 +481,10 @@ func (client *Client) decryptCreateRequest(ctx context.Context, vaultBaseURL str
 }
 
 // decryptHandleResponse handles the Decrypt response.
-func (client *Client) decryptHandleResponse(resp *http.Response) (ClientDecryptResponse, error) {
-	result := ClientDecryptResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.KeyOperationResult); err != nil {
-		return ClientDecryptResponse{}, err
+func (client *Client) decryptHandleResponse(resp *http.Response) (result ClientDecryptResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.KeyOperationResult); err != nil {
+		result = ClientDecryptResponse{}
+		return
 	}
 	return result, nil
 }
@@ -420,19 +498,30 @@ func (client *Client) decryptHandleResponse(resp *http.Response) (ClientDecryptR
 //   - vaultBaseURL - The vault name, for example https://myvault.vault.azure.net.
 //   - certificateName - The name of the certificate.
 //   - options - ClientDeleteCertificateOptions contains the optional parameters for the Client.DeleteCertificate method.
-func (client *Client) DeleteCertificate(ctx context.Context, vaultBaseURL string, certificateName string, options *ClientDeleteCertificateOptions) (ClientDeleteCertificateResponse, error) {
+func (client *Client) DeleteCertificate(ctx context.Context, vaultBaseURL string, certificateName string, options *ClientDeleteCertificateOptions) (result ClientDeleteCertificateResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "Client.DeleteCertificate", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.deleteCertificateCreateRequest(ctx, vaultBaseURL, certificateName, options)
 	if err != nil {
-		return ClientDeleteCertificateResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return ClientDeleteCertificateResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return ClientDeleteCertificateResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.deleteCertificateHandleResponse(resp)
+	result, err = client.deleteCertificateHandleResponse(resp)
+	return
 }
 
 // deleteCertificateCreateRequest creates the DeleteCertificate request.
@@ -456,10 +545,10 @@ func (client *Client) deleteCertificateCreateRequest(ctx context.Context, vaultB
 }
 
 // deleteCertificateHandleResponse handles the DeleteCertificate response.
-func (client *Client) deleteCertificateHandleResponse(resp *http.Response) (ClientDeleteCertificateResponse, error) {
-	result := ClientDeleteCertificateResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.DeletedCertificateBundle); err != nil {
-		return ClientDeleteCertificateResponse{}, err
+func (client *Client) deleteCertificateHandleResponse(resp *http.Response) (result ClientDeleteCertificateResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.DeletedCertificateBundle); err != nil {
+		result = ClientDeleteCertificateResponse{}
+		return
 	}
 	return result, nil
 }
@@ -472,19 +561,30 @@ func (client *Client) deleteCertificateHandleResponse(resp *http.Response) (Clie
 //   - vaultBaseURL - The vault name, for example https://myvault.vault.azure.net.
 //   - options - ClientDeleteCertificateContactsOptions contains the optional parameters for the Client.DeleteCertificateContacts
 //     method.
-func (client *Client) DeleteCertificateContacts(ctx context.Context, vaultBaseURL string, options *ClientDeleteCertificateContactsOptions) (ClientDeleteCertificateContactsResponse, error) {
+func (client *Client) DeleteCertificateContacts(ctx context.Context, vaultBaseURL string, options *ClientDeleteCertificateContactsOptions) (result ClientDeleteCertificateContactsResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "Client.DeleteCertificateContacts", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.deleteCertificateContactsCreateRequest(ctx, vaultBaseURL, options)
 	if err != nil {
-		return ClientDeleteCertificateContactsResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return ClientDeleteCertificateContactsResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return ClientDeleteCertificateContactsResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.deleteCertificateContactsHandleResponse(resp)
+	result, err = client.deleteCertificateContactsHandleResponse(resp)
+	return
 }
 
 // deleteCertificateContactsCreateRequest creates the DeleteCertificateContacts request.
@@ -504,10 +604,10 @@ func (client *Client) deleteCertificateContactsCreateRequest(ctx context.Context
 }
 
 // deleteCertificateContactsHandleResponse handles the DeleteCertificateContacts response.
-func (client *Client) deleteCertificateContactsHandleResponse(resp *http.Response) (ClientDeleteCertificateContactsResponse, error) {
-	result := ClientDeleteCertificateContactsResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.Contacts); err != nil {
-		return ClientDeleteCertificateContactsResponse{}, err
+func (client *Client) deleteCertificateContactsHandleResponse(resp *http.Response) (result ClientDeleteCertificateContactsResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.Contacts); err != nil {
+		result = ClientDeleteCertificateContactsResponse{}
+		return
 	}
 	return result, nil
 }
@@ -521,19 +621,30 @@ func (client *Client) deleteCertificateContactsHandleResponse(resp *http.Respons
 //   - issuerName - The name of the issuer.
 //   - options - ClientDeleteCertificateIssuerOptions contains the optional parameters for the Client.DeleteCertificateIssuer
 //     method.
-func (client *Client) DeleteCertificateIssuer(ctx context.Context, vaultBaseURL string, issuerName string, options *ClientDeleteCertificateIssuerOptions) (ClientDeleteCertificateIssuerResponse, error) {
+func (client *Client) DeleteCertificateIssuer(ctx context.Context, vaultBaseURL string, issuerName string, options *ClientDeleteCertificateIssuerOptions) (result ClientDeleteCertificateIssuerResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "Client.DeleteCertificateIssuer", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.deleteCertificateIssuerCreateRequest(ctx, vaultBaseURL, issuerName, options)
 	if err != nil {
-		return ClientDeleteCertificateIssuerResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return ClientDeleteCertificateIssuerResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return ClientDeleteCertificateIssuerResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.deleteCertificateIssuerHandleResponse(resp)
+	result, err = client.deleteCertificateIssuerHandleResponse(resp)
+	return
 }
 
 // deleteCertificateIssuerCreateRequest creates the DeleteCertificateIssuer request.
@@ -557,10 +668,10 @@ func (client *Client) deleteCertificateIssuerCreateRequest(ctx context.Context, 
 }
 
 // deleteCertificateIssuerHandleResponse handles the DeleteCertificateIssuer response.
-func (client *Client) deleteCertificateIssuerHandleResponse(resp *http.Response) (ClientDeleteCertificateIssuerResponse, error) {
-	result := ClientDeleteCertificateIssuerResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.IssuerBundle); err != nil {
-		return ClientDeleteCertificateIssuerResponse{}, err
+func (client *Client) deleteCertificateIssuerHandleResponse(resp *http.Response) (result ClientDeleteCertificateIssuerResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.IssuerBundle); err != nil {
+		result = ClientDeleteCertificateIssuerResponse{}
+		return
 	}
 	return result, nil
 }
@@ -574,19 +685,30 @@ func (client *Client) deleteCertificateIssuerHandleResponse(resp *http.Response)
 //   - certificateName - The name of the certificate.
 //   - options - ClientDeleteCertificateOperationOptions contains the optional parameters for the Client.DeleteCertificateOperation
 //     method.
-func (client *Client) DeleteCertificateOperation(ctx context.Context, vaultBaseURL string, certificateName string, options *ClientDeleteCertificateOperationOptions) (ClientDeleteCertificateOperationResponse, error) {
+func (client *Client) DeleteCertificateOperation(ctx context.Context, vaultBaseURL string, certificateName string, options *ClientDeleteCertificateOperationOptions) (result ClientDeleteCertificateOperationResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "Client.DeleteCertificateOperation", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.deleteCertificateOperationCreateRequest(ctx, vaultBaseURL, certificateName, options)
 	if err != nil {
-		return ClientDeleteCertificateOperationResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return ClientDeleteCertificateOperationResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return ClientDeleteCertificateOperationResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.deleteCertificateOperationHandleResponse(resp)
+	result, err = client.deleteCertificateOperationHandleResponse(resp)
+	return
 }
 
 // deleteCertificateOperationCreateRequest creates the DeleteCertificateOperation request.
@@ -610,10 +732,10 @@ func (client *Client) deleteCertificateOperationCreateRequest(ctx context.Contex
 }
 
 // deleteCertificateOperationHandleResponse handles the DeleteCertificateOperation response.
-func (client *Client) deleteCertificateOperationHandleResponse(resp *http.Response) (ClientDeleteCertificateOperationResponse, error) {
-	result := ClientDeleteCertificateOperationResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.CertificateOperation); err != nil {
-		return ClientDeleteCertificateOperationResponse{}, err
+func (client *Client) deleteCertificateOperationHandleResponse(resp *http.Response) (result ClientDeleteCertificateOperationResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.CertificateOperation); err != nil {
+		result = ClientDeleteCertificateOperationResponse{}
+		return
 	}
 	return result, nil
 }
@@ -627,19 +749,30 @@ func (client *Client) deleteCertificateOperationHandleResponse(resp *http.Respon
 //   - vaultBaseURL - The vault name, for example https://myvault.vault.azure.net.
 //   - keyName - The name of the key to delete.
 //   - options - ClientDeleteKeyOptions contains the optional parameters for the Client.DeleteKey method.
-func (client *Client) DeleteKey(ctx context.Context, vaultBaseURL string, keyName string, options *ClientDeleteKeyOptions) (ClientDeleteKeyResponse, error) {
+func (client *Client) DeleteKey(ctx context.Context, vaultBaseURL string, keyName string, options *ClientDeleteKeyOptions) (result ClientDeleteKeyResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "Client.DeleteKey", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.deleteKeyCreateRequest(ctx, vaultBaseURL, keyName, options)
 	if err != nil {
-		return ClientDeleteKeyResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return ClientDeleteKeyResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return ClientDeleteKeyResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.deleteKeyHandleResponse(resp)
+	result, err = client.deleteKeyHandleResponse(resp)
+	return
 }
 
 // deleteKeyCreateRequest creates the DeleteKey request.
@@ -663,10 +796,10 @@ func (client *Client) deleteKeyCreateRequest(ctx context.Context, vaultBaseURL s
 }
 
 // deleteKeyHandleResponse handles the DeleteKey response.
-func (client *Client) deleteKeyHandleResponse(resp *http.Response) (ClientDeleteKeyResponse, error) {
-	result := ClientDeleteKeyResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.DeletedKeyBundle); err != nil {
-		return ClientDeleteKeyResponse{}, err
+func (client *Client) deleteKeyHandleResponse(resp *http.Response) (result ClientDeleteKeyResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.DeletedKeyBundle); err != nil {
+		result = ClientDeleteKeyResponse{}
+		return
 	}
 	return result, nil
 }
@@ -680,19 +813,30 @@ func (client *Client) deleteKeyHandleResponse(resp *http.Response) (ClientDelete
 //   - storageAccountName - The name of the storage account.
 //   - sasDefinitionName - The name of the SAS definition.
 //   - options - ClientDeleteSasDefinitionOptions contains the optional parameters for the Client.DeleteSasDefinition method.
-func (client *Client) DeleteSasDefinition(ctx context.Context, vaultBaseURL string, storageAccountName string, sasDefinitionName string, options *ClientDeleteSasDefinitionOptions) (ClientDeleteSasDefinitionResponse, error) {
+func (client *Client) DeleteSasDefinition(ctx context.Context, vaultBaseURL string, storageAccountName string, sasDefinitionName string, options *ClientDeleteSasDefinitionOptions) (result ClientDeleteSasDefinitionResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "Client.DeleteSasDefinition", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.deleteSasDefinitionCreateRequest(ctx, vaultBaseURL, storageAccountName, sasDefinitionName, options)
 	if err != nil {
-		return ClientDeleteSasDefinitionResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return ClientDeleteSasDefinitionResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return ClientDeleteSasDefinitionResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.deleteSasDefinitionHandleResponse(resp)
+	result, err = client.deleteSasDefinitionHandleResponse(resp)
+	return
 }
 
 // deleteSasDefinitionCreateRequest creates the DeleteSasDefinition request.
@@ -720,10 +864,10 @@ func (client *Client) deleteSasDefinitionCreateRequest(ctx context.Context, vaul
 }
 
 // deleteSasDefinitionHandleResponse handles the DeleteSasDefinition response.
-func (client *Client) deleteSasDefinitionHandleResponse(resp *http.Response) (ClientDeleteSasDefinitionResponse, error) {
-	result := ClientDeleteSasDefinitionResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.DeletedSasDefinitionBundle); err != nil {
-		return ClientDeleteSasDefinitionResponse{}, err
+func (client *Client) deleteSasDefinitionHandleResponse(resp *http.Response) (result ClientDeleteSasDefinitionResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.DeletedSasDefinitionBundle); err != nil {
+		result = ClientDeleteSasDefinitionResponse{}
+		return
 	}
 	return result, nil
 }
@@ -736,19 +880,30 @@ func (client *Client) deleteSasDefinitionHandleResponse(resp *http.Response) (Cl
 //   - vaultBaseURL - The vault name, for example https://myvault.vault.azure.net.
 //   - secretName - The name of the secret.
 //   - options - ClientDeleteSecretOptions contains the optional parameters for the Client.DeleteSecret method.
-func (client *Client) DeleteSecret(ctx context.Context, vaultBaseURL string, secretName string, options *ClientDeleteSecretOptions) (ClientDeleteSecretResponse, error) {
+func (client *Client) DeleteSecret(ctx context.Context, vaultBaseURL string, secretName string, options *ClientDeleteSecretOptions) (result ClientDeleteSecretResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "Client.DeleteSecret", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.deleteSecretCreateRequest(ctx, vaultBaseURL, secretName, options)
 	if err != nil {
-		return ClientDeleteSecretResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return ClientDeleteSecretResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return ClientDeleteSecretResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.deleteSecretHandleResponse(resp)
+	result, err = client.deleteSecretHandleResponse(resp)
+	return
 }
 
 // deleteSecretCreateRequest creates the DeleteSecret request.
@@ -772,10 +927,10 @@ func (client *Client) deleteSecretCreateRequest(ctx context.Context, vaultBaseUR
 }
 
 // deleteSecretHandleResponse handles the DeleteSecret response.
-func (client *Client) deleteSecretHandleResponse(resp *http.Response) (ClientDeleteSecretResponse, error) {
-	result := ClientDeleteSecretResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.DeletedSecretBundle); err != nil {
-		return ClientDeleteSecretResponse{}, err
+func (client *Client) deleteSecretHandleResponse(resp *http.Response) (result ClientDeleteSecretResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.DeletedSecretBundle); err != nil {
+		result = ClientDeleteSecretResponse{}
+		return
 	}
 	return result, nil
 }
@@ -787,19 +942,30 @@ func (client *Client) deleteSecretHandleResponse(resp *http.Response) (ClientDel
 //   - vaultBaseURL - The vault name, for example https://myvault.vault.azure.net.
 //   - storageAccountName - The name of the storage account.
 //   - options - ClientDeleteStorageAccountOptions contains the optional parameters for the Client.DeleteStorageAccount method.
-func (client *Client) DeleteStorageAccount(ctx context.Context, vaultBaseURL string, storageAccountName string, options *ClientDeleteStorageAccountOptions) (ClientDeleteStorageAccountResponse, error) {
+func (client *Client) DeleteStorageAccount(ctx context.Context, vaultBaseURL string, storageAccountName string, options *ClientDeleteStorageAccountOptions) (result ClientDeleteStorageAccountResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "Client.DeleteStorageAccount", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.deleteStorageAccountCreateRequest(ctx, vaultBaseURL, storageAccountName, options)
 	if err != nil {
-		return ClientDeleteStorageAccountResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return ClientDeleteStorageAccountResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return ClientDeleteStorageAccountResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.deleteStorageAccountHandleResponse(resp)
+	result, err = client.deleteStorageAccountHandleResponse(resp)
+	return
 }
 
 // deleteStorageAccountCreateRequest creates the DeleteStorageAccount request.
@@ -823,10 +989,10 @@ func (client *Client) deleteStorageAccountCreateRequest(ctx context.Context, vau
 }
 
 // deleteStorageAccountHandleResponse handles the DeleteStorageAccount response.
-func (client *Client) deleteStorageAccountHandleResponse(resp *http.Response) (ClientDeleteStorageAccountResponse, error) {
-	result := ClientDeleteStorageAccountResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.DeletedStorageBundle); err != nil {
-		return ClientDeleteStorageAccountResponse{}, err
+func (client *Client) deleteStorageAccountHandleResponse(resp *http.Response) (result ClientDeleteStorageAccountResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.DeletedStorageBundle); err != nil {
+		result = ClientDeleteStorageAccountResponse{}
+		return
 	}
 	return result, nil
 }
@@ -846,19 +1012,30 @@ func (client *Client) deleteStorageAccountHandleResponse(resp *http.Response) (C
 //   - keyVersion - The version of the key.
 //   - parameters - The parameters for the encryption operation.
 //   - options - ClientEncryptOptions contains the optional parameters for the Client.Encrypt method.
-func (client *Client) Encrypt(ctx context.Context, vaultBaseURL string, keyName string, keyVersion string, parameters KeyOperationsParameters, options *ClientEncryptOptions) (ClientEncryptResponse, error) {
+func (client *Client) Encrypt(ctx context.Context, vaultBaseURL string, keyName string, keyVersion string, parameters KeyOperationsParameters, options *ClientEncryptOptions) (result ClientEncryptResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "Client.Encrypt", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.encryptCreateRequest(ctx, vaultBaseURL, keyName, keyVersion, parameters, options)
 	if err != nil {
-		return ClientEncryptResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return ClientEncryptResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return ClientEncryptResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.encryptHandleResponse(resp)
+	result, err = client.encryptHandleResponse(resp)
+	return
 }
 
 // encryptCreateRequest creates the Encrypt request.
@@ -886,10 +1063,10 @@ func (client *Client) encryptCreateRequest(ctx context.Context, vaultBaseURL str
 }
 
 // encryptHandleResponse handles the Encrypt response.
-func (client *Client) encryptHandleResponse(resp *http.Response) (ClientEncryptResponse, error) {
-	result := ClientEncryptResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.KeyOperationResult); err != nil {
-		return ClientEncryptResponse{}, err
+func (client *Client) encryptHandleResponse(resp *http.Response) (result ClientEncryptResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.KeyOperationResult); err != nil {
+		result = ClientEncryptResponse{}
+		return
 	}
 	return result, nil
 }
@@ -900,37 +1077,49 @@ func (client *Client) encryptHandleResponse(resp *http.Response) (ClientEncryptR
 // Generated from API version 7.2
 //   - vaultBaseURL - The vault name, for example https://myvault.vault.azure.net.
 //   - options - ClientBeginFullBackupOptions contains the optional parameters for the Client.BeginFullBackup method.
-func (client *Client) BeginFullBackup(ctx context.Context, vaultBaseURL string, options *ClientBeginFullBackupOptions) (*runtime.Poller[ClientFullBackupResponse], error) {
-	if options == nil || options.ResumeToken == "" {
-		resp, err := client.fullBackup(ctx, vaultBaseURL, options)
+func (client *Client) BeginFullBackup(ctx context.Context, vaultBaseURL string, options *ClientBeginFullBackupOptions) (result *runtime.Poller[ClientFullBackupResponse], err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "Client.BeginFullBackup", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
 		if err != nil {
-			return nil, err
+			span.AddError(err)
 		}
-		return runtime.NewPoller(resp, client.internal.Pipeline(), &runtime.NewPollerOptions[ClientFullBackupResponse]{
+		span.End()
+	}()
+	if options == nil || options.ResumeToken == "" {
+		var resp *http.Response
+		resp, err = client.fullBackup(ctx, vaultBaseURL, options)
+		if err != nil {
+			return
+		}
+		result, err = runtime.NewPoller(resp, client.internal.Pipeline(), &runtime.NewPollerOptions[ClientFullBackupResponse]{
 			FinalStateVia: runtime.FinalStateViaAzureAsyncOp,
 		})
 	} else {
-		return runtime.NewPollerFromResumeToken[ClientFullBackupResponse](options.ResumeToken, client.internal.Pipeline(), nil)
+		result, err = runtime.NewPollerFromResumeToken[ClientFullBackupResponse](options.ResumeToken, client.internal.Pipeline(), nil)
 	}
+	return
 }
 
 // FullBackup - Creates a full backup using a user-provided SAS token to an Azure blob storage container.
 // If the operation fails it returns an *azcore.ResponseError type.
 //
 // Generated from API version 7.2
-func (client *Client) fullBackup(ctx context.Context, vaultBaseURL string, options *ClientBeginFullBackupOptions) (*http.Response, error) {
+func (client *Client) fullBackup(ctx context.Context, vaultBaseURL string, options *ClientBeginFullBackupOptions) (resp *http.Response, err error) {
 	req, err := client.fullBackupCreateRequest(ctx, vaultBaseURL, options)
 	if err != nil {
-		return nil, err
+		return
 	}
-	resp, err := client.internal.Pipeline().Do(req)
+	resp, err = client.internal.Pipeline().Do(req)
 	if err != nil {
-		return nil, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusAccepted) {
-		return nil, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return resp, nil
+	return
 }
 
 // fullBackupCreateRequest creates the FullBackup request.
@@ -959,19 +1148,30 @@ func (client *Client) fullBackupCreateRequest(ctx context.Context, vaultBaseURL 
 //   - vaultBaseURL - The vault name, for example https://myvault.vault.azure.net.
 //   - jobID - The id returned as part of the backup request
 //   - options - ClientFullBackupStatusOptions contains the optional parameters for the Client.FullBackupStatus method.
-func (client *Client) FullBackupStatus(ctx context.Context, vaultBaseURL string, jobID string, options *ClientFullBackupStatusOptions) (ClientFullBackupStatusResponse, error) {
+func (client *Client) FullBackupStatus(ctx context.Context, vaultBaseURL string, jobID string, options *ClientFullBackupStatusOptions) (result ClientFullBackupStatusResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "Client.FullBackupStatus", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.fullBackupStatusCreateRequest(ctx, vaultBaseURL, jobID, options)
 	if err != nil {
-		return ClientFullBackupStatusResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return ClientFullBackupStatusResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return ClientFullBackupStatusResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.fullBackupStatusHandleResponse(resp)
+	result, err = client.fullBackupStatusHandleResponse(resp)
+	return
 }
 
 // fullBackupStatusCreateRequest creates the FullBackupStatus request.
@@ -995,10 +1195,10 @@ func (client *Client) fullBackupStatusCreateRequest(ctx context.Context, vaultBa
 }
 
 // fullBackupStatusHandleResponse handles the FullBackupStatus response.
-func (client *Client) fullBackupStatusHandleResponse(resp *http.Response) (ClientFullBackupStatusResponse, error) {
-	result := ClientFullBackupStatusResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.FullBackupOperation); err != nil {
-		return ClientFullBackupStatusResponse{}, err
+func (client *Client) fullBackupStatusHandleResponse(resp *http.Response) (result ClientFullBackupStatusResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.FullBackupOperation); err != nil {
+		result = ClientFullBackupStatusResponse{}
+		return
 	}
 	return result, nil
 }
@@ -1012,18 +1212,29 @@ func (client *Client) fullBackupStatusHandleResponse(resp *http.Response) (Clien
 //   - restoreBlobDetails - The Azure blob SAS token pointing to a folder where the previous successful full backup was stored
 //   - options - ClientBeginFullRestoreOperationOptions contains the optional parameters for the Client.BeginFullRestoreOperation
 //     method.
-func (client *Client) BeginFullRestoreOperation(ctx context.Context, vaultBaseURL string, restoreBlobDetails RestoreOperationParameters, options *ClientBeginFullRestoreOperationOptions) (*runtime.Poller[ClientFullRestoreOperationResponse], error) {
-	if options == nil || options.ResumeToken == "" {
-		resp, err := client.fullRestoreOperation(ctx, vaultBaseURL, restoreBlobDetails, options)
+func (client *Client) BeginFullRestoreOperation(ctx context.Context, vaultBaseURL string, restoreBlobDetails RestoreOperationParameters, options *ClientBeginFullRestoreOperationOptions) (result *runtime.Poller[ClientFullRestoreOperationResponse], err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "Client.BeginFullRestoreOperation", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
 		if err != nil {
-			return nil, err
+			span.AddError(err)
 		}
-		return runtime.NewPoller(resp, client.internal.Pipeline(), &runtime.NewPollerOptions[ClientFullRestoreOperationResponse]{
+		span.End()
+	}()
+	if options == nil || options.ResumeToken == "" {
+		var resp *http.Response
+		resp, err = client.fullRestoreOperation(ctx, vaultBaseURL, restoreBlobDetails, options)
+		if err != nil {
+			return
+		}
+		result, err = runtime.NewPoller(resp, client.internal.Pipeline(), &runtime.NewPollerOptions[ClientFullRestoreOperationResponse]{
 			FinalStateVia: runtime.FinalStateViaAzureAsyncOp,
 		})
 	} else {
-		return runtime.NewPollerFromResumeToken[ClientFullRestoreOperationResponse](options.ResumeToken, client.internal.Pipeline(), nil)
+		result, err = runtime.NewPollerFromResumeToken[ClientFullRestoreOperationResponse](options.ResumeToken, client.internal.Pipeline(), nil)
 	}
+	return
 }
 
 // FullRestoreOperation - Restores all key materials using the SAS token pointing to a previously stored Azure Blob storage
@@ -1031,19 +1242,20 @@ func (client *Client) BeginFullRestoreOperation(ctx context.Context, vaultBaseUR
 // If the operation fails it returns an *azcore.ResponseError type.
 //
 // Generated from API version 7.2
-func (client *Client) fullRestoreOperation(ctx context.Context, vaultBaseURL string, restoreBlobDetails RestoreOperationParameters, options *ClientBeginFullRestoreOperationOptions) (*http.Response, error) {
+func (client *Client) fullRestoreOperation(ctx context.Context, vaultBaseURL string, restoreBlobDetails RestoreOperationParameters, options *ClientBeginFullRestoreOperationOptions) (resp *http.Response, err error) {
 	req, err := client.fullRestoreOperationCreateRequest(ctx, vaultBaseURL, restoreBlobDetails, options)
 	if err != nil {
-		return nil, err
+		return
 	}
-	resp, err := client.internal.Pipeline().Do(req)
+	resp, err = client.internal.Pipeline().Do(req)
 	if err != nil {
-		return nil, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusAccepted) {
-		return nil, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return resp, nil
+	return
 }
 
 // fullRestoreOperationCreateRequest creates the FullRestoreOperation request.
@@ -1071,19 +1283,30 @@ func (client *Client) fullRestoreOperationCreateRequest(ctx context.Context, vau
 //   - certificateVersion - The version of the certificate. This URI fragment is optional. If not specified, the latest version
 //     of the certificate is returned.
 //   - options - ClientGetCertificateOptions contains the optional parameters for the Client.GetCertificate method.
-func (client *Client) GetCertificate(ctx context.Context, vaultBaseURL string, certificateName string, certificateVersion string, options *ClientGetCertificateOptions) (ClientGetCertificateResponse, error) {
+func (client *Client) GetCertificate(ctx context.Context, vaultBaseURL string, certificateName string, certificateVersion string, options *ClientGetCertificateOptions) (result ClientGetCertificateResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "Client.GetCertificate", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.getCertificateCreateRequest(ctx, vaultBaseURL, certificateName, certificateVersion, options)
 	if err != nil {
-		return ClientGetCertificateResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return ClientGetCertificateResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return ClientGetCertificateResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.getCertificateHandleResponse(resp)
+	result, err = client.getCertificateHandleResponse(resp)
+	return
 }
 
 // getCertificateCreateRequest creates the GetCertificate request.
@@ -1111,10 +1334,10 @@ func (client *Client) getCertificateCreateRequest(ctx context.Context, vaultBase
 }
 
 // getCertificateHandleResponse handles the GetCertificate response.
-func (client *Client) getCertificateHandleResponse(resp *http.Response) (ClientGetCertificateResponse, error) {
-	result := ClientGetCertificateResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.CertificateBundle); err != nil {
-		return ClientGetCertificateResponse{}, err
+func (client *Client) getCertificateHandleResponse(resp *http.Response) (result ClientGetCertificateResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.CertificateBundle); err != nil {
+		result = ClientGetCertificateResponse{}
+		return
 	}
 	return result, nil
 }
@@ -1126,19 +1349,30 @@ func (client *Client) getCertificateHandleResponse(resp *http.Response) (ClientG
 // Generated from API version 7.2
 //   - vaultBaseURL - The vault name, for example https://myvault.vault.azure.net.
 //   - options - ClientGetCertificateContactsOptions contains the optional parameters for the Client.GetCertificateContacts method.
-func (client *Client) GetCertificateContacts(ctx context.Context, vaultBaseURL string, options *ClientGetCertificateContactsOptions) (ClientGetCertificateContactsResponse, error) {
+func (client *Client) GetCertificateContacts(ctx context.Context, vaultBaseURL string, options *ClientGetCertificateContactsOptions) (result ClientGetCertificateContactsResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "Client.GetCertificateContacts", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.getCertificateContactsCreateRequest(ctx, vaultBaseURL, options)
 	if err != nil {
-		return ClientGetCertificateContactsResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return ClientGetCertificateContactsResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return ClientGetCertificateContactsResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.getCertificateContactsHandleResponse(resp)
+	result, err = client.getCertificateContactsHandleResponse(resp)
+	return
 }
 
 // getCertificateContactsCreateRequest creates the GetCertificateContacts request.
@@ -1158,10 +1392,10 @@ func (client *Client) getCertificateContactsCreateRequest(ctx context.Context, v
 }
 
 // getCertificateContactsHandleResponse handles the GetCertificateContacts response.
-func (client *Client) getCertificateContactsHandleResponse(resp *http.Response) (ClientGetCertificateContactsResponse, error) {
-	result := ClientGetCertificateContactsResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.Contacts); err != nil {
-		return ClientGetCertificateContactsResponse{}, err
+func (client *Client) getCertificateContactsHandleResponse(resp *http.Response) (result ClientGetCertificateContactsResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.Contacts); err != nil {
+		result = ClientGetCertificateContactsResponse{}
+		return
 	}
 	return result, nil
 }
@@ -1174,19 +1408,30 @@ func (client *Client) getCertificateContactsHandleResponse(resp *http.Response) 
 //   - vaultBaseURL - The vault name, for example https://myvault.vault.azure.net.
 //   - issuerName - The name of the issuer.
 //   - options - ClientGetCertificateIssuerOptions contains the optional parameters for the Client.GetCertificateIssuer method.
-func (client *Client) GetCertificateIssuer(ctx context.Context, vaultBaseURL string, issuerName string, options *ClientGetCertificateIssuerOptions) (ClientGetCertificateIssuerResponse, error) {
+func (client *Client) GetCertificateIssuer(ctx context.Context, vaultBaseURL string, issuerName string, options *ClientGetCertificateIssuerOptions) (result ClientGetCertificateIssuerResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "Client.GetCertificateIssuer", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.getCertificateIssuerCreateRequest(ctx, vaultBaseURL, issuerName, options)
 	if err != nil {
-		return ClientGetCertificateIssuerResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return ClientGetCertificateIssuerResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return ClientGetCertificateIssuerResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.getCertificateIssuerHandleResponse(resp)
+	result, err = client.getCertificateIssuerHandleResponse(resp)
+	return
 }
 
 // getCertificateIssuerCreateRequest creates the GetCertificateIssuer request.
@@ -1210,10 +1455,10 @@ func (client *Client) getCertificateIssuerCreateRequest(ctx context.Context, vau
 }
 
 // getCertificateIssuerHandleResponse handles the GetCertificateIssuer response.
-func (client *Client) getCertificateIssuerHandleResponse(resp *http.Response) (ClientGetCertificateIssuerResponse, error) {
-	result := ClientGetCertificateIssuerResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.IssuerBundle); err != nil {
-		return ClientGetCertificateIssuerResponse{}, err
+func (client *Client) getCertificateIssuerHandleResponse(resp *http.Response) (result ClientGetCertificateIssuerResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.IssuerBundle); err != nil {
+		result = ClientGetCertificateIssuerResponse{}
+		return
 	}
 	return result, nil
 }
@@ -1230,25 +1475,35 @@ func (client *Client) NewGetCertificateIssuersPager(vaultBaseURL string, options
 		More: func(page ClientGetCertificateIssuersResponse) bool {
 			return page.NextLink != nil && len(*page.NextLink) > 0
 		},
-		Fetcher: func(ctx context.Context, page *ClientGetCertificateIssuersResponse) (ClientGetCertificateIssuersResponse, error) {
+		Fetcher: func(ctx context.Context, page *ClientGetCertificateIssuersResponse) (result ClientGetCertificateIssuersResponse, err error) {
+			ctx, span := client.internal.Tracer().Start(ctx, "Client.NewGetCertificateIssuersPager", &tracing.SpanOptions{
+				Kind: tracing.SpanKindInternal,
+			})
+			defer func() {
+				if err != nil {
+					span.AddError(err)
+				}
+				span.End()
+			}()
 			var req *policy.Request
-			var err error
 			if page == nil {
 				req, err = client.getCertificateIssuersCreateRequest(ctx, vaultBaseURL, options)
 			} else {
 				req, err = runtime.NewRequest(ctx, http.MethodGet, *page.NextLink)
 			}
 			if err != nil {
-				return ClientGetCertificateIssuersResponse{}, err
+				return
 			}
 			resp, err := client.internal.Pipeline().Do(req)
 			if err != nil {
-				return ClientGetCertificateIssuersResponse{}, err
+				return
 			}
 			if !runtime.HasStatusCode(resp, http.StatusOK) {
-				return ClientGetCertificateIssuersResponse{}, runtime.NewResponseError(resp)
+				err = runtime.NewResponseError(resp)
+				return
 			}
-			return client.getCertificateIssuersHandleResponse(resp)
+			result, err = client.getCertificateIssuersHandleResponse(resp)
+			return
 		},
 	})
 }
@@ -1273,10 +1528,10 @@ func (client *Client) getCertificateIssuersCreateRequest(ctx context.Context, va
 }
 
 // getCertificateIssuersHandleResponse handles the GetCertificateIssuers response.
-func (client *Client) getCertificateIssuersHandleResponse(resp *http.Response) (ClientGetCertificateIssuersResponse, error) {
-	result := ClientGetCertificateIssuersResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.CertificateIssuerListResult); err != nil {
-		return ClientGetCertificateIssuersResponse{}, err
+func (client *Client) getCertificateIssuersHandleResponse(resp *http.Response) (result ClientGetCertificateIssuersResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.CertificateIssuerListResult); err != nil {
+		result = ClientGetCertificateIssuersResponse{}
+		return
 	}
 	return result, nil
 }
@@ -1290,19 +1545,30 @@ func (client *Client) getCertificateIssuersHandleResponse(resp *http.Response) (
 //   - certificateName - The name of the certificate.
 //   - options - ClientGetCertificateOperationOptions contains the optional parameters for the Client.GetCertificateOperation
 //     method.
-func (client *Client) GetCertificateOperation(ctx context.Context, vaultBaseURL string, certificateName string, options *ClientGetCertificateOperationOptions) (ClientGetCertificateOperationResponse, error) {
+func (client *Client) GetCertificateOperation(ctx context.Context, vaultBaseURL string, certificateName string, options *ClientGetCertificateOperationOptions) (result ClientGetCertificateOperationResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "Client.GetCertificateOperation", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.getCertificateOperationCreateRequest(ctx, vaultBaseURL, certificateName, options)
 	if err != nil {
-		return ClientGetCertificateOperationResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return ClientGetCertificateOperationResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return ClientGetCertificateOperationResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.getCertificateOperationHandleResponse(resp)
+	result, err = client.getCertificateOperationHandleResponse(resp)
+	return
 }
 
 // getCertificateOperationCreateRequest creates the GetCertificateOperation request.
@@ -1326,10 +1592,10 @@ func (client *Client) getCertificateOperationCreateRequest(ctx context.Context, 
 }
 
 // getCertificateOperationHandleResponse handles the GetCertificateOperation response.
-func (client *Client) getCertificateOperationHandleResponse(resp *http.Response) (ClientGetCertificateOperationResponse, error) {
-	result := ClientGetCertificateOperationResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.CertificateOperation); err != nil {
-		return ClientGetCertificateOperationResponse{}, err
+func (client *Client) getCertificateOperationHandleResponse(resp *http.Response) (result ClientGetCertificateOperationResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.CertificateOperation); err != nil {
+		result = ClientGetCertificateOperationResponse{}
+		return
 	}
 	return result, nil
 }
@@ -1342,19 +1608,30 @@ func (client *Client) getCertificateOperationHandleResponse(resp *http.Response)
 //   - vaultBaseURL - The vault name, for example https://myvault.vault.azure.net.
 //   - certificateName - The name of the certificate in a given key vault.
 //   - options - ClientGetCertificatePolicyOptions contains the optional parameters for the Client.GetCertificatePolicy method.
-func (client *Client) GetCertificatePolicy(ctx context.Context, vaultBaseURL string, certificateName string, options *ClientGetCertificatePolicyOptions) (ClientGetCertificatePolicyResponse, error) {
+func (client *Client) GetCertificatePolicy(ctx context.Context, vaultBaseURL string, certificateName string, options *ClientGetCertificatePolicyOptions) (result ClientGetCertificatePolicyResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "Client.GetCertificatePolicy", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.getCertificatePolicyCreateRequest(ctx, vaultBaseURL, certificateName, options)
 	if err != nil {
-		return ClientGetCertificatePolicyResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return ClientGetCertificatePolicyResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return ClientGetCertificatePolicyResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.getCertificatePolicyHandleResponse(resp)
+	result, err = client.getCertificatePolicyHandleResponse(resp)
+	return
 }
 
 // getCertificatePolicyCreateRequest creates the GetCertificatePolicy request.
@@ -1378,10 +1655,10 @@ func (client *Client) getCertificatePolicyCreateRequest(ctx context.Context, vau
 }
 
 // getCertificatePolicyHandleResponse handles the GetCertificatePolicy response.
-func (client *Client) getCertificatePolicyHandleResponse(resp *http.Response) (ClientGetCertificatePolicyResponse, error) {
-	result := ClientGetCertificatePolicyResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.CertificatePolicy); err != nil {
-		return ClientGetCertificatePolicyResponse{}, err
+func (client *Client) getCertificatePolicyHandleResponse(resp *http.Response) (result ClientGetCertificatePolicyResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.CertificatePolicy); err != nil {
+		result = ClientGetCertificatePolicyResponse{}
+		return
 	}
 	return result, nil
 }
@@ -1399,25 +1676,35 @@ func (client *Client) NewGetCertificateVersionsPager(vaultBaseURL string, certif
 		More: func(page ClientGetCertificateVersionsResponse) bool {
 			return page.NextLink != nil && len(*page.NextLink) > 0
 		},
-		Fetcher: func(ctx context.Context, page *ClientGetCertificateVersionsResponse) (ClientGetCertificateVersionsResponse, error) {
+		Fetcher: func(ctx context.Context, page *ClientGetCertificateVersionsResponse) (result ClientGetCertificateVersionsResponse, err error) {
+			ctx, span := client.internal.Tracer().Start(ctx, "Client.NewGetCertificateVersionsPager", &tracing.SpanOptions{
+				Kind: tracing.SpanKindInternal,
+			})
+			defer func() {
+				if err != nil {
+					span.AddError(err)
+				}
+				span.End()
+			}()
 			var req *policy.Request
-			var err error
 			if page == nil {
 				req, err = client.getCertificateVersionsCreateRequest(ctx, vaultBaseURL, certificateName, options)
 			} else {
 				req, err = runtime.NewRequest(ctx, http.MethodGet, *page.NextLink)
 			}
 			if err != nil {
-				return ClientGetCertificateVersionsResponse{}, err
+				return
 			}
 			resp, err := client.internal.Pipeline().Do(req)
 			if err != nil {
-				return ClientGetCertificateVersionsResponse{}, err
+				return
 			}
 			if !runtime.HasStatusCode(resp, http.StatusOK) {
-				return ClientGetCertificateVersionsResponse{}, runtime.NewResponseError(resp)
+				err = runtime.NewResponseError(resp)
+				return
 			}
-			return client.getCertificateVersionsHandleResponse(resp)
+			result, err = client.getCertificateVersionsHandleResponse(resp)
+			return
 		},
 	})
 }
@@ -1446,10 +1733,10 @@ func (client *Client) getCertificateVersionsCreateRequest(ctx context.Context, v
 }
 
 // getCertificateVersionsHandleResponse handles the GetCertificateVersions response.
-func (client *Client) getCertificateVersionsHandleResponse(resp *http.Response) (ClientGetCertificateVersionsResponse, error) {
-	result := ClientGetCertificateVersionsResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.CertificateListResult); err != nil {
-		return ClientGetCertificateVersionsResponse{}, err
+func (client *Client) getCertificateVersionsHandleResponse(resp *http.Response) (result ClientGetCertificateVersionsResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.CertificateListResult); err != nil {
+		result = ClientGetCertificateVersionsResponse{}
+		return
 	}
 	return result, nil
 }
@@ -1465,25 +1752,35 @@ func (client *Client) NewGetCertificatesPager(vaultBaseURL string, options *Clie
 		More: func(page ClientGetCertificatesResponse) bool {
 			return page.NextLink != nil && len(*page.NextLink) > 0
 		},
-		Fetcher: func(ctx context.Context, page *ClientGetCertificatesResponse) (ClientGetCertificatesResponse, error) {
+		Fetcher: func(ctx context.Context, page *ClientGetCertificatesResponse) (result ClientGetCertificatesResponse, err error) {
+			ctx, span := client.internal.Tracer().Start(ctx, "Client.NewGetCertificatesPager", &tracing.SpanOptions{
+				Kind: tracing.SpanKindInternal,
+			})
+			defer func() {
+				if err != nil {
+					span.AddError(err)
+				}
+				span.End()
+			}()
 			var req *policy.Request
-			var err error
 			if page == nil {
 				req, err = client.getCertificatesCreateRequest(ctx, vaultBaseURL, options)
 			} else {
 				req, err = runtime.NewRequest(ctx, http.MethodGet, *page.NextLink)
 			}
 			if err != nil {
-				return ClientGetCertificatesResponse{}, err
+				return
 			}
 			resp, err := client.internal.Pipeline().Do(req)
 			if err != nil {
-				return ClientGetCertificatesResponse{}, err
+				return
 			}
 			if !runtime.HasStatusCode(resp, http.StatusOK) {
-				return ClientGetCertificatesResponse{}, runtime.NewResponseError(resp)
+				err = runtime.NewResponseError(resp)
+				return
 			}
-			return client.getCertificatesHandleResponse(resp)
+			result, err = client.getCertificatesHandleResponse(resp)
+			return
 		},
 	})
 }
@@ -1511,10 +1808,10 @@ func (client *Client) getCertificatesCreateRequest(ctx context.Context, vaultBas
 }
 
 // getCertificatesHandleResponse handles the GetCertificates response.
-func (client *Client) getCertificatesHandleResponse(resp *http.Response) (ClientGetCertificatesResponse, error) {
-	result := ClientGetCertificatesResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.CertificateListResult); err != nil {
-		return ClientGetCertificatesResponse{}, err
+func (client *Client) getCertificatesHandleResponse(resp *http.Response) (result ClientGetCertificatesResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.CertificateListResult); err != nil {
+		result = ClientGetCertificatesResponse{}
+		return
 	}
 	return result, nil
 }
@@ -1528,19 +1825,30 @@ func (client *Client) getCertificatesHandleResponse(resp *http.Response) (Client
 //   - vaultBaseURL - The vault name, for example https://myvault.vault.azure.net.
 //   - certificateName - The name of the certificate
 //   - options - ClientGetDeletedCertificateOptions contains the optional parameters for the Client.GetDeletedCertificate method.
-func (client *Client) GetDeletedCertificate(ctx context.Context, vaultBaseURL string, certificateName string, options *ClientGetDeletedCertificateOptions) (ClientGetDeletedCertificateResponse, error) {
+func (client *Client) GetDeletedCertificate(ctx context.Context, vaultBaseURL string, certificateName string, options *ClientGetDeletedCertificateOptions) (result ClientGetDeletedCertificateResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "Client.GetDeletedCertificate", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.getDeletedCertificateCreateRequest(ctx, vaultBaseURL, certificateName, options)
 	if err != nil {
-		return ClientGetDeletedCertificateResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return ClientGetDeletedCertificateResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return ClientGetDeletedCertificateResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.getDeletedCertificateHandleResponse(resp)
+	result, err = client.getDeletedCertificateHandleResponse(resp)
+	return
 }
 
 // getDeletedCertificateCreateRequest creates the GetDeletedCertificate request.
@@ -1564,10 +1872,10 @@ func (client *Client) getDeletedCertificateCreateRequest(ctx context.Context, va
 }
 
 // getDeletedCertificateHandleResponse handles the GetDeletedCertificate response.
-func (client *Client) getDeletedCertificateHandleResponse(resp *http.Response) (ClientGetDeletedCertificateResponse, error) {
-	result := ClientGetDeletedCertificateResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.DeletedCertificateBundle); err != nil {
-		return ClientGetDeletedCertificateResponse{}, err
+func (client *Client) getDeletedCertificateHandleResponse(resp *http.Response) (result ClientGetDeletedCertificateResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.DeletedCertificateBundle); err != nil {
+		result = ClientGetDeletedCertificateResponse{}
+		return
 	}
 	return result, nil
 }
@@ -1586,25 +1894,35 @@ func (client *Client) NewGetDeletedCertificatesPager(vaultBaseURL string, option
 		More: func(page ClientGetDeletedCertificatesResponse) bool {
 			return page.NextLink != nil && len(*page.NextLink) > 0
 		},
-		Fetcher: func(ctx context.Context, page *ClientGetDeletedCertificatesResponse) (ClientGetDeletedCertificatesResponse, error) {
+		Fetcher: func(ctx context.Context, page *ClientGetDeletedCertificatesResponse) (result ClientGetDeletedCertificatesResponse, err error) {
+			ctx, span := client.internal.Tracer().Start(ctx, "Client.NewGetDeletedCertificatesPager", &tracing.SpanOptions{
+				Kind: tracing.SpanKindInternal,
+			})
+			defer func() {
+				if err != nil {
+					span.AddError(err)
+				}
+				span.End()
+			}()
 			var req *policy.Request
-			var err error
 			if page == nil {
 				req, err = client.getDeletedCertificatesCreateRequest(ctx, vaultBaseURL, options)
 			} else {
 				req, err = runtime.NewRequest(ctx, http.MethodGet, *page.NextLink)
 			}
 			if err != nil {
-				return ClientGetDeletedCertificatesResponse{}, err
+				return
 			}
 			resp, err := client.internal.Pipeline().Do(req)
 			if err != nil {
-				return ClientGetDeletedCertificatesResponse{}, err
+				return
 			}
 			if !runtime.HasStatusCode(resp, http.StatusOK) {
-				return ClientGetDeletedCertificatesResponse{}, runtime.NewResponseError(resp)
+				err = runtime.NewResponseError(resp)
+				return
 			}
-			return client.getDeletedCertificatesHandleResponse(resp)
+			result, err = client.getDeletedCertificatesHandleResponse(resp)
+			return
 		},
 	})
 }
@@ -1632,10 +1950,10 @@ func (client *Client) getDeletedCertificatesCreateRequest(ctx context.Context, v
 }
 
 // getDeletedCertificatesHandleResponse handles the GetDeletedCertificates response.
-func (client *Client) getDeletedCertificatesHandleResponse(resp *http.Response) (ClientGetDeletedCertificatesResponse, error) {
-	result := ClientGetDeletedCertificatesResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.DeletedCertificateListResult); err != nil {
-		return ClientGetDeletedCertificatesResponse{}, err
+func (client *Client) getDeletedCertificatesHandleResponse(resp *http.Response) (result ClientGetDeletedCertificatesResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.DeletedCertificateListResult); err != nil {
+		result = ClientGetDeletedCertificatesResponse{}
+		return
 	}
 	return result, nil
 }
@@ -1649,19 +1967,30 @@ func (client *Client) getDeletedCertificatesHandleResponse(resp *http.Response) 
 //   - vaultBaseURL - The vault name, for example https://myvault.vault.azure.net.
 //   - keyName - The name of the key.
 //   - options - ClientGetDeletedKeyOptions contains the optional parameters for the Client.GetDeletedKey method.
-func (client *Client) GetDeletedKey(ctx context.Context, vaultBaseURL string, keyName string, options *ClientGetDeletedKeyOptions) (ClientGetDeletedKeyResponse, error) {
+func (client *Client) GetDeletedKey(ctx context.Context, vaultBaseURL string, keyName string, options *ClientGetDeletedKeyOptions) (result ClientGetDeletedKeyResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "Client.GetDeletedKey", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.getDeletedKeyCreateRequest(ctx, vaultBaseURL, keyName, options)
 	if err != nil {
-		return ClientGetDeletedKeyResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return ClientGetDeletedKeyResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return ClientGetDeletedKeyResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.getDeletedKeyHandleResponse(resp)
+	result, err = client.getDeletedKeyHandleResponse(resp)
+	return
 }
 
 // getDeletedKeyCreateRequest creates the GetDeletedKey request.
@@ -1685,10 +2014,10 @@ func (client *Client) getDeletedKeyCreateRequest(ctx context.Context, vaultBaseU
 }
 
 // getDeletedKeyHandleResponse handles the GetDeletedKey response.
-func (client *Client) getDeletedKeyHandleResponse(resp *http.Response) (ClientGetDeletedKeyResponse, error) {
-	result := ClientGetDeletedKeyResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.DeletedKeyBundle); err != nil {
-		return ClientGetDeletedKeyResponse{}, err
+func (client *Client) getDeletedKeyHandleResponse(resp *http.Response) (result ClientGetDeletedKeyResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.DeletedKeyBundle); err != nil {
+		result = ClientGetDeletedKeyResponse{}
+		return
 	}
 	return result, nil
 }
@@ -1707,25 +2036,35 @@ func (client *Client) NewGetDeletedKeysPager(vaultBaseURL string, options *Clien
 		More: func(page ClientGetDeletedKeysResponse) bool {
 			return page.NextLink != nil && len(*page.NextLink) > 0
 		},
-		Fetcher: func(ctx context.Context, page *ClientGetDeletedKeysResponse) (ClientGetDeletedKeysResponse, error) {
+		Fetcher: func(ctx context.Context, page *ClientGetDeletedKeysResponse) (result ClientGetDeletedKeysResponse, err error) {
+			ctx, span := client.internal.Tracer().Start(ctx, "Client.NewGetDeletedKeysPager", &tracing.SpanOptions{
+				Kind: tracing.SpanKindInternal,
+			})
+			defer func() {
+				if err != nil {
+					span.AddError(err)
+				}
+				span.End()
+			}()
 			var req *policy.Request
-			var err error
 			if page == nil {
 				req, err = client.getDeletedKeysCreateRequest(ctx, vaultBaseURL, options)
 			} else {
 				req, err = runtime.NewRequest(ctx, http.MethodGet, *page.NextLink)
 			}
 			if err != nil {
-				return ClientGetDeletedKeysResponse{}, err
+				return
 			}
 			resp, err := client.internal.Pipeline().Do(req)
 			if err != nil {
-				return ClientGetDeletedKeysResponse{}, err
+				return
 			}
 			if !runtime.HasStatusCode(resp, http.StatusOK) {
-				return ClientGetDeletedKeysResponse{}, runtime.NewResponseError(resp)
+				err = runtime.NewResponseError(resp)
+				return
 			}
-			return client.getDeletedKeysHandleResponse(resp)
+			result, err = client.getDeletedKeysHandleResponse(resp)
+			return
 		},
 	})
 }
@@ -1750,10 +2089,10 @@ func (client *Client) getDeletedKeysCreateRequest(ctx context.Context, vaultBase
 }
 
 // getDeletedKeysHandleResponse handles the GetDeletedKeys response.
-func (client *Client) getDeletedKeysHandleResponse(resp *http.Response) (ClientGetDeletedKeysResponse, error) {
-	result := ClientGetDeletedKeysResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.DeletedKeyListResult); err != nil {
-		return ClientGetDeletedKeysResponse{}, err
+func (client *Client) getDeletedKeysHandleResponse(resp *http.Response) (result ClientGetDeletedKeysResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.DeletedKeyListResult); err != nil {
+		result = ClientGetDeletedKeysResponse{}
+		return
 	}
 	return result, nil
 }
@@ -1768,19 +2107,30 @@ func (client *Client) getDeletedKeysHandleResponse(resp *http.Response) (ClientG
 //   - sasDefinitionName - The name of the SAS definition.
 //   - options - ClientGetDeletedSasDefinitionOptions contains the optional parameters for the Client.GetDeletedSasDefinition
 //     method.
-func (client *Client) GetDeletedSasDefinition(ctx context.Context, vaultBaseURL string, storageAccountName string, sasDefinitionName string, options *ClientGetDeletedSasDefinitionOptions) (ClientGetDeletedSasDefinitionResponse, error) {
+func (client *Client) GetDeletedSasDefinition(ctx context.Context, vaultBaseURL string, storageAccountName string, sasDefinitionName string, options *ClientGetDeletedSasDefinitionOptions) (result ClientGetDeletedSasDefinitionResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "Client.GetDeletedSasDefinition", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.getDeletedSasDefinitionCreateRequest(ctx, vaultBaseURL, storageAccountName, sasDefinitionName, options)
 	if err != nil {
-		return ClientGetDeletedSasDefinitionResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return ClientGetDeletedSasDefinitionResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return ClientGetDeletedSasDefinitionResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.getDeletedSasDefinitionHandleResponse(resp)
+	result, err = client.getDeletedSasDefinitionHandleResponse(resp)
+	return
 }
 
 // getDeletedSasDefinitionCreateRequest creates the GetDeletedSasDefinition request.
@@ -1808,10 +2158,10 @@ func (client *Client) getDeletedSasDefinitionCreateRequest(ctx context.Context, 
 }
 
 // getDeletedSasDefinitionHandleResponse handles the GetDeletedSasDefinition response.
-func (client *Client) getDeletedSasDefinitionHandleResponse(resp *http.Response) (ClientGetDeletedSasDefinitionResponse, error) {
-	result := ClientGetDeletedSasDefinitionResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.DeletedSasDefinitionBundle); err != nil {
-		return ClientGetDeletedSasDefinitionResponse{}, err
+func (client *Client) getDeletedSasDefinitionHandleResponse(resp *http.Response) (result ClientGetDeletedSasDefinitionResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.DeletedSasDefinitionBundle); err != nil {
+		result = ClientGetDeletedSasDefinitionResponse{}
+		return
 	}
 	return result, nil
 }
@@ -1829,25 +2179,35 @@ func (client *Client) NewGetDeletedSasDefinitionsPager(vaultBaseURL string, stor
 		More: func(page ClientGetDeletedSasDefinitionsResponse) bool {
 			return page.NextLink != nil && len(*page.NextLink) > 0
 		},
-		Fetcher: func(ctx context.Context, page *ClientGetDeletedSasDefinitionsResponse) (ClientGetDeletedSasDefinitionsResponse, error) {
+		Fetcher: func(ctx context.Context, page *ClientGetDeletedSasDefinitionsResponse) (result ClientGetDeletedSasDefinitionsResponse, err error) {
+			ctx, span := client.internal.Tracer().Start(ctx, "Client.NewGetDeletedSasDefinitionsPager", &tracing.SpanOptions{
+				Kind: tracing.SpanKindInternal,
+			})
+			defer func() {
+				if err != nil {
+					span.AddError(err)
+				}
+				span.End()
+			}()
 			var req *policy.Request
-			var err error
 			if page == nil {
 				req, err = client.getDeletedSasDefinitionsCreateRequest(ctx, vaultBaseURL, storageAccountName, options)
 			} else {
 				req, err = runtime.NewRequest(ctx, http.MethodGet, *page.NextLink)
 			}
 			if err != nil {
-				return ClientGetDeletedSasDefinitionsResponse{}, err
+				return
 			}
 			resp, err := client.internal.Pipeline().Do(req)
 			if err != nil {
-				return ClientGetDeletedSasDefinitionsResponse{}, err
+				return
 			}
 			if !runtime.HasStatusCode(resp, http.StatusOK) {
-				return ClientGetDeletedSasDefinitionsResponse{}, runtime.NewResponseError(resp)
+				err = runtime.NewResponseError(resp)
+				return
 			}
-			return client.getDeletedSasDefinitionsHandleResponse(resp)
+			result, err = client.getDeletedSasDefinitionsHandleResponse(resp)
+			return
 		},
 	})
 }
@@ -1876,10 +2236,10 @@ func (client *Client) getDeletedSasDefinitionsCreateRequest(ctx context.Context,
 }
 
 // getDeletedSasDefinitionsHandleResponse handles the GetDeletedSasDefinitions response.
-func (client *Client) getDeletedSasDefinitionsHandleResponse(resp *http.Response) (ClientGetDeletedSasDefinitionsResponse, error) {
-	result := ClientGetDeletedSasDefinitionsResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.DeletedSasDefinitionListResult); err != nil {
-		return ClientGetDeletedSasDefinitionsResponse{}, err
+func (client *Client) getDeletedSasDefinitionsHandleResponse(resp *http.Response) (result ClientGetDeletedSasDefinitionsResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.DeletedSasDefinitionListResult); err != nil {
+		result = ClientGetDeletedSasDefinitionsResponse{}
+		return
 	}
 	return result, nil
 }
@@ -1892,19 +2252,30 @@ func (client *Client) getDeletedSasDefinitionsHandleResponse(resp *http.Response
 //   - vaultBaseURL - The vault name, for example https://myvault.vault.azure.net.
 //   - secretName - The name of the secret.
 //   - options - ClientGetDeletedSecretOptions contains the optional parameters for the Client.GetDeletedSecret method.
-func (client *Client) GetDeletedSecret(ctx context.Context, vaultBaseURL string, secretName string, options *ClientGetDeletedSecretOptions) (ClientGetDeletedSecretResponse, error) {
+func (client *Client) GetDeletedSecret(ctx context.Context, vaultBaseURL string, secretName string, options *ClientGetDeletedSecretOptions) (result ClientGetDeletedSecretResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "Client.GetDeletedSecret", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.getDeletedSecretCreateRequest(ctx, vaultBaseURL, secretName, options)
 	if err != nil {
-		return ClientGetDeletedSecretResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return ClientGetDeletedSecretResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return ClientGetDeletedSecretResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.getDeletedSecretHandleResponse(resp)
+	result, err = client.getDeletedSecretHandleResponse(resp)
+	return
 }
 
 // getDeletedSecretCreateRequest creates the GetDeletedSecret request.
@@ -1928,10 +2299,10 @@ func (client *Client) getDeletedSecretCreateRequest(ctx context.Context, vaultBa
 }
 
 // getDeletedSecretHandleResponse handles the GetDeletedSecret response.
-func (client *Client) getDeletedSecretHandleResponse(resp *http.Response) (ClientGetDeletedSecretResponse, error) {
-	result := ClientGetDeletedSecretResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.DeletedSecretBundle); err != nil {
-		return ClientGetDeletedSecretResponse{}, err
+func (client *Client) getDeletedSecretHandleResponse(resp *http.Response) (result ClientGetDeletedSecretResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.DeletedSecretBundle); err != nil {
+		result = ClientGetDeletedSecretResponse{}
+		return
 	}
 	return result, nil
 }
@@ -1947,25 +2318,35 @@ func (client *Client) NewGetDeletedSecretsPager(vaultBaseURL string, options *Cl
 		More: func(page ClientGetDeletedSecretsResponse) bool {
 			return page.NextLink != nil && len(*page.NextLink) > 0
 		},
-		Fetcher: func(ctx context.Context, page *ClientGetDeletedSecretsResponse) (ClientGetDeletedSecretsResponse, error) {
+		Fetcher: func(ctx context.Context, page *ClientGetDeletedSecretsResponse) (result ClientGetDeletedSecretsResponse, err error) {
+			ctx, span := client.internal.Tracer().Start(ctx, "Client.NewGetDeletedSecretsPager", &tracing.SpanOptions{
+				Kind: tracing.SpanKindInternal,
+			})
+			defer func() {
+				if err != nil {
+					span.AddError(err)
+				}
+				span.End()
+			}()
 			var req *policy.Request
-			var err error
 			if page == nil {
 				req, err = client.getDeletedSecretsCreateRequest(ctx, vaultBaseURL, options)
 			} else {
 				req, err = runtime.NewRequest(ctx, http.MethodGet, *page.NextLink)
 			}
 			if err != nil {
-				return ClientGetDeletedSecretsResponse{}, err
+				return
 			}
 			resp, err := client.internal.Pipeline().Do(req)
 			if err != nil {
-				return ClientGetDeletedSecretsResponse{}, err
+				return
 			}
 			if !runtime.HasStatusCode(resp, http.StatusOK) {
-				return ClientGetDeletedSecretsResponse{}, runtime.NewResponseError(resp)
+				err = runtime.NewResponseError(resp)
+				return
 			}
-			return client.getDeletedSecretsHandleResponse(resp)
+			result, err = client.getDeletedSecretsHandleResponse(resp)
+			return
 		},
 	})
 }
@@ -1990,10 +2371,10 @@ func (client *Client) getDeletedSecretsCreateRequest(ctx context.Context, vaultB
 }
 
 // getDeletedSecretsHandleResponse handles the GetDeletedSecrets response.
-func (client *Client) getDeletedSecretsHandleResponse(resp *http.Response) (ClientGetDeletedSecretsResponse, error) {
-	result := ClientGetDeletedSecretsResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.DeletedSecretListResult); err != nil {
-		return ClientGetDeletedSecretsResponse{}, err
+func (client *Client) getDeletedSecretsHandleResponse(resp *http.Response) (result ClientGetDeletedSecretsResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.DeletedSecretListResult); err != nil {
+		result = ClientGetDeletedSecretsResponse{}
+		return
 	}
 	return result, nil
 }
@@ -2007,19 +2388,30 @@ func (client *Client) getDeletedSecretsHandleResponse(resp *http.Response) (Clie
 //   - storageAccountName - The name of the storage account.
 //   - options - ClientGetDeletedStorageAccountOptions contains the optional parameters for the Client.GetDeletedStorageAccount
 //     method.
-func (client *Client) GetDeletedStorageAccount(ctx context.Context, vaultBaseURL string, storageAccountName string, options *ClientGetDeletedStorageAccountOptions) (ClientGetDeletedStorageAccountResponse, error) {
+func (client *Client) GetDeletedStorageAccount(ctx context.Context, vaultBaseURL string, storageAccountName string, options *ClientGetDeletedStorageAccountOptions) (result ClientGetDeletedStorageAccountResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "Client.GetDeletedStorageAccount", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.getDeletedStorageAccountCreateRequest(ctx, vaultBaseURL, storageAccountName, options)
 	if err != nil {
-		return ClientGetDeletedStorageAccountResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return ClientGetDeletedStorageAccountResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return ClientGetDeletedStorageAccountResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.getDeletedStorageAccountHandleResponse(resp)
+	result, err = client.getDeletedStorageAccountHandleResponse(resp)
+	return
 }
 
 // getDeletedStorageAccountCreateRequest creates the GetDeletedStorageAccount request.
@@ -2043,10 +2435,10 @@ func (client *Client) getDeletedStorageAccountCreateRequest(ctx context.Context,
 }
 
 // getDeletedStorageAccountHandleResponse handles the GetDeletedStorageAccount response.
-func (client *Client) getDeletedStorageAccountHandleResponse(resp *http.Response) (ClientGetDeletedStorageAccountResponse, error) {
-	result := ClientGetDeletedStorageAccountResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.DeletedStorageBundle); err != nil {
-		return ClientGetDeletedStorageAccountResponse{}, err
+func (client *Client) getDeletedStorageAccountHandleResponse(resp *http.Response) (result ClientGetDeletedStorageAccountResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.DeletedStorageBundle); err != nil {
+		result = ClientGetDeletedStorageAccountResponse{}
+		return
 	}
 	return result, nil
 }
@@ -2063,25 +2455,35 @@ func (client *Client) NewGetDeletedStorageAccountsPager(vaultBaseURL string, opt
 		More: func(page ClientGetDeletedStorageAccountsResponse) bool {
 			return page.NextLink != nil && len(*page.NextLink) > 0
 		},
-		Fetcher: func(ctx context.Context, page *ClientGetDeletedStorageAccountsResponse) (ClientGetDeletedStorageAccountsResponse, error) {
+		Fetcher: func(ctx context.Context, page *ClientGetDeletedStorageAccountsResponse) (result ClientGetDeletedStorageAccountsResponse, err error) {
+			ctx, span := client.internal.Tracer().Start(ctx, "Client.NewGetDeletedStorageAccountsPager", &tracing.SpanOptions{
+				Kind: tracing.SpanKindInternal,
+			})
+			defer func() {
+				if err != nil {
+					span.AddError(err)
+				}
+				span.End()
+			}()
 			var req *policy.Request
-			var err error
 			if page == nil {
 				req, err = client.getDeletedStorageAccountsCreateRequest(ctx, vaultBaseURL, options)
 			} else {
 				req, err = runtime.NewRequest(ctx, http.MethodGet, *page.NextLink)
 			}
 			if err != nil {
-				return ClientGetDeletedStorageAccountsResponse{}, err
+				return
 			}
 			resp, err := client.internal.Pipeline().Do(req)
 			if err != nil {
-				return ClientGetDeletedStorageAccountsResponse{}, err
+				return
 			}
 			if !runtime.HasStatusCode(resp, http.StatusOK) {
-				return ClientGetDeletedStorageAccountsResponse{}, runtime.NewResponseError(resp)
+				err = runtime.NewResponseError(resp)
+				return
 			}
-			return client.getDeletedStorageAccountsHandleResponse(resp)
+			result, err = client.getDeletedStorageAccountsHandleResponse(resp)
+			return
 		},
 	})
 }
@@ -2106,10 +2508,10 @@ func (client *Client) getDeletedStorageAccountsCreateRequest(ctx context.Context
 }
 
 // getDeletedStorageAccountsHandleResponse handles the GetDeletedStorageAccounts response.
-func (client *Client) getDeletedStorageAccountsHandleResponse(resp *http.Response) (ClientGetDeletedStorageAccountsResponse, error) {
-	result := ClientGetDeletedStorageAccountsResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.DeletedStorageListResult); err != nil {
-		return ClientGetDeletedStorageAccountsResponse{}, err
+func (client *Client) getDeletedStorageAccountsHandleResponse(resp *http.Response) (result ClientGetDeletedStorageAccountsResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.DeletedStorageListResult); err != nil {
+		result = ClientGetDeletedStorageAccountsResponse{}
+		return
 	}
 	return result, nil
 }
@@ -2124,19 +2526,30 @@ func (client *Client) getDeletedStorageAccountsHandleResponse(resp *http.Respons
 //   - keyVersion - Adding the version parameter retrieves a specific version of a key. This URI fragment is optional. If not
 //     specified, the latest version of the key is returned.
 //   - options - ClientGetKeyOptions contains the optional parameters for the Client.GetKey method.
-func (client *Client) GetKey(ctx context.Context, vaultBaseURL string, keyName string, keyVersion string, options *ClientGetKeyOptions) (ClientGetKeyResponse, error) {
+func (client *Client) GetKey(ctx context.Context, vaultBaseURL string, keyName string, keyVersion string, options *ClientGetKeyOptions) (result ClientGetKeyResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "Client.GetKey", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.getKeyCreateRequest(ctx, vaultBaseURL, keyName, keyVersion, options)
 	if err != nil {
-		return ClientGetKeyResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return ClientGetKeyResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return ClientGetKeyResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.getKeyHandleResponse(resp)
+	result, err = client.getKeyHandleResponse(resp)
+	return
 }
 
 // getKeyCreateRequest creates the GetKey request.
@@ -2164,10 +2577,10 @@ func (client *Client) getKeyCreateRequest(ctx context.Context, vaultBaseURL stri
 }
 
 // getKeyHandleResponse handles the GetKey response.
-func (client *Client) getKeyHandleResponse(resp *http.Response) (ClientGetKeyResponse, error) {
-	result := ClientGetKeyResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.KeyBundle); err != nil {
-		return ClientGetKeyResponse{}, err
+func (client *Client) getKeyHandleResponse(resp *http.Response) (result ClientGetKeyResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.KeyBundle); err != nil {
+		result = ClientGetKeyResponse{}
+		return
 	}
 	return result, nil
 }
@@ -2184,25 +2597,35 @@ func (client *Client) NewGetKeyVersionsPager(vaultBaseURL string, keyName string
 		More: func(page ClientGetKeyVersionsResponse) bool {
 			return page.NextLink != nil && len(*page.NextLink) > 0
 		},
-		Fetcher: func(ctx context.Context, page *ClientGetKeyVersionsResponse) (ClientGetKeyVersionsResponse, error) {
+		Fetcher: func(ctx context.Context, page *ClientGetKeyVersionsResponse) (result ClientGetKeyVersionsResponse, err error) {
+			ctx, span := client.internal.Tracer().Start(ctx, "Client.NewGetKeyVersionsPager", &tracing.SpanOptions{
+				Kind: tracing.SpanKindInternal,
+			})
+			defer func() {
+				if err != nil {
+					span.AddError(err)
+				}
+				span.End()
+			}()
 			var req *policy.Request
-			var err error
 			if page == nil {
 				req, err = client.getKeyVersionsCreateRequest(ctx, vaultBaseURL, keyName, options)
 			} else {
 				req, err = runtime.NewRequest(ctx, http.MethodGet, *page.NextLink)
 			}
 			if err != nil {
-				return ClientGetKeyVersionsResponse{}, err
+				return
 			}
 			resp, err := client.internal.Pipeline().Do(req)
 			if err != nil {
-				return ClientGetKeyVersionsResponse{}, err
+				return
 			}
 			if !runtime.HasStatusCode(resp, http.StatusOK) {
-				return ClientGetKeyVersionsResponse{}, runtime.NewResponseError(resp)
+				err = runtime.NewResponseError(resp)
+				return
 			}
-			return client.getKeyVersionsHandleResponse(resp)
+			result, err = client.getKeyVersionsHandleResponse(resp)
+			return
 		},
 	})
 }
@@ -2231,10 +2654,10 @@ func (client *Client) getKeyVersionsCreateRequest(ctx context.Context, vaultBase
 }
 
 // getKeyVersionsHandleResponse handles the GetKeyVersions response.
-func (client *Client) getKeyVersionsHandleResponse(resp *http.Response) (ClientGetKeyVersionsResponse, error) {
-	result := ClientGetKeyVersionsResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.KeyListResult); err != nil {
-		return ClientGetKeyVersionsResponse{}, err
+func (client *Client) getKeyVersionsHandleResponse(resp *http.Response) (result ClientGetKeyVersionsResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.KeyListResult); err != nil {
+		result = ClientGetKeyVersionsResponse{}
+		return
 	}
 	return result, nil
 }
@@ -2252,25 +2675,35 @@ func (client *Client) NewGetKeysPager(vaultBaseURL string, options *ClientGetKey
 		More: func(page ClientGetKeysResponse) bool {
 			return page.NextLink != nil && len(*page.NextLink) > 0
 		},
-		Fetcher: func(ctx context.Context, page *ClientGetKeysResponse) (ClientGetKeysResponse, error) {
+		Fetcher: func(ctx context.Context, page *ClientGetKeysResponse) (result ClientGetKeysResponse, err error) {
+			ctx, span := client.internal.Tracer().Start(ctx, "Client.NewGetKeysPager", &tracing.SpanOptions{
+				Kind: tracing.SpanKindInternal,
+			})
+			defer func() {
+				if err != nil {
+					span.AddError(err)
+				}
+				span.End()
+			}()
 			var req *policy.Request
-			var err error
 			if page == nil {
 				req, err = client.getKeysCreateRequest(ctx, vaultBaseURL, options)
 			} else {
 				req, err = runtime.NewRequest(ctx, http.MethodGet, *page.NextLink)
 			}
 			if err != nil {
-				return ClientGetKeysResponse{}, err
+				return
 			}
 			resp, err := client.internal.Pipeline().Do(req)
 			if err != nil {
-				return ClientGetKeysResponse{}, err
+				return
 			}
 			if !runtime.HasStatusCode(resp, http.StatusOK) {
-				return ClientGetKeysResponse{}, runtime.NewResponseError(resp)
+				err = runtime.NewResponseError(resp)
+				return
 			}
-			return client.getKeysHandleResponse(resp)
+			result, err = client.getKeysHandleResponse(resp)
+			return
 		},
 	})
 }
@@ -2295,10 +2728,10 @@ func (client *Client) getKeysCreateRequest(ctx context.Context, vaultBaseURL str
 }
 
 // getKeysHandleResponse handles the GetKeys response.
-func (client *Client) getKeysHandleResponse(resp *http.Response) (ClientGetKeysResponse, error) {
-	result := ClientGetKeysResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.KeyListResult); err != nil {
-		return ClientGetKeysResponse{}, err
+func (client *Client) getKeysHandleResponse(resp *http.Response) (result ClientGetKeysResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.KeyListResult); err != nil {
+		result = ClientGetKeysResponse{}
+		return
 	}
 	return result, nil
 }
@@ -2312,19 +2745,30 @@ func (client *Client) getKeysHandleResponse(resp *http.Response) (ClientGetKeysR
 //   - storageAccountName - The name of the storage account.
 //   - sasDefinitionName - The name of the SAS definition.
 //   - options - ClientGetSasDefinitionOptions contains the optional parameters for the Client.GetSasDefinition method.
-func (client *Client) GetSasDefinition(ctx context.Context, vaultBaseURL string, storageAccountName string, sasDefinitionName string, options *ClientGetSasDefinitionOptions) (ClientGetSasDefinitionResponse, error) {
+func (client *Client) GetSasDefinition(ctx context.Context, vaultBaseURL string, storageAccountName string, sasDefinitionName string, options *ClientGetSasDefinitionOptions) (result ClientGetSasDefinitionResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "Client.GetSasDefinition", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.getSasDefinitionCreateRequest(ctx, vaultBaseURL, storageAccountName, sasDefinitionName, options)
 	if err != nil {
-		return ClientGetSasDefinitionResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return ClientGetSasDefinitionResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return ClientGetSasDefinitionResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.getSasDefinitionHandleResponse(resp)
+	result, err = client.getSasDefinitionHandleResponse(resp)
+	return
 }
 
 // getSasDefinitionCreateRequest creates the GetSasDefinition request.
@@ -2352,10 +2796,10 @@ func (client *Client) getSasDefinitionCreateRequest(ctx context.Context, vaultBa
 }
 
 // getSasDefinitionHandleResponse handles the GetSasDefinition response.
-func (client *Client) getSasDefinitionHandleResponse(resp *http.Response) (ClientGetSasDefinitionResponse, error) {
-	result := ClientGetSasDefinitionResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.SasDefinitionBundle); err != nil {
-		return ClientGetSasDefinitionResponse{}, err
+func (client *Client) getSasDefinitionHandleResponse(resp *http.Response) (result ClientGetSasDefinitionResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.SasDefinitionBundle); err != nil {
+		result = ClientGetSasDefinitionResponse{}
+		return
 	}
 	return result, nil
 }
@@ -2372,25 +2816,35 @@ func (client *Client) NewGetSasDefinitionsPager(vaultBaseURL string, storageAcco
 		More: func(page ClientGetSasDefinitionsResponse) bool {
 			return page.NextLink != nil && len(*page.NextLink) > 0
 		},
-		Fetcher: func(ctx context.Context, page *ClientGetSasDefinitionsResponse) (ClientGetSasDefinitionsResponse, error) {
+		Fetcher: func(ctx context.Context, page *ClientGetSasDefinitionsResponse) (result ClientGetSasDefinitionsResponse, err error) {
+			ctx, span := client.internal.Tracer().Start(ctx, "Client.NewGetSasDefinitionsPager", &tracing.SpanOptions{
+				Kind: tracing.SpanKindInternal,
+			})
+			defer func() {
+				if err != nil {
+					span.AddError(err)
+				}
+				span.End()
+			}()
 			var req *policy.Request
-			var err error
 			if page == nil {
 				req, err = client.getSasDefinitionsCreateRequest(ctx, vaultBaseURL, storageAccountName, options)
 			} else {
 				req, err = runtime.NewRequest(ctx, http.MethodGet, *page.NextLink)
 			}
 			if err != nil {
-				return ClientGetSasDefinitionsResponse{}, err
+				return
 			}
 			resp, err := client.internal.Pipeline().Do(req)
 			if err != nil {
-				return ClientGetSasDefinitionsResponse{}, err
+				return
 			}
 			if !runtime.HasStatusCode(resp, http.StatusOK) {
-				return ClientGetSasDefinitionsResponse{}, runtime.NewResponseError(resp)
+				err = runtime.NewResponseError(resp)
+				return
 			}
-			return client.getSasDefinitionsHandleResponse(resp)
+			result, err = client.getSasDefinitionsHandleResponse(resp)
+			return
 		},
 	})
 }
@@ -2419,10 +2873,10 @@ func (client *Client) getSasDefinitionsCreateRequest(ctx context.Context, vaultB
 }
 
 // getSasDefinitionsHandleResponse handles the GetSasDefinitions response.
-func (client *Client) getSasDefinitionsHandleResponse(resp *http.Response) (ClientGetSasDefinitionsResponse, error) {
-	result := ClientGetSasDefinitionsResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.SasDefinitionListResult); err != nil {
-		return ClientGetSasDefinitionsResponse{}, err
+func (client *Client) getSasDefinitionsHandleResponse(resp *http.Response) (result ClientGetSasDefinitionsResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.SasDefinitionListResult); err != nil {
+		result = ClientGetSasDefinitionsResponse{}
+		return
 	}
 	return result, nil
 }
@@ -2437,19 +2891,30 @@ func (client *Client) getSasDefinitionsHandleResponse(resp *http.Response) (Clie
 //   - secretVersion - The version of the secret. This URI fragment is optional. If not specified, the latest version of the secret
 //     is returned.
 //   - options - ClientGetSecretOptions contains the optional parameters for the Client.GetSecret method.
-func (client *Client) GetSecret(ctx context.Context, vaultBaseURL string, secretName string, secretVersion string, options *ClientGetSecretOptions) (ClientGetSecretResponse, error) {
+func (client *Client) GetSecret(ctx context.Context, vaultBaseURL string, secretName string, secretVersion string, options *ClientGetSecretOptions) (result ClientGetSecretResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "Client.GetSecret", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.getSecretCreateRequest(ctx, vaultBaseURL, secretName, secretVersion, options)
 	if err != nil {
-		return ClientGetSecretResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return ClientGetSecretResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return ClientGetSecretResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.getSecretHandleResponse(resp)
+	result, err = client.getSecretHandleResponse(resp)
+	return
 }
 
 // getSecretCreateRequest creates the GetSecret request.
@@ -2477,10 +2942,10 @@ func (client *Client) getSecretCreateRequest(ctx context.Context, vaultBaseURL s
 }
 
 // getSecretHandleResponse handles the GetSecret response.
-func (client *Client) getSecretHandleResponse(resp *http.Response) (ClientGetSecretResponse, error) {
-	result := ClientGetSecretResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.SecretBundle); err != nil {
-		return ClientGetSecretResponse{}, err
+func (client *Client) getSecretHandleResponse(resp *http.Response) (result ClientGetSecretResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.SecretBundle); err != nil {
+		result = ClientGetSecretResponse{}
+		return
 	}
 	return result, nil
 }
@@ -2497,25 +2962,35 @@ func (client *Client) NewGetSecretVersionsPager(vaultBaseURL string, secretName 
 		More: func(page ClientGetSecretVersionsResponse) bool {
 			return page.NextLink != nil && len(*page.NextLink) > 0
 		},
-		Fetcher: func(ctx context.Context, page *ClientGetSecretVersionsResponse) (ClientGetSecretVersionsResponse, error) {
+		Fetcher: func(ctx context.Context, page *ClientGetSecretVersionsResponse) (result ClientGetSecretVersionsResponse, err error) {
+			ctx, span := client.internal.Tracer().Start(ctx, "Client.NewGetSecretVersionsPager", &tracing.SpanOptions{
+				Kind: tracing.SpanKindInternal,
+			})
+			defer func() {
+				if err != nil {
+					span.AddError(err)
+				}
+				span.End()
+			}()
 			var req *policy.Request
-			var err error
 			if page == nil {
 				req, err = client.getSecretVersionsCreateRequest(ctx, vaultBaseURL, secretName, options)
 			} else {
 				req, err = runtime.NewRequest(ctx, http.MethodGet, *page.NextLink)
 			}
 			if err != nil {
-				return ClientGetSecretVersionsResponse{}, err
+				return
 			}
 			resp, err := client.internal.Pipeline().Do(req)
 			if err != nil {
-				return ClientGetSecretVersionsResponse{}, err
+				return
 			}
 			if !runtime.HasStatusCode(resp, http.StatusOK) {
-				return ClientGetSecretVersionsResponse{}, runtime.NewResponseError(resp)
+				err = runtime.NewResponseError(resp)
+				return
 			}
-			return client.getSecretVersionsHandleResponse(resp)
+			result, err = client.getSecretVersionsHandleResponse(resp)
+			return
 		},
 	})
 }
@@ -2544,10 +3019,10 @@ func (client *Client) getSecretVersionsCreateRequest(ctx context.Context, vaultB
 }
 
 // getSecretVersionsHandleResponse handles the GetSecretVersions response.
-func (client *Client) getSecretVersionsHandleResponse(resp *http.Response) (ClientGetSecretVersionsResponse, error) {
-	result := ClientGetSecretVersionsResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.SecretListResult); err != nil {
-		return ClientGetSecretVersionsResponse{}, err
+func (client *Client) getSecretVersionsHandleResponse(resp *http.Response) (result ClientGetSecretVersionsResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.SecretListResult); err != nil {
+		result = ClientGetSecretVersionsResponse{}
+		return
 	}
 	return result, nil
 }
@@ -2564,25 +3039,35 @@ func (client *Client) NewGetSecretsPager(vaultBaseURL string, options *ClientGet
 		More: func(page ClientGetSecretsResponse) bool {
 			return page.NextLink != nil && len(*page.NextLink) > 0
 		},
-		Fetcher: func(ctx context.Context, page *ClientGetSecretsResponse) (ClientGetSecretsResponse, error) {
+		Fetcher: func(ctx context.Context, page *ClientGetSecretsResponse) (result ClientGetSecretsResponse, err error) {
+			ctx, span := client.internal.Tracer().Start(ctx, "Client.NewGetSecretsPager", &tracing.SpanOptions{
+				Kind: tracing.SpanKindInternal,
+			})
+			defer func() {
+				if err != nil {
+					span.AddError(err)
+				}
+				span.End()
+			}()
 			var req *policy.Request
-			var err error
 			if page == nil {
 				req, err = client.getSecretsCreateRequest(ctx, vaultBaseURL, options)
 			} else {
 				req, err = runtime.NewRequest(ctx, http.MethodGet, *page.NextLink)
 			}
 			if err != nil {
-				return ClientGetSecretsResponse{}, err
+				return
 			}
 			resp, err := client.internal.Pipeline().Do(req)
 			if err != nil {
-				return ClientGetSecretsResponse{}, err
+				return
 			}
 			if !runtime.HasStatusCode(resp, http.StatusOK) {
-				return ClientGetSecretsResponse{}, runtime.NewResponseError(resp)
+				err = runtime.NewResponseError(resp)
+				return
 			}
-			return client.getSecretsHandleResponse(resp)
+			result, err = client.getSecretsHandleResponse(resp)
+			return
 		},
 	})
 }
@@ -2607,10 +3092,10 @@ func (client *Client) getSecretsCreateRequest(ctx context.Context, vaultBaseURL 
 }
 
 // getSecretsHandleResponse handles the GetSecrets response.
-func (client *Client) getSecretsHandleResponse(resp *http.Response) (ClientGetSecretsResponse, error) {
-	result := ClientGetSecretsResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.SecretListResult); err != nil {
-		return ClientGetSecretsResponse{}, err
+func (client *Client) getSecretsHandleResponse(resp *http.Response) (result ClientGetSecretsResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.SecretListResult); err != nil {
+		result = ClientGetSecretsResponse{}
+		return
 	}
 	return result, nil
 }
@@ -2622,19 +3107,30 @@ func (client *Client) getSecretsHandleResponse(resp *http.Response) (ClientGetSe
 //   - vaultBaseURL - The vault name, for example https://myvault.vault.azure.net.
 //   - storageAccountName - The name of the storage account.
 //   - options - ClientGetStorageAccountOptions contains the optional parameters for the Client.GetStorageAccount method.
-func (client *Client) GetStorageAccount(ctx context.Context, vaultBaseURL string, storageAccountName string, options *ClientGetStorageAccountOptions) (ClientGetStorageAccountResponse, error) {
+func (client *Client) GetStorageAccount(ctx context.Context, vaultBaseURL string, storageAccountName string, options *ClientGetStorageAccountOptions) (result ClientGetStorageAccountResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "Client.GetStorageAccount", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.getStorageAccountCreateRequest(ctx, vaultBaseURL, storageAccountName, options)
 	if err != nil {
-		return ClientGetStorageAccountResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return ClientGetStorageAccountResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return ClientGetStorageAccountResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.getStorageAccountHandleResponse(resp)
+	result, err = client.getStorageAccountHandleResponse(resp)
+	return
 }
 
 // getStorageAccountCreateRequest creates the GetStorageAccount request.
@@ -2658,10 +3154,10 @@ func (client *Client) getStorageAccountCreateRequest(ctx context.Context, vaultB
 }
 
 // getStorageAccountHandleResponse handles the GetStorageAccount response.
-func (client *Client) getStorageAccountHandleResponse(resp *http.Response) (ClientGetStorageAccountResponse, error) {
-	result := ClientGetStorageAccountResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.StorageBundle); err != nil {
-		return ClientGetStorageAccountResponse{}, err
+func (client *Client) getStorageAccountHandleResponse(resp *http.Response) (result ClientGetStorageAccountResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.StorageBundle); err != nil {
+		result = ClientGetStorageAccountResponse{}
+		return
 	}
 	return result, nil
 }
@@ -2677,25 +3173,35 @@ func (client *Client) NewGetStorageAccountsPager(vaultBaseURL string, options *C
 		More: func(page ClientGetStorageAccountsResponse) bool {
 			return page.NextLink != nil && len(*page.NextLink) > 0
 		},
-		Fetcher: func(ctx context.Context, page *ClientGetStorageAccountsResponse) (ClientGetStorageAccountsResponse, error) {
+		Fetcher: func(ctx context.Context, page *ClientGetStorageAccountsResponse) (result ClientGetStorageAccountsResponse, err error) {
+			ctx, span := client.internal.Tracer().Start(ctx, "Client.NewGetStorageAccountsPager", &tracing.SpanOptions{
+				Kind: tracing.SpanKindInternal,
+			})
+			defer func() {
+				if err != nil {
+					span.AddError(err)
+				}
+				span.End()
+			}()
 			var req *policy.Request
-			var err error
 			if page == nil {
 				req, err = client.getStorageAccountsCreateRequest(ctx, vaultBaseURL, options)
 			} else {
 				req, err = runtime.NewRequest(ctx, http.MethodGet, *page.NextLink)
 			}
 			if err != nil {
-				return ClientGetStorageAccountsResponse{}, err
+				return
 			}
 			resp, err := client.internal.Pipeline().Do(req)
 			if err != nil {
-				return ClientGetStorageAccountsResponse{}, err
+				return
 			}
 			if !runtime.HasStatusCode(resp, http.StatusOK) {
-				return ClientGetStorageAccountsResponse{}, runtime.NewResponseError(resp)
+				err = runtime.NewResponseError(resp)
+				return
 			}
-			return client.getStorageAccountsHandleResponse(resp)
+			result, err = client.getStorageAccountsHandleResponse(resp)
+			return
 		},
 	})
 }
@@ -2720,10 +3226,10 @@ func (client *Client) getStorageAccountsCreateRequest(ctx context.Context, vault
 }
 
 // getStorageAccountsHandleResponse handles the GetStorageAccounts response.
-func (client *Client) getStorageAccountsHandleResponse(resp *http.Response) (ClientGetStorageAccountsResponse, error) {
-	result := ClientGetStorageAccountsResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.StorageListResult); err != nil {
-		return ClientGetStorageAccountsResponse{}, err
+func (client *Client) getStorageAccountsHandleResponse(resp *http.Response) (result ClientGetStorageAccountsResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.StorageListResult); err != nil {
+		result = ClientGetStorageAccountsResponse{}
+		return
 	}
 	return result, nil
 }
@@ -2738,19 +3244,30 @@ func (client *Client) getStorageAccountsHandleResponse(resp *http.Response) (Cli
 //   - certificateName - The name of the certificate.
 //   - parameters - The parameters to import the certificate.
 //   - options - ClientImportCertificateOptions contains the optional parameters for the Client.ImportCertificate method.
-func (client *Client) ImportCertificate(ctx context.Context, vaultBaseURL string, certificateName string, parameters CertificateImportParameters, options *ClientImportCertificateOptions) (ClientImportCertificateResponse, error) {
+func (client *Client) ImportCertificate(ctx context.Context, vaultBaseURL string, certificateName string, parameters CertificateImportParameters, options *ClientImportCertificateOptions) (result ClientImportCertificateResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "Client.ImportCertificate", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.importCertificateCreateRequest(ctx, vaultBaseURL, certificateName, parameters, options)
 	if err != nil {
-		return ClientImportCertificateResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return ClientImportCertificateResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return ClientImportCertificateResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.importCertificateHandleResponse(resp)
+	result, err = client.importCertificateHandleResponse(resp)
+	return
 }
 
 // importCertificateCreateRequest creates the ImportCertificate request.
@@ -2774,10 +3291,10 @@ func (client *Client) importCertificateCreateRequest(ctx context.Context, vaultB
 }
 
 // importCertificateHandleResponse handles the ImportCertificate response.
-func (client *Client) importCertificateHandleResponse(resp *http.Response) (ClientImportCertificateResponse, error) {
-	result := ClientImportCertificateResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.CertificateBundle); err != nil {
-		return ClientImportCertificateResponse{}, err
+func (client *Client) importCertificateHandleResponse(resp *http.Response) (result ClientImportCertificateResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.CertificateBundle); err != nil {
+		result = ClientImportCertificateResponse{}
+		return
 	}
 	return result, nil
 }
@@ -2792,19 +3309,30 @@ func (client *Client) importCertificateHandleResponse(resp *http.Response) (Clie
 //   - keyName - Name for the imported key.
 //   - parameters - The parameters to import a key.
 //   - options - ClientImportKeyOptions contains the optional parameters for the Client.ImportKey method.
-func (client *Client) ImportKey(ctx context.Context, vaultBaseURL string, keyName string, parameters KeyImportParameters, options *ClientImportKeyOptions) (ClientImportKeyResponse, error) {
+func (client *Client) ImportKey(ctx context.Context, vaultBaseURL string, keyName string, parameters KeyImportParameters, options *ClientImportKeyOptions) (result ClientImportKeyResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "Client.ImportKey", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.importKeyCreateRequest(ctx, vaultBaseURL, keyName, parameters, options)
 	if err != nil {
-		return ClientImportKeyResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return ClientImportKeyResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return ClientImportKeyResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.importKeyHandleResponse(resp)
+	result, err = client.importKeyHandleResponse(resp)
+	return
 }
 
 // importKeyCreateRequest creates the ImportKey request.
@@ -2828,10 +3356,10 @@ func (client *Client) importKeyCreateRequest(ctx context.Context, vaultBaseURL s
 }
 
 // importKeyHandleResponse handles the ImportKey response.
-func (client *Client) importKeyHandleResponse(resp *http.Response) (ClientImportKeyResponse, error) {
-	result := ClientImportKeyResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.KeyBundle); err != nil {
-		return ClientImportKeyResponse{}, err
+func (client *Client) importKeyHandleResponse(resp *http.Response) (result ClientImportKeyResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.KeyBundle); err != nil {
+		result = ClientImportKeyResponse{}
+		return
 	}
 	return result, nil
 }
@@ -2846,19 +3374,30 @@ func (client *Client) importKeyHandleResponse(resp *http.Response) (ClientImport
 //   - certificateName - The name of the certificate.
 //   - parameters - The parameters to merge certificate.
 //   - options - ClientMergeCertificateOptions contains the optional parameters for the Client.MergeCertificate method.
-func (client *Client) MergeCertificate(ctx context.Context, vaultBaseURL string, certificateName string, parameters CertificateMergeParameters, options *ClientMergeCertificateOptions) (ClientMergeCertificateResponse, error) {
+func (client *Client) MergeCertificate(ctx context.Context, vaultBaseURL string, certificateName string, parameters CertificateMergeParameters, options *ClientMergeCertificateOptions) (result ClientMergeCertificateResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "Client.MergeCertificate", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.mergeCertificateCreateRequest(ctx, vaultBaseURL, certificateName, parameters, options)
 	if err != nil {
-		return ClientMergeCertificateResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return ClientMergeCertificateResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusCreated) {
-		return ClientMergeCertificateResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.mergeCertificateHandleResponse(resp)
+	result, err = client.mergeCertificateHandleResponse(resp)
+	return
 }
 
 // mergeCertificateCreateRequest creates the MergeCertificate request.
@@ -2882,10 +3421,10 @@ func (client *Client) mergeCertificateCreateRequest(ctx context.Context, vaultBa
 }
 
 // mergeCertificateHandleResponse handles the MergeCertificate response.
-func (client *Client) mergeCertificateHandleResponse(resp *http.Response) (ClientMergeCertificateResponse, error) {
-	result := ClientMergeCertificateResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.CertificateBundle); err != nil {
-		return ClientMergeCertificateResponse{}, err
+func (client *Client) mergeCertificateHandleResponse(resp *http.Response) (result ClientMergeCertificateResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.CertificateBundle); err != nil {
+		result = ClientMergeCertificateResponse{}
+		return
 	}
 	return result, nil
 }
@@ -2900,19 +3439,29 @@ func (client *Client) mergeCertificateHandleResponse(resp *http.Response) (Clien
 //   - certificateName - The name of the certificate
 //   - options - ClientPurgeDeletedCertificateOptions contains the optional parameters for the Client.PurgeDeletedCertificate
 //     method.
-func (client *Client) PurgeDeletedCertificate(ctx context.Context, vaultBaseURL string, certificateName string, options *ClientPurgeDeletedCertificateOptions) (ClientPurgeDeletedCertificateResponse, error) {
+func (client *Client) PurgeDeletedCertificate(ctx context.Context, vaultBaseURL string, certificateName string, options *ClientPurgeDeletedCertificateOptions) (result ClientPurgeDeletedCertificateResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "Client.PurgeDeletedCertificate", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.purgeDeletedCertificateCreateRequest(ctx, vaultBaseURL, certificateName, options)
 	if err != nil {
-		return ClientPurgeDeletedCertificateResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return ClientPurgeDeletedCertificateResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusNoContent) {
-		return ClientPurgeDeletedCertificateResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return ClientPurgeDeletedCertificateResponse{}, nil
+	return
 }
 
 // purgeDeletedCertificateCreateRequest creates the PurgeDeletedCertificate request.
@@ -2944,19 +3493,29 @@ func (client *Client) purgeDeletedCertificateCreateRequest(ctx context.Context, 
 //   - vaultBaseURL - The vault name, for example https://myvault.vault.azure.net.
 //   - keyName - The name of the key
 //   - options - ClientPurgeDeletedKeyOptions contains the optional parameters for the Client.PurgeDeletedKey method.
-func (client *Client) PurgeDeletedKey(ctx context.Context, vaultBaseURL string, keyName string, options *ClientPurgeDeletedKeyOptions) (ClientPurgeDeletedKeyResponse, error) {
+func (client *Client) PurgeDeletedKey(ctx context.Context, vaultBaseURL string, keyName string, options *ClientPurgeDeletedKeyOptions) (result ClientPurgeDeletedKeyResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "Client.PurgeDeletedKey", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.purgeDeletedKeyCreateRequest(ctx, vaultBaseURL, keyName, options)
 	if err != nil {
-		return ClientPurgeDeletedKeyResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return ClientPurgeDeletedKeyResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusNoContent) {
-		return ClientPurgeDeletedKeyResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return ClientPurgeDeletedKeyResponse{}, nil
+	return
 }
 
 // purgeDeletedKeyCreateRequest creates the PurgeDeletedKey request.
@@ -2988,19 +3547,29 @@ func (client *Client) purgeDeletedKeyCreateRequest(ctx context.Context, vaultBas
 //   - vaultBaseURL - The vault name, for example https://myvault.vault.azure.net.
 //   - secretName - The name of the secret.
 //   - options - ClientPurgeDeletedSecretOptions contains the optional parameters for the Client.PurgeDeletedSecret method.
-func (client *Client) PurgeDeletedSecret(ctx context.Context, vaultBaseURL string, secretName string, options *ClientPurgeDeletedSecretOptions) (ClientPurgeDeletedSecretResponse, error) {
+func (client *Client) PurgeDeletedSecret(ctx context.Context, vaultBaseURL string, secretName string, options *ClientPurgeDeletedSecretOptions) (result ClientPurgeDeletedSecretResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "Client.PurgeDeletedSecret", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.purgeDeletedSecretCreateRequest(ctx, vaultBaseURL, secretName, options)
 	if err != nil {
-		return ClientPurgeDeletedSecretResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return ClientPurgeDeletedSecretResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusNoContent) {
-		return ClientPurgeDeletedSecretResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return ClientPurgeDeletedSecretResponse{}, nil
+	return
 }
 
 // purgeDeletedSecretCreateRequest creates the PurgeDeletedSecret request.
@@ -3033,19 +3602,29 @@ func (client *Client) purgeDeletedSecretCreateRequest(ctx context.Context, vault
 //   - storageAccountName - The name of the storage account.
 //   - options - ClientPurgeDeletedStorageAccountOptions contains the optional parameters for the Client.PurgeDeletedStorageAccount
 //     method.
-func (client *Client) PurgeDeletedStorageAccount(ctx context.Context, vaultBaseURL string, storageAccountName string, options *ClientPurgeDeletedStorageAccountOptions) (ClientPurgeDeletedStorageAccountResponse, error) {
+func (client *Client) PurgeDeletedStorageAccount(ctx context.Context, vaultBaseURL string, storageAccountName string, options *ClientPurgeDeletedStorageAccountOptions) (result ClientPurgeDeletedStorageAccountResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "Client.PurgeDeletedStorageAccount", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.purgeDeletedStorageAccountCreateRequest(ctx, vaultBaseURL, storageAccountName, options)
 	if err != nil {
-		return ClientPurgeDeletedStorageAccountResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return ClientPurgeDeletedStorageAccountResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusNoContent) {
-		return ClientPurgeDeletedStorageAccountResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return ClientPurgeDeletedStorageAccountResponse{}, nil
+	return
 }
 
 // purgeDeletedStorageAccountCreateRequest creates the PurgeDeletedStorageAccount request.
@@ -3078,19 +3657,30 @@ func (client *Client) purgeDeletedStorageAccountCreateRequest(ctx context.Contex
 //   - certificateName - The name of the deleted certificate
 //   - options - ClientRecoverDeletedCertificateOptions contains the optional parameters for the Client.RecoverDeletedCertificate
 //     method.
-func (client *Client) RecoverDeletedCertificate(ctx context.Context, vaultBaseURL string, certificateName string, options *ClientRecoverDeletedCertificateOptions) (ClientRecoverDeletedCertificateResponse, error) {
+func (client *Client) RecoverDeletedCertificate(ctx context.Context, vaultBaseURL string, certificateName string, options *ClientRecoverDeletedCertificateOptions) (result ClientRecoverDeletedCertificateResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "Client.RecoverDeletedCertificate", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.recoverDeletedCertificateCreateRequest(ctx, vaultBaseURL, certificateName, options)
 	if err != nil {
-		return ClientRecoverDeletedCertificateResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return ClientRecoverDeletedCertificateResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return ClientRecoverDeletedCertificateResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.recoverDeletedCertificateHandleResponse(resp)
+	result, err = client.recoverDeletedCertificateHandleResponse(resp)
+	return
 }
 
 // recoverDeletedCertificateCreateRequest creates the RecoverDeletedCertificate request.
@@ -3114,10 +3704,10 @@ func (client *Client) recoverDeletedCertificateCreateRequest(ctx context.Context
 }
 
 // recoverDeletedCertificateHandleResponse handles the RecoverDeletedCertificate response.
-func (client *Client) recoverDeletedCertificateHandleResponse(resp *http.Response) (ClientRecoverDeletedCertificateResponse, error) {
-	result := ClientRecoverDeletedCertificateResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.CertificateBundle); err != nil {
-		return ClientRecoverDeletedCertificateResponse{}, err
+func (client *Client) recoverDeletedCertificateHandleResponse(resp *http.Response) (result ClientRecoverDeletedCertificateResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.CertificateBundle); err != nil {
+		result = ClientRecoverDeletedCertificateResponse{}
+		return
 	}
 	return result, nil
 }
@@ -3132,19 +3722,30 @@ func (client *Client) recoverDeletedCertificateHandleResponse(resp *http.Respons
 //   - vaultBaseURL - The vault name, for example https://myvault.vault.azure.net.
 //   - keyName - The name of the deleted key.
 //   - options - ClientRecoverDeletedKeyOptions contains the optional parameters for the Client.RecoverDeletedKey method.
-func (client *Client) RecoverDeletedKey(ctx context.Context, vaultBaseURL string, keyName string, options *ClientRecoverDeletedKeyOptions) (ClientRecoverDeletedKeyResponse, error) {
+func (client *Client) RecoverDeletedKey(ctx context.Context, vaultBaseURL string, keyName string, options *ClientRecoverDeletedKeyOptions) (result ClientRecoverDeletedKeyResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "Client.RecoverDeletedKey", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.recoverDeletedKeyCreateRequest(ctx, vaultBaseURL, keyName, options)
 	if err != nil {
-		return ClientRecoverDeletedKeyResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return ClientRecoverDeletedKeyResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return ClientRecoverDeletedKeyResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.recoverDeletedKeyHandleResponse(resp)
+	result, err = client.recoverDeletedKeyHandleResponse(resp)
+	return
 }
 
 // recoverDeletedKeyCreateRequest creates the RecoverDeletedKey request.
@@ -3168,10 +3769,10 @@ func (client *Client) recoverDeletedKeyCreateRequest(ctx context.Context, vaultB
 }
 
 // recoverDeletedKeyHandleResponse handles the RecoverDeletedKey response.
-func (client *Client) recoverDeletedKeyHandleResponse(resp *http.Response) (ClientRecoverDeletedKeyResponse, error) {
-	result := ClientRecoverDeletedKeyResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.KeyBundle); err != nil {
-		return ClientRecoverDeletedKeyResponse{}, err
+func (client *Client) recoverDeletedKeyHandleResponse(resp *http.Response) (result ClientRecoverDeletedKeyResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.KeyBundle); err != nil {
+		result = ClientRecoverDeletedKeyResponse{}
+		return
 	}
 	return result, nil
 }
@@ -3186,19 +3787,30 @@ func (client *Client) recoverDeletedKeyHandleResponse(resp *http.Response) (Clie
 //   - sasDefinitionName - The name of the SAS definition.
 //   - options - ClientRecoverDeletedSasDefinitionOptions contains the optional parameters for the Client.RecoverDeletedSasDefinition
 //     method.
-func (client *Client) RecoverDeletedSasDefinition(ctx context.Context, vaultBaseURL string, storageAccountName string, sasDefinitionName string, options *ClientRecoverDeletedSasDefinitionOptions) (ClientRecoverDeletedSasDefinitionResponse, error) {
+func (client *Client) RecoverDeletedSasDefinition(ctx context.Context, vaultBaseURL string, storageAccountName string, sasDefinitionName string, options *ClientRecoverDeletedSasDefinitionOptions) (result ClientRecoverDeletedSasDefinitionResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "Client.RecoverDeletedSasDefinition", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.recoverDeletedSasDefinitionCreateRequest(ctx, vaultBaseURL, storageAccountName, sasDefinitionName, options)
 	if err != nil {
-		return ClientRecoverDeletedSasDefinitionResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return ClientRecoverDeletedSasDefinitionResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return ClientRecoverDeletedSasDefinitionResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.recoverDeletedSasDefinitionHandleResponse(resp)
+	result, err = client.recoverDeletedSasDefinitionHandleResponse(resp)
+	return
 }
 
 // recoverDeletedSasDefinitionCreateRequest creates the RecoverDeletedSasDefinition request.
@@ -3226,10 +3838,10 @@ func (client *Client) recoverDeletedSasDefinitionCreateRequest(ctx context.Conte
 }
 
 // recoverDeletedSasDefinitionHandleResponse handles the RecoverDeletedSasDefinition response.
-func (client *Client) recoverDeletedSasDefinitionHandleResponse(resp *http.Response) (ClientRecoverDeletedSasDefinitionResponse, error) {
-	result := ClientRecoverDeletedSasDefinitionResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.SasDefinitionBundle); err != nil {
-		return ClientRecoverDeletedSasDefinitionResponse{}, err
+func (client *Client) recoverDeletedSasDefinitionHandleResponse(resp *http.Response) (result ClientRecoverDeletedSasDefinitionResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.SasDefinitionBundle); err != nil {
+		result = ClientRecoverDeletedSasDefinitionResponse{}
+		return
 	}
 	return result, nil
 }
@@ -3242,19 +3854,30 @@ func (client *Client) recoverDeletedSasDefinitionHandleResponse(resp *http.Respo
 //   - vaultBaseURL - The vault name, for example https://myvault.vault.azure.net.
 //   - secretName - The name of the deleted secret.
 //   - options - ClientRecoverDeletedSecretOptions contains the optional parameters for the Client.RecoverDeletedSecret method.
-func (client *Client) RecoverDeletedSecret(ctx context.Context, vaultBaseURL string, secretName string, options *ClientRecoverDeletedSecretOptions) (ClientRecoverDeletedSecretResponse, error) {
+func (client *Client) RecoverDeletedSecret(ctx context.Context, vaultBaseURL string, secretName string, options *ClientRecoverDeletedSecretOptions) (result ClientRecoverDeletedSecretResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "Client.RecoverDeletedSecret", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.recoverDeletedSecretCreateRequest(ctx, vaultBaseURL, secretName, options)
 	if err != nil {
-		return ClientRecoverDeletedSecretResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return ClientRecoverDeletedSecretResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return ClientRecoverDeletedSecretResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.recoverDeletedSecretHandleResponse(resp)
+	result, err = client.recoverDeletedSecretHandleResponse(resp)
+	return
 }
 
 // recoverDeletedSecretCreateRequest creates the RecoverDeletedSecret request.
@@ -3278,10 +3901,10 @@ func (client *Client) recoverDeletedSecretCreateRequest(ctx context.Context, vau
 }
 
 // recoverDeletedSecretHandleResponse handles the RecoverDeletedSecret response.
-func (client *Client) recoverDeletedSecretHandleResponse(resp *http.Response) (ClientRecoverDeletedSecretResponse, error) {
-	result := ClientRecoverDeletedSecretResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.SecretBundle); err != nil {
-		return ClientRecoverDeletedSecretResponse{}, err
+func (client *Client) recoverDeletedSecretHandleResponse(resp *http.Response) (result ClientRecoverDeletedSecretResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.SecretBundle); err != nil {
+		result = ClientRecoverDeletedSecretResponse{}
+		return
 	}
 	return result, nil
 }
@@ -3295,19 +3918,30 @@ func (client *Client) recoverDeletedSecretHandleResponse(resp *http.Response) (C
 //   - storageAccountName - The name of the storage account.
 //   - options - ClientRecoverDeletedStorageAccountOptions contains the optional parameters for the Client.RecoverDeletedStorageAccount
 //     method.
-func (client *Client) RecoverDeletedStorageAccount(ctx context.Context, vaultBaseURL string, storageAccountName string, options *ClientRecoverDeletedStorageAccountOptions) (ClientRecoverDeletedStorageAccountResponse, error) {
+func (client *Client) RecoverDeletedStorageAccount(ctx context.Context, vaultBaseURL string, storageAccountName string, options *ClientRecoverDeletedStorageAccountOptions) (result ClientRecoverDeletedStorageAccountResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "Client.RecoverDeletedStorageAccount", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.recoverDeletedStorageAccountCreateRequest(ctx, vaultBaseURL, storageAccountName, options)
 	if err != nil {
-		return ClientRecoverDeletedStorageAccountResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return ClientRecoverDeletedStorageAccountResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return ClientRecoverDeletedStorageAccountResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.recoverDeletedStorageAccountHandleResponse(resp)
+	result, err = client.recoverDeletedStorageAccountHandleResponse(resp)
+	return
 }
 
 // recoverDeletedStorageAccountCreateRequest creates the RecoverDeletedStorageAccount request.
@@ -3331,10 +3965,10 @@ func (client *Client) recoverDeletedStorageAccountCreateRequest(ctx context.Cont
 }
 
 // recoverDeletedStorageAccountHandleResponse handles the RecoverDeletedStorageAccount response.
-func (client *Client) recoverDeletedStorageAccountHandleResponse(resp *http.Response) (ClientRecoverDeletedStorageAccountResponse, error) {
-	result := ClientRecoverDeletedStorageAccountResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.StorageBundle); err != nil {
-		return ClientRecoverDeletedStorageAccountResponse{}, err
+func (client *Client) recoverDeletedStorageAccountHandleResponse(resp *http.Response) (result ClientRecoverDeletedStorageAccountResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.StorageBundle); err != nil {
+		result = ClientRecoverDeletedStorageAccountResponse{}
+		return
 	}
 	return result, nil
 }
@@ -3349,19 +3983,30 @@ func (client *Client) recoverDeletedStorageAccountHandleResponse(resp *http.Resp
 //   - parameters - The parameters to regenerate storage account key.
 //   - options - ClientRegenerateStorageAccountKeyOptions contains the optional parameters for the Client.RegenerateStorageAccountKey
 //     method.
-func (client *Client) RegenerateStorageAccountKey(ctx context.Context, vaultBaseURL string, storageAccountName string, parameters StorageAccountRegenerteKeyParameters, options *ClientRegenerateStorageAccountKeyOptions) (ClientRegenerateStorageAccountKeyResponse, error) {
+func (client *Client) RegenerateStorageAccountKey(ctx context.Context, vaultBaseURL string, storageAccountName string, parameters StorageAccountRegenerteKeyParameters, options *ClientRegenerateStorageAccountKeyOptions) (result ClientRegenerateStorageAccountKeyResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "Client.RegenerateStorageAccountKey", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.regenerateStorageAccountKeyCreateRequest(ctx, vaultBaseURL, storageAccountName, parameters, options)
 	if err != nil {
-		return ClientRegenerateStorageAccountKeyResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return ClientRegenerateStorageAccountKeyResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return ClientRegenerateStorageAccountKeyResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.regenerateStorageAccountKeyHandleResponse(resp)
+	result, err = client.regenerateStorageAccountKeyHandleResponse(resp)
+	return
 }
 
 // regenerateStorageAccountKeyCreateRequest creates the RegenerateStorageAccountKey request.
@@ -3385,10 +4030,10 @@ func (client *Client) regenerateStorageAccountKeyCreateRequest(ctx context.Conte
 }
 
 // regenerateStorageAccountKeyHandleResponse handles the RegenerateStorageAccountKey response.
-func (client *Client) regenerateStorageAccountKeyHandleResponse(resp *http.Response) (ClientRegenerateStorageAccountKeyResponse, error) {
-	result := ClientRegenerateStorageAccountKeyResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.StorageBundle); err != nil {
-		return ClientRegenerateStorageAccountKeyResponse{}, err
+func (client *Client) regenerateStorageAccountKeyHandleResponse(resp *http.Response) (result ClientRegenerateStorageAccountKeyResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.StorageBundle); err != nil {
+		result = ClientRegenerateStorageAccountKeyResponse{}
+		return
 	}
 	return result, nil
 }
@@ -3401,19 +4046,30 @@ func (client *Client) regenerateStorageAccountKeyHandleResponse(resp *http.Respo
 //   - vaultBaseURL - The vault name, for example https://myvault.vault.azure.net.
 //   - parameters - The parameters to restore the certificate.
 //   - options - ClientRestoreCertificateOptions contains the optional parameters for the Client.RestoreCertificate method.
-func (client *Client) RestoreCertificate(ctx context.Context, vaultBaseURL string, parameters CertificateRestoreParameters, options *ClientRestoreCertificateOptions) (ClientRestoreCertificateResponse, error) {
+func (client *Client) RestoreCertificate(ctx context.Context, vaultBaseURL string, parameters CertificateRestoreParameters, options *ClientRestoreCertificateOptions) (result ClientRestoreCertificateResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "Client.RestoreCertificate", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.restoreCertificateCreateRequest(ctx, vaultBaseURL, parameters, options)
 	if err != nil {
-		return ClientRestoreCertificateResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return ClientRestoreCertificateResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return ClientRestoreCertificateResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.restoreCertificateHandleResponse(resp)
+	result, err = client.restoreCertificateHandleResponse(resp)
+	return
 }
 
 // restoreCertificateCreateRequest creates the RestoreCertificate request.
@@ -3433,10 +4089,10 @@ func (client *Client) restoreCertificateCreateRequest(ctx context.Context, vault
 }
 
 // restoreCertificateHandleResponse handles the RestoreCertificate response.
-func (client *Client) restoreCertificateHandleResponse(resp *http.Response) (ClientRestoreCertificateResponse, error) {
-	result := ClientRestoreCertificateResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.CertificateBundle); err != nil {
-		return ClientRestoreCertificateResponse{}, err
+func (client *Client) restoreCertificateHandleResponse(resp *http.Response) (result ClientRestoreCertificateResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.CertificateBundle); err != nil {
+		result = ClientRestoreCertificateResponse{}
+		return
 	}
 	return result, nil
 }
@@ -3456,19 +4112,30 @@ func (client *Client) restoreCertificateHandleResponse(resp *http.Response) (Cli
 //   - vaultBaseURL - The vault name, for example https://myvault.vault.azure.net.
 //   - parameters - The parameters to restore the key.
 //   - options - ClientRestoreKeyOptions contains the optional parameters for the Client.RestoreKey method.
-func (client *Client) RestoreKey(ctx context.Context, vaultBaseURL string, parameters KeyRestoreParameters, options *ClientRestoreKeyOptions) (ClientRestoreKeyResponse, error) {
+func (client *Client) RestoreKey(ctx context.Context, vaultBaseURL string, parameters KeyRestoreParameters, options *ClientRestoreKeyOptions) (result ClientRestoreKeyResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "Client.RestoreKey", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.restoreKeyCreateRequest(ctx, vaultBaseURL, parameters, options)
 	if err != nil {
-		return ClientRestoreKeyResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return ClientRestoreKeyResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return ClientRestoreKeyResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.restoreKeyHandleResponse(resp)
+	result, err = client.restoreKeyHandleResponse(resp)
+	return
 }
 
 // restoreKeyCreateRequest creates the RestoreKey request.
@@ -3488,10 +4155,10 @@ func (client *Client) restoreKeyCreateRequest(ctx context.Context, vaultBaseURL 
 }
 
 // restoreKeyHandleResponse handles the RestoreKey response.
-func (client *Client) restoreKeyHandleResponse(resp *http.Response) (ClientRestoreKeyResponse, error) {
-	result := ClientRestoreKeyResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.KeyBundle); err != nil {
-		return ClientRestoreKeyResponse{}, err
+func (client *Client) restoreKeyHandleResponse(resp *http.Response) (result ClientRestoreKeyResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.KeyBundle); err != nil {
+		result = ClientRestoreKeyResponse{}
+		return
 	}
 	return result, nil
 }
@@ -3504,19 +4171,30 @@ func (client *Client) restoreKeyHandleResponse(resp *http.Response) (ClientResto
 //   - vaultBaseURL - The vault name, for example https://myvault.vault.azure.net.
 //   - parameters - The parameters to restore the secret.
 //   - options - ClientRestoreSecretOptions contains the optional parameters for the Client.RestoreSecret method.
-func (client *Client) RestoreSecret(ctx context.Context, vaultBaseURL string, parameters SecretRestoreParameters, options *ClientRestoreSecretOptions) (ClientRestoreSecretResponse, error) {
+func (client *Client) RestoreSecret(ctx context.Context, vaultBaseURL string, parameters SecretRestoreParameters, options *ClientRestoreSecretOptions) (result ClientRestoreSecretResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "Client.RestoreSecret", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.restoreSecretCreateRequest(ctx, vaultBaseURL, parameters, options)
 	if err != nil {
-		return ClientRestoreSecretResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return ClientRestoreSecretResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return ClientRestoreSecretResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.restoreSecretHandleResponse(resp)
+	result, err = client.restoreSecretHandleResponse(resp)
+	return
 }
 
 // restoreSecretCreateRequest creates the RestoreSecret request.
@@ -3536,10 +4214,10 @@ func (client *Client) restoreSecretCreateRequest(ctx context.Context, vaultBaseU
 }
 
 // restoreSecretHandleResponse handles the RestoreSecret response.
-func (client *Client) restoreSecretHandleResponse(resp *http.Response) (ClientRestoreSecretResponse, error) {
-	result := ClientRestoreSecretResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.SecretBundle); err != nil {
-		return ClientRestoreSecretResponse{}, err
+func (client *Client) restoreSecretHandleResponse(resp *http.Response) (result ClientRestoreSecretResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.SecretBundle); err != nil {
+		result = ClientRestoreSecretResponse{}
+		return
 	}
 	return result, nil
 }
@@ -3551,19 +4229,30 @@ func (client *Client) restoreSecretHandleResponse(resp *http.Response) (ClientRe
 //   - vaultBaseURL - The vault name, for example https://myvault.vault.azure.net.
 //   - jobID - The Job Id returned part of the restore operation
 //   - options - ClientRestoreStatusOptions contains the optional parameters for the Client.RestoreStatus method.
-func (client *Client) RestoreStatus(ctx context.Context, vaultBaseURL string, jobID string, options *ClientRestoreStatusOptions) (ClientRestoreStatusResponse, error) {
+func (client *Client) RestoreStatus(ctx context.Context, vaultBaseURL string, jobID string, options *ClientRestoreStatusOptions) (result ClientRestoreStatusResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "Client.RestoreStatus", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.restoreStatusCreateRequest(ctx, vaultBaseURL, jobID, options)
 	if err != nil {
-		return ClientRestoreStatusResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return ClientRestoreStatusResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return ClientRestoreStatusResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.restoreStatusHandleResponse(resp)
+	result, err = client.restoreStatusHandleResponse(resp)
+	return
 }
 
 // restoreStatusCreateRequest creates the RestoreStatus request.
@@ -3587,10 +4276,10 @@ func (client *Client) restoreStatusCreateRequest(ctx context.Context, vaultBaseU
 }
 
 // restoreStatusHandleResponse handles the RestoreStatus response.
-func (client *Client) restoreStatusHandleResponse(resp *http.Response) (ClientRestoreStatusResponse, error) {
-	result := ClientRestoreStatusResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.RestoreOperation); err != nil {
-		return ClientRestoreStatusResponse{}, err
+func (client *Client) restoreStatusHandleResponse(resp *http.Response) (result ClientRestoreStatusResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.RestoreOperation); err != nil {
+		result = ClientRestoreStatusResponse{}
+		return
 	}
 	return result, nil
 }
@@ -3602,19 +4291,30 @@ func (client *Client) restoreStatusHandleResponse(resp *http.Response) (ClientRe
 //   - vaultBaseURL - The vault name, for example https://myvault.vault.azure.net.
 //   - parameters - The parameters to restore the storage account.
 //   - options - ClientRestoreStorageAccountOptions contains the optional parameters for the Client.RestoreStorageAccount method.
-func (client *Client) RestoreStorageAccount(ctx context.Context, vaultBaseURL string, parameters StorageRestoreParameters, options *ClientRestoreStorageAccountOptions) (ClientRestoreStorageAccountResponse, error) {
+func (client *Client) RestoreStorageAccount(ctx context.Context, vaultBaseURL string, parameters StorageRestoreParameters, options *ClientRestoreStorageAccountOptions) (result ClientRestoreStorageAccountResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "Client.RestoreStorageAccount", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.restoreStorageAccountCreateRequest(ctx, vaultBaseURL, parameters, options)
 	if err != nil {
-		return ClientRestoreStorageAccountResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return ClientRestoreStorageAccountResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return ClientRestoreStorageAccountResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.restoreStorageAccountHandleResponse(resp)
+	result, err = client.restoreStorageAccountHandleResponse(resp)
+	return
 }
 
 // restoreStorageAccountCreateRequest creates the RestoreStorageAccount request.
@@ -3634,10 +4334,10 @@ func (client *Client) restoreStorageAccountCreateRequest(ctx context.Context, va
 }
 
 // restoreStorageAccountHandleResponse handles the RestoreStorageAccount response.
-func (client *Client) restoreStorageAccountHandleResponse(resp *http.Response) (ClientRestoreStorageAccountResponse, error) {
-	result := ClientRestoreStorageAccountResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.StorageBundle); err != nil {
-		return ClientRestoreStorageAccountResponse{}, err
+func (client *Client) restoreStorageAccountHandleResponse(resp *http.Response) (result ClientRestoreStorageAccountResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.StorageBundle); err != nil {
+		result = ClientRestoreStorageAccountResponse{}
+		return
 	}
 	return result, nil
 }
@@ -3652,18 +4352,29 @@ func (client *Client) restoreStorageAccountHandleResponse(resp *http.Response) (
 //   - restoreBlobDetails - The Azure blob SAS token pointing to a folder where the previous successful full backup was stored
 //   - options - ClientBeginSelectiveKeyRestoreOperationOptions contains the optional parameters for the Client.BeginSelectiveKeyRestoreOperation
 //     method.
-func (client *Client) BeginSelectiveKeyRestoreOperation(ctx context.Context, vaultBaseURL string, keyName string, restoreBlobDetails SelectiveKeyRestoreOperationParameters, options *ClientBeginSelectiveKeyRestoreOperationOptions) (*runtime.Poller[ClientSelectiveKeyRestoreOperationResponse], error) {
-	if options == nil || options.ResumeToken == "" {
-		resp, err := client.selectiveKeyRestoreOperation(ctx, vaultBaseURL, keyName, restoreBlobDetails, options)
+func (client *Client) BeginSelectiveKeyRestoreOperation(ctx context.Context, vaultBaseURL string, keyName string, restoreBlobDetails SelectiveKeyRestoreOperationParameters, options *ClientBeginSelectiveKeyRestoreOperationOptions) (result *runtime.Poller[ClientSelectiveKeyRestoreOperationResponse], err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "Client.BeginSelectiveKeyRestoreOperation", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
 		if err != nil {
-			return nil, err
+			span.AddError(err)
 		}
-		return runtime.NewPoller(resp, client.internal.Pipeline(), &runtime.NewPollerOptions[ClientSelectiveKeyRestoreOperationResponse]{
+		span.End()
+	}()
+	if options == nil || options.ResumeToken == "" {
+		var resp *http.Response
+		resp, err = client.selectiveKeyRestoreOperation(ctx, vaultBaseURL, keyName, restoreBlobDetails, options)
+		if err != nil {
+			return
+		}
+		result, err = runtime.NewPoller(resp, client.internal.Pipeline(), &runtime.NewPollerOptions[ClientSelectiveKeyRestoreOperationResponse]{
 			FinalStateVia: runtime.FinalStateViaAzureAsyncOp,
 		})
 	} else {
-		return runtime.NewPollerFromResumeToken[ClientSelectiveKeyRestoreOperationResponse](options.ResumeToken, client.internal.Pipeline(), nil)
+		result, err = runtime.NewPollerFromResumeToken[ClientSelectiveKeyRestoreOperationResponse](options.ResumeToken, client.internal.Pipeline(), nil)
 	}
+	return
 }
 
 // SelectiveKeyRestoreOperation - Restores all key versions of a given key using user supplied SAS token pointing to a previously
@@ -3671,19 +4382,20 @@ func (client *Client) BeginSelectiveKeyRestoreOperation(ctx context.Context, vau
 // If the operation fails it returns an *azcore.ResponseError type.
 //
 // Generated from API version 7.2
-func (client *Client) selectiveKeyRestoreOperation(ctx context.Context, vaultBaseURL string, keyName string, restoreBlobDetails SelectiveKeyRestoreOperationParameters, options *ClientBeginSelectiveKeyRestoreOperationOptions) (*http.Response, error) {
+func (client *Client) selectiveKeyRestoreOperation(ctx context.Context, vaultBaseURL string, keyName string, restoreBlobDetails SelectiveKeyRestoreOperationParameters, options *ClientBeginSelectiveKeyRestoreOperationOptions) (resp *http.Response, err error) {
 	req, err := client.selectiveKeyRestoreOperationCreateRequest(ctx, vaultBaseURL, keyName, restoreBlobDetails, options)
 	if err != nil {
-		return nil, err
+		return
 	}
-	resp, err := client.internal.Pipeline().Do(req)
+	resp, err = client.internal.Pipeline().Do(req)
 	if err != nil {
-		return nil, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusAccepted) {
-		return nil, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return resp, nil
+	return
 }
 
 // selectiveKeyRestoreOperationCreateRequest creates the SelectiveKeyRestoreOperation request.
@@ -3714,19 +4426,30 @@ func (client *Client) selectiveKeyRestoreOperationCreateRequest(ctx context.Cont
 //   - vaultBaseURL - The vault name, for example https://myvault.vault.azure.net.
 //   - contacts - The contacts for the key vault certificate.
 //   - options - ClientSetCertificateContactsOptions contains the optional parameters for the Client.SetCertificateContacts method.
-func (client *Client) SetCertificateContacts(ctx context.Context, vaultBaseURL string, contacts Contacts, options *ClientSetCertificateContactsOptions) (ClientSetCertificateContactsResponse, error) {
+func (client *Client) SetCertificateContacts(ctx context.Context, vaultBaseURL string, contacts Contacts, options *ClientSetCertificateContactsOptions) (result ClientSetCertificateContactsResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "Client.SetCertificateContacts", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.setCertificateContactsCreateRequest(ctx, vaultBaseURL, contacts, options)
 	if err != nil {
-		return ClientSetCertificateContactsResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return ClientSetCertificateContactsResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return ClientSetCertificateContactsResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.setCertificateContactsHandleResponse(resp)
+	result, err = client.setCertificateContactsHandleResponse(resp)
+	return
 }
 
 // setCertificateContactsCreateRequest creates the SetCertificateContacts request.
@@ -3746,10 +4469,10 @@ func (client *Client) setCertificateContactsCreateRequest(ctx context.Context, v
 }
 
 // setCertificateContactsHandleResponse handles the SetCertificateContacts response.
-func (client *Client) setCertificateContactsHandleResponse(resp *http.Response) (ClientSetCertificateContactsResponse, error) {
-	result := ClientSetCertificateContactsResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.Contacts); err != nil {
-		return ClientSetCertificateContactsResponse{}, err
+func (client *Client) setCertificateContactsHandleResponse(resp *http.Response) (result ClientSetCertificateContactsResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.Contacts); err != nil {
+		result = ClientSetCertificateContactsResponse{}
+		return
 	}
 	return result, nil
 }
@@ -3763,19 +4486,30 @@ func (client *Client) setCertificateContactsHandleResponse(resp *http.Response) 
 //   - issuerName - The name of the issuer.
 //   - parameter - Certificate issuer set parameter.
 //   - options - ClientSetCertificateIssuerOptions contains the optional parameters for the Client.SetCertificateIssuer method.
-func (client *Client) SetCertificateIssuer(ctx context.Context, vaultBaseURL string, issuerName string, parameter CertificateIssuerSetParameters, options *ClientSetCertificateIssuerOptions) (ClientSetCertificateIssuerResponse, error) {
+func (client *Client) SetCertificateIssuer(ctx context.Context, vaultBaseURL string, issuerName string, parameter CertificateIssuerSetParameters, options *ClientSetCertificateIssuerOptions) (result ClientSetCertificateIssuerResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "Client.SetCertificateIssuer", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.setCertificateIssuerCreateRequest(ctx, vaultBaseURL, issuerName, parameter, options)
 	if err != nil {
-		return ClientSetCertificateIssuerResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return ClientSetCertificateIssuerResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return ClientSetCertificateIssuerResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.setCertificateIssuerHandleResponse(resp)
+	result, err = client.setCertificateIssuerHandleResponse(resp)
+	return
 }
 
 // setCertificateIssuerCreateRequest creates the SetCertificateIssuer request.
@@ -3799,10 +4533,10 @@ func (client *Client) setCertificateIssuerCreateRequest(ctx context.Context, vau
 }
 
 // setCertificateIssuerHandleResponse handles the SetCertificateIssuer response.
-func (client *Client) setCertificateIssuerHandleResponse(resp *http.Response) (ClientSetCertificateIssuerResponse, error) {
-	result := ClientSetCertificateIssuerResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.IssuerBundle); err != nil {
-		return ClientSetCertificateIssuerResponse{}, err
+func (client *Client) setCertificateIssuerHandleResponse(resp *http.Response) (result ClientSetCertificateIssuerResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.IssuerBundle); err != nil {
+		result = ClientSetCertificateIssuerResponse{}
+		return
 	}
 	return result, nil
 }
@@ -3817,19 +4551,30 @@ func (client *Client) setCertificateIssuerHandleResponse(resp *http.Response) (C
 //   - sasDefinitionName - The name of the SAS definition.
 //   - parameters - The parameters to create a SAS definition.
 //   - options - ClientSetSasDefinitionOptions contains the optional parameters for the Client.SetSasDefinition method.
-func (client *Client) SetSasDefinition(ctx context.Context, vaultBaseURL string, storageAccountName string, sasDefinitionName string, parameters SasDefinitionCreateParameters, options *ClientSetSasDefinitionOptions) (ClientSetSasDefinitionResponse, error) {
+func (client *Client) SetSasDefinition(ctx context.Context, vaultBaseURL string, storageAccountName string, sasDefinitionName string, parameters SasDefinitionCreateParameters, options *ClientSetSasDefinitionOptions) (result ClientSetSasDefinitionResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "Client.SetSasDefinition", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.setSasDefinitionCreateRequest(ctx, vaultBaseURL, storageAccountName, sasDefinitionName, parameters, options)
 	if err != nil {
-		return ClientSetSasDefinitionResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return ClientSetSasDefinitionResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return ClientSetSasDefinitionResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.setSasDefinitionHandleResponse(resp)
+	result, err = client.setSasDefinitionHandleResponse(resp)
+	return
 }
 
 // setSasDefinitionCreateRequest creates the SetSasDefinition request.
@@ -3857,10 +4602,10 @@ func (client *Client) setSasDefinitionCreateRequest(ctx context.Context, vaultBa
 }
 
 // setSasDefinitionHandleResponse handles the SetSasDefinition response.
-func (client *Client) setSasDefinitionHandleResponse(resp *http.Response) (ClientSetSasDefinitionResponse, error) {
-	result := ClientSetSasDefinitionResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.SasDefinitionBundle); err != nil {
-		return ClientSetSasDefinitionResponse{}, err
+func (client *Client) setSasDefinitionHandleResponse(resp *http.Response) (result ClientSetSasDefinitionResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.SasDefinitionBundle); err != nil {
+		result = ClientSetSasDefinitionResponse{}
+		return
 	}
 	return result, nil
 }
@@ -3874,19 +4619,30 @@ func (client *Client) setSasDefinitionHandleResponse(resp *http.Response) (Clien
 //   - secretName - The name of the secret.
 //   - parameters - The parameters for setting the secret.
 //   - options - ClientSetSecretOptions contains the optional parameters for the Client.SetSecret method.
-func (client *Client) SetSecret(ctx context.Context, vaultBaseURL string, secretName string, parameters SecretSetParameters, options *ClientSetSecretOptions) (ClientSetSecretResponse, error) {
+func (client *Client) SetSecret(ctx context.Context, vaultBaseURL string, secretName string, parameters SecretSetParameters, options *ClientSetSecretOptions) (result ClientSetSecretResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "Client.SetSecret", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.setSecretCreateRequest(ctx, vaultBaseURL, secretName, parameters, options)
 	if err != nil {
-		return ClientSetSecretResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return ClientSetSecretResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return ClientSetSecretResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.setSecretHandleResponse(resp)
+	result, err = client.setSecretHandleResponse(resp)
+	return
 }
 
 // setSecretCreateRequest creates the SetSecret request.
@@ -3910,10 +4666,10 @@ func (client *Client) setSecretCreateRequest(ctx context.Context, vaultBaseURL s
 }
 
 // setSecretHandleResponse handles the SetSecret response.
-func (client *Client) setSecretHandleResponse(resp *http.Response) (ClientSetSecretResponse, error) {
-	result := ClientSetSecretResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.SecretBundle); err != nil {
-		return ClientSetSecretResponse{}, err
+func (client *Client) setSecretHandleResponse(resp *http.Response) (result ClientSetSecretResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.SecretBundle); err != nil {
+		result = ClientSetSecretResponse{}
+		return
 	}
 	return result, nil
 }
@@ -3926,19 +4682,30 @@ func (client *Client) setSecretHandleResponse(resp *http.Response) (ClientSetSec
 //   - storageAccountName - The name of the storage account.
 //   - parameters - The parameters to create a storage account.
 //   - options - ClientSetStorageAccountOptions contains the optional parameters for the Client.SetStorageAccount method.
-func (client *Client) SetStorageAccount(ctx context.Context, vaultBaseURL string, storageAccountName string, parameters StorageAccountCreateParameters, options *ClientSetStorageAccountOptions) (ClientSetStorageAccountResponse, error) {
+func (client *Client) SetStorageAccount(ctx context.Context, vaultBaseURL string, storageAccountName string, parameters StorageAccountCreateParameters, options *ClientSetStorageAccountOptions) (result ClientSetStorageAccountResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "Client.SetStorageAccount", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.setStorageAccountCreateRequest(ctx, vaultBaseURL, storageAccountName, parameters, options)
 	if err != nil {
-		return ClientSetStorageAccountResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return ClientSetStorageAccountResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return ClientSetStorageAccountResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.setStorageAccountHandleResponse(resp)
+	result, err = client.setStorageAccountHandleResponse(resp)
+	return
 }
 
 // setStorageAccountCreateRequest creates the SetStorageAccount request.
@@ -3962,10 +4729,10 @@ func (client *Client) setStorageAccountCreateRequest(ctx context.Context, vaultB
 }
 
 // setStorageAccountHandleResponse handles the SetStorageAccount response.
-func (client *Client) setStorageAccountHandleResponse(resp *http.Response) (ClientSetStorageAccountResponse, error) {
-	result := ClientSetStorageAccountResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.StorageBundle); err != nil {
-		return ClientSetStorageAccountResponse{}, err
+func (client *Client) setStorageAccountHandleResponse(resp *http.Response) (result ClientSetStorageAccountResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.StorageBundle); err != nil {
+		result = ClientSetStorageAccountResponse{}
+		return
 	}
 	return result, nil
 }
@@ -3980,19 +4747,30 @@ func (client *Client) setStorageAccountHandleResponse(resp *http.Response) (Clie
 //   - keyVersion - The version of the key.
 //   - parameters - The parameters for the signing operation.
 //   - options - ClientSignOptions contains the optional parameters for the Client.Sign method.
-func (client *Client) Sign(ctx context.Context, vaultBaseURL string, keyName string, keyVersion string, parameters KeySignParameters, options *ClientSignOptions) (ClientSignResponse, error) {
+func (client *Client) Sign(ctx context.Context, vaultBaseURL string, keyName string, keyVersion string, parameters KeySignParameters, options *ClientSignOptions) (result ClientSignResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "Client.Sign", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.signCreateRequest(ctx, vaultBaseURL, keyName, keyVersion, parameters, options)
 	if err != nil {
-		return ClientSignResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return ClientSignResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return ClientSignResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.signHandleResponse(resp)
+	result, err = client.signHandleResponse(resp)
+	return
 }
 
 // signCreateRequest creates the Sign request.
@@ -4020,10 +4798,10 @@ func (client *Client) signCreateRequest(ctx context.Context, vaultBaseURL string
 }
 
 // signHandleResponse handles the Sign response.
-func (client *Client) signHandleResponse(resp *http.Response) (ClientSignResponse, error) {
-	result := ClientSignResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.KeyOperationResult); err != nil {
-		return ClientSignResponse{}, err
+func (client *Client) signHandleResponse(resp *http.Response) (result ClientSignResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.KeyOperationResult); err != nil {
+		result = ClientSignResponse{}
+		return
 	}
 	return result, nil
 }
@@ -4040,19 +4818,30 @@ func (client *Client) signHandleResponse(resp *http.Response) (ClientSignRespons
 //   - keyVersion - The version of the key.
 //   - parameters - The parameters for the key operation.
 //   - options - ClientUnwrapKeyOptions contains the optional parameters for the Client.UnwrapKey method.
-func (client *Client) UnwrapKey(ctx context.Context, vaultBaseURL string, keyName string, keyVersion string, parameters KeyOperationsParameters, options *ClientUnwrapKeyOptions) (ClientUnwrapKeyResponse, error) {
+func (client *Client) UnwrapKey(ctx context.Context, vaultBaseURL string, keyName string, keyVersion string, parameters KeyOperationsParameters, options *ClientUnwrapKeyOptions) (result ClientUnwrapKeyResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "Client.UnwrapKey", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.unwrapKeyCreateRequest(ctx, vaultBaseURL, keyName, keyVersion, parameters, options)
 	if err != nil {
-		return ClientUnwrapKeyResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return ClientUnwrapKeyResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return ClientUnwrapKeyResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.unwrapKeyHandleResponse(resp)
+	result, err = client.unwrapKeyHandleResponse(resp)
+	return
 }
 
 // unwrapKeyCreateRequest creates the UnwrapKey request.
@@ -4080,10 +4869,10 @@ func (client *Client) unwrapKeyCreateRequest(ctx context.Context, vaultBaseURL s
 }
 
 // unwrapKeyHandleResponse handles the UnwrapKey response.
-func (client *Client) unwrapKeyHandleResponse(resp *http.Response) (ClientUnwrapKeyResponse, error) {
-	result := ClientUnwrapKeyResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.KeyOperationResult); err != nil {
-		return ClientUnwrapKeyResponse{}, err
+func (client *Client) unwrapKeyHandleResponse(resp *http.Response) (result ClientUnwrapKeyResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.KeyOperationResult); err != nil {
+		result = ClientUnwrapKeyResponse{}
+		return
 	}
 	return result, nil
 }
@@ -4099,19 +4888,30 @@ func (client *Client) unwrapKeyHandleResponse(resp *http.Response) (ClientUnwrap
 //   - certificateVersion - The version of the certificate.
 //   - parameters - The parameters for certificate update.
 //   - options - ClientUpdateCertificateOptions contains the optional parameters for the Client.UpdateCertificate method.
-func (client *Client) UpdateCertificate(ctx context.Context, vaultBaseURL string, certificateName string, certificateVersion string, parameters CertificateUpdateParameters, options *ClientUpdateCertificateOptions) (ClientUpdateCertificateResponse, error) {
+func (client *Client) UpdateCertificate(ctx context.Context, vaultBaseURL string, certificateName string, certificateVersion string, parameters CertificateUpdateParameters, options *ClientUpdateCertificateOptions) (result ClientUpdateCertificateResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "Client.UpdateCertificate", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.updateCertificateCreateRequest(ctx, vaultBaseURL, certificateName, certificateVersion, parameters, options)
 	if err != nil {
-		return ClientUpdateCertificateResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return ClientUpdateCertificateResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return ClientUpdateCertificateResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.updateCertificateHandleResponse(resp)
+	result, err = client.updateCertificateHandleResponse(resp)
+	return
 }
 
 // updateCertificateCreateRequest creates the UpdateCertificate request.
@@ -4139,10 +4939,10 @@ func (client *Client) updateCertificateCreateRequest(ctx context.Context, vaultB
 }
 
 // updateCertificateHandleResponse handles the UpdateCertificate response.
-func (client *Client) updateCertificateHandleResponse(resp *http.Response) (ClientUpdateCertificateResponse, error) {
-	result := ClientUpdateCertificateResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.CertificateBundle); err != nil {
-		return ClientUpdateCertificateResponse{}, err
+func (client *Client) updateCertificateHandleResponse(resp *http.Response) (result ClientUpdateCertificateResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.CertificateBundle); err != nil {
+		result = ClientUpdateCertificateResponse{}
+		return
 	}
 	return result, nil
 }
@@ -4157,19 +4957,30 @@ func (client *Client) updateCertificateHandleResponse(resp *http.Response) (Clie
 //   - parameter - Certificate issuer update parameter.
 //   - options - ClientUpdateCertificateIssuerOptions contains the optional parameters for the Client.UpdateCertificateIssuer
 //     method.
-func (client *Client) UpdateCertificateIssuer(ctx context.Context, vaultBaseURL string, issuerName string, parameter CertificateIssuerUpdateParameters, options *ClientUpdateCertificateIssuerOptions) (ClientUpdateCertificateIssuerResponse, error) {
+func (client *Client) UpdateCertificateIssuer(ctx context.Context, vaultBaseURL string, issuerName string, parameter CertificateIssuerUpdateParameters, options *ClientUpdateCertificateIssuerOptions) (result ClientUpdateCertificateIssuerResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "Client.UpdateCertificateIssuer", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.updateCertificateIssuerCreateRequest(ctx, vaultBaseURL, issuerName, parameter, options)
 	if err != nil {
-		return ClientUpdateCertificateIssuerResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return ClientUpdateCertificateIssuerResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return ClientUpdateCertificateIssuerResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.updateCertificateIssuerHandleResponse(resp)
+	result, err = client.updateCertificateIssuerHandleResponse(resp)
+	return
 }
 
 // updateCertificateIssuerCreateRequest creates the UpdateCertificateIssuer request.
@@ -4193,10 +5004,10 @@ func (client *Client) updateCertificateIssuerCreateRequest(ctx context.Context, 
 }
 
 // updateCertificateIssuerHandleResponse handles the UpdateCertificateIssuer response.
-func (client *Client) updateCertificateIssuerHandleResponse(resp *http.Response) (ClientUpdateCertificateIssuerResponse, error) {
-	result := ClientUpdateCertificateIssuerResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.IssuerBundle); err != nil {
-		return ClientUpdateCertificateIssuerResponse{}, err
+func (client *Client) updateCertificateIssuerHandleResponse(resp *http.Response) (result ClientUpdateCertificateIssuerResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.IssuerBundle); err != nil {
+		result = ClientUpdateCertificateIssuerResponse{}
+		return
 	}
 	return result, nil
 }
@@ -4211,19 +5022,30 @@ func (client *Client) updateCertificateIssuerHandleResponse(resp *http.Response)
 //   - certificateOperation - The certificate operation response.
 //   - options - ClientUpdateCertificateOperationOptions contains the optional parameters for the Client.UpdateCertificateOperation
 //     method.
-func (client *Client) UpdateCertificateOperation(ctx context.Context, vaultBaseURL string, certificateName string, certificateOperation CertificateOperationUpdateParameter, options *ClientUpdateCertificateOperationOptions) (ClientUpdateCertificateOperationResponse, error) {
+func (client *Client) UpdateCertificateOperation(ctx context.Context, vaultBaseURL string, certificateName string, certificateOperation CertificateOperationUpdateParameter, options *ClientUpdateCertificateOperationOptions) (result ClientUpdateCertificateOperationResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "Client.UpdateCertificateOperation", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.updateCertificateOperationCreateRequest(ctx, vaultBaseURL, certificateName, certificateOperation, options)
 	if err != nil {
-		return ClientUpdateCertificateOperationResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return ClientUpdateCertificateOperationResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return ClientUpdateCertificateOperationResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.updateCertificateOperationHandleResponse(resp)
+	result, err = client.updateCertificateOperationHandleResponse(resp)
+	return
 }
 
 // updateCertificateOperationCreateRequest creates the UpdateCertificateOperation request.
@@ -4247,10 +5069,10 @@ func (client *Client) updateCertificateOperationCreateRequest(ctx context.Contex
 }
 
 // updateCertificateOperationHandleResponse handles the UpdateCertificateOperation response.
-func (client *Client) updateCertificateOperationHandleResponse(resp *http.Response) (ClientUpdateCertificateOperationResponse, error) {
-	result := ClientUpdateCertificateOperationResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.CertificateOperation); err != nil {
-		return ClientUpdateCertificateOperationResponse{}, err
+func (client *Client) updateCertificateOperationHandleResponse(resp *http.Response) (result ClientUpdateCertificateOperationResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.CertificateOperation); err != nil {
+		result = ClientUpdateCertificateOperationResponse{}
+		return
 	}
 	return result, nil
 }
@@ -4265,19 +5087,30 @@ func (client *Client) updateCertificateOperationHandleResponse(resp *http.Respon
 //   - certificatePolicy - The policy for the certificate.
 //   - options - ClientUpdateCertificatePolicyOptions contains the optional parameters for the Client.UpdateCertificatePolicy
 //     method.
-func (client *Client) UpdateCertificatePolicy(ctx context.Context, vaultBaseURL string, certificateName string, certificatePolicy CertificatePolicy, options *ClientUpdateCertificatePolicyOptions) (ClientUpdateCertificatePolicyResponse, error) {
+func (client *Client) UpdateCertificatePolicy(ctx context.Context, vaultBaseURL string, certificateName string, certificatePolicy CertificatePolicy, options *ClientUpdateCertificatePolicyOptions) (result ClientUpdateCertificatePolicyResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "Client.UpdateCertificatePolicy", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.updateCertificatePolicyCreateRequest(ctx, vaultBaseURL, certificateName, certificatePolicy, options)
 	if err != nil {
-		return ClientUpdateCertificatePolicyResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return ClientUpdateCertificatePolicyResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return ClientUpdateCertificatePolicyResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.updateCertificatePolicyHandleResponse(resp)
+	result, err = client.updateCertificatePolicyHandleResponse(resp)
+	return
 }
 
 // updateCertificatePolicyCreateRequest creates the UpdateCertificatePolicy request.
@@ -4301,10 +5134,10 @@ func (client *Client) updateCertificatePolicyCreateRequest(ctx context.Context, 
 }
 
 // updateCertificatePolicyHandleResponse handles the UpdateCertificatePolicy response.
-func (client *Client) updateCertificatePolicyHandleResponse(resp *http.Response) (ClientUpdateCertificatePolicyResponse, error) {
-	result := ClientUpdateCertificatePolicyResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.CertificatePolicy); err != nil {
-		return ClientUpdateCertificatePolicyResponse{}, err
+func (client *Client) updateCertificatePolicyHandleResponse(resp *http.Response) (result ClientUpdateCertificatePolicyResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.CertificatePolicy); err != nil {
+		result = ClientUpdateCertificatePolicyResponse{}
+		return
 	}
 	return result, nil
 }
@@ -4319,19 +5152,30 @@ func (client *Client) updateCertificatePolicyHandleResponse(resp *http.Response)
 //   - keyVersion - The version of the key to update.
 //   - parameters - The parameters of the key to update.
 //   - options - ClientUpdateKeyOptions contains the optional parameters for the Client.UpdateKey method.
-func (client *Client) UpdateKey(ctx context.Context, vaultBaseURL string, keyName string, keyVersion string, parameters KeyUpdateParameters, options *ClientUpdateKeyOptions) (ClientUpdateKeyResponse, error) {
+func (client *Client) UpdateKey(ctx context.Context, vaultBaseURL string, keyName string, keyVersion string, parameters KeyUpdateParameters, options *ClientUpdateKeyOptions) (result ClientUpdateKeyResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "Client.UpdateKey", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.updateKeyCreateRequest(ctx, vaultBaseURL, keyName, keyVersion, parameters, options)
 	if err != nil {
-		return ClientUpdateKeyResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return ClientUpdateKeyResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return ClientUpdateKeyResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.updateKeyHandleResponse(resp)
+	result, err = client.updateKeyHandleResponse(resp)
+	return
 }
 
 // updateKeyCreateRequest creates the UpdateKey request.
@@ -4359,10 +5203,10 @@ func (client *Client) updateKeyCreateRequest(ctx context.Context, vaultBaseURL s
 }
 
 // updateKeyHandleResponse handles the UpdateKey response.
-func (client *Client) updateKeyHandleResponse(resp *http.Response) (ClientUpdateKeyResponse, error) {
-	result := ClientUpdateKeyResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.KeyBundle); err != nil {
-		return ClientUpdateKeyResponse{}, err
+func (client *Client) updateKeyHandleResponse(resp *http.Response) (result ClientUpdateKeyResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.KeyBundle); err != nil {
+		result = ClientUpdateKeyResponse{}
+		return
 	}
 	return result, nil
 }
@@ -4377,19 +5221,30 @@ func (client *Client) updateKeyHandleResponse(resp *http.Response) (ClientUpdate
 //   - sasDefinitionName - The name of the SAS definition.
 //   - parameters - The parameters to update a SAS definition.
 //   - options - ClientUpdateSasDefinitionOptions contains the optional parameters for the Client.UpdateSasDefinition method.
-func (client *Client) UpdateSasDefinition(ctx context.Context, vaultBaseURL string, storageAccountName string, sasDefinitionName string, parameters SasDefinitionUpdateParameters, options *ClientUpdateSasDefinitionOptions) (ClientUpdateSasDefinitionResponse, error) {
+func (client *Client) UpdateSasDefinition(ctx context.Context, vaultBaseURL string, storageAccountName string, sasDefinitionName string, parameters SasDefinitionUpdateParameters, options *ClientUpdateSasDefinitionOptions) (result ClientUpdateSasDefinitionResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "Client.UpdateSasDefinition", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.updateSasDefinitionCreateRequest(ctx, vaultBaseURL, storageAccountName, sasDefinitionName, parameters, options)
 	if err != nil {
-		return ClientUpdateSasDefinitionResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return ClientUpdateSasDefinitionResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return ClientUpdateSasDefinitionResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.updateSasDefinitionHandleResponse(resp)
+	result, err = client.updateSasDefinitionHandleResponse(resp)
+	return
 }
 
 // updateSasDefinitionCreateRequest creates the UpdateSasDefinition request.
@@ -4417,10 +5272,10 @@ func (client *Client) updateSasDefinitionCreateRequest(ctx context.Context, vaul
 }
 
 // updateSasDefinitionHandleResponse handles the UpdateSasDefinition response.
-func (client *Client) updateSasDefinitionHandleResponse(resp *http.Response) (ClientUpdateSasDefinitionResponse, error) {
-	result := ClientUpdateSasDefinitionResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.SasDefinitionBundle); err != nil {
-		return ClientUpdateSasDefinitionResponse{}, err
+func (client *Client) updateSasDefinitionHandleResponse(resp *http.Response) (result ClientUpdateSasDefinitionResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.SasDefinitionBundle); err != nil {
+		result = ClientUpdateSasDefinitionResponse{}
+		return
 	}
 	return result, nil
 }
@@ -4436,19 +5291,30 @@ func (client *Client) updateSasDefinitionHandleResponse(resp *http.Response) (Cl
 //   - secretVersion - The version of the secret.
 //   - parameters - The parameters for update secret operation.
 //   - options - ClientUpdateSecretOptions contains the optional parameters for the Client.UpdateSecret method.
-func (client *Client) UpdateSecret(ctx context.Context, vaultBaseURL string, secretName string, secretVersion string, parameters SecretUpdateParameters, options *ClientUpdateSecretOptions) (ClientUpdateSecretResponse, error) {
+func (client *Client) UpdateSecret(ctx context.Context, vaultBaseURL string, secretName string, secretVersion string, parameters SecretUpdateParameters, options *ClientUpdateSecretOptions) (result ClientUpdateSecretResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "Client.UpdateSecret", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.updateSecretCreateRequest(ctx, vaultBaseURL, secretName, secretVersion, parameters, options)
 	if err != nil {
-		return ClientUpdateSecretResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return ClientUpdateSecretResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return ClientUpdateSecretResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.updateSecretHandleResponse(resp)
+	result, err = client.updateSecretHandleResponse(resp)
+	return
 }
 
 // updateSecretCreateRequest creates the UpdateSecret request.
@@ -4476,10 +5342,10 @@ func (client *Client) updateSecretCreateRequest(ctx context.Context, vaultBaseUR
 }
 
 // updateSecretHandleResponse handles the UpdateSecret response.
-func (client *Client) updateSecretHandleResponse(resp *http.Response) (ClientUpdateSecretResponse, error) {
-	result := ClientUpdateSecretResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.SecretBundle); err != nil {
-		return ClientUpdateSecretResponse{}, err
+func (client *Client) updateSecretHandleResponse(resp *http.Response) (result ClientUpdateSecretResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.SecretBundle); err != nil {
+		result = ClientUpdateSecretResponse{}
+		return
 	}
 	return result, nil
 }
@@ -4493,19 +5359,30 @@ func (client *Client) updateSecretHandleResponse(resp *http.Response) (ClientUpd
 //   - storageAccountName - The name of the storage account.
 //   - parameters - The parameters to update a storage account.
 //   - options - ClientUpdateStorageAccountOptions contains the optional parameters for the Client.UpdateStorageAccount method.
-func (client *Client) UpdateStorageAccount(ctx context.Context, vaultBaseURL string, storageAccountName string, parameters StorageAccountUpdateParameters, options *ClientUpdateStorageAccountOptions) (ClientUpdateStorageAccountResponse, error) {
+func (client *Client) UpdateStorageAccount(ctx context.Context, vaultBaseURL string, storageAccountName string, parameters StorageAccountUpdateParameters, options *ClientUpdateStorageAccountOptions) (result ClientUpdateStorageAccountResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "Client.UpdateStorageAccount", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.updateStorageAccountCreateRequest(ctx, vaultBaseURL, storageAccountName, parameters, options)
 	if err != nil {
-		return ClientUpdateStorageAccountResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return ClientUpdateStorageAccountResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return ClientUpdateStorageAccountResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.updateStorageAccountHandleResponse(resp)
+	result, err = client.updateStorageAccountHandleResponse(resp)
+	return
 }
 
 // updateStorageAccountCreateRequest creates the UpdateStorageAccount request.
@@ -4529,10 +5406,10 @@ func (client *Client) updateStorageAccountCreateRequest(ctx context.Context, vau
 }
 
 // updateStorageAccountHandleResponse handles the UpdateStorageAccount response.
-func (client *Client) updateStorageAccountHandleResponse(resp *http.Response) (ClientUpdateStorageAccountResponse, error) {
-	result := ClientUpdateStorageAccountResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.StorageBundle); err != nil {
-		return ClientUpdateStorageAccountResponse{}, err
+func (client *Client) updateStorageAccountHandleResponse(resp *http.Response) (result ClientUpdateStorageAccountResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.StorageBundle); err != nil {
+		result = ClientUpdateStorageAccountResponse{}
+		return
 	}
 	return result, nil
 }
@@ -4550,19 +5427,30 @@ func (client *Client) updateStorageAccountHandleResponse(resp *http.Response) (C
 //   - keyVersion - The version of the key.
 //   - parameters - The parameters for verify operations.
 //   - options - ClientVerifyOptions contains the optional parameters for the Client.Verify method.
-func (client *Client) Verify(ctx context.Context, vaultBaseURL string, keyName string, keyVersion string, parameters KeyVerifyParameters, options *ClientVerifyOptions) (ClientVerifyResponse, error) {
+func (client *Client) Verify(ctx context.Context, vaultBaseURL string, keyName string, keyVersion string, parameters KeyVerifyParameters, options *ClientVerifyOptions) (result ClientVerifyResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "Client.Verify", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.verifyCreateRequest(ctx, vaultBaseURL, keyName, keyVersion, parameters, options)
 	if err != nil {
-		return ClientVerifyResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return ClientVerifyResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return ClientVerifyResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.verifyHandleResponse(resp)
+	result, err = client.verifyHandleResponse(resp)
+	return
 }
 
 // verifyCreateRequest creates the Verify request.
@@ -4590,10 +5478,10 @@ func (client *Client) verifyCreateRequest(ctx context.Context, vaultBaseURL stri
 }
 
 // verifyHandleResponse handles the Verify response.
-func (client *Client) verifyHandleResponse(resp *http.Response) (ClientVerifyResponse, error) {
-	result := ClientVerifyResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.KeyVerifyResult); err != nil {
-		return ClientVerifyResponse{}, err
+func (client *Client) verifyHandleResponse(resp *http.Response) (result ClientVerifyResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.KeyVerifyResult); err != nil {
+		result = ClientVerifyResponse{}
+		return
 	}
 	return result, nil
 }
@@ -4612,19 +5500,30 @@ func (client *Client) verifyHandleResponse(resp *http.Response) (ClientVerifyRes
 //   - keyVersion - The version of the key.
 //   - parameters - The parameters for wrap operation.
 //   - options - ClientWrapKeyOptions contains the optional parameters for the Client.WrapKey method.
-func (client *Client) WrapKey(ctx context.Context, vaultBaseURL string, keyName string, keyVersion string, parameters KeyOperationsParameters, options *ClientWrapKeyOptions) (ClientWrapKeyResponse, error) {
+func (client *Client) WrapKey(ctx context.Context, vaultBaseURL string, keyName string, keyVersion string, parameters KeyOperationsParameters, options *ClientWrapKeyOptions) (result ClientWrapKeyResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "Client.WrapKey", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.wrapKeyCreateRequest(ctx, vaultBaseURL, keyName, keyVersion, parameters, options)
 	if err != nil {
-		return ClientWrapKeyResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return ClientWrapKeyResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return ClientWrapKeyResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.wrapKeyHandleResponse(resp)
+	result, err = client.wrapKeyHandleResponse(resp)
+	return
 }
 
 // wrapKeyCreateRequest creates the WrapKey request.
@@ -4652,10 +5551,10 @@ func (client *Client) wrapKeyCreateRequest(ctx context.Context, vaultBaseURL str
 }
 
 // wrapKeyHandleResponse handles the WrapKey response.
-func (client *Client) wrapKeyHandleResponse(resp *http.Response) (ClientWrapKeyResponse, error) {
-	result := ClientWrapKeyResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.KeyOperationResult); err != nil {
-		return ClientWrapKeyResponse{}, err
+func (client *Client) wrapKeyHandleResponse(resp *http.Response) (result ClientWrapKeyResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.KeyOperationResult); err != nil {
+		result = ClientWrapKeyResponse{}
+		return
 	}
 	return result, nil
 }

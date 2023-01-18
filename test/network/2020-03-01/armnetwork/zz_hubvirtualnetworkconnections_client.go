@@ -16,6 +16,7 @@ import (
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/arm"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/policy"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/runtime"
+	"github.com/Azure/azure-sdk-for-go/sdk/azcore/tracing"
 	"net/http"
 	"net/url"
 	"strings"
@@ -54,19 +55,30 @@ func NewHubVirtualNetworkConnectionsClient(subscriptionID string, credential azc
 //   - connectionName - The name of the vpn connection.
 //   - options - HubVirtualNetworkConnectionsClientGetOptions contains the optional parameters for the HubVirtualNetworkConnectionsClient.Get
 //     method.
-func (client *HubVirtualNetworkConnectionsClient) Get(ctx context.Context, resourceGroupName string, virtualHubName string, connectionName string, options *HubVirtualNetworkConnectionsClientGetOptions) (HubVirtualNetworkConnectionsClientGetResponse, error) {
+func (client *HubVirtualNetworkConnectionsClient) Get(ctx context.Context, resourceGroupName string, virtualHubName string, connectionName string, options *HubVirtualNetworkConnectionsClientGetOptions) (result HubVirtualNetworkConnectionsClientGetResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "HubVirtualNetworkConnectionsClient.Get", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.getCreateRequest(ctx, resourceGroupName, virtualHubName, connectionName, options)
 	if err != nil {
-		return HubVirtualNetworkConnectionsClientGetResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return HubVirtualNetworkConnectionsClientGetResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return HubVirtualNetworkConnectionsClientGetResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.getHandleResponse(resp)
+	result, err = client.getHandleResponse(resp)
+	return
 }
 
 // getCreateRequest creates the Get request.
@@ -100,10 +112,10 @@ func (client *HubVirtualNetworkConnectionsClient) getCreateRequest(ctx context.C
 }
 
 // getHandleResponse handles the Get response.
-func (client *HubVirtualNetworkConnectionsClient) getHandleResponse(resp *http.Response) (HubVirtualNetworkConnectionsClientGetResponse, error) {
-	result := HubVirtualNetworkConnectionsClientGetResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.HubVirtualNetworkConnection); err != nil {
-		return HubVirtualNetworkConnectionsClientGetResponse{}, err
+func (client *HubVirtualNetworkConnectionsClient) getHandleResponse(resp *http.Response) (result HubVirtualNetworkConnectionsClientGetResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.HubVirtualNetworkConnection); err != nil {
+		result = HubVirtualNetworkConnectionsClientGetResponse{}
+		return
 	}
 	return result, nil
 }
@@ -120,25 +132,35 @@ func (client *HubVirtualNetworkConnectionsClient) NewListPager(resourceGroupName
 		More: func(page HubVirtualNetworkConnectionsClientListResponse) bool {
 			return page.NextLink != nil && len(*page.NextLink) > 0
 		},
-		Fetcher: func(ctx context.Context, page *HubVirtualNetworkConnectionsClientListResponse) (HubVirtualNetworkConnectionsClientListResponse, error) {
+		Fetcher: func(ctx context.Context, page *HubVirtualNetworkConnectionsClientListResponse) (result HubVirtualNetworkConnectionsClientListResponse, err error) {
+			ctx, span := client.internal.Tracer().Start(ctx, "HubVirtualNetworkConnectionsClient.NewListPager", &tracing.SpanOptions{
+				Kind: tracing.SpanKindInternal,
+			})
+			defer func() {
+				if err != nil {
+					span.AddError(err)
+				}
+				span.End()
+			}()
 			var req *policy.Request
-			var err error
 			if page == nil {
 				req, err = client.listCreateRequest(ctx, resourceGroupName, virtualHubName, options)
 			} else {
 				req, err = runtime.NewRequest(ctx, http.MethodGet, *page.NextLink)
 			}
 			if err != nil {
-				return HubVirtualNetworkConnectionsClientListResponse{}, err
+				return
 			}
 			resp, err := client.internal.Pipeline().Do(req)
 			if err != nil {
-				return HubVirtualNetworkConnectionsClientListResponse{}, err
+				return
 			}
 			if !runtime.HasStatusCode(resp, http.StatusOK) {
-				return HubVirtualNetworkConnectionsClientListResponse{}, runtime.NewResponseError(resp)
+				err = runtime.NewResponseError(resp)
+				return
 			}
-			return client.listHandleResponse(resp)
+			result, err = client.listHandleResponse(resp)
+			return
 		},
 	})
 }
@@ -170,10 +192,10 @@ func (client *HubVirtualNetworkConnectionsClient) listCreateRequest(ctx context.
 }
 
 // listHandleResponse handles the List response.
-func (client *HubVirtualNetworkConnectionsClient) listHandleResponse(resp *http.Response) (HubVirtualNetworkConnectionsClientListResponse, error) {
-	result := HubVirtualNetworkConnectionsClientListResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.ListHubVirtualNetworkConnectionsResult); err != nil {
-		return HubVirtualNetworkConnectionsClientListResponse{}, err
+func (client *HubVirtualNetworkConnectionsClient) listHandleResponse(resp *http.Response) (result HubVirtualNetworkConnectionsClientListResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.ListHubVirtualNetworkConnectionsResult); err != nil {
+		result = HubVirtualNetworkConnectionsClientListResponse{}
+		return
 	}
 	return result, nil
 }

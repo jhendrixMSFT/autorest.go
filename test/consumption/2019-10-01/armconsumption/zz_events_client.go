@@ -15,6 +15,7 @@ import (
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/arm"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/policy"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/runtime"
+	"github.com/Azure/azure-sdk-for-go/sdk/azcore/tracing"
 	"net/http"
 	"strings"
 )
@@ -53,25 +54,35 @@ func (client *EventsClient) NewListPager(startDate string, endDate string, scope
 		More: func(page EventsClientListResponse) bool {
 			return page.NextLink != nil && len(*page.NextLink) > 0
 		},
-		Fetcher: func(ctx context.Context, page *EventsClientListResponse) (EventsClientListResponse, error) {
+		Fetcher: func(ctx context.Context, page *EventsClientListResponse) (result EventsClientListResponse, err error) {
+			ctx, span := client.internal.Tracer().Start(ctx, "EventsClient.NewListPager", &tracing.SpanOptions{
+				Kind: tracing.SpanKindInternal,
+			})
+			defer func() {
+				if err != nil {
+					span.AddError(err)
+				}
+				span.End()
+			}()
 			var req *policy.Request
-			var err error
 			if page == nil {
 				req, err = client.listCreateRequest(ctx, startDate, endDate, scope, options)
 			} else {
 				req, err = runtime.NewRequest(ctx, http.MethodGet, *page.NextLink)
 			}
 			if err != nil {
-				return EventsClientListResponse{}, err
+				return
 			}
 			resp, err := client.internal.Pipeline().Do(req)
 			if err != nil {
-				return EventsClientListResponse{}, err
+				return
 			}
 			if !runtime.HasStatusCode(resp, http.StatusOK) {
-				return EventsClientListResponse{}, runtime.NewResponseError(resp)
+				err = runtime.NewResponseError(resp)
+				return
 			}
-			return client.listHandleResponse(resp)
+			result, err = client.listHandleResponse(resp)
+			return
 		},
 	})
 }
@@ -94,10 +105,10 @@ func (client *EventsClient) listCreateRequest(ctx context.Context, startDate str
 }
 
 // listHandleResponse handles the List response.
-func (client *EventsClient) listHandleResponse(resp *http.Response) (EventsClientListResponse, error) {
-	result := EventsClientListResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.Events); err != nil {
-		return EventsClientListResponse{}, err
+func (client *EventsClient) listHandleResponse(resp *http.Response) (result EventsClientListResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.Events); err != nil {
+		result = EventsClientListResponse{}
+		return
 	}
 	return result, nil
 }

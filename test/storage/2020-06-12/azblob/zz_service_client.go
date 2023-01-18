@@ -15,6 +15,7 @@ import (
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/policy"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/runtime"
+	"github.com/Azure/azure-sdk-for-go/sdk/azcore/tracing"
 	"io"
 	"net/http"
 	"strconv"
@@ -37,19 +38,30 @@ type ServiceClient struct {
 //
 // Generated from API version 2020-06-12
 //   - options - ServiceClientFilterBlobsOptions contains the optional parameters for the ServiceClient.FilterBlobs method.
-func (client *ServiceClient) FilterBlobs(ctx context.Context, comp Enum10, options *ServiceClientFilterBlobsOptions) (ServiceClientFilterBlobsResponse, error) {
+func (client *ServiceClient) FilterBlobs(ctx context.Context, comp Enum10, options *ServiceClientFilterBlobsOptions) (result ServiceClientFilterBlobsResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "ServiceClient.FilterBlobs", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.filterBlobsCreateRequest(ctx, comp, options)
 	if err != nil {
-		return ServiceClientFilterBlobsResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return ServiceClientFilterBlobsResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return ServiceClientFilterBlobsResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.filterBlobsHandleResponse(resp)
+	result, err = client.filterBlobsHandleResponse(resp)
+	return
 }
 
 // filterBlobsCreateRequest creates the FilterBlobs request.
@@ -82,8 +94,7 @@ func (client *ServiceClient) filterBlobsCreateRequest(ctx context.Context, comp 
 }
 
 // filterBlobsHandleResponse handles the FilterBlobs response.
-func (client *ServiceClient) filterBlobsHandleResponse(resp *http.Response) (ServiceClientFilterBlobsResponse, error) {
-	result := ServiceClientFilterBlobsResponse{}
+func (client *ServiceClient) filterBlobsHandleResponse(resp *http.Response) (result ServiceClientFilterBlobsResponse, err error) {
 	if val := resp.Header.Get("x-ms-client-request-id"); val != "" {
 		result.ClientRequestID = &val
 	}
@@ -100,8 +111,9 @@ func (client *ServiceClient) filterBlobsHandleResponse(resp *http.Response) (Ser
 		}
 		result.Date = &date
 	}
-	if err := runtime.UnmarshalAsXML(resp, &result.FilterBlobSegment); err != nil {
-		return ServiceClientFilterBlobsResponse{}, err
+	if err = runtime.UnmarshalAsXML(resp, &result.FilterBlobSegment); err != nil {
+		result = ServiceClientFilterBlobsResponse{}
+		return
 	}
 	return result, nil
 }
@@ -111,19 +123,30 @@ func (client *ServiceClient) filterBlobsHandleResponse(resp *http.Response) (Ser
 //
 // Generated from API version 2020-06-12
 //   - options - ServiceClientGetAccountInfoOptions contains the optional parameters for the ServiceClient.GetAccountInfo method.
-func (client *ServiceClient) GetAccountInfo(ctx context.Context, restype Enum8, comp Enum1, options *ServiceClientGetAccountInfoOptions) (ServiceClientGetAccountInfoResponse, error) {
+func (client *ServiceClient) GetAccountInfo(ctx context.Context, restype Enum8, comp Enum1, options *ServiceClientGetAccountInfoOptions) (result ServiceClientGetAccountInfoResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "ServiceClient.GetAccountInfo", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.getAccountInfoCreateRequest(ctx, restype, comp, options)
 	if err != nil {
-		return ServiceClientGetAccountInfoResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return ServiceClientGetAccountInfoResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return ServiceClientGetAccountInfoResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.getAccountInfoHandleResponse(resp)
+	result, err = client.getAccountInfoHandleResponse(resp)
+	return
 }
 
 // getAccountInfoCreateRequest creates the GetAccountInfo request.
@@ -142,8 +165,7 @@ func (client *ServiceClient) getAccountInfoCreateRequest(ctx context.Context, re
 }
 
 // getAccountInfoHandleResponse handles the GetAccountInfo response.
-func (client *ServiceClient) getAccountInfoHandleResponse(resp *http.Response) (ServiceClientGetAccountInfoResponse, error) {
-	result := ServiceClientGetAccountInfoResponse{}
+func (client *ServiceClient) getAccountInfoHandleResponse(resp *http.Response) (result ServiceClientGetAccountInfoResponse, err error) {
 	if val := resp.Header.Get("x-ms-client-request-id"); val != "" {
 		result.ClientRequestID = &val
 	}
@@ -182,19 +204,30 @@ func (client *ServiceClient) getAccountInfoHandleResponse(resp *http.Response) (
 //
 // Generated from API version 2020-06-12
 //   - options - ServiceClientGetPropertiesOptions contains the optional parameters for the ServiceClient.GetProperties method.
-func (client *ServiceClient) GetProperties(ctx context.Context, restype Enum0, comp Enum1, options *ServiceClientGetPropertiesOptions) (ServiceClientGetPropertiesResponse, error) {
+func (client *ServiceClient) GetProperties(ctx context.Context, restype Enum0, comp Enum1, options *ServiceClientGetPropertiesOptions) (result ServiceClientGetPropertiesResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "ServiceClient.GetProperties", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.getPropertiesCreateRequest(ctx, restype, comp, options)
 	if err != nil {
-		return ServiceClientGetPropertiesResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return ServiceClientGetPropertiesResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return ServiceClientGetPropertiesResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.getPropertiesHandleResponse(resp)
+	result, err = client.getPropertiesHandleResponse(resp)
+	return
 }
 
 // getPropertiesCreateRequest creates the GetProperties request.
@@ -219,8 +252,7 @@ func (client *ServiceClient) getPropertiesCreateRequest(ctx context.Context, res
 }
 
 // getPropertiesHandleResponse handles the GetProperties response.
-func (client *ServiceClient) getPropertiesHandleResponse(resp *http.Response) (ServiceClientGetPropertiesResponse, error) {
-	result := ServiceClientGetPropertiesResponse{}
+func (client *ServiceClient) getPropertiesHandleResponse(resp *http.Response) (result ServiceClientGetPropertiesResponse, err error) {
 	if val := resp.Header.Get("x-ms-client-request-id"); val != "" {
 		result.ClientRequestID = &val
 	}
@@ -230,8 +262,9 @@ func (client *ServiceClient) getPropertiesHandleResponse(resp *http.Response) (S
 	if val := resp.Header.Get("x-ms-version"); val != "" {
 		result.Version = &val
 	}
-	if err := runtime.UnmarshalAsXML(resp, &result.StorageServiceProperties); err != nil {
-		return ServiceClientGetPropertiesResponse{}, err
+	if err = runtime.UnmarshalAsXML(resp, &result.StorageServiceProperties); err != nil {
+		result = ServiceClientGetPropertiesResponse{}
+		return
 	}
 	return result, nil
 }
@@ -242,19 +275,30 @@ func (client *ServiceClient) getPropertiesHandleResponse(resp *http.Response) (S
 //
 // Generated from API version 2020-06-12
 //   - options - ServiceClientGetStatisticsOptions contains the optional parameters for the ServiceClient.GetStatistics method.
-func (client *ServiceClient) GetStatistics(ctx context.Context, restype Enum0, comp Enum3, options *ServiceClientGetStatisticsOptions) (ServiceClientGetStatisticsResponse, error) {
+func (client *ServiceClient) GetStatistics(ctx context.Context, restype Enum0, comp Enum3, options *ServiceClientGetStatisticsOptions) (result ServiceClientGetStatisticsResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "ServiceClient.GetStatistics", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.getStatisticsCreateRequest(ctx, restype, comp, options)
 	if err != nil {
-		return ServiceClientGetStatisticsResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return ServiceClientGetStatisticsResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return ServiceClientGetStatisticsResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.getStatisticsHandleResponse(resp)
+	result, err = client.getStatisticsHandleResponse(resp)
+	return
 }
 
 // getStatisticsCreateRequest creates the GetStatistics request.
@@ -279,8 +323,7 @@ func (client *ServiceClient) getStatisticsCreateRequest(ctx context.Context, res
 }
 
 // getStatisticsHandleResponse handles the GetStatistics response.
-func (client *ServiceClient) getStatisticsHandleResponse(resp *http.Response) (ServiceClientGetStatisticsResponse, error) {
-	result := ServiceClientGetStatisticsResponse{}
+func (client *ServiceClient) getStatisticsHandleResponse(resp *http.Response) (result ServiceClientGetStatisticsResponse, err error) {
 	if val := resp.Header.Get("x-ms-client-request-id"); val != "" {
 		result.ClientRequestID = &val
 	}
@@ -297,8 +340,9 @@ func (client *ServiceClient) getStatisticsHandleResponse(resp *http.Response) (S
 		}
 		result.Date = &date
 	}
-	if err := runtime.UnmarshalAsXML(resp, &result.StorageServiceStats); err != nil {
-		return ServiceClientGetStatisticsResponse{}, err
+	if err = runtime.UnmarshalAsXML(resp, &result.StorageServiceStats); err != nil {
+		result = ServiceClientGetStatisticsResponse{}
+		return
 	}
 	return result, nil
 }
@@ -310,19 +354,30 @@ func (client *ServiceClient) getStatisticsHandleResponse(resp *http.Response) (S
 // Generated from API version 2020-06-12
 //   - options - ServiceClientGetUserDelegationKeyOptions contains the optional parameters for the ServiceClient.GetUserDelegationKey
 //     method.
-func (client *ServiceClient) GetUserDelegationKey(ctx context.Context, restype Enum0, comp Enum7, keyInfo KeyInfo, options *ServiceClientGetUserDelegationKeyOptions) (ServiceClientGetUserDelegationKeyResponse, error) {
+func (client *ServiceClient) GetUserDelegationKey(ctx context.Context, restype Enum0, comp Enum7, keyInfo KeyInfo, options *ServiceClientGetUserDelegationKeyOptions) (result ServiceClientGetUserDelegationKeyResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "ServiceClient.GetUserDelegationKey", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.getUserDelegationKeyCreateRequest(ctx, restype, comp, keyInfo, options)
 	if err != nil {
-		return ServiceClientGetUserDelegationKeyResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return ServiceClientGetUserDelegationKeyResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return ServiceClientGetUserDelegationKeyResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.getUserDelegationKeyHandleResponse(resp)
+	result, err = client.getUserDelegationKeyHandleResponse(resp)
+	return
 }
 
 // getUserDelegationKeyCreateRequest creates the GetUserDelegationKey request.
@@ -347,8 +402,7 @@ func (client *ServiceClient) getUserDelegationKeyCreateRequest(ctx context.Conte
 }
 
 // getUserDelegationKeyHandleResponse handles the GetUserDelegationKey response.
-func (client *ServiceClient) getUserDelegationKeyHandleResponse(resp *http.Response) (ServiceClientGetUserDelegationKeyResponse, error) {
-	result := ServiceClientGetUserDelegationKeyResponse{}
+func (client *ServiceClient) getUserDelegationKeyHandleResponse(resp *http.Response) (result ServiceClientGetUserDelegationKeyResponse, err error) {
 	if val := resp.Header.Get("x-ms-client-request-id"); val != "" {
 		result.ClientRequestID = &val
 	}
@@ -365,8 +419,9 @@ func (client *ServiceClient) getUserDelegationKeyHandleResponse(resp *http.Respo
 		}
 		result.Date = &date
 	}
-	if err := runtime.UnmarshalAsXML(resp, &result.UserDelegationKey); err != nil {
-		return ServiceClientGetUserDelegationKeyResponse{}, err
+	if err = runtime.UnmarshalAsXML(resp, &result.UserDelegationKey); err != nil {
+		result = ServiceClientGetUserDelegationKeyResponse{}
+		return
 	}
 	return result, nil
 }
@@ -382,25 +437,35 @@ func (client *ServiceClient) NewListContainersSegmentPager(comp Enum5, options *
 		More: func(page ServiceClientListContainersSegmentResponse) bool {
 			return page.NextMarker != nil && len(*page.NextMarker) > 0
 		},
-		Fetcher: func(ctx context.Context, page *ServiceClientListContainersSegmentResponse) (ServiceClientListContainersSegmentResponse, error) {
+		Fetcher: func(ctx context.Context, page *ServiceClientListContainersSegmentResponse) (result ServiceClientListContainersSegmentResponse, err error) {
+			ctx, span := client.internal.Tracer().Start(ctx, "ServiceClient.NewListContainersSegmentPager", &tracing.SpanOptions{
+				Kind: tracing.SpanKindInternal,
+			})
+			defer func() {
+				if err != nil {
+					span.AddError(err)
+				}
+				span.End()
+			}()
 			var req *policy.Request
-			var err error
 			if page == nil {
 				req, err = client.listContainersSegmentCreateRequest(ctx, comp, options)
 			} else {
 				req, err = runtime.NewRequest(ctx, http.MethodGet, *page.NextMarker)
 			}
 			if err != nil {
-				return ServiceClientListContainersSegmentResponse{}, err
+				return
 			}
 			resp, err := client.internal.Pipeline().Do(req)
 			if err != nil {
-				return ServiceClientListContainersSegmentResponse{}, err
+				return
 			}
 			if !runtime.HasStatusCode(resp, http.StatusOK) {
-				return ServiceClientListContainersSegmentResponse{}, runtime.NewResponseError(resp)
+				err = runtime.NewResponseError(resp)
+				return
 			}
-			return client.listContainersSegmentHandleResponse(resp)
+			result, err = client.listContainersSegmentHandleResponse(resp)
+			return
 		},
 	})
 }
@@ -438,8 +503,7 @@ func (client *ServiceClient) listContainersSegmentCreateRequest(ctx context.Cont
 }
 
 // listContainersSegmentHandleResponse handles the ListContainersSegment response.
-func (client *ServiceClient) listContainersSegmentHandleResponse(resp *http.Response) (ServiceClientListContainersSegmentResponse, error) {
-	result := ServiceClientListContainersSegmentResponse{}
+func (client *ServiceClient) listContainersSegmentHandleResponse(resp *http.Response) (result ServiceClientListContainersSegmentResponse, err error) {
 	if val := resp.Header.Get("x-ms-client-request-id"); val != "" {
 		result.ClientRequestID = &val
 	}
@@ -449,8 +513,9 @@ func (client *ServiceClient) listContainersSegmentHandleResponse(resp *http.Resp
 	if val := resp.Header.Get("x-ms-version"); val != "" {
 		result.Version = &val
 	}
-	if err := runtime.UnmarshalAsXML(resp, &result.ListContainersSegmentResponse); err != nil {
-		return ServiceClientListContainersSegmentResponse{}, err
+	if err = runtime.UnmarshalAsXML(resp, &result.ListContainersSegmentResponse); err != nil {
+		result = ServiceClientListContainersSegmentResponse{}
+		return
 	}
 	return result, nil
 }
@@ -462,19 +527,30 @@ func (client *ServiceClient) listContainersSegmentHandleResponse(resp *http.Resp
 // Generated from API version 2020-06-12
 //   - storageServiceProperties - The StorageService properties.
 //   - options - ServiceClientSetPropertiesOptions contains the optional parameters for the ServiceClient.SetProperties method.
-func (client *ServiceClient) SetProperties(ctx context.Context, restype Enum0, comp Enum1, storageServiceProperties StorageServiceProperties, options *ServiceClientSetPropertiesOptions) (ServiceClientSetPropertiesResponse, error) {
+func (client *ServiceClient) SetProperties(ctx context.Context, restype Enum0, comp Enum1, storageServiceProperties StorageServiceProperties, options *ServiceClientSetPropertiesOptions) (result ServiceClientSetPropertiesResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "ServiceClient.SetProperties", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.setPropertiesCreateRequest(ctx, restype, comp, storageServiceProperties, options)
 	if err != nil {
-		return ServiceClientSetPropertiesResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return ServiceClientSetPropertiesResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusAccepted) {
-		return ServiceClientSetPropertiesResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.setPropertiesHandleResponse(resp)
+	result, err = client.setPropertiesHandleResponse(resp)
+	return
 }
 
 // setPropertiesCreateRequest creates the SetProperties request.
@@ -499,8 +575,7 @@ func (client *ServiceClient) setPropertiesCreateRequest(ctx context.Context, res
 }
 
 // setPropertiesHandleResponse handles the SetProperties response.
-func (client *ServiceClient) setPropertiesHandleResponse(resp *http.Response) (ServiceClientSetPropertiesResponse, error) {
-	result := ServiceClientSetPropertiesResponse{}
+func (client *ServiceClient) setPropertiesHandleResponse(resp *http.Response) (result ServiceClientSetPropertiesResponse, err error) {
 	if val := resp.Header.Get("x-ms-client-request-id"); val != "" {
 		result.ClientRequestID = &val
 	}
@@ -522,19 +597,30 @@ func (client *ServiceClient) setPropertiesHandleResponse(resp *http.Response) (S
 //     value: multipart/mixed; boundary=batch_
 //   - body - Initial data
 //   - options - ServiceClientSubmitBatchOptions contains the optional parameters for the ServiceClient.SubmitBatch method.
-func (client *ServiceClient) SubmitBatch(ctx context.Context, comp Enum9, contentLength int64, multipartContentType string, body io.ReadSeekCloser, options *ServiceClientSubmitBatchOptions) (ServiceClientSubmitBatchResponse, error) {
+func (client *ServiceClient) SubmitBatch(ctx context.Context, comp Enum9, contentLength int64, multipartContentType string, body io.ReadSeekCloser, options *ServiceClientSubmitBatchOptions) (result ServiceClientSubmitBatchResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "ServiceClient.SubmitBatch", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.submitBatchCreateRequest(ctx, comp, contentLength, multipartContentType, body, options)
 	if err != nil {
-		return ServiceClientSubmitBatchResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return ServiceClientSubmitBatchResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return ServiceClientSubmitBatchResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.submitBatchHandleResponse(resp)
+	result, err = client.submitBatchHandleResponse(resp)
+	return
 }
 
 // submitBatchCreateRequest creates the SubmitBatch request.
@@ -561,8 +647,8 @@ func (client *ServiceClient) submitBatchCreateRequest(ctx context.Context, comp 
 }
 
 // submitBatchHandleResponse handles the SubmitBatch response.
-func (client *ServiceClient) submitBatchHandleResponse(resp *http.Response) (ServiceClientSubmitBatchResponse, error) {
-	result := ServiceClientSubmitBatchResponse{Body: resp.Body}
+func (client *ServiceClient) submitBatchHandleResponse(resp *http.Response) (result ServiceClientSubmitBatchResponse, err error) {
+	result.Body = resp.Body
 	if val := resp.Header.Get("Content-Type"); val != "" {
 		result.ContentType = &val
 	}

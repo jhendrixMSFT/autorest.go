@@ -16,6 +16,7 @@ import (
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/arm"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/policy"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/runtime"
+	"github.com/Azure/azure-sdk-for-go/sdk/azcore/tracing"
 	"net/http"
 	"net/url"
 	"strings"
@@ -55,25 +56,35 @@ func (client *BgpServiceCommunitiesClient) NewListPager(options *BgpServiceCommu
 		More: func(page BgpServiceCommunitiesClientListResponse) bool {
 			return page.NextLink != nil && len(*page.NextLink) > 0
 		},
-		Fetcher: func(ctx context.Context, page *BgpServiceCommunitiesClientListResponse) (BgpServiceCommunitiesClientListResponse, error) {
+		Fetcher: func(ctx context.Context, page *BgpServiceCommunitiesClientListResponse) (result BgpServiceCommunitiesClientListResponse, err error) {
+			ctx, span := client.internal.Tracer().Start(ctx, "BgpServiceCommunitiesClient.NewListPager", &tracing.SpanOptions{
+				Kind: tracing.SpanKindInternal,
+			})
+			defer func() {
+				if err != nil {
+					span.AddError(err)
+				}
+				span.End()
+			}()
 			var req *policy.Request
-			var err error
 			if page == nil {
 				req, err = client.listCreateRequest(ctx, options)
 			} else {
 				req, err = runtime.NewRequest(ctx, http.MethodGet, *page.NextLink)
 			}
 			if err != nil {
-				return BgpServiceCommunitiesClientListResponse{}, err
+				return
 			}
 			resp, err := client.internal.Pipeline().Do(req)
 			if err != nil {
-				return BgpServiceCommunitiesClientListResponse{}, err
+				return
 			}
 			if !runtime.HasStatusCode(resp, http.StatusOK) {
-				return BgpServiceCommunitiesClientListResponse{}, runtime.NewResponseError(resp)
+				err = runtime.NewResponseError(resp)
+				return
 			}
-			return client.listHandleResponse(resp)
+			result, err = client.listHandleResponse(resp)
+			return
 		},
 	})
 }
@@ -97,10 +108,10 @@ func (client *BgpServiceCommunitiesClient) listCreateRequest(ctx context.Context
 }
 
 // listHandleResponse handles the List response.
-func (client *BgpServiceCommunitiesClient) listHandleResponse(resp *http.Response) (BgpServiceCommunitiesClientListResponse, error) {
-	result := BgpServiceCommunitiesClientListResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.BgpServiceCommunityListResult); err != nil {
-		return BgpServiceCommunitiesClientListResponse{}, err
+func (client *BgpServiceCommunitiesClient) listHandleResponse(resp *http.Response) (result BgpServiceCommunitiesClientListResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.BgpServiceCommunityListResult); err != nil {
+		result = BgpServiceCommunitiesClientListResponse{}
+		return
 	}
 	return result, nil
 }

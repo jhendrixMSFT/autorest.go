@@ -16,6 +16,7 @@ import (
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/arm"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/policy"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/runtime"
+	"github.com/Azure/azure-sdk-for-go/sdk/azcore/tracing"
 	"net/http"
 	"net/url"
 	"strings"
@@ -55,19 +56,30 @@ func NewPeerExpressRouteCircuitConnectionsClient(subscriptionID string, credenti
 //   - connectionName - The name of the peer express route circuit connection.
 //   - options - PeerExpressRouteCircuitConnectionsClientGetOptions contains the optional parameters for the PeerExpressRouteCircuitConnectionsClient.Get
 //     method.
-func (client *PeerExpressRouteCircuitConnectionsClient) Get(ctx context.Context, resourceGroupName string, circuitName string, peeringName string, connectionName string, options *PeerExpressRouteCircuitConnectionsClientGetOptions) (PeerExpressRouteCircuitConnectionsClientGetResponse, error) {
+func (client *PeerExpressRouteCircuitConnectionsClient) Get(ctx context.Context, resourceGroupName string, circuitName string, peeringName string, connectionName string, options *PeerExpressRouteCircuitConnectionsClientGetOptions) (result PeerExpressRouteCircuitConnectionsClientGetResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "PeerExpressRouteCircuitConnectionsClient.Get", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.getCreateRequest(ctx, resourceGroupName, circuitName, peeringName, connectionName, options)
 	if err != nil {
-		return PeerExpressRouteCircuitConnectionsClientGetResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return PeerExpressRouteCircuitConnectionsClientGetResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return PeerExpressRouteCircuitConnectionsClientGetResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.getHandleResponse(resp)
+	result, err = client.getHandleResponse(resp)
+	return
 }
 
 // getCreateRequest creates the Get request.
@@ -105,10 +117,10 @@ func (client *PeerExpressRouteCircuitConnectionsClient) getCreateRequest(ctx con
 }
 
 // getHandleResponse handles the Get response.
-func (client *PeerExpressRouteCircuitConnectionsClient) getHandleResponse(resp *http.Response) (PeerExpressRouteCircuitConnectionsClientGetResponse, error) {
-	result := PeerExpressRouteCircuitConnectionsClientGetResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.PeerExpressRouteCircuitConnection); err != nil {
-		return PeerExpressRouteCircuitConnectionsClientGetResponse{}, err
+func (client *PeerExpressRouteCircuitConnectionsClient) getHandleResponse(resp *http.Response) (result PeerExpressRouteCircuitConnectionsClientGetResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.PeerExpressRouteCircuitConnection); err != nil {
+		result = PeerExpressRouteCircuitConnectionsClientGetResponse{}
+		return
 	}
 	return result, nil
 }
@@ -126,25 +138,35 @@ func (client *PeerExpressRouteCircuitConnectionsClient) NewListPager(resourceGro
 		More: func(page PeerExpressRouteCircuitConnectionsClientListResponse) bool {
 			return page.NextLink != nil && len(*page.NextLink) > 0
 		},
-		Fetcher: func(ctx context.Context, page *PeerExpressRouteCircuitConnectionsClientListResponse) (PeerExpressRouteCircuitConnectionsClientListResponse, error) {
+		Fetcher: func(ctx context.Context, page *PeerExpressRouteCircuitConnectionsClientListResponse) (result PeerExpressRouteCircuitConnectionsClientListResponse, err error) {
+			ctx, span := client.internal.Tracer().Start(ctx, "PeerExpressRouteCircuitConnectionsClient.NewListPager", &tracing.SpanOptions{
+				Kind: tracing.SpanKindInternal,
+			})
+			defer func() {
+				if err != nil {
+					span.AddError(err)
+				}
+				span.End()
+			}()
 			var req *policy.Request
-			var err error
 			if page == nil {
 				req, err = client.listCreateRequest(ctx, resourceGroupName, circuitName, peeringName, options)
 			} else {
 				req, err = runtime.NewRequest(ctx, http.MethodGet, *page.NextLink)
 			}
 			if err != nil {
-				return PeerExpressRouteCircuitConnectionsClientListResponse{}, err
+				return
 			}
 			resp, err := client.internal.Pipeline().Do(req)
 			if err != nil {
-				return PeerExpressRouteCircuitConnectionsClientListResponse{}, err
+				return
 			}
 			if !runtime.HasStatusCode(resp, http.StatusOK) {
-				return PeerExpressRouteCircuitConnectionsClientListResponse{}, runtime.NewResponseError(resp)
+				err = runtime.NewResponseError(resp)
+				return
 			}
-			return client.listHandleResponse(resp)
+			result, err = client.listHandleResponse(resp)
+			return
 		},
 	})
 }
@@ -180,10 +202,10 @@ func (client *PeerExpressRouteCircuitConnectionsClient) listCreateRequest(ctx co
 }
 
 // listHandleResponse handles the List response.
-func (client *PeerExpressRouteCircuitConnectionsClient) listHandleResponse(resp *http.Response) (PeerExpressRouteCircuitConnectionsClientListResponse, error) {
-	result := PeerExpressRouteCircuitConnectionsClientListResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.PeerExpressRouteCircuitConnectionListResult); err != nil {
-		return PeerExpressRouteCircuitConnectionsClientListResponse{}, err
+func (client *PeerExpressRouteCircuitConnectionsClient) listHandleResponse(resp *http.Response) (result PeerExpressRouteCircuitConnectionsClientListResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.PeerExpressRouteCircuitConnectionListResult); err != nil {
+		result = PeerExpressRouteCircuitConnectionsClientListResponse{}
+		return
 	}
 	return result, nil
 }

@@ -15,6 +15,7 @@ import (
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/arm"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/policy"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/runtime"
+	"github.com/Azure/azure-sdk-for-go/sdk/azcore/tracing"
 	"net/http"
 	"strings"
 )
@@ -57,19 +58,30 @@ func NewReservationRecommendationDetailsClient(credential azcore.TokenCredential
 //     VM), PremiumSSDManagedDisksP30 (for Managed Disks)
 //   - options - ReservationRecommendationDetailsClientGetOptions contains the optional parameters for the ReservationRecommendationDetailsClient.Get
 //     method.
-func (client *ReservationRecommendationDetailsClient) Get(ctx context.Context, billingScope string, scope Scope, region string, term Term, lookBackPeriod LookBackPeriod, product string, options *ReservationRecommendationDetailsClientGetOptions) (ReservationRecommendationDetailsClientGetResponse, error) {
+func (client *ReservationRecommendationDetailsClient) Get(ctx context.Context, billingScope string, scope Scope, region string, term Term, lookBackPeriod LookBackPeriod, product string, options *ReservationRecommendationDetailsClientGetOptions) (result ReservationRecommendationDetailsClientGetResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "ReservationRecommendationDetailsClient.Get", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.getCreateRequest(ctx, billingScope, scope, region, term, lookBackPeriod, product, options)
 	if err != nil {
-		return ReservationRecommendationDetailsClientGetResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return ReservationRecommendationDetailsClientGetResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK, http.StatusNoContent) {
-		return ReservationRecommendationDetailsClientGetResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.getHandleResponse(resp)
+	result, err = client.getHandleResponse(resp)
+	return
 }
 
 // getCreateRequest creates the Get request.
@@ -93,10 +105,10 @@ func (client *ReservationRecommendationDetailsClient) getCreateRequest(ctx conte
 }
 
 // getHandleResponse handles the Get response.
-func (client *ReservationRecommendationDetailsClient) getHandleResponse(resp *http.Response) (ReservationRecommendationDetailsClientGetResponse, error) {
-	result := ReservationRecommendationDetailsClientGetResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.ReservationRecommendationDetailsModel); err != nil {
-		return ReservationRecommendationDetailsClientGetResponse{}, err
+func (client *ReservationRecommendationDetailsClient) getHandleResponse(resp *http.Response) (result ReservationRecommendationDetailsClientGetResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.ReservationRecommendationDetailsModel); err != nil {
+		result = ReservationRecommendationDetailsClientGetResponse{}
+		return
 	}
 	return result, nil
 }

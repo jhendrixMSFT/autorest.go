@@ -16,6 +16,7 @@ import (
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/arm"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/policy"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/runtime"
+	"github.com/Azure/azure-sdk-for-go/sdk/azcore/tracing"
 	"net/http"
 	"net/url"
 	"strings"
@@ -55,19 +56,30 @@ func NewVPNSiteLinkConnectionsClient(subscriptionID string, credential azcore.To
 //   - linkConnectionName - The name of the vpn connection.
 //   - options - VPNSiteLinkConnectionsClientGetOptions contains the optional parameters for the VPNSiteLinkConnectionsClient.Get
 //     method.
-func (client *VPNSiteLinkConnectionsClient) Get(ctx context.Context, resourceGroupName string, gatewayName string, connectionName string, linkConnectionName string, options *VPNSiteLinkConnectionsClientGetOptions) (VPNSiteLinkConnectionsClientGetResponse, error) {
+func (client *VPNSiteLinkConnectionsClient) Get(ctx context.Context, resourceGroupName string, gatewayName string, connectionName string, linkConnectionName string, options *VPNSiteLinkConnectionsClientGetOptions) (result VPNSiteLinkConnectionsClientGetResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "VPNSiteLinkConnectionsClient.Get", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.getCreateRequest(ctx, resourceGroupName, gatewayName, connectionName, linkConnectionName, options)
 	if err != nil {
-		return VPNSiteLinkConnectionsClientGetResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return VPNSiteLinkConnectionsClientGetResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return VPNSiteLinkConnectionsClientGetResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.getHandleResponse(resp)
+	result, err = client.getHandleResponse(resp)
+	return
 }
 
 // getCreateRequest creates the Get request.
@@ -105,10 +117,10 @@ func (client *VPNSiteLinkConnectionsClient) getCreateRequest(ctx context.Context
 }
 
 // getHandleResponse handles the Get response.
-func (client *VPNSiteLinkConnectionsClient) getHandleResponse(resp *http.Response) (VPNSiteLinkConnectionsClientGetResponse, error) {
-	result := VPNSiteLinkConnectionsClientGetResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.VPNSiteLinkConnection); err != nil {
-		return VPNSiteLinkConnectionsClientGetResponse{}, err
+func (client *VPNSiteLinkConnectionsClient) getHandleResponse(resp *http.Response) (result VPNSiteLinkConnectionsClientGetResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.VPNSiteLinkConnection); err != nil {
+		result = VPNSiteLinkConnectionsClientGetResponse{}
+		return
 	}
 	return result, nil
 }

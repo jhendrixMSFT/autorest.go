@@ -15,6 +15,7 @@ import (
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/policy"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/runtime"
+	"github.com/Azure/azure-sdk-for-go/sdk/azcore/tracing"
 	"net/http"
 	"net/url"
 	"strings"
@@ -35,35 +36,47 @@ type DataFlowClient struct {
 //   - dataFlow - Data flow resource definition.
 //   - options - DataFlowClientBeginCreateOrUpdateDataFlowOptions contains the optional parameters for the DataFlowClient.BeginCreateOrUpdateDataFlow
 //     method.
-func (client *DataFlowClient) BeginCreateOrUpdateDataFlow(ctx context.Context, dataFlowName string, dataFlow DataFlowResource, options *DataFlowClientBeginCreateOrUpdateDataFlowOptions) (*runtime.Poller[DataFlowClientCreateOrUpdateDataFlowResponse], error) {
-	if options == nil || options.ResumeToken == "" {
-		resp, err := client.createOrUpdateDataFlow(ctx, dataFlowName, dataFlow, options)
+func (client *DataFlowClient) BeginCreateOrUpdateDataFlow(ctx context.Context, dataFlowName string, dataFlow DataFlowResource, options *DataFlowClientBeginCreateOrUpdateDataFlowOptions) (result *runtime.Poller[DataFlowClientCreateOrUpdateDataFlowResponse], err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "DataFlowClient.BeginCreateOrUpdateDataFlow", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
 		if err != nil {
-			return nil, err
+			span.AddError(err)
 		}
-		return runtime.NewPoller[DataFlowClientCreateOrUpdateDataFlowResponse](resp, client.internal.Pipeline(), nil)
+		span.End()
+	}()
+	if options == nil || options.ResumeToken == "" {
+		var resp *http.Response
+		resp, err = client.createOrUpdateDataFlow(ctx, dataFlowName, dataFlow, options)
+		if err != nil {
+			return
+		}
+		result, err = runtime.NewPoller[DataFlowClientCreateOrUpdateDataFlowResponse](resp, client.internal.Pipeline(), nil)
 	} else {
-		return runtime.NewPollerFromResumeToken[DataFlowClientCreateOrUpdateDataFlowResponse](options.ResumeToken, client.internal.Pipeline(), nil)
+		result, err = runtime.NewPollerFromResumeToken[DataFlowClientCreateOrUpdateDataFlowResponse](options.ResumeToken, client.internal.Pipeline(), nil)
 	}
+	return
 }
 
 // CreateOrUpdateDataFlow - Creates or updates a data flow.
 // If the operation fails it returns an *azcore.ResponseError type.
 //
 // Generated from API version 2019-06-01-preview
-func (client *DataFlowClient) createOrUpdateDataFlow(ctx context.Context, dataFlowName string, dataFlow DataFlowResource, options *DataFlowClientBeginCreateOrUpdateDataFlowOptions) (*http.Response, error) {
+func (client *DataFlowClient) createOrUpdateDataFlow(ctx context.Context, dataFlowName string, dataFlow DataFlowResource, options *DataFlowClientBeginCreateOrUpdateDataFlowOptions) (resp *http.Response, err error) {
 	req, err := client.createOrUpdateDataFlowCreateRequest(ctx, dataFlowName, dataFlow, options)
 	if err != nil {
-		return nil, err
+		return
 	}
-	resp, err := client.internal.Pipeline().Do(req)
+	resp, err = client.internal.Pipeline().Do(req)
 	if err != nil {
-		return nil, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK, http.StatusAccepted) {
-		return nil, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return resp, nil
+	return
 }
 
 // createOrUpdateDataFlowCreateRequest creates the CreateOrUpdateDataFlow request.
@@ -94,35 +107,47 @@ func (client *DataFlowClient) createOrUpdateDataFlowCreateRequest(ctx context.Co
 //   - dataFlowName - The data flow name.
 //   - options - DataFlowClientBeginDeleteDataFlowOptions contains the optional parameters for the DataFlowClient.BeginDeleteDataFlow
 //     method.
-func (client *DataFlowClient) BeginDeleteDataFlow(ctx context.Context, dataFlowName string, options *DataFlowClientBeginDeleteDataFlowOptions) (*runtime.Poller[DataFlowClientDeleteDataFlowResponse], error) {
-	if options == nil || options.ResumeToken == "" {
-		resp, err := client.deleteDataFlow(ctx, dataFlowName, options)
+func (client *DataFlowClient) BeginDeleteDataFlow(ctx context.Context, dataFlowName string, options *DataFlowClientBeginDeleteDataFlowOptions) (result *runtime.Poller[DataFlowClientDeleteDataFlowResponse], err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "DataFlowClient.BeginDeleteDataFlow", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
 		if err != nil {
-			return nil, err
+			span.AddError(err)
 		}
-		return runtime.NewPoller[DataFlowClientDeleteDataFlowResponse](resp, client.internal.Pipeline(), nil)
+		span.End()
+	}()
+	if options == nil || options.ResumeToken == "" {
+		var resp *http.Response
+		resp, err = client.deleteDataFlow(ctx, dataFlowName, options)
+		if err != nil {
+			return
+		}
+		result, err = runtime.NewPoller[DataFlowClientDeleteDataFlowResponse](resp, client.internal.Pipeline(), nil)
 	} else {
-		return runtime.NewPollerFromResumeToken[DataFlowClientDeleteDataFlowResponse](options.ResumeToken, client.internal.Pipeline(), nil)
+		result, err = runtime.NewPollerFromResumeToken[DataFlowClientDeleteDataFlowResponse](options.ResumeToken, client.internal.Pipeline(), nil)
 	}
+	return
 }
 
 // DeleteDataFlow - Deletes a data flow.
 // If the operation fails it returns an *azcore.ResponseError type.
 //
 // Generated from API version 2019-06-01-preview
-func (client *DataFlowClient) deleteDataFlow(ctx context.Context, dataFlowName string, options *DataFlowClientBeginDeleteDataFlowOptions) (*http.Response, error) {
+func (client *DataFlowClient) deleteDataFlow(ctx context.Context, dataFlowName string, options *DataFlowClientBeginDeleteDataFlowOptions) (resp *http.Response, err error) {
 	req, err := client.deleteDataFlowCreateRequest(ctx, dataFlowName, options)
 	if err != nil {
-		return nil, err
+		return
 	}
-	resp, err := client.internal.Pipeline().Do(req)
+	resp, err = client.internal.Pipeline().Do(req)
 	if err != nil {
-		return nil, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK, http.StatusAccepted, http.StatusNoContent) {
-		return nil, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return resp, nil
+	return
 }
 
 // deleteDataFlowCreateRequest creates the DeleteDataFlow request.
@@ -149,19 +174,30 @@ func (client *DataFlowClient) deleteDataFlowCreateRequest(ctx context.Context, d
 // Generated from API version 2019-06-01-preview
 //   - dataFlowName - The data flow name.
 //   - options - DataFlowClientGetDataFlowOptions contains the optional parameters for the DataFlowClient.GetDataFlow method.
-func (client *DataFlowClient) GetDataFlow(ctx context.Context, dataFlowName string, options *DataFlowClientGetDataFlowOptions) (DataFlowClientGetDataFlowResponse, error) {
+func (client *DataFlowClient) GetDataFlow(ctx context.Context, dataFlowName string, options *DataFlowClientGetDataFlowOptions) (result DataFlowClientGetDataFlowResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "DataFlowClient.GetDataFlow", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.getDataFlowCreateRequest(ctx, dataFlowName, options)
 	if err != nil {
-		return DataFlowClientGetDataFlowResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return DataFlowClientGetDataFlowResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return DataFlowClientGetDataFlowResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.getDataFlowHandleResponse(resp)
+	result, err = client.getDataFlowHandleResponse(resp)
+	return
 }
 
 // getDataFlowCreateRequest creates the GetDataFlow request.
@@ -186,10 +222,10 @@ func (client *DataFlowClient) getDataFlowCreateRequest(ctx context.Context, data
 }
 
 // getDataFlowHandleResponse handles the GetDataFlow response.
-func (client *DataFlowClient) getDataFlowHandleResponse(resp *http.Response) (DataFlowClientGetDataFlowResponse, error) {
-	result := DataFlowClientGetDataFlowResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.DataFlowResource); err != nil {
-		return DataFlowClientGetDataFlowResponse{}, err
+func (client *DataFlowClient) getDataFlowHandleResponse(resp *http.Response) (result DataFlowClientGetDataFlowResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.DataFlowResource); err != nil {
+		result = DataFlowClientGetDataFlowResponse{}
+		return
 	}
 	return result, nil
 }
@@ -204,25 +240,35 @@ func (client *DataFlowClient) NewGetDataFlowsByWorkspacePager(options *DataFlowC
 		More: func(page DataFlowClientGetDataFlowsByWorkspaceResponse) bool {
 			return page.NextLink != nil && len(*page.NextLink) > 0
 		},
-		Fetcher: func(ctx context.Context, page *DataFlowClientGetDataFlowsByWorkspaceResponse) (DataFlowClientGetDataFlowsByWorkspaceResponse, error) {
+		Fetcher: func(ctx context.Context, page *DataFlowClientGetDataFlowsByWorkspaceResponse) (result DataFlowClientGetDataFlowsByWorkspaceResponse, err error) {
+			ctx, span := client.internal.Tracer().Start(ctx, "DataFlowClient.NewGetDataFlowsByWorkspacePager", &tracing.SpanOptions{
+				Kind: tracing.SpanKindInternal,
+			})
+			defer func() {
+				if err != nil {
+					span.AddError(err)
+				}
+				span.End()
+			}()
 			var req *policy.Request
-			var err error
 			if page == nil {
 				req, err = client.getDataFlowsByWorkspaceCreateRequest(ctx, options)
 			} else {
 				req, err = runtime.NewRequest(ctx, http.MethodGet, *page.NextLink)
 			}
 			if err != nil {
-				return DataFlowClientGetDataFlowsByWorkspaceResponse{}, err
+				return
 			}
 			resp, err := client.internal.Pipeline().Do(req)
 			if err != nil {
-				return DataFlowClientGetDataFlowsByWorkspaceResponse{}, err
+				return
 			}
 			if !runtime.HasStatusCode(resp, http.StatusOK) {
-				return DataFlowClientGetDataFlowsByWorkspaceResponse{}, runtime.NewResponseError(resp)
+				err = runtime.NewResponseError(resp)
+				return
 			}
-			return client.getDataFlowsByWorkspaceHandleResponse(resp)
+			result, err = client.getDataFlowsByWorkspaceHandleResponse(resp)
+			return
 		},
 	})
 }
@@ -242,10 +288,10 @@ func (client *DataFlowClient) getDataFlowsByWorkspaceCreateRequest(ctx context.C
 }
 
 // getDataFlowsByWorkspaceHandleResponse handles the GetDataFlowsByWorkspace response.
-func (client *DataFlowClient) getDataFlowsByWorkspaceHandleResponse(resp *http.Response) (DataFlowClientGetDataFlowsByWorkspaceResponse, error) {
-	result := DataFlowClientGetDataFlowsByWorkspaceResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.DataFlowListResponse); err != nil {
-		return DataFlowClientGetDataFlowsByWorkspaceResponse{}, err
+func (client *DataFlowClient) getDataFlowsByWorkspaceHandleResponse(resp *http.Response) (result DataFlowClientGetDataFlowsByWorkspaceResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.DataFlowListResponse); err != nil {
+		result = DataFlowClientGetDataFlowsByWorkspaceResponse{}
+		return
 	}
 	return result, nil
 }
@@ -258,35 +304,47 @@ func (client *DataFlowClient) getDataFlowsByWorkspaceHandleResponse(resp *http.R
 //   - request - proposed new name.
 //   - options - DataFlowClientBeginRenameDataFlowOptions contains the optional parameters for the DataFlowClient.BeginRenameDataFlow
 //     method.
-func (client *DataFlowClient) BeginRenameDataFlow(ctx context.Context, dataFlowName string, request ArtifactRenameRequest, options *DataFlowClientBeginRenameDataFlowOptions) (*runtime.Poller[DataFlowClientRenameDataFlowResponse], error) {
-	if options == nil || options.ResumeToken == "" {
-		resp, err := client.renameDataFlow(ctx, dataFlowName, request, options)
+func (client *DataFlowClient) BeginRenameDataFlow(ctx context.Context, dataFlowName string, request ArtifactRenameRequest, options *DataFlowClientBeginRenameDataFlowOptions) (result *runtime.Poller[DataFlowClientRenameDataFlowResponse], err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "DataFlowClient.BeginRenameDataFlow", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
 		if err != nil {
-			return nil, err
+			span.AddError(err)
 		}
-		return runtime.NewPoller[DataFlowClientRenameDataFlowResponse](resp, client.internal.Pipeline(), nil)
+		span.End()
+	}()
+	if options == nil || options.ResumeToken == "" {
+		var resp *http.Response
+		resp, err = client.renameDataFlow(ctx, dataFlowName, request, options)
+		if err != nil {
+			return
+		}
+		result, err = runtime.NewPoller[DataFlowClientRenameDataFlowResponse](resp, client.internal.Pipeline(), nil)
 	} else {
-		return runtime.NewPollerFromResumeToken[DataFlowClientRenameDataFlowResponse](options.ResumeToken, client.internal.Pipeline(), nil)
+		result, err = runtime.NewPollerFromResumeToken[DataFlowClientRenameDataFlowResponse](options.ResumeToken, client.internal.Pipeline(), nil)
 	}
+	return
 }
 
 // RenameDataFlow - Renames a dataflow.
 // If the operation fails it returns an *azcore.ResponseError type.
 //
 // Generated from API version 2019-06-01-preview
-func (client *DataFlowClient) renameDataFlow(ctx context.Context, dataFlowName string, request ArtifactRenameRequest, options *DataFlowClientBeginRenameDataFlowOptions) (*http.Response, error) {
+func (client *DataFlowClient) renameDataFlow(ctx context.Context, dataFlowName string, request ArtifactRenameRequest, options *DataFlowClientBeginRenameDataFlowOptions) (resp *http.Response, err error) {
 	req, err := client.renameDataFlowCreateRequest(ctx, dataFlowName, request, options)
 	if err != nil {
-		return nil, err
+		return
 	}
-	resp, err := client.internal.Pipeline().Do(req)
+	resp, err = client.internal.Pipeline().Do(req)
 	if err != nil {
-		return nil, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK, http.StatusAccepted) {
-		return nil, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return resp, nil
+	return
 }
 
 // renameDataFlowCreateRequest creates the RenameDataFlow request.

@@ -16,6 +16,7 @@ import (
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/arm"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/policy"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/runtime"
+	"github.com/Azure/azure-sdk-for-go/sdk/azcore/tracing"
 	"net/http"
 	"net/url"
 	"strings"
@@ -55,25 +56,35 @@ func (client *ExpressRouteServiceProvidersClient) NewListPager(options *ExpressR
 		More: func(page ExpressRouteServiceProvidersClientListResponse) bool {
 			return page.NextLink != nil && len(*page.NextLink) > 0
 		},
-		Fetcher: func(ctx context.Context, page *ExpressRouteServiceProvidersClientListResponse) (ExpressRouteServiceProvidersClientListResponse, error) {
+		Fetcher: func(ctx context.Context, page *ExpressRouteServiceProvidersClientListResponse) (result ExpressRouteServiceProvidersClientListResponse, err error) {
+			ctx, span := client.internal.Tracer().Start(ctx, "ExpressRouteServiceProvidersClient.NewListPager", &tracing.SpanOptions{
+				Kind: tracing.SpanKindInternal,
+			})
+			defer func() {
+				if err != nil {
+					span.AddError(err)
+				}
+				span.End()
+			}()
 			var req *policy.Request
-			var err error
 			if page == nil {
 				req, err = client.listCreateRequest(ctx, options)
 			} else {
 				req, err = runtime.NewRequest(ctx, http.MethodGet, *page.NextLink)
 			}
 			if err != nil {
-				return ExpressRouteServiceProvidersClientListResponse{}, err
+				return
 			}
 			resp, err := client.internal.Pipeline().Do(req)
 			if err != nil {
-				return ExpressRouteServiceProvidersClientListResponse{}, err
+				return
 			}
 			if !runtime.HasStatusCode(resp, http.StatusOK) {
-				return ExpressRouteServiceProvidersClientListResponse{}, runtime.NewResponseError(resp)
+				err = runtime.NewResponseError(resp)
+				return
 			}
-			return client.listHandleResponse(resp)
+			result, err = client.listHandleResponse(resp)
+			return
 		},
 	})
 }
@@ -97,10 +108,10 @@ func (client *ExpressRouteServiceProvidersClient) listCreateRequest(ctx context.
 }
 
 // listHandleResponse handles the List response.
-func (client *ExpressRouteServiceProvidersClient) listHandleResponse(resp *http.Response) (ExpressRouteServiceProvidersClientListResponse, error) {
-	result := ExpressRouteServiceProvidersClientListResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.ExpressRouteServiceProviderListResult); err != nil {
-		return ExpressRouteServiceProvidersClientListResponse{}, err
+func (client *ExpressRouteServiceProvidersClient) listHandleResponse(resp *http.Response) (result ExpressRouteServiceProvidersClientListResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.ExpressRouteServiceProviderListResult); err != nil {
+		result = ExpressRouteServiceProvidersClientListResponse{}
+		return
 	}
 	return result, nil
 }

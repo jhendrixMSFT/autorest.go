@@ -16,6 +16,7 @@ import (
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/policy"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/runtime"
+	"github.com/Azure/azure-sdk-for-go/sdk/azcore/tracing"
 	"io"
 	"net/http"
 	"net/url"
@@ -38,19 +39,29 @@ type LibraryClient struct {
 //   - libraryName - file name to upload. Minimum length of the filename should be 1 excluding the extension length.
 //   - content - Library file chunk.
 //   - options - LibraryClientAppendOptions contains the optional parameters for the LibraryClient.Append method.
-func (client *LibraryClient) Append(ctx context.Context, libraryName string, content io.ReadSeekCloser, options *LibraryClientAppendOptions) (LibraryClientAppendResponse, error) {
+func (client *LibraryClient) Append(ctx context.Context, libraryName string, content io.ReadSeekCloser, options *LibraryClientAppendOptions) (result LibraryClientAppendResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "LibraryClient.Append", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.appendCreateRequest(ctx, libraryName, content, options)
 	if err != nil {
-		return LibraryClientAppendResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return LibraryClientAppendResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusCreated) {
-		return LibraryClientAppendResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return LibraryClientAppendResponse{}, nil
+	return
 }
 
 // appendCreateRequest creates the Append request.
@@ -80,35 +91,47 @@ func (client *LibraryClient) appendCreateRequest(ctx context.Context, libraryNam
 // Generated from API version 2019-06-01-preview
 //   - libraryName - file name to upload. Minimum length of the filename should be 1 excluding the extension length.
 //   - options - LibraryClientBeginCreateOptions contains the optional parameters for the LibraryClient.BeginCreate method.
-func (client *LibraryClient) BeginCreate(ctx context.Context, libraryName string, options *LibraryClientBeginCreateOptions) (*runtime.Poller[LibraryClientCreateResponse], error) {
-	if options == nil || options.ResumeToken == "" {
-		resp, err := client.create(ctx, libraryName, options)
+func (client *LibraryClient) BeginCreate(ctx context.Context, libraryName string, options *LibraryClientBeginCreateOptions) (result *runtime.Poller[LibraryClientCreateResponse], err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "LibraryClient.BeginCreate", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
 		if err != nil {
-			return nil, err
+			span.AddError(err)
 		}
-		return runtime.NewPoller[LibraryClientCreateResponse](resp, client.internal.Pipeline(), nil)
+		span.End()
+	}()
+	if options == nil || options.ResumeToken == "" {
+		var resp *http.Response
+		resp, err = client.create(ctx, libraryName, options)
+		if err != nil {
+			return
+		}
+		result, err = runtime.NewPoller[LibraryClientCreateResponse](resp, client.internal.Pipeline(), nil)
 	} else {
-		return runtime.NewPollerFromResumeToken[LibraryClientCreateResponse](options.ResumeToken, client.internal.Pipeline(), nil)
+		result, err = runtime.NewPollerFromResumeToken[LibraryClientCreateResponse](options.ResumeToken, client.internal.Pipeline(), nil)
 	}
+	return
 }
 
 // Create - Creates a library with the library name.
 // If the operation fails it returns an *azcore.ResponseError type.
 //
 // Generated from API version 2019-06-01-preview
-func (client *LibraryClient) create(ctx context.Context, libraryName string, options *LibraryClientBeginCreateOptions) (*http.Response, error) {
+func (client *LibraryClient) create(ctx context.Context, libraryName string, options *LibraryClientBeginCreateOptions) (resp *http.Response, err error) {
 	req, err := client.createCreateRequest(ctx, libraryName, options)
 	if err != nil {
-		return nil, err
+		return
 	}
-	resp, err := client.internal.Pipeline().Do(req)
+	resp, err = client.internal.Pipeline().Do(req)
 	if err != nil {
-		return nil, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK, http.StatusAccepted) {
-		return nil, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return resp, nil
+	return
 }
 
 // createCreateRequest creates the Create request.
@@ -135,35 +158,47 @@ func (client *LibraryClient) createCreateRequest(ctx context.Context, libraryNam
 // Generated from API version 2019-06-01-preview
 //   - libraryName - file name to upload. Minimum length of the filename should be 1 excluding the extension length.
 //   - options - LibraryClientBeginDeleteOptions contains the optional parameters for the LibraryClient.BeginDelete method.
-func (client *LibraryClient) BeginDelete(ctx context.Context, libraryName string, options *LibraryClientBeginDeleteOptions) (*runtime.Poller[LibraryClientDeleteResponse], error) {
-	if options == nil || options.ResumeToken == "" {
-		resp, err := client.deleteOperation(ctx, libraryName, options)
+func (client *LibraryClient) BeginDelete(ctx context.Context, libraryName string, options *LibraryClientBeginDeleteOptions) (result *runtime.Poller[LibraryClientDeleteResponse], err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "LibraryClient.BeginDelete", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
 		if err != nil {
-			return nil, err
+			span.AddError(err)
 		}
-		return runtime.NewPoller[LibraryClientDeleteResponse](resp, client.internal.Pipeline(), nil)
+		span.End()
+	}()
+	if options == nil || options.ResumeToken == "" {
+		var resp *http.Response
+		resp, err = client.deleteOperation(ctx, libraryName, options)
+		if err != nil {
+			return
+		}
+		result, err = runtime.NewPoller[LibraryClientDeleteResponse](resp, client.internal.Pipeline(), nil)
 	} else {
-		return runtime.NewPollerFromResumeToken[LibraryClientDeleteResponse](options.ResumeToken, client.internal.Pipeline(), nil)
+		result, err = runtime.NewPollerFromResumeToken[LibraryClientDeleteResponse](options.ResumeToken, client.internal.Pipeline(), nil)
 	}
+	return
 }
 
 // Delete - Delete Library
 // If the operation fails it returns an *azcore.ResponseError type.
 //
 // Generated from API version 2019-06-01-preview
-func (client *LibraryClient) deleteOperation(ctx context.Context, libraryName string, options *LibraryClientBeginDeleteOptions) (*http.Response, error) {
+func (client *LibraryClient) deleteOperation(ctx context.Context, libraryName string, options *LibraryClientBeginDeleteOptions) (resp *http.Response, err error) {
 	req, err := client.deleteCreateRequest(ctx, libraryName, options)
 	if err != nil {
-		return nil, err
+		return
 	}
-	resp, err := client.internal.Pipeline().Do(req)
+	resp, err = client.internal.Pipeline().Do(req)
 	if err != nil {
-		return nil, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK, http.StatusAccepted, http.StatusConflict) {
-		return nil, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return resp, nil
+	return
 }
 
 // deleteCreateRequest creates the Delete request.
@@ -190,35 +225,47 @@ func (client *LibraryClient) deleteCreateRequest(ctx context.Context, libraryNam
 // Generated from API version 2019-06-01-preview
 //   - libraryName - file name to upload. Minimum length of the filename should be 1 excluding the extension length.
 //   - options - LibraryClientBeginFlushOptions contains the optional parameters for the LibraryClient.BeginFlush method.
-func (client *LibraryClient) BeginFlush(ctx context.Context, libraryName string, options *LibraryClientBeginFlushOptions) (*runtime.Poller[LibraryClientFlushResponse], error) {
-	if options == nil || options.ResumeToken == "" {
-		resp, err := client.flush(ctx, libraryName, options)
+func (client *LibraryClient) BeginFlush(ctx context.Context, libraryName string, options *LibraryClientBeginFlushOptions) (result *runtime.Poller[LibraryClientFlushResponse], err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "LibraryClient.BeginFlush", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
 		if err != nil {
-			return nil, err
+			span.AddError(err)
 		}
-		return runtime.NewPoller[LibraryClientFlushResponse](resp, client.internal.Pipeline(), nil)
+		span.End()
+	}()
+	if options == nil || options.ResumeToken == "" {
+		var resp *http.Response
+		resp, err = client.flush(ctx, libraryName, options)
+		if err != nil {
+			return
+		}
+		result, err = runtime.NewPoller[LibraryClientFlushResponse](resp, client.internal.Pipeline(), nil)
 	} else {
-		return runtime.NewPollerFromResumeToken[LibraryClientFlushResponse](options.ResumeToken, client.internal.Pipeline(), nil)
+		result, err = runtime.NewPollerFromResumeToken[LibraryClientFlushResponse](options.ResumeToken, client.internal.Pipeline(), nil)
 	}
+	return
 }
 
 // Flush - Flush Library
 // If the operation fails it returns an *azcore.ResponseError type.
 //
 // Generated from API version 2019-06-01-preview
-func (client *LibraryClient) flush(ctx context.Context, libraryName string, options *LibraryClientBeginFlushOptions) (*http.Response, error) {
+func (client *LibraryClient) flush(ctx context.Context, libraryName string, options *LibraryClientBeginFlushOptions) (resp *http.Response, err error) {
 	req, err := client.flushCreateRequest(ctx, libraryName, options)
 	if err != nil {
-		return nil, err
+		return
 	}
-	resp, err := client.internal.Pipeline().Do(req)
+	resp, err = client.internal.Pipeline().Do(req)
 	if err != nil {
-		return nil, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK, http.StatusAccepted) {
-		return nil, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return resp, nil
+	return
 }
 
 // flushCreateRequest creates the Flush request.
@@ -245,19 +292,30 @@ func (client *LibraryClient) flushCreateRequest(ctx context.Context, libraryName
 // Generated from API version 2019-06-01-preview
 //   - libraryName - file name to upload. Minimum length of the filename should be 1 excluding the extension length.
 //   - options - LibraryClientGetOptions contains the optional parameters for the LibraryClient.Get method.
-func (client *LibraryClient) Get(ctx context.Context, libraryName string, options *LibraryClientGetOptions) (LibraryClientGetResponse, error) {
+func (client *LibraryClient) Get(ctx context.Context, libraryName string, options *LibraryClientGetOptions) (result LibraryClientGetResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "LibraryClient.Get", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.getCreateRequest(ctx, libraryName, options)
 	if err != nil {
-		return LibraryClientGetResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return LibraryClientGetResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK, http.StatusNotModified) {
-		return LibraryClientGetResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.getHandleResponse(resp)
+	result, err = client.getHandleResponse(resp)
+	return
 }
 
 // getCreateRequest creates the Get request.
@@ -279,10 +337,10 @@ func (client *LibraryClient) getCreateRequest(ctx context.Context, libraryName s
 }
 
 // getHandleResponse handles the Get response.
-func (client *LibraryClient) getHandleResponse(resp *http.Response) (LibraryClientGetResponse, error) {
-	result := LibraryClientGetResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.LibraryResource); err != nil {
-		return LibraryClientGetResponse{}, err
+func (client *LibraryClient) getHandleResponse(resp *http.Response) (result LibraryClientGetResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.LibraryResource); err != nil {
+		result = LibraryClientGetResponse{}
+		return
 	}
 	return result, nil
 }
@@ -294,19 +352,30 @@ func (client *LibraryClient) getHandleResponse(resp *http.Response) (LibraryClie
 //   - operationID - operation id for which status is requested
 //   - options - LibraryClientGetOperationResultOptions contains the optional parameters for the LibraryClient.GetOperationResult
 //     method.
-func (client *LibraryClient) GetOperationResult(ctx context.Context, operationID string, options *LibraryClientGetOperationResultOptions) (LibraryClientGetOperationResultResponse, error) {
+func (client *LibraryClient) GetOperationResult(ctx context.Context, operationID string, options *LibraryClientGetOperationResultOptions) (result LibraryClientGetOperationResultResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "LibraryClient.GetOperationResult", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.getOperationResultCreateRequest(ctx, operationID, options)
 	if err != nil {
-		return LibraryClientGetOperationResultResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return LibraryClientGetOperationResultResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK, http.StatusAccepted) {
-		return LibraryClientGetOperationResultResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.getOperationResultHandleResponse(resp)
+	result, err = client.getOperationResultHandleResponse(resp)
+	return
 }
 
 // getOperationResultCreateRequest creates the GetOperationResult request.
@@ -328,19 +397,20 @@ func (client *LibraryClient) getOperationResultCreateRequest(ctx context.Context
 }
 
 // getOperationResultHandleResponse handles the GetOperationResult response.
-func (client *LibraryClient) getOperationResultHandleResponse(resp *http.Response) (LibraryClientGetOperationResultResponse, error) {
-	result := LibraryClientGetOperationResultResponse{}
+func (client *LibraryClient) getOperationResultHandleResponse(resp *http.Response) (result LibraryClientGetOperationResultResponse, err error) {
 	switch resp.StatusCode {
 	case http.StatusOK:
 		var val LibraryResource
-		if err := runtime.UnmarshalAsJSON(resp, &val); err != nil {
-			return LibraryClientGetOperationResultResponse{}, err
+		if err = runtime.UnmarshalAsJSON(resp, &val); err != nil {
+			result = LibraryClientGetOperationResultResponse{}
+			return
 		}
 		result.Value = val
 	case http.StatusAccepted:
 		var val OperationResult
-		if err := runtime.UnmarshalAsJSON(resp, &val); err != nil {
-			return LibraryClientGetOperationResultResponse{}, err
+		if err = runtime.UnmarshalAsJSON(resp, &val); err != nil {
+			result = LibraryClientGetOperationResultResponse{}
+			return
 		}
 		result.Value = val
 	default:
@@ -358,25 +428,35 @@ func (client *LibraryClient) NewListPager(options *LibraryClientListOptions) *ru
 		More: func(page LibraryClientListResponse) bool {
 			return page.NextLink != nil && len(*page.NextLink) > 0
 		},
-		Fetcher: func(ctx context.Context, page *LibraryClientListResponse) (LibraryClientListResponse, error) {
+		Fetcher: func(ctx context.Context, page *LibraryClientListResponse) (result LibraryClientListResponse, err error) {
+			ctx, span := client.internal.Tracer().Start(ctx, "LibraryClient.NewListPager", &tracing.SpanOptions{
+				Kind: tracing.SpanKindInternal,
+			})
+			defer func() {
+				if err != nil {
+					span.AddError(err)
+				}
+				span.End()
+			}()
 			var req *policy.Request
-			var err error
 			if page == nil {
 				req, err = client.listCreateRequest(ctx, options)
 			} else {
 				req, err = runtime.NewRequest(ctx, http.MethodGet, *page.NextLink)
 			}
 			if err != nil {
-				return LibraryClientListResponse{}, err
+				return
 			}
 			resp, err := client.internal.Pipeline().Do(req)
 			if err != nil {
-				return LibraryClientListResponse{}, err
+				return
 			}
 			if !runtime.HasStatusCode(resp, http.StatusOK) {
-				return LibraryClientListResponse{}, runtime.NewResponseError(resp)
+				err = runtime.NewResponseError(resp)
+				return
 			}
-			return client.listHandleResponse(resp)
+			result, err = client.listHandleResponse(resp)
+			return
 		},
 	})
 }
@@ -396,10 +476,10 @@ func (client *LibraryClient) listCreateRequest(ctx context.Context, options *Lib
 }
 
 // listHandleResponse handles the List response.
-func (client *LibraryClient) listHandleResponse(resp *http.Response) (LibraryClientListResponse, error) {
-	result := LibraryClientListResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.LibraryListResponse); err != nil {
-		return LibraryClientListResponse{}, err
+func (client *LibraryClient) listHandleResponse(resp *http.Response) (result LibraryClientListResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.LibraryListResponse); err != nil {
+		result = LibraryClientListResponse{}
+		return
 	}
 	return result, nil
 }

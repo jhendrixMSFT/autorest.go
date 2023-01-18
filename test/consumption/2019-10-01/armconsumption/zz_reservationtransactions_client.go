@@ -16,6 +16,7 @@ import (
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/arm"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/policy"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/runtime"
+	"github.com/Azure/azure-sdk-for-go/sdk/azcore/tracing"
 	"net/http"
 	"net/url"
 	"strings"
@@ -52,25 +53,35 @@ func (client *ReservationTransactionsClient) NewListPager(billingAccountID strin
 		More: func(page ReservationTransactionsClientListResponse) bool {
 			return page.NextLink != nil && len(*page.NextLink) > 0
 		},
-		Fetcher: func(ctx context.Context, page *ReservationTransactionsClientListResponse) (ReservationTransactionsClientListResponse, error) {
+		Fetcher: func(ctx context.Context, page *ReservationTransactionsClientListResponse) (result ReservationTransactionsClientListResponse, err error) {
+			ctx, span := client.internal.Tracer().Start(ctx, "ReservationTransactionsClient.NewListPager", &tracing.SpanOptions{
+				Kind: tracing.SpanKindInternal,
+			})
+			defer func() {
+				if err != nil {
+					span.AddError(err)
+				}
+				span.End()
+			}()
 			var req *policy.Request
-			var err error
 			if page == nil {
 				req, err = client.listCreateRequest(ctx, billingAccountID, options)
 			} else {
 				req, err = runtime.NewRequest(ctx, http.MethodGet, *page.NextLink)
 			}
 			if err != nil {
-				return ReservationTransactionsClientListResponse{}, err
+				return
 			}
 			resp, err := client.internal.Pipeline().Do(req)
 			if err != nil {
-				return ReservationTransactionsClientListResponse{}, err
+				return
 			}
 			if !runtime.HasStatusCode(resp, http.StatusOK) {
-				return ReservationTransactionsClientListResponse{}, runtime.NewResponseError(resp)
+				err = runtime.NewResponseError(resp)
+				return
 			}
-			return client.listHandleResponse(resp)
+			result, err = client.listHandleResponse(resp)
+			return
 		},
 	})
 }
@@ -97,10 +108,10 @@ func (client *ReservationTransactionsClient) listCreateRequest(ctx context.Conte
 }
 
 // listHandleResponse handles the List response.
-func (client *ReservationTransactionsClient) listHandleResponse(resp *http.Response) (ReservationTransactionsClientListResponse, error) {
-	result := ReservationTransactionsClientListResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.ReservationTransactionsListResult); err != nil {
-		return ReservationTransactionsClientListResponse{}, err
+func (client *ReservationTransactionsClient) listHandleResponse(resp *http.Response) (result ReservationTransactionsClientListResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.ReservationTransactionsListResult); err != nil {
+		result = ReservationTransactionsClientListResponse{}
+		return
 	}
 	return result, nil
 }
@@ -117,25 +128,35 @@ func (client *ReservationTransactionsClient) NewListByBillingProfilePager(billin
 		More: func(page ReservationTransactionsClientListByBillingProfileResponse) bool {
 			return page.NextLink != nil && len(*page.NextLink) > 0
 		},
-		Fetcher: func(ctx context.Context, page *ReservationTransactionsClientListByBillingProfileResponse) (ReservationTransactionsClientListByBillingProfileResponse, error) {
+		Fetcher: func(ctx context.Context, page *ReservationTransactionsClientListByBillingProfileResponse) (result ReservationTransactionsClientListByBillingProfileResponse, err error) {
+			ctx, span := client.internal.Tracer().Start(ctx, "ReservationTransactionsClient.NewListByBillingProfilePager", &tracing.SpanOptions{
+				Kind: tracing.SpanKindInternal,
+			})
+			defer func() {
+				if err != nil {
+					span.AddError(err)
+				}
+				span.End()
+			}()
 			var req *policy.Request
-			var err error
 			if page == nil {
 				req, err = client.listByBillingProfileCreateRequest(ctx, billingAccountID, billingProfileID, options)
 			} else {
 				req, err = runtime.NewRequest(ctx, http.MethodGet, *page.NextLink)
 			}
 			if err != nil {
-				return ReservationTransactionsClientListByBillingProfileResponse{}, err
+				return
 			}
 			resp, err := client.internal.Pipeline().Do(req)
 			if err != nil {
-				return ReservationTransactionsClientListByBillingProfileResponse{}, err
+				return
 			}
 			if !runtime.HasStatusCode(resp, http.StatusOK) {
-				return ReservationTransactionsClientListByBillingProfileResponse{}, runtime.NewResponseError(resp)
+				err = runtime.NewResponseError(resp)
+				return
 			}
-			return client.listByBillingProfileHandleResponse(resp)
+			result, err = client.listByBillingProfileHandleResponse(resp)
+			return
 		},
 	})
 }
@@ -166,10 +187,10 @@ func (client *ReservationTransactionsClient) listByBillingProfileCreateRequest(c
 }
 
 // listByBillingProfileHandleResponse handles the ListByBillingProfile response.
-func (client *ReservationTransactionsClient) listByBillingProfileHandleResponse(resp *http.Response) (ReservationTransactionsClientListByBillingProfileResponse, error) {
-	result := ReservationTransactionsClientListByBillingProfileResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.ModernReservationTransactionsListResult); err != nil {
-		return ReservationTransactionsClientListByBillingProfileResponse{}, err
+func (client *ReservationTransactionsClient) listByBillingProfileHandleResponse(resp *http.Response) (result ReservationTransactionsClientListByBillingProfileResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.ModernReservationTransactionsListResult); err != nil {
+		result = ReservationTransactionsClientListByBillingProfileResponse{}
+		return
 	}
 	return result, nil
 }

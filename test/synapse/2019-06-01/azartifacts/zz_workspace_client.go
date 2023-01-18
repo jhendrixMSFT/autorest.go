@@ -14,6 +14,7 @@ import (
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/policy"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/runtime"
+	"github.com/Azure/azure-sdk-for-go/sdk/azcore/tracing"
 	"net/http"
 )
 
@@ -29,19 +30,30 @@ type WorkspaceClient struct {
 //
 // Generated from API version 2019-06-01-preview
 //   - options - WorkspaceClientGetOptions contains the optional parameters for the WorkspaceClient.Get method.
-func (client *WorkspaceClient) Get(ctx context.Context, options *WorkspaceClientGetOptions) (WorkspaceClientGetResponse, error) {
+func (client *WorkspaceClient) Get(ctx context.Context, options *WorkspaceClientGetOptions) (result WorkspaceClientGetResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "WorkspaceClient.Get", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.getCreateRequest(ctx, options)
 	if err != nil {
-		return WorkspaceClientGetResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return WorkspaceClientGetResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return WorkspaceClientGetResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.getHandleResponse(resp)
+	result, err = client.getHandleResponse(resp)
+	return
 }
 
 // getCreateRequest creates the Get request.
@@ -59,10 +71,10 @@ func (client *WorkspaceClient) getCreateRequest(ctx context.Context, options *Wo
 }
 
 // getHandleResponse handles the Get response.
-func (client *WorkspaceClient) getHandleResponse(resp *http.Response) (WorkspaceClientGetResponse, error) {
-	result := WorkspaceClientGetResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.Workspace); err != nil {
-		return WorkspaceClientGetResponse{}, err
+func (client *WorkspaceClient) getHandleResponse(resp *http.Response) (result WorkspaceClientGetResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.Workspace); err != nil {
+		result = WorkspaceClientGetResponse{}
+		return
 	}
 	return result, nil
 }

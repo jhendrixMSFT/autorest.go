@@ -15,6 +15,7 @@ import (
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/policy"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/runtime"
+	"github.com/Azure/azure-sdk-for-go/sdk/azcore/tracing"
 	"net/http"
 	"net/url"
 	"strings"
@@ -35,35 +36,47 @@ type SQLScriptClient struct {
 //   - sqlScript - Sql Script resource definition.
 //   - options - SQLScriptClientBeginCreateOrUpdateSQLScriptOptions contains the optional parameters for the SQLScriptClient.BeginCreateOrUpdateSQLScript
 //     method.
-func (client *SQLScriptClient) BeginCreateOrUpdateSQLScript(ctx context.Context, sqlScriptName string, sqlScript SQLScriptResource, options *SQLScriptClientBeginCreateOrUpdateSQLScriptOptions) (*runtime.Poller[SQLScriptClientCreateOrUpdateSQLScriptResponse], error) {
-	if options == nil || options.ResumeToken == "" {
-		resp, err := client.createOrUpdateSQLScript(ctx, sqlScriptName, sqlScript, options)
+func (client *SQLScriptClient) BeginCreateOrUpdateSQLScript(ctx context.Context, sqlScriptName string, sqlScript SQLScriptResource, options *SQLScriptClientBeginCreateOrUpdateSQLScriptOptions) (result *runtime.Poller[SQLScriptClientCreateOrUpdateSQLScriptResponse], err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "SQLScriptClient.BeginCreateOrUpdateSQLScript", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
 		if err != nil {
-			return nil, err
+			span.AddError(err)
 		}
-		return runtime.NewPoller[SQLScriptClientCreateOrUpdateSQLScriptResponse](resp, client.internal.Pipeline(), nil)
+		span.End()
+	}()
+	if options == nil || options.ResumeToken == "" {
+		var resp *http.Response
+		resp, err = client.createOrUpdateSQLScript(ctx, sqlScriptName, sqlScript, options)
+		if err != nil {
+			return
+		}
+		result, err = runtime.NewPoller[SQLScriptClientCreateOrUpdateSQLScriptResponse](resp, client.internal.Pipeline(), nil)
 	} else {
-		return runtime.NewPollerFromResumeToken[SQLScriptClientCreateOrUpdateSQLScriptResponse](options.ResumeToken, client.internal.Pipeline(), nil)
+		result, err = runtime.NewPollerFromResumeToken[SQLScriptClientCreateOrUpdateSQLScriptResponse](options.ResumeToken, client.internal.Pipeline(), nil)
 	}
+	return
 }
 
 // CreateOrUpdateSQLScript - Creates or updates a Sql Script.
 // If the operation fails it returns an *azcore.ResponseError type.
 //
 // Generated from API version 2019-06-01-preview
-func (client *SQLScriptClient) createOrUpdateSQLScript(ctx context.Context, sqlScriptName string, sqlScript SQLScriptResource, options *SQLScriptClientBeginCreateOrUpdateSQLScriptOptions) (*http.Response, error) {
+func (client *SQLScriptClient) createOrUpdateSQLScript(ctx context.Context, sqlScriptName string, sqlScript SQLScriptResource, options *SQLScriptClientBeginCreateOrUpdateSQLScriptOptions) (resp *http.Response, err error) {
 	req, err := client.createOrUpdateSQLScriptCreateRequest(ctx, sqlScriptName, sqlScript, options)
 	if err != nil {
-		return nil, err
+		return
 	}
-	resp, err := client.internal.Pipeline().Do(req)
+	resp, err = client.internal.Pipeline().Do(req)
 	if err != nil {
-		return nil, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK, http.StatusAccepted) {
-		return nil, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return resp, nil
+	return
 }
 
 // createOrUpdateSQLScriptCreateRequest creates the CreateOrUpdateSQLScript request.
@@ -94,35 +107,47 @@ func (client *SQLScriptClient) createOrUpdateSQLScriptCreateRequest(ctx context.
 //   - sqlScriptName - The sql script name.
 //   - options - SQLScriptClientBeginDeleteSQLScriptOptions contains the optional parameters for the SQLScriptClient.BeginDeleteSQLScript
 //     method.
-func (client *SQLScriptClient) BeginDeleteSQLScript(ctx context.Context, sqlScriptName string, options *SQLScriptClientBeginDeleteSQLScriptOptions) (*runtime.Poller[SQLScriptClientDeleteSQLScriptResponse], error) {
-	if options == nil || options.ResumeToken == "" {
-		resp, err := client.deleteSQLScript(ctx, sqlScriptName, options)
+func (client *SQLScriptClient) BeginDeleteSQLScript(ctx context.Context, sqlScriptName string, options *SQLScriptClientBeginDeleteSQLScriptOptions) (result *runtime.Poller[SQLScriptClientDeleteSQLScriptResponse], err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "SQLScriptClient.BeginDeleteSQLScript", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
 		if err != nil {
-			return nil, err
+			span.AddError(err)
 		}
-		return runtime.NewPoller[SQLScriptClientDeleteSQLScriptResponse](resp, client.internal.Pipeline(), nil)
+		span.End()
+	}()
+	if options == nil || options.ResumeToken == "" {
+		var resp *http.Response
+		resp, err = client.deleteSQLScript(ctx, sqlScriptName, options)
+		if err != nil {
+			return
+		}
+		result, err = runtime.NewPoller[SQLScriptClientDeleteSQLScriptResponse](resp, client.internal.Pipeline(), nil)
 	} else {
-		return runtime.NewPollerFromResumeToken[SQLScriptClientDeleteSQLScriptResponse](options.ResumeToken, client.internal.Pipeline(), nil)
+		result, err = runtime.NewPollerFromResumeToken[SQLScriptClientDeleteSQLScriptResponse](options.ResumeToken, client.internal.Pipeline(), nil)
 	}
+	return
 }
 
 // DeleteSQLScript - Deletes a Sql Script.
 // If the operation fails it returns an *azcore.ResponseError type.
 //
 // Generated from API version 2019-06-01-preview
-func (client *SQLScriptClient) deleteSQLScript(ctx context.Context, sqlScriptName string, options *SQLScriptClientBeginDeleteSQLScriptOptions) (*http.Response, error) {
+func (client *SQLScriptClient) deleteSQLScript(ctx context.Context, sqlScriptName string, options *SQLScriptClientBeginDeleteSQLScriptOptions) (resp *http.Response, err error) {
 	req, err := client.deleteSQLScriptCreateRequest(ctx, sqlScriptName, options)
 	if err != nil {
-		return nil, err
+		return
 	}
-	resp, err := client.internal.Pipeline().Do(req)
+	resp, err = client.internal.Pipeline().Do(req)
 	if err != nil {
-		return nil, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK, http.StatusAccepted, http.StatusNoContent) {
-		return nil, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return resp, nil
+	return
 }
 
 // deleteSQLScriptCreateRequest creates the DeleteSQLScript request.
@@ -149,19 +174,30 @@ func (client *SQLScriptClient) deleteSQLScriptCreateRequest(ctx context.Context,
 // Generated from API version 2019-06-01-preview
 //   - sqlScriptName - The sql script name.
 //   - options - SQLScriptClientGetSQLScriptOptions contains the optional parameters for the SQLScriptClient.GetSQLScript method.
-func (client *SQLScriptClient) GetSQLScript(ctx context.Context, sqlScriptName string, options *SQLScriptClientGetSQLScriptOptions) (SQLScriptClientGetSQLScriptResponse, error) {
+func (client *SQLScriptClient) GetSQLScript(ctx context.Context, sqlScriptName string, options *SQLScriptClientGetSQLScriptOptions) (result SQLScriptClientGetSQLScriptResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "SQLScriptClient.GetSQLScript", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.getSQLScriptCreateRequest(ctx, sqlScriptName, options)
 	if err != nil {
-		return SQLScriptClientGetSQLScriptResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return SQLScriptClientGetSQLScriptResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK, http.StatusNotModified) {
-		return SQLScriptClientGetSQLScriptResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.getSQLScriptHandleResponse(resp)
+	result, err = client.getSQLScriptHandleResponse(resp)
+	return
 }
 
 // getSQLScriptCreateRequest creates the GetSQLScript request.
@@ -186,10 +222,10 @@ func (client *SQLScriptClient) getSQLScriptCreateRequest(ctx context.Context, sq
 }
 
 // getSQLScriptHandleResponse handles the GetSQLScript response.
-func (client *SQLScriptClient) getSQLScriptHandleResponse(resp *http.Response) (SQLScriptClientGetSQLScriptResponse, error) {
-	result := SQLScriptClientGetSQLScriptResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.SQLScriptResource); err != nil {
-		return SQLScriptClientGetSQLScriptResponse{}, err
+func (client *SQLScriptClient) getSQLScriptHandleResponse(resp *http.Response) (result SQLScriptClientGetSQLScriptResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.SQLScriptResource); err != nil {
+		result = SQLScriptClientGetSQLScriptResponse{}
+		return
 	}
 	return result, nil
 }
@@ -204,25 +240,35 @@ func (client *SQLScriptClient) NewGetSQLScriptsByWorkspacePager(options *SQLScri
 		More: func(page SQLScriptClientGetSQLScriptsByWorkspaceResponse) bool {
 			return page.NextLink != nil && len(*page.NextLink) > 0
 		},
-		Fetcher: func(ctx context.Context, page *SQLScriptClientGetSQLScriptsByWorkspaceResponse) (SQLScriptClientGetSQLScriptsByWorkspaceResponse, error) {
+		Fetcher: func(ctx context.Context, page *SQLScriptClientGetSQLScriptsByWorkspaceResponse) (result SQLScriptClientGetSQLScriptsByWorkspaceResponse, err error) {
+			ctx, span := client.internal.Tracer().Start(ctx, "SQLScriptClient.NewGetSQLScriptsByWorkspacePager", &tracing.SpanOptions{
+				Kind: tracing.SpanKindInternal,
+			})
+			defer func() {
+				if err != nil {
+					span.AddError(err)
+				}
+				span.End()
+			}()
 			var req *policy.Request
-			var err error
 			if page == nil {
 				req, err = client.getSQLScriptsByWorkspaceCreateRequest(ctx, options)
 			} else {
 				req, err = runtime.NewRequest(ctx, http.MethodGet, *page.NextLink)
 			}
 			if err != nil {
-				return SQLScriptClientGetSQLScriptsByWorkspaceResponse{}, err
+				return
 			}
 			resp, err := client.internal.Pipeline().Do(req)
 			if err != nil {
-				return SQLScriptClientGetSQLScriptsByWorkspaceResponse{}, err
+				return
 			}
 			if !runtime.HasStatusCode(resp, http.StatusOK) {
-				return SQLScriptClientGetSQLScriptsByWorkspaceResponse{}, runtime.NewResponseError(resp)
+				err = runtime.NewResponseError(resp)
+				return
 			}
-			return client.getSQLScriptsByWorkspaceHandleResponse(resp)
+			result, err = client.getSQLScriptsByWorkspaceHandleResponse(resp)
+			return
 		},
 	})
 }
@@ -242,10 +288,10 @@ func (client *SQLScriptClient) getSQLScriptsByWorkspaceCreateRequest(ctx context
 }
 
 // getSQLScriptsByWorkspaceHandleResponse handles the GetSQLScriptsByWorkspace response.
-func (client *SQLScriptClient) getSQLScriptsByWorkspaceHandleResponse(resp *http.Response) (SQLScriptClientGetSQLScriptsByWorkspaceResponse, error) {
-	result := SQLScriptClientGetSQLScriptsByWorkspaceResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.SQLScriptsListResponse); err != nil {
-		return SQLScriptClientGetSQLScriptsByWorkspaceResponse{}, err
+func (client *SQLScriptClient) getSQLScriptsByWorkspaceHandleResponse(resp *http.Response) (result SQLScriptClientGetSQLScriptsByWorkspaceResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.SQLScriptsListResponse); err != nil {
+		result = SQLScriptClientGetSQLScriptsByWorkspaceResponse{}
+		return
 	}
 	return result, nil
 }
@@ -258,35 +304,47 @@ func (client *SQLScriptClient) getSQLScriptsByWorkspaceHandleResponse(resp *http
 //   - request - proposed new name.
 //   - options - SQLScriptClientBeginRenameSQLScriptOptions contains the optional parameters for the SQLScriptClient.BeginRenameSQLScript
 //     method.
-func (client *SQLScriptClient) BeginRenameSQLScript(ctx context.Context, sqlScriptName string, request ArtifactRenameRequest, options *SQLScriptClientBeginRenameSQLScriptOptions) (*runtime.Poller[SQLScriptClientRenameSQLScriptResponse], error) {
-	if options == nil || options.ResumeToken == "" {
-		resp, err := client.renameSQLScript(ctx, sqlScriptName, request, options)
+func (client *SQLScriptClient) BeginRenameSQLScript(ctx context.Context, sqlScriptName string, request ArtifactRenameRequest, options *SQLScriptClientBeginRenameSQLScriptOptions) (result *runtime.Poller[SQLScriptClientRenameSQLScriptResponse], err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "SQLScriptClient.BeginRenameSQLScript", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
 		if err != nil {
-			return nil, err
+			span.AddError(err)
 		}
-		return runtime.NewPoller[SQLScriptClientRenameSQLScriptResponse](resp, client.internal.Pipeline(), nil)
+		span.End()
+	}()
+	if options == nil || options.ResumeToken == "" {
+		var resp *http.Response
+		resp, err = client.renameSQLScript(ctx, sqlScriptName, request, options)
+		if err != nil {
+			return
+		}
+		result, err = runtime.NewPoller[SQLScriptClientRenameSQLScriptResponse](resp, client.internal.Pipeline(), nil)
 	} else {
-		return runtime.NewPollerFromResumeToken[SQLScriptClientRenameSQLScriptResponse](options.ResumeToken, client.internal.Pipeline(), nil)
+		result, err = runtime.NewPollerFromResumeToken[SQLScriptClientRenameSQLScriptResponse](options.ResumeToken, client.internal.Pipeline(), nil)
 	}
+	return
 }
 
 // RenameSQLScript - Renames a sqlScript.
 // If the operation fails it returns an *azcore.ResponseError type.
 //
 // Generated from API version 2019-06-01-preview
-func (client *SQLScriptClient) renameSQLScript(ctx context.Context, sqlScriptName string, request ArtifactRenameRequest, options *SQLScriptClientBeginRenameSQLScriptOptions) (*http.Response, error) {
+func (client *SQLScriptClient) renameSQLScript(ctx context.Context, sqlScriptName string, request ArtifactRenameRequest, options *SQLScriptClientBeginRenameSQLScriptOptions) (resp *http.Response, err error) {
 	req, err := client.renameSQLScriptCreateRequest(ctx, sqlScriptName, request, options)
 	if err != nil {
-		return nil, err
+		return
 	}
-	resp, err := client.internal.Pipeline().Do(req)
+	resp, err = client.internal.Pipeline().Do(req)
 	if err != nil {
-		return nil, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK, http.StatusAccepted) {
-		return nil, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return resp, nil
+	return
 }
 
 // renameSQLScriptCreateRequest creates the RenameSQLScript request.

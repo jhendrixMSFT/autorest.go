@@ -16,6 +16,7 @@ import (
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/arm"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/policy"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/runtime"
+	"github.com/Azure/azure-sdk-for-go/sdk/azcore/tracing"
 	"net/http"
 	"net/url"
 	"strings"
@@ -53,19 +54,30 @@ func NewVPNSiteLinksClient(subscriptionID string, credential azcore.TokenCredent
 //   - vpnSiteName - The name of the VpnSite.
 //   - vpnSiteLinkName - The name of the VpnSiteLink being retrieved.
 //   - options - VPNSiteLinksClientGetOptions contains the optional parameters for the VPNSiteLinksClient.Get method.
-func (client *VPNSiteLinksClient) Get(ctx context.Context, resourceGroupName string, vpnSiteName string, vpnSiteLinkName string, options *VPNSiteLinksClientGetOptions) (VPNSiteLinksClientGetResponse, error) {
+func (client *VPNSiteLinksClient) Get(ctx context.Context, resourceGroupName string, vpnSiteName string, vpnSiteLinkName string, options *VPNSiteLinksClientGetOptions) (result VPNSiteLinksClientGetResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "VPNSiteLinksClient.Get", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.getCreateRequest(ctx, resourceGroupName, vpnSiteName, vpnSiteLinkName, options)
 	if err != nil {
-		return VPNSiteLinksClientGetResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return VPNSiteLinksClientGetResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return VPNSiteLinksClientGetResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.getHandleResponse(resp)
+	result, err = client.getHandleResponse(resp)
+	return
 }
 
 // getCreateRequest creates the Get request.
@@ -99,10 +111,10 @@ func (client *VPNSiteLinksClient) getCreateRequest(ctx context.Context, resource
 }
 
 // getHandleResponse handles the Get response.
-func (client *VPNSiteLinksClient) getHandleResponse(resp *http.Response) (VPNSiteLinksClientGetResponse, error) {
-	result := VPNSiteLinksClientGetResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.VPNSiteLink); err != nil {
-		return VPNSiteLinksClientGetResponse{}, err
+func (client *VPNSiteLinksClient) getHandleResponse(resp *http.Response) (result VPNSiteLinksClientGetResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.VPNSiteLink); err != nil {
+		result = VPNSiteLinksClientGetResponse{}
+		return
 	}
 	return result, nil
 }
@@ -119,25 +131,35 @@ func (client *VPNSiteLinksClient) NewListByVPNSitePager(resourceGroupName string
 		More: func(page VPNSiteLinksClientListByVPNSiteResponse) bool {
 			return page.NextLink != nil && len(*page.NextLink) > 0
 		},
-		Fetcher: func(ctx context.Context, page *VPNSiteLinksClientListByVPNSiteResponse) (VPNSiteLinksClientListByVPNSiteResponse, error) {
+		Fetcher: func(ctx context.Context, page *VPNSiteLinksClientListByVPNSiteResponse) (result VPNSiteLinksClientListByVPNSiteResponse, err error) {
+			ctx, span := client.internal.Tracer().Start(ctx, "VPNSiteLinksClient.NewListByVPNSitePager", &tracing.SpanOptions{
+				Kind: tracing.SpanKindInternal,
+			})
+			defer func() {
+				if err != nil {
+					span.AddError(err)
+				}
+				span.End()
+			}()
 			var req *policy.Request
-			var err error
 			if page == nil {
 				req, err = client.listByVPNSiteCreateRequest(ctx, resourceGroupName, vpnSiteName, options)
 			} else {
 				req, err = runtime.NewRequest(ctx, http.MethodGet, *page.NextLink)
 			}
 			if err != nil {
-				return VPNSiteLinksClientListByVPNSiteResponse{}, err
+				return
 			}
 			resp, err := client.internal.Pipeline().Do(req)
 			if err != nil {
-				return VPNSiteLinksClientListByVPNSiteResponse{}, err
+				return
 			}
 			if !runtime.HasStatusCode(resp, http.StatusOK) {
-				return VPNSiteLinksClientListByVPNSiteResponse{}, runtime.NewResponseError(resp)
+				err = runtime.NewResponseError(resp)
+				return
 			}
-			return client.listByVPNSiteHandleResponse(resp)
+			result, err = client.listByVPNSiteHandleResponse(resp)
+			return
 		},
 	})
 }
@@ -169,10 +191,10 @@ func (client *VPNSiteLinksClient) listByVPNSiteCreateRequest(ctx context.Context
 }
 
 // listByVPNSiteHandleResponse handles the ListByVPNSite response.
-func (client *VPNSiteLinksClient) listByVPNSiteHandleResponse(resp *http.Response) (VPNSiteLinksClientListByVPNSiteResponse, error) {
-	result := VPNSiteLinksClientListByVPNSiteResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.ListVPNSiteLinksResult); err != nil {
-		return VPNSiteLinksClientListByVPNSiteResponse{}, err
+func (client *VPNSiteLinksClient) listByVPNSiteHandleResponse(resp *http.Response) (result VPNSiteLinksClientListByVPNSiteResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.ListVPNSiteLinksResult); err != nil {
+		result = VPNSiteLinksClientListByVPNSiteResponse{}
+		return
 	}
 	return result, nil
 }

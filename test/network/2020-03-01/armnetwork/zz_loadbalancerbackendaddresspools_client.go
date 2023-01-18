@@ -16,6 +16,7 @@ import (
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/arm"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/policy"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/runtime"
+	"github.com/Azure/azure-sdk-for-go/sdk/azcore/tracing"
 	"net/http"
 	"net/url"
 	"strings"
@@ -54,19 +55,30 @@ func NewLoadBalancerBackendAddressPoolsClient(subscriptionID string, credential 
 //   - backendAddressPoolName - The name of the backend address pool.
 //   - options - LoadBalancerBackendAddressPoolsClientGetOptions contains the optional parameters for the LoadBalancerBackendAddressPoolsClient.Get
 //     method.
-func (client *LoadBalancerBackendAddressPoolsClient) Get(ctx context.Context, resourceGroupName string, loadBalancerName string, backendAddressPoolName string, options *LoadBalancerBackendAddressPoolsClientGetOptions) (LoadBalancerBackendAddressPoolsClientGetResponse, error) {
+func (client *LoadBalancerBackendAddressPoolsClient) Get(ctx context.Context, resourceGroupName string, loadBalancerName string, backendAddressPoolName string, options *LoadBalancerBackendAddressPoolsClientGetOptions) (result LoadBalancerBackendAddressPoolsClientGetResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "LoadBalancerBackendAddressPoolsClient.Get", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.getCreateRequest(ctx, resourceGroupName, loadBalancerName, backendAddressPoolName, options)
 	if err != nil {
-		return LoadBalancerBackendAddressPoolsClientGetResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return LoadBalancerBackendAddressPoolsClientGetResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return LoadBalancerBackendAddressPoolsClientGetResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.getHandleResponse(resp)
+	result, err = client.getHandleResponse(resp)
+	return
 }
 
 // getCreateRequest creates the Get request.
@@ -100,10 +112,10 @@ func (client *LoadBalancerBackendAddressPoolsClient) getCreateRequest(ctx contex
 }
 
 // getHandleResponse handles the Get response.
-func (client *LoadBalancerBackendAddressPoolsClient) getHandleResponse(resp *http.Response) (LoadBalancerBackendAddressPoolsClientGetResponse, error) {
-	result := LoadBalancerBackendAddressPoolsClientGetResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.BackendAddressPool); err != nil {
-		return LoadBalancerBackendAddressPoolsClientGetResponse{}, err
+func (client *LoadBalancerBackendAddressPoolsClient) getHandleResponse(resp *http.Response) (result LoadBalancerBackendAddressPoolsClientGetResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.BackendAddressPool); err != nil {
+		result = LoadBalancerBackendAddressPoolsClientGetResponse{}
+		return
 	}
 	return result, nil
 }
@@ -120,25 +132,35 @@ func (client *LoadBalancerBackendAddressPoolsClient) NewListPager(resourceGroupN
 		More: func(page LoadBalancerBackendAddressPoolsClientListResponse) bool {
 			return page.NextLink != nil && len(*page.NextLink) > 0
 		},
-		Fetcher: func(ctx context.Context, page *LoadBalancerBackendAddressPoolsClientListResponse) (LoadBalancerBackendAddressPoolsClientListResponse, error) {
+		Fetcher: func(ctx context.Context, page *LoadBalancerBackendAddressPoolsClientListResponse) (result LoadBalancerBackendAddressPoolsClientListResponse, err error) {
+			ctx, span := client.internal.Tracer().Start(ctx, "LoadBalancerBackendAddressPoolsClient.NewListPager", &tracing.SpanOptions{
+				Kind: tracing.SpanKindInternal,
+			})
+			defer func() {
+				if err != nil {
+					span.AddError(err)
+				}
+				span.End()
+			}()
 			var req *policy.Request
-			var err error
 			if page == nil {
 				req, err = client.listCreateRequest(ctx, resourceGroupName, loadBalancerName, options)
 			} else {
 				req, err = runtime.NewRequest(ctx, http.MethodGet, *page.NextLink)
 			}
 			if err != nil {
-				return LoadBalancerBackendAddressPoolsClientListResponse{}, err
+				return
 			}
 			resp, err := client.internal.Pipeline().Do(req)
 			if err != nil {
-				return LoadBalancerBackendAddressPoolsClientListResponse{}, err
+				return
 			}
 			if !runtime.HasStatusCode(resp, http.StatusOK) {
-				return LoadBalancerBackendAddressPoolsClientListResponse{}, runtime.NewResponseError(resp)
+				err = runtime.NewResponseError(resp)
+				return
 			}
-			return client.listHandleResponse(resp)
+			result, err = client.listHandleResponse(resp)
+			return
 		},
 	})
 }
@@ -170,10 +192,10 @@ func (client *LoadBalancerBackendAddressPoolsClient) listCreateRequest(ctx conte
 }
 
 // listHandleResponse handles the List response.
-func (client *LoadBalancerBackendAddressPoolsClient) listHandleResponse(resp *http.Response) (LoadBalancerBackendAddressPoolsClientListResponse, error) {
-	result := LoadBalancerBackendAddressPoolsClientListResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.LoadBalancerBackendAddressPoolListResult); err != nil {
-		return LoadBalancerBackendAddressPoolsClientListResponse{}, err
+func (client *LoadBalancerBackendAddressPoolsClient) listHandleResponse(resp *http.Response) (result LoadBalancerBackendAddressPoolsClientListResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.LoadBalancerBackendAddressPoolListResult); err != nil {
+		result = LoadBalancerBackendAddressPoolsClientListResponse{}
+		return
 	}
 	return result, nil
 }

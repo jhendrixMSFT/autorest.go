@@ -16,6 +16,7 @@ import (
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/arm"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/policy"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/runtime"
+	"github.com/Azure/azure-sdk-for-go/sdk/azcore/tracing"
 	"net/http"
 	"net/url"
 	"strings"
@@ -55,16 +56,27 @@ func NewContainerServicesClient(subscriptionID string, credential azcore.TokenCr
 //   - parameters - Parameters supplied to the Create or Update a Container Service operation.
 //   - options - ContainerServicesClientBeginCreateOrUpdateOptions contains the optional parameters for the ContainerServicesClient.BeginCreateOrUpdate
 //     method.
-func (client *ContainerServicesClient) BeginCreateOrUpdate(ctx context.Context, resourceGroupName string, containerServiceName string, parameters ContainerService, options *ContainerServicesClientBeginCreateOrUpdateOptions) (*runtime.Poller[ContainerServicesClientCreateOrUpdateResponse], error) {
-	if options == nil || options.ResumeToken == "" {
-		resp, err := client.createOrUpdate(ctx, resourceGroupName, containerServiceName, parameters, options)
+func (client *ContainerServicesClient) BeginCreateOrUpdate(ctx context.Context, resourceGroupName string, containerServiceName string, parameters ContainerService, options *ContainerServicesClientBeginCreateOrUpdateOptions) (result *runtime.Poller[ContainerServicesClientCreateOrUpdateResponse], err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "ContainerServicesClient.BeginCreateOrUpdate", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
 		if err != nil {
-			return nil, err
+			span.AddError(err)
 		}
-		return runtime.NewPoller[ContainerServicesClientCreateOrUpdateResponse](resp, client.internal.Pipeline(), nil)
+		span.End()
+	}()
+	if options == nil || options.ResumeToken == "" {
+		var resp *http.Response
+		resp, err = client.createOrUpdate(ctx, resourceGroupName, containerServiceName, parameters, options)
+		if err != nil {
+			return
+		}
+		result, err = runtime.NewPoller[ContainerServicesClientCreateOrUpdateResponse](resp, client.internal.Pipeline(), nil)
 	} else {
-		return runtime.NewPollerFromResumeToken[ContainerServicesClientCreateOrUpdateResponse](options.ResumeToken, client.internal.Pipeline(), nil)
+		result, err = runtime.NewPollerFromResumeToken[ContainerServicesClientCreateOrUpdateResponse](options.ResumeToken, client.internal.Pipeline(), nil)
 	}
+	return
 }
 
 // CreateOrUpdate - Creates or updates a container service with the specified configuration of orchestrator, masters, and
@@ -72,19 +84,20 @@ func (client *ContainerServicesClient) BeginCreateOrUpdate(ctx context.Context, 
 // If the operation fails it returns an *azcore.ResponseError type.
 //
 // Generated from API version 2017-01-31
-func (client *ContainerServicesClient) createOrUpdate(ctx context.Context, resourceGroupName string, containerServiceName string, parameters ContainerService, options *ContainerServicesClientBeginCreateOrUpdateOptions) (*http.Response, error) {
+func (client *ContainerServicesClient) createOrUpdate(ctx context.Context, resourceGroupName string, containerServiceName string, parameters ContainerService, options *ContainerServicesClientBeginCreateOrUpdateOptions) (resp *http.Response, err error) {
 	req, err := client.createOrUpdateCreateRequest(ctx, resourceGroupName, containerServiceName, parameters, options)
 	if err != nil {
-		return nil, err
+		return
 	}
-	resp, err := client.internal.Pipeline().Do(req)
+	resp, err = client.internal.Pipeline().Do(req)
 	if err != nil {
-		return nil, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK, http.StatusCreated, http.StatusAccepted) {
-		return nil, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return resp, nil
+	return
 }
 
 // createOrUpdateCreateRequest creates the CreateOrUpdate request.
@@ -124,16 +137,27 @@ func (client *ContainerServicesClient) createOrUpdateCreateRequest(ctx context.C
 //   - containerServiceName - The name of the container service in the specified subscription and resource group.
 //   - options - ContainerServicesClientBeginDeleteOptions contains the optional parameters for the ContainerServicesClient.BeginDelete
 //     method.
-func (client *ContainerServicesClient) BeginDelete(ctx context.Context, resourceGroupName string, containerServiceName string, options *ContainerServicesClientBeginDeleteOptions) (*runtime.Poller[ContainerServicesClientDeleteResponse], error) {
-	if options == nil || options.ResumeToken == "" {
-		resp, err := client.deleteOperation(ctx, resourceGroupName, containerServiceName, options)
+func (client *ContainerServicesClient) BeginDelete(ctx context.Context, resourceGroupName string, containerServiceName string, options *ContainerServicesClientBeginDeleteOptions) (result *runtime.Poller[ContainerServicesClientDeleteResponse], err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "ContainerServicesClient.BeginDelete", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
 		if err != nil {
-			return nil, err
+			span.AddError(err)
 		}
-		return runtime.NewPoller[ContainerServicesClientDeleteResponse](resp, client.internal.Pipeline(), nil)
+		span.End()
+	}()
+	if options == nil || options.ResumeToken == "" {
+		var resp *http.Response
+		resp, err = client.deleteOperation(ctx, resourceGroupName, containerServiceName, options)
+		if err != nil {
+			return
+		}
+		result, err = runtime.NewPoller[ContainerServicesClientDeleteResponse](resp, client.internal.Pipeline(), nil)
 	} else {
-		return runtime.NewPollerFromResumeToken[ContainerServicesClientDeleteResponse](options.ResumeToken, client.internal.Pipeline(), nil)
+		result, err = runtime.NewPollerFromResumeToken[ContainerServicesClientDeleteResponse](options.ResumeToken, client.internal.Pipeline(), nil)
 	}
+	return
 }
 
 // Delete - Deletes the specified container service in the specified subscription and resource group. The operation does not
@@ -143,19 +167,20 @@ func (client *ContainerServicesClient) BeginDelete(ctx context.Context, resource
 // If the operation fails it returns an *azcore.ResponseError type.
 //
 // Generated from API version 2017-01-31
-func (client *ContainerServicesClient) deleteOperation(ctx context.Context, resourceGroupName string, containerServiceName string, options *ContainerServicesClientBeginDeleteOptions) (*http.Response, error) {
+func (client *ContainerServicesClient) deleteOperation(ctx context.Context, resourceGroupName string, containerServiceName string, options *ContainerServicesClientBeginDeleteOptions) (resp *http.Response, err error) {
 	req, err := client.deleteCreateRequest(ctx, resourceGroupName, containerServiceName, options)
 	if err != nil {
-		return nil, err
+		return
 	}
-	resp, err := client.internal.Pipeline().Do(req)
+	resp, err = client.internal.Pipeline().Do(req)
 	if err != nil {
-		return nil, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusAccepted, http.StatusNoContent) {
-		return nil, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return resp, nil
+	return
 }
 
 // deleteCreateRequest creates the Delete request.
@@ -192,19 +217,30 @@ func (client *ContainerServicesClient) deleteCreateRequest(ctx context.Context, 
 //   - resourceGroupName - The name of the resource group.
 //   - containerServiceName - The name of the container service in the specified subscription and resource group.
 //   - options - ContainerServicesClientGetOptions contains the optional parameters for the ContainerServicesClient.Get method.
-func (client *ContainerServicesClient) Get(ctx context.Context, resourceGroupName string, containerServiceName string, options *ContainerServicesClientGetOptions) (ContainerServicesClientGetResponse, error) {
+func (client *ContainerServicesClient) Get(ctx context.Context, resourceGroupName string, containerServiceName string, options *ContainerServicesClientGetOptions) (result ContainerServicesClientGetResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "ContainerServicesClient.Get", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.getCreateRequest(ctx, resourceGroupName, containerServiceName, options)
 	if err != nil {
-		return ContainerServicesClientGetResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return ContainerServicesClientGetResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return ContainerServicesClientGetResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.getHandleResponse(resp)
+	result, err = client.getHandleResponse(resp)
+	return
 }
 
 // getCreateRequest creates the Get request.
@@ -234,10 +270,10 @@ func (client *ContainerServicesClient) getCreateRequest(ctx context.Context, res
 }
 
 // getHandleResponse handles the Get response.
-func (client *ContainerServicesClient) getHandleResponse(resp *http.Response) (ContainerServicesClientGetResponse, error) {
-	result := ContainerServicesClientGetResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.ContainerService); err != nil {
-		return ContainerServicesClientGetResponse{}, err
+func (client *ContainerServicesClient) getHandleResponse(resp *http.Response) (result ContainerServicesClientGetResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.ContainerService); err != nil {
+		result = ContainerServicesClientGetResponse{}
+		return
 	}
 	return result, nil
 }
@@ -254,25 +290,35 @@ func (client *ContainerServicesClient) NewListPager(options *ContainerServicesCl
 		More: func(page ContainerServicesClientListResponse) bool {
 			return page.NextLink != nil && len(*page.NextLink) > 0
 		},
-		Fetcher: func(ctx context.Context, page *ContainerServicesClientListResponse) (ContainerServicesClientListResponse, error) {
+		Fetcher: func(ctx context.Context, page *ContainerServicesClientListResponse) (result ContainerServicesClientListResponse, err error) {
+			ctx, span := client.internal.Tracer().Start(ctx, "ContainerServicesClient.NewListPager", &tracing.SpanOptions{
+				Kind: tracing.SpanKindInternal,
+			})
+			defer func() {
+				if err != nil {
+					span.AddError(err)
+				}
+				span.End()
+			}()
 			var req *policy.Request
-			var err error
 			if page == nil {
 				req, err = client.listCreateRequest(ctx, options)
 			} else {
 				req, err = runtime.NewRequest(ctx, http.MethodGet, *page.NextLink)
 			}
 			if err != nil {
-				return ContainerServicesClientListResponse{}, err
+				return
 			}
 			resp, err := client.internal.Pipeline().Do(req)
 			if err != nil {
-				return ContainerServicesClientListResponse{}, err
+				return
 			}
 			if !runtime.HasStatusCode(resp, http.StatusOK) {
-				return ContainerServicesClientListResponse{}, runtime.NewResponseError(resp)
+				err = runtime.NewResponseError(resp)
+				return
 			}
-			return client.listHandleResponse(resp)
+			result, err = client.listHandleResponse(resp)
+			return
 		},
 	})
 }
@@ -296,10 +342,10 @@ func (client *ContainerServicesClient) listCreateRequest(ctx context.Context, op
 }
 
 // listHandleResponse handles the List response.
-func (client *ContainerServicesClient) listHandleResponse(resp *http.Response) (ContainerServicesClientListResponse, error) {
-	result := ContainerServicesClientListResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.ContainerServiceListResult); err != nil {
-		return ContainerServicesClientListResponse{}, err
+func (client *ContainerServicesClient) listHandleResponse(resp *http.Response) (result ContainerServicesClientListResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.ContainerServiceListResult); err != nil {
+		result = ContainerServicesClientListResponse{}
+		return
 	}
 	return result, nil
 }
@@ -317,25 +363,35 @@ func (client *ContainerServicesClient) NewListByResourceGroupPager(resourceGroup
 		More: func(page ContainerServicesClientListByResourceGroupResponse) bool {
 			return page.NextLink != nil && len(*page.NextLink) > 0
 		},
-		Fetcher: func(ctx context.Context, page *ContainerServicesClientListByResourceGroupResponse) (ContainerServicesClientListByResourceGroupResponse, error) {
+		Fetcher: func(ctx context.Context, page *ContainerServicesClientListByResourceGroupResponse) (result ContainerServicesClientListByResourceGroupResponse, err error) {
+			ctx, span := client.internal.Tracer().Start(ctx, "ContainerServicesClient.NewListByResourceGroupPager", &tracing.SpanOptions{
+				Kind: tracing.SpanKindInternal,
+			})
+			defer func() {
+				if err != nil {
+					span.AddError(err)
+				}
+				span.End()
+			}()
 			var req *policy.Request
-			var err error
 			if page == nil {
 				req, err = client.listByResourceGroupCreateRequest(ctx, resourceGroupName, options)
 			} else {
 				req, err = runtime.NewRequest(ctx, http.MethodGet, *page.NextLink)
 			}
 			if err != nil {
-				return ContainerServicesClientListByResourceGroupResponse{}, err
+				return
 			}
 			resp, err := client.internal.Pipeline().Do(req)
 			if err != nil {
-				return ContainerServicesClientListByResourceGroupResponse{}, err
+				return
 			}
 			if !runtime.HasStatusCode(resp, http.StatusOK) {
-				return ContainerServicesClientListByResourceGroupResponse{}, runtime.NewResponseError(resp)
+				err = runtime.NewResponseError(resp)
+				return
 			}
-			return client.listByResourceGroupHandleResponse(resp)
+			result, err = client.listByResourceGroupHandleResponse(resp)
+			return
 		},
 	})
 }
@@ -363,10 +419,10 @@ func (client *ContainerServicesClient) listByResourceGroupCreateRequest(ctx cont
 }
 
 // listByResourceGroupHandleResponse handles the ListByResourceGroup response.
-func (client *ContainerServicesClient) listByResourceGroupHandleResponse(resp *http.Response) (ContainerServicesClientListByResourceGroupResponse, error) {
-	result := ContainerServicesClientListByResourceGroupResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.ContainerServiceListResult); err != nil {
-		return ContainerServicesClientListByResourceGroupResponse{}, err
+func (client *ContainerServicesClient) listByResourceGroupHandleResponse(resp *http.Response) (result ContainerServicesClientListByResourceGroupResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.ContainerServiceListResult); err != nil {
+		result = ContainerServicesClientListByResourceGroupResponse{}
+		return
 	}
 	return result, nil
 }

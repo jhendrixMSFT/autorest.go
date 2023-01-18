@@ -16,6 +16,7 @@ import (
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/arm"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/policy"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/runtime"
+	"github.com/Azure/azure-sdk-for-go/sdk/azcore/tracing"
 	"net/http"
 	"net/url"
 	"strings"
@@ -55,19 +56,30 @@ func (client *ForecastsClient) NewListPager(options *ForecastsClientListOptions)
 		More: func(page ForecastsClientListResponse) bool {
 			return false
 		},
-		Fetcher: func(ctx context.Context, page *ForecastsClientListResponse) (ForecastsClientListResponse, error) {
+		Fetcher: func(ctx context.Context, page *ForecastsClientListResponse) (result ForecastsClientListResponse, err error) {
+			ctx, span := client.internal.Tracer().Start(ctx, "ForecastsClient.NewListPager", &tracing.SpanOptions{
+				Kind: tracing.SpanKindInternal,
+			})
+			defer func() {
+				if err != nil {
+					span.AddError(err)
+				}
+				span.End()
+			}()
 			req, err := client.listCreateRequest(ctx, options)
 			if err != nil {
-				return ForecastsClientListResponse{}, err
+				return
 			}
 			resp, err := client.internal.Pipeline().Do(req)
 			if err != nil {
-				return ForecastsClientListResponse{}, err
+				return
 			}
 			if !runtime.HasStatusCode(resp, http.StatusOK) {
-				return ForecastsClientListResponse{}, runtime.NewResponseError(resp)
+				err = runtime.NewResponseError(resp)
+				return
 			}
-			return client.listHandleResponse(resp)
+			result, err = client.listHandleResponse(resp)
+			return
 		},
 	})
 }
@@ -94,10 +106,10 @@ func (client *ForecastsClient) listCreateRequest(ctx context.Context, options *F
 }
 
 // listHandleResponse handles the List response.
-func (client *ForecastsClient) listHandleResponse(resp *http.Response) (ForecastsClientListResponse, error) {
-	result := ForecastsClientListResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.ForecastsListResult); err != nil {
-		return ForecastsClientListResponse{}, err
+func (client *ForecastsClient) listHandleResponse(resp *http.Response) (result ForecastsClientListResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.ForecastsListResult); err != nil {
+		result = ForecastsClientListResponse{}
+		return
 	}
 	return result, nil
 }

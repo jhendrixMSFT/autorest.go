@@ -15,6 +15,7 @@ import (
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/policy"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/runtime"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/streaming"
+	"github.com/Azure/azure-sdk-for-go/sdk/azcore/tracing"
 	"net/http"
 	"net/url"
 	"strings"
@@ -36,19 +37,30 @@ type AuthenticationClient struct {
 //   - service - Indicates the name of your Azure container registry.
 //   - options - AuthenticationClientExchangeAADAccessTokenForAcrRefreshTokenOptions contains the optional parameters for the
 //     AuthenticationClient.ExchangeAADAccessTokenForAcrRefreshToken method.
-func (client *AuthenticationClient) ExchangeAADAccessTokenForAcrRefreshToken(ctx context.Context, grantType PostContentSchemaGrantType, service string, options *AuthenticationClientExchangeAADAccessTokenForAcrRefreshTokenOptions) (AuthenticationClientExchangeAADAccessTokenForAcrRefreshTokenResponse, error) {
+func (client *AuthenticationClient) ExchangeAADAccessTokenForAcrRefreshToken(ctx context.Context, grantType PostContentSchemaGrantType, service string, options *AuthenticationClientExchangeAADAccessTokenForAcrRefreshTokenOptions) (result AuthenticationClientExchangeAADAccessTokenForAcrRefreshTokenResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "AuthenticationClient.ExchangeAADAccessTokenForAcrRefreshToken", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.exchangeAADAccessTokenForAcrRefreshTokenCreateRequest(ctx, grantType, service, options)
 	if err != nil {
-		return AuthenticationClientExchangeAADAccessTokenForAcrRefreshTokenResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return AuthenticationClientExchangeAADAccessTokenForAcrRefreshTokenResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return AuthenticationClientExchangeAADAccessTokenForAcrRefreshTokenResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.exchangeAADAccessTokenForAcrRefreshTokenHandleResponse(resp)
+	result, err = client.exchangeAADAccessTokenForAcrRefreshTokenHandleResponse(resp)
+	return
 }
 
 // exchangeAADAccessTokenForAcrRefreshTokenCreateRequest creates the ExchangeAADAccessTokenForAcrRefreshToken request.
@@ -81,10 +93,10 @@ func (client *AuthenticationClient) exchangeAADAccessTokenForAcrRefreshTokenCrea
 }
 
 // exchangeAADAccessTokenForAcrRefreshTokenHandleResponse handles the ExchangeAADAccessTokenForAcrRefreshToken response.
-func (client *AuthenticationClient) exchangeAADAccessTokenForAcrRefreshTokenHandleResponse(resp *http.Response) (AuthenticationClientExchangeAADAccessTokenForAcrRefreshTokenResponse, error) {
-	result := AuthenticationClientExchangeAADAccessTokenForAcrRefreshTokenResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.RefreshToken); err != nil {
-		return AuthenticationClientExchangeAADAccessTokenForAcrRefreshTokenResponse{}, err
+func (client *AuthenticationClient) exchangeAADAccessTokenForAcrRefreshTokenHandleResponse(resp *http.Response) (result AuthenticationClientExchangeAADAccessTokenForAcrRefreshTokenResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.RefreshToken); err != nil {
+		result = AuthenticationClientExchangeAADAccessTokenForAcrRefreshTokenResponse{}
+		return
 	}
 	return result, nil
 }
@@ -99,19 +111,30 @@ func (client *AuthenticationClient) exchangeAADAccessTokenForAcrRefreshTokenHand
 //   - refreshToken - Must be a valid ACR refresh token
 //   - options - AuthenticationClientExchangeAcrRefreshTokenForAcrAccessTokenOptions contains the optional parameters for the
 //     AuthenticationClient.ExchangeAcrRefreshTokenForAcrAccessToken method.
-func (client *AuthenticationClient) ExchangeAcrRefreshTokenForAcrAccessToken(ctx context.Context, service string, scope string, refreshToken string, options *AuthenticationClientExchangeAcrRefreshTokenForAcrAccessTokenOptions) (AuthenticationClientExchangeAcrRefreshTokenForAcrAccessTokenResponse, error) {
+func (client *AuthenticationClient) ExchangeAcrRefreshTokenForAcrAccessToken(ctx context.Context, service string, scope string, refreshToken string, options *AuthenticationClientExchangeAcrRefreshTokenForAcrAccessTokenOptions) (result AuthenticationClientExchangeAcrRefreshTokenForAcrAccessTokenResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "AuthenticationClient.ExchangeAcrRefreshTokenForAcrAccessToken", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.exchangeAcrRefreshTokenForAcrAccessTokenCreateRequest(ctx, service, scope, refreshToken, options)
 	if err != nil {
-		return AuthenticationClientExchangeAcrRefreshTokenForAcrAccessTokenResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return AuthenticationClientExchangeAcrRefreshTokenForAcrAccessTokenResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return AuthenticationClientExchangeAcrRefreshTokenForAcrAccessTokenResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.exchangeAcrRefreshTokenForAcrAccessTokenHandleResponse(resp)
+	result, err = client.exchangeAcrRefreshTokenForAcrAccessTokenHandleResponse(resp)
+	return
 }
 
 // exchangeAcrRefreshTokenForAcrAccessTokenCreateRequest creates the ExchangeAcrRefreshTokenForAcrAccessToken request.
@@ -139,10 +162,10 @@ func (client *AuthenticationClient) exchangeAcrRefreshTokenForAcrAccessTokenCrea
 }
 
 // exchangeAcrRefreshTokenForAcrAccessTokenHandleResponse handles the ExchangeAcrRefreshTokenForAcrAccessToken response.
-func (client *AuthenticationClient) exchangeAcrRefreshTokenForAcrAccessTokenHandleResponse(resp *http.Response) (AuthenticationClientExchangeAcrRefreshTokenForAcrAccessTokenResponse, error) {
-	result := AuthenticationClientExchangeAcrRefreshTokenForAcrAccessTokenResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.AccessToken); err != nil {
-		return AuthenticationClientExchangeAcrRefreshTokenForAcrAccessTokenResponse{}, err
+func (client *AuthenticationClient) exchangeAcrRefreshTokenForAcrAccessTokenHandleResponse(resp *http.Response) (result AuthenticationClientExchangeAcrRefreshTokenForAcrAccessTokenResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.AccessToken); err != nil {
+		result = AuthenticationClientExchangeAcrRefreshTokenForAcrAccessTokenResponse{}
+		return
 	}
 	return result, nil
 }
@@ -156,19 +179,30 @@ func (client *AuthenticationClient) exchangeAcrRefreshTokenForAcrAccessTokenHand
 //     from the Www-Authenticate response header from the challenge.
 //   - options - AuthenticationClientGetAcrAccessTokenFromLoginOptions contains the optional parameters for the AuthenticationClient.GetAcrAccessTokenFromLogin
 //     method.
-func (client *AuthenticationClient) GetAcrAccessTokenFromLogin(ctx context.Context, service string, scope string, options *AuthenticationClientGetAcrAccessTokenFromLoginOptions) (AuthenticationClientGetAcrAccessTokenFromLoginResponse, error) {
+func (client *AuthenticationClient) GetAcrAccessTokenFromLogin(ctx context.Context, service string, scope string, options *AuthenticationClientGetAcrAccessTokenFromLoginOptions) (result AuthenticationClientGetAcrAccessTokenFromLoginResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "AuthenticationClient.GetAcrAccessTokenFromLogin", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.getAcrAccessTokenFromLoginCreateRequest(ctx, service, scope, options)
 	if err != nil {
-		return AuthenticationClientGetAcrAccessTokenFromLoginResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return AuthenticationClientGetAcrAccessTokenFromLoginResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return AuthenticationClientGetAcrAccessTokenFromLoginResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.getAcrAccessTokenFromLoginHandleResponse(resp)
+	result, err = client.getAcrAccessTokenFromLoginHandleResponse(resp)
+	return
 }
 
 // getAcrAccessTokenFromLoginCreateRequest creates the GetAcrAccessTokenFromLogin request.
@@ -187,10 +221,10 @@ func (client *AuthenticationClient) getAcrAccessTokenFromLoginCreateRequest(ctx 
 }
 
 // getAcrAccessTokenFromLoginHandleResponse handles the GetAcrAccessTokenFromLogin response.
-func (client *AuthenticationClient) getAcrAccessTokenFromLoginHandleResponse(resp *http.Response) (AuthenticationClientGetAcrAccessTokenFromLoginResponse, error) {
-	result := AuthenticationClientGetAcrAccessTokenFromLoginResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.AccessToken); err != nil {
-		return AuthenticationClientGetAcrAccessTokenFromLoginResponse{}, err
+func (client *AuthenticationClient) getAcrAccessTokenFromLoginHandleResponse(resp *http.Response) (result AuthenticationClientGetAcrAccessTokenFromLoginResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.AccessToken); err != nil {
+		result = AuthenticationClientGetAcrAccessTokenFromLoginResponse{}
+		return
 	}
 	return result, nil
 }

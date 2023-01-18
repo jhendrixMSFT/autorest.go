@@ -15,6 +15,7 @@ import (
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/policy"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/runtime"
+	"github.com/Azure/azure-sdk-for-go/sdk/azcore/tracing"
 	"net/http"
 	"net/url"
 	"strings"
@@ -35,35 +36,47 @@ type DatasetClient struct {
 //   - dataset - Dataset resource definition.
 //   - options - DatasetClientBeginCreateOrUpdateDatasetOptions contains the optional parameters for the DatasetClient.BeginCreateOrUpdateDataset
 //     method.
-func (client *DatasetClient) BeginCreateOrUpdateDataset(ctx context.Context, datasetName string, dataset DatasetResource, options *DatasetClientBeginCreateOrUpdateDatasetOptions) (*runtime.Poller[DatasetClientCreateOrUpdateDatasetResponse], error) {
-	if options == nil || options.ResumeToken == "" {
-		resp, err := client.createOrUpdateDataset(ctx, datasetName, dataset, options)
+func (client *DatasetClient) BeginCreateOrUpdateDataset(ctx context.Context, datasetName string, dataset DatasetResource, options *DatasetClientBeginCreateOrUpdateDatasetOptions) (result *runtime.Poller[DatasetClientCreateOrUpdateDatasetResponse], err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "DatasetClient.BeginCreateOrUpdateDataset", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
 		if err != nil {
-			return nil, err
+			span.AddError(err)
 		}
-		return runtime.NewPoller[DatasetClientCreateOrUpdateDatasetResponse](resp, client.internal.Pipeline(), nil)
+		span.End()
+	}()
+	if options == nil || options.ResumeToken == "" {
+		var resp *http.Response
+		resp, err = client.createOrUpdateDataset(ctx, datasetName, dataset, options)
+		if err != nil {
+			return
+		}
+		result, err = runtime.NewPoller[DatasetClientCreateOrUpdateDatasetResponse](resp, client.internal.Pipeline(), nil)
 	} else {
-		return runtime.NewPollerFromResumeToken[DatasetClientCreateOrUpdateDatasetResponse](options.ResumeToken, client.internal.Pipeline(), nil)
+		result, err = runtime.NewPollerFromResumeToken[DatasetClientCreateOrUpdateDatasetResponse](options.ResumeToken, client.internal.Pipeline(), nil)
 	}
+	return
 }
 
 // CreateOrUpdateDataset - Creates or updates a dataset.
 // If the operation fails it returns an *azcore.ResponseError type.
 //
 // Generated from API version 2019-06-01-preview
-func (client *DatasetClient) createOrUpdateDataset(ctx context.Context, datasetName string, dataset DatasetResource, options *DatasetClientBeginCreateOrUpdateDatasetOptions) (*http.Response, error) {
+func (client *DatasetClient) createOrUpdateDataset(ctx context.Context, datasetName string, dataset DatasetResource, options *DatasetClientBeginCreateOrUpdateDatasetOptions) (resp *http.Response, err error) {
 	req, err := client.createOrUpdateDatasetCreateRequest(ctx, datasetName, dataset, options)
 	if err != nil {
-		return nil, err
+		return
 	}
-	resp, err := client.internal.Pipeline().Do(req)
+	resp, err = client.internal.Pipeline().Do(req)
 	if err != nil {
-		return nil, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK, http.StatusAccepted) {
-		return nil, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return resp, nil
+	return
 }
 
 // createOrUpdateDatasetCreateRequest creates the CreateOrUpdateDataset request.
@@ -94,35 +107,47 @@ func (client *DatasetClient) createOrUpdateDatasetCreateRequest(ctx context.Cont
 //   - datasetName - The dataset name.
 //   - options - DatasetClientBeginDeleteDatasetOptions contains the optional parameters for the DatasetClient.BeginDeleteDataset
 //     method.
-func (client *DatasetClient) BeginDeleteDataset(ctx context.Context, datasetName string, options *DatasetClientBeginDeleteDatasetOptions) (*runtime.Poller[DatasetClientDeleteDatasetResponse], error) {
-	if options == nil || options.ResumeToken == "" {
-		resp, err := client.deleteDataset(ctx, datasetName, options)
+func (client *DatasetClient) BeginDeleteDataset(ctx context.Context, datasetName string, options *DatasetClientBeginDeleteDatasetOptions) (result *runtime.Poller[DatasetClientDeleteDatasetResponse], err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "DatasetClient.BeginDeleteDataset", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
 		if err != nil {
-			return nil, err
+			span.AddError(err)
 		}
-		return runtime.NewPoller[DatasetClientDeleteDatasetResponse](resp, client.internal.Pipeline(), nil)
+		span.End()
+	}()
+	if options == nil || options.ResumeToken == "" {
+		var resp *http.Response
+		resp, err = client.deleteDataset(ctx, datasetName, options)
+		if err != nil {
+			return
+		}
+		result, err = runtime.NewPoller[DatasetClientDeleteDatasetResponse](resp, client.internal.Pipeline(), nil)
 	} else {
-		return runtime.NewPollerFromResumeToken[DatasetClientDeleteDatasetResponse](options.ResumeToken, client.internal.Pipeline(), nil)
+		result, err = runtime.NewPollerFromResumeToken[DatasetClientDeleteDatasetResponse](options.ResumeToken, client.internal.Pipeline(), nil)
 	}
+	return
 }
 
 // DeleteDataset - Deletes a dataset.
 // If the operation fails it returns an *azcore.ResponseError type.
 //
 // Generated from API version 2019-06-01-preview
-func (client *DatasetClient) deleteDataset(ctx context.Context, datasetName string, options *DatasetClientBeginDeleteDatasetOptions) (*http.Response, error) {
+func (client *DatasetClient) deleteDataset(ctx context.Context, datasetName string, options *DatasetClientBeginDeleteDatasetOptions) (resp *http.Response, err error) {
 	req, err := client.deleteDatasetCreateRequest(ctx, datasetName, options)
 	if err != nil {
-		return nil, err
+		return
 	}
-	resp, err := client.internal.Pipeline().Do(req)
+	resp, err = client.internal.Pipeline().Do(req)
 	if err != nil {
-		return nil, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK, http.StatusAccepted, http.StatusNoContent) {
-		return nil, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return resp, nil
+	return
 }
 
 // deleteDatasetCreateRequest creates the DeleteDataset request.
@@ -149,19 +174,30 @@ func (client *DatasetClient) deleteDatasetCreateRequest(ctx context.Context, dat
 // Generated from API version 2019-06-01-preview
 //   - datasetName - The dataset name.
 //   - options - DatasetClientGetDatasetOptions contains the optional parameters for the DatasetClient.GetDataset method.
-func (client *DatasetClient) GetDataset(ctx context.Context, datasetName string, options *DatasetClientGetDatasetOptions) (DatasetClientGetDatasetResponse, error) {
+func (client *DatasetClient) GetDataset(ctx context.Context, datasetName string, options *DatasetClientGetDatasetOptions) (result DatasetClientGetDatasetResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "DatasetClient.GetDataset", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.getDatasetCreateRequest(ctx, datasetName, options)
 	if err != nil {
-		return DatasetClientGetDatasetResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return DatasetClientGetDatasetResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK, http.StatusNotModified) {
-		return DatasetClientGetDatasetResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.getDatasetHandleResponse(resp)
+	result, err = client.getDatasetHandleResponse(resp)
+	return
 }
 
 // getDatasetCreateRequest creates the GetDataset request.
@@ -186,10 +222,10 @@ func (client *DatasetClient) getDatasetCreateRequest(ctx context.Context, datase
 }
 
 // getDatasetHandleResponse handles the GetDataset response.
-func (client *DatasetClient) getDatasetHandleResponse(resp *http.Response) (DatasetClientGetDatasetResponse, error) {
-	result := DatasetClientGetDatasetResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.DatasetResource); err != nil {
-		return DatasetClientGetDatasetResponse{}, err
+func (client *DatasetClient) getDatasetHandleResponse(resp *http.Response) (result DatasetClientGetDatasetResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.DatasetResource); err != nil {
+		result = DatasetClientGetDatasetResponse{}
+		return
 	}
 	return result, nil
 }
@@ -204,25 +240,35 @@ func (client *DatasetClient) NewGetDatasetsByWorkspacePager(options *DatasetClie
 		More: func(page DatasetClientGetDatasetsByWorkspaceResponse) bool {
 			return page.NextLink != nil && len(*page.NextLink) > 0
 		},
-		Fetcher: func(ctx context.Context, page *DatasetClientGetDatasetsByWorkspaceResponse) (DatasetClientGetDatasetsByWorkspaceResponse, error) {
+		Fetcher: func(ctx context.Context, page *DatasetClientGetDatasetsByWorkspaceResponse) (result DatasetClientGetDatasetsByWorkspaceResponse, err error) {
+			ctx, span := client.internal.Tracer().Start(ctx, "DatasetClient.NewGetDatasetsByWorkspacePager", &tracing.SpanOptions{
+				Kind: tracing.SpanKindInternal,
+			})
+			defer func() {
+				if err != nil {
+					span.AddError(err)
+				}
+				span.End()
+			}()
 			var req *policy.Request
-			var err error
 			if page == nil {
 				req, err = client.getDatasetsByWorkspaceCreateRequest(ctx, options)
 			} else {
 				req, err = runtime.NewRequest(ctx, http.MethodGet, *page.NextLink)
 			}
 			if err != nil {
-				return DatasetClientGetDatasetsByWorkspaceResponse{}, err
+				return
 			}
 			resp, err := client.internal.Pipeline().Do(req)
 			if err != nil {
-				return DatasetClientGetDatasetsByWorkspaceResponse{}, err
+				return
 			}
 			if !runtime.HasStatusCode(resp, http.StatusOK) {
-				return DatasetClientGetDatasetsByWorkspaceResponse{}, runtime.NewResponseError(resp)
+				err = runtime.NewResponseError(resp)
+				return
 			}
-			return client.getDatasetsByWorkspaceHandleResponse(resp)
+			result, err = client.getDatasetsByWorkspaceHandleResponse(resp)
+			return
 		},
 	})
 }
@@ -242,10 +288,10 @@ func (client *DatasetClient) getDatasetsByWorkspaceCreateRequest(ctx context.Con
 }
 
 // getDatasetsByWorkspaceHandleResponse handles the GetDatasetsByWorkspace response.
-func (client *DatasetClient) getDatasetsByWorkspaceHandleResponse(resp *http.Response) (DatasetClientGetDatasetsByWorkspaceResponse, error) {
-	result := DatasetClientGetDatasetsByWorkspaceResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.DatasetListResponse); err != nil {
-		return DatasetClientGetDatasetsByWorkspaceResponse{}, err
+func (client *DatasetClient) getDatasetsByWorkspaceHandleResponse(resp *http.Response) (result DatasetClientGetDatasetsByWorkspaceResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.DatasetListResponse); err != nil {
+		result = DatasetClientGetDatasetsByWorkspaceResponse{}
+		return
 	}
 	return result, nil
 }
@@ -258,35 +304,47 @@ func (client *DatasetClient) getDatasetsByWorkspaceHandleResponse(resp *http.Res
 //   - request - proposed new name.
 //   - options - DatasetClientBeginRenameDatasetOptions contains the optional parameters for the DatasetClient.BeginRenameDataset
 //     method.
-func (client *DatasetClient) BeginRenameDataset(ctx context.Context, datasetName string, request ArtifactRenameRequest, options *DatasetClientBeginRenameDatasetOptions) (*runtime.Poller[DatasetClientRenameDatasetResponse], error) {
-	if options == nil || options.ResumeToken == "" {
-		resp, err := client.renameDataset(ctx, datasetName, request, options)
+func (client *DatasetClient) BeginRenameDataset(ctx context.Context, datasetName string, request ArtifactRenameRequest, options *DatasetClientBeginRenameDatasetOptions) (result *runtime.Poller[DatasetClientRenameDatasetResponse], err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "DatasetClient.BeginRenameDataset", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
 		if err != nil {
-			return nil, err
+			span.AddError(err)
 		}
-		return runtime.NewPoller[DatasetClientRenameDatasetResponse](resp, client.internal.Pipeline(), nil)
+		span.End()
+	}()
+	if options == nil || options.ResumeToken == "" {
+		var resp *http.Response
+		resp, err = client.renameDataset(ctx, datasetName, request, options)
+		if err != nil {
+			return
+		}
+		result, err = runtime.NewPoller[DatasetClientRenameDatasetResponse](resp, client.internal.Pipeline(), nil)
 	} else {
-		return runtime.NewPollerFromResumeToken[DatasetClientRenameDatasetResponse](options.ResumeToken, client.internal.Pipeline(), nil)
+		result, err = runtime.NewPollerFromResumeToken[DatasetClientRenameDatasetResponse](options.ResumeToken, client.internal.Pipeline(), nil)
 	}
+	return
 }
 
 // RenameDataset - Renames a dataset.
 // If the operation fails it returns an *azcore.ResponseError type.
 //
 // Generated from API version 2019-06-01-preview
-func (client *DatasetClient) renameDataset(ctx context.Context, datasetName string, request ArtifactRenameRequest, options *DatasetClientBeginRenameDatasetOptions) (*http.Response, error) {
+func (client *DatasetClient) renameDataset(ctx context.Context, datasetName string, request ArtifactRenameRequest, options *DatasetClientBeginRenameDatasetOptions) (resp *http.Response, err error) {
 	req, err := client.renameDatasetCreateRequest(ctx, datasetName, request, options)
 	if err != nil {
-		return nil, err
+		return
 	}
-	resp, err := client.internal.Pipeline().Do(req)
+	resp, err = client.internal.Pipeline().Do(req)
 	if err != nil {
-		return nil, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK, http.StatusAccepted) {
-		return nil, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return resp, nil
+	return
 }
 
 // renameDatasetCreateRequest creates the RenameDataset request.
