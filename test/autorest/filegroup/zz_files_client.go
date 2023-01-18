@@ -14,6 +14,7 @@ import (
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/policy"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/runtime"
+	"github.com/Azure/azure-sdk-for-go/sdk/azcore/tracing"
 	"net/http"
 )
 
@@ -28,19 +29,30 @@ type FilesClient struct {
 //
 // Generated from API version 1.0.0
 //   - options - FilesClientGetEmptyFileOptions contains the optional parameters for the FilesClient.GetEmptyFile method.
-func (client *FilesClient) GetEmptyFile(ctx context.Context, options *FilesClientGetEmptyFileOptions) (FilesClientGetEmptyFileResponse, error) {
+func (client *FilesClient) GetEmptyFile(ctx context.Context, options *FilesClientGetEmptyFileOptions) (result FilesClientGetEmptyFileResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "FilesClient.GetEmptyFile", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.getEmptyFileCreateRequest(ctx, options)
 	if err != nil {
-		return FilesClientGetEmptyFileResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return FilesClientGetEmptyFileResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return FilesClientGetEmptyFileResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return FilesClientGetEmptyFileResponse{Body: resp.Body}, nil
+	result.Body = resp.Body
+	return
 }
 
 // getEmptyFileCreateRequest creates the GetEmptyFile request.
@@ -60,19 +72,30 @@ func (client *FilesClient) getEmptyFileCreateRequest(ctx context.Context, option
 //
 // Generated from API version 1.0.0
 //   - options - FilesClientGetFileOptions contains the optional parameters for the FilesClient.GetFile method.
-func (client *FilesClient) GetFile(ctx context.Context, options *FilesClientGetFileOptions) (FilesClientGetFileResponse, error) {
+func (client *FilesClient) GetFile(ctx context.Context, options *FilesClientGetFileOptions) (result FilesClientGetFileResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "FilesClient.GetFile", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.getFileCreateRequest(ctx, options)
 	if err != nil {
-		return FilesClientGetFileResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return FilesClientGetFileResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return FilesClientGetFileResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return FilesClientGetFileResponse{Body: resp.Body}, nil
+	result.Body = resp.Body
+	return
 }
 
 // getFileCreateRequest creates the GetFile request.
@@ -92,19 +115,30 @@ func (client *FilesClient) getFileCreateRequest(ctx context.Context, options *Fi
 //
 // Generated from API version 1.0.0
 //   - options - FilesClientGetFileLargeOptions contains the optional parameters for the FilesClient.GetFileLarge method.
-func (client *FilesClient) GetFileLarge(ctx context.Context, options *FilesClientGetFileLargeOptions) (FilesClientGetFileLargeResponse, error) {
+func (client *FilesClient) GetFileLarge(ctx context.Context, options *FilesClientGetFileLargeOptions) (result FilesClientGetFileLargeResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "FilesClient.GetFileLarge", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.getFileLargeCreateRequest(ctx, options)
 	if err != nil {
-		return FilesClientGetFileLargeResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return FilesClientGetFileLargeResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return FilesClientGetFileLargeResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return FilesClientGetFileLargeResponse{Body: resp.Body}, nil
+	result.Body = resp.Body
+	return
 }
 
 // getFileLargeCreateRequest creates the GetFileLarge request.

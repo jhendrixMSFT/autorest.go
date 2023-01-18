@@ -15,6 +15,7 @@ import (
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/policy"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/runtime"
+	"github.com/Azure/azure-sdk-for-go/sdk/azcore/tracing"
 	"net/http"
 	"net/url"
 	"strings"
@@ -32,19 +33,30 @@ type PetClient struct {
 // Generated from API version 0.0.0
 //   - whatAction - what action the pet should do
 //   - options - PetClientDoSomethingOptions contains the optional parameters for the PetClient.DoSomething method.
-func (client *PetClient) DoSomething(ctx context.Context, whatAction string, options *PetClientDoSomethingOptions) (PetClientDoSomethingResponse, error) {
+func (client *PetClient) DoSomething(ctx context.Context, whatAction string, options *PetClientDoSomethingOptions) (result PetClientDoSomethingResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "PetClient.DoSomething", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.doSomethingCreateRequest(ctx, whatAction, options)
 	if err != nil {
-		return PetClientDoSomethingResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return PetClientDoSomethingResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return PetClientDoSomethingResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.doSomethingHandleResponse(resp)
+	result, err = client.doSomethingHandleResponse(resp)
+	return
 }
 
 // doSomethingCreateRequest creates the DoSomething request.
@@ -63,10 +75,10 @@ func (client *PetClient) doSomethingCreateRequest(ctx context.Context, whatActio
 }
 
 // doSomethingHandleResponse handles the DoSomething response.
-func (client *PetClient) doSomethingHandleResponse(resp *http.Response) (PetClientDoSomethingResponse, error) {
-	result := PetClientDoSomethingResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.PetAction); err != nil {
-		return PetClientDoSomethingResponse{}, err
+func (client *PetClient) doSomethingHandleResponse(resp *http.Response) (result PetClientDoSomethingResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.PetAction); err != nil {
+		result = PetClientDoSomethingResponse{}
+		return
 	}
 	return result, nil
 }
@@ -77,19 +89,30 @@ func (client *PetClient) doSomethingHandleResponse(resp *http.Response) (PetClie
 // Generated from API version 0.0.0
 //   - petID - pet id
 //   - options - PetClientGetPetByIDOptions contains the optional parameters for the PetClient.GetPetByID method.
-func (client *PetClient) GetPetByID(ctx context.Context, petID string, options *PetClientGetPetByIDOptions) (PetClientGetPetByIDResponse, error) {
+func (client *PetClient) GetPetByID(ctx context.Context, petID string, options *PetClientGetPetByIDOptions) (result PetClientGetPetByIDResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "PetClient.GetPetByID", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.getPetByIDCreateRequest(ctx, petID, options)
 	if err != nil {
-		return PetClientGetPetByIDResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return PetClientGetPetByIDResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK, http.StatusAccepted) {
-		return PetClientGetPetByIDResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.getPetByIDHandleResponse(resp)
+	result, err = client.getPetByIDHandleResponse(resp)
+	return
 }
 
 // getPetByIDCreateRequest creates the GetPetByID request.
@@ -108,10 +131,10 @@ func (client *PetClient) getPetByIDCreateRequest(ctx context.Context, petID stri
 }
 
 // getPetByIDHandleResponse handles the GetPetByID response.
-func (client *PetClient) getPetByIDHandleResponse(resp *http.Response) (PetClientGetPetByIDResponse, error) {
-	result := PetClientGetPetByIDResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.Pet); err != nil {
-		return PetClientGetPetByIDResponse{}, err
+func (client *PetClient) getPetByIDHandleResponse(resp *http.Response) (result PetClientGetPetByIDResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.Pet); err != nil {
+		result = PetClientGetPetByIDResponse{}
+		return
 	}
 	return result, nil
 }
@@ -122,19 +145,29 @@ func (client *PetClient) getPetByIDHandleResponse(resp *http.Response) (PetClien
 //
 // Generated from API version 0.0.0
 //   - options - PetClientHasModelsParamOptions contains the optional parameters for the PetClient.HasModelsParam method.
-func (client *PetClient) HasModelsParam(ctx context.Context, options *PetClientHasModelsParamOptions) (PetClientHasModelsParamResponse, error) {
+func (client *PetClient) HasModelsParam(ctx context.Context, options *PetClientHasModelsParamOptions) (result PetClientHasModelsParamResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "PetClient.HasModelsParam", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.hasModelsParamCreateRequest(ctx, options)
 	if err != nil {
-		return PetClientHasModelsParamResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return PetClientHasModelsParamResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return PetClientHasModelsParamResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return PetClientHasModelsParamResponse{}, nil
+	return
 }
 
 // hasModelsParamCreateRequest creates the HasModelsParam request.

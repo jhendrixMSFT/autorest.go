@@ -14,6 +14,7 @@ import (
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/policy"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/runtime"
+	"github.com/Azure/azure-sdk-for-go/sdk/azcore/tracing"
 	"net/http"
 	"time"
 )
@@ -30,19 +31,30 @@ type Datetimerfc1123Client struct {
 // Generated from API version 1.0.0
 //   - options - Datetimerfc1123ClientGetInvalidOptions contains the optional parameters for the Datetimerfc1123Client.GetInvalid
 //     method.
-func (client *Datetimerfc1123Client) GetInvalid(ctx context.Context, options *Datetimerfc1123ClientGetInvalidOptions) (Datetimerfc1123ClientGetInvalidResponse, error) {
+func (client *Datetimerfc1123Client) GetInvalid(ctx context.Context, options *Datetimerfc1123ClientGetInvalidOptions) (result Datetimerfc1123ClientGetInvalidResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "Datetimerfc1123Client.GetInvalid", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.getInvalidCreateRequest(ctx, options)
 	if err != nil {
-		return Datetimerfc1123ClientGetInvalidResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return Datetimerfc1123ClientGetInvalidResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return Datetimerfc1123ClientGetInvalidResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.getInvalidHandleResponse(resp)
+	result, err = client.getInvalidHandleResponse(resp)
+	return
 }
 
 // getInvalidCreateRequest creates the GetInvalid request.
@@ -57,11 +69,10 @@ func (client *Datetimerfc1123Client) getInvalidCreateRequest(ctx context.Context
 }
 
 // getInvalidHandleResponse handles the GetInvalid response.
-func (client *Datetimerfc1123Client) getInvalidHandleResponse(resp *http.Response) (Datetimerfc1123ClientGetInvalidResponse, error) {
-	result := Datetimerfc1123ClientGetInvalidResponse{}
+func (client *Datetimerfc1123Client) getInvalidHandleResponse(resp *http.Response) (result Datetimerfc1123ClientGetInvalidResponse, err error) {
 	var aux *timeRFC1123
-	if err := runtime.UnmarshalAsJSON(resp, &aux); err != nil {
-		return Datetimerfc1123ClientGetInvalidResponse{}, err
+	if err = runtime.UnmarshalAsJSON(resp, &aux); err != nil {
+		return
 	}
 	result.Value = (*time.Time)(aux)
 	return result, nil
@@ -72,19 +83,30 @@ func (client *Datetimerfc1123Client) getInvalidHandleResponse(resp *http.Respons
 //
 // Generated from API version 1.0.0
 //   - options - Datetimerfc1123ClientGetNullOptions contains the optional parameters for the Datetimerfc1123Client.GetNull method.
-func (client *Datetimerfc1123Client) GetNull(ctx context.Context, options *Datetimerfc1123ClientGetNullOptions) (Datetimerfc1123ClientGetNullResponse, error) {
+func (client *Datetimerfc1123Client) GetNull(ctx context.Context, options *Datetimerfc1123ClientGetNullOptions) (result Datetimerfc1123ClientGetNullResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "Datetimerfc1123Client.GetNull", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.getNullCreateRequest(ctx, options)
 	if err != nil {
-		return Datetimerfc1123ClientGetNullResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return Datetimerfc1123ClientGetNullResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return Datetimerfc1123ClientGetNullResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.getNullHandleResponse(resp)
+	result, err = client.getNullHandleResponse(resp)
+	return
 }
 
 // getNullCreateRequest creates the GetNull request.
@@ -99,11 +121,10 @@ func (client *Datetimerfc1123Client) getNullCreateRequest(ctx context.Context, o
 }
 
 // getNullHandleResponse handles the GetNull response.
-func (client *Datetimerfc1123Client) getNullHandleResponse(resp *http.Response) (Datetimerfc1123ClientGetNullResponse, error) {
-	result := Datetimerfc1123ClientGetNullResponse{}
+func (client *Datetimerfc1123Client) getNullHandleResponse(resp *http.Response) (result Datetimerfc1123ClientGetNullResponse, err error) {
 	var aux *timeRFC1123
-	if err := runtime.UnmarshalAsJSON(resp, &aux); err != nil {
-		return Datetimerfc1123ClientGetNullResponse{}, err
+	if err = runtime.UnmarshalAsJSON(resp, &aux); err != nil {
+		return
 	}
 	result.Value = (*time.Time)(aux)
 	return result, nil
@@ -115,19 +136,30 @@ func (client *Datetimerfc1123Client) getNullHandleResponse(resp *http.Response) 
 // Generated from API version 1.0.0
 //   - options - Datetimerfc1123ClientGetOverflowOptions contains the optional parameters for the Datetimerfc1123Client.GetOverflow
 //     method.
-func (client *Datetimerfc1123Client) GetOverflow(ctx context.Context, options *Datetimerfc1123ClientGetOverflowOptions) (Datetimerfc1123ClientGetOverflowResponse, error) {
+func (client *Datetimerfc1123Client) GetOverflow(ctx context.Context, options *Datetimerfc1123ClientGetOverflowOptions) (result Datetimerfc1123ClientGetOverflowResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "Datetimerfc1123Client.GetOverflow", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.getOverflowCreateRequest(ctx, options)
 	if err != nil {
-		return Datetimerfc1123ClientGetOverflowResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return Datetimerfc1123ClientGetOverflowResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return Datetimerfc1123ClientGetOverflowResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.getOverflowHandleResponse(resp)
+	result, err = client.getOverflowHandleResponse(resp)
+	return
 }
 
 // getOverflowCreateRequest creates the GetOverflow request.
@@ -142,11 +174,10 @@ func (client *Datetimerfc1123Client) getOverflowCreateRequest(ctx context.Contex
 }
 
 // getOverflowHandleResponse handles the GetOverflow response.
-func (client *Datetimerfc1123Client) getOverflowHandleResponse(resp *http.Response) (Datetimerfc1123ClientGetOverflowResponse, error) {
-	result := Datetimerfc1123ClientGetOverflowResponse{}
+func (client *Datetimerfc1123Client) getOverflowHandleResponse(resp *http.Response) (result Datetimerfc1123ClientGetOverflowResponse, err error) {
 	var aux *timeRFC1123
-	if err := runtime.UnmarshalAsJSON(resp, &aux); err != nil {
-		return Datetimerfc1123ClientGetOverflowResponse{}, err
+	if err = runtime.UnmarshalAsJSON(resp, &aux); err != nil {
+		return
 	}
 	result.Value = (*time.Time)(aux)
 	return result, nil
@@ -158,19 +189,30 @@ func (client *Datetimerfc1123Client) getOverflowHandleResponse(resp *http.Respon
 // Generated from API version 1.0.0
 //   - options - Datetimerfc1123ClientGetUTCLowercaseMaxDateTimeOptions contains the optional parameters for the Datetimerfc1123Client.GetUTCLowercaseMaxDateTime
 //     method.
-func (client *Datetimerfc1123Client) GetUTCLowercaseMaxDateTime(ctx context.Context, options *Datetimerfc1123ClientGetUTCLowercaseMaxDateTimeOptions) (Datetimerfc1123ClientGetUTCLowercaseMaxDateTimeResponse, error) {
+func (client *Datetimerfc1123Client) GetUTCLowercaseMaxDateTime(ctx context.Context, options *Datetimerfc1123ClientGetUTCLowercaseMaxDateTimeOptions) (result Datetimerfc1123ClientGetUTCLowercaseMaxDateTimeResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "Datetimerfc1123Client.GetUTCLowercaseMaxDateTime", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.getUTCLowercaseMaxDateTimeCreateRequest(ctx, options)
 	if err != nil {
-		return Datetimerfc1123ClientGetUTCLowercaseMaxDateTimeResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return Datetimerfc1123ClientGetUTCLowercaseMaxDateTimeResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return Datetimerfc1123ClientGetUTCLowercaseMaxDateTimeResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.getUTCLowercaseMaxDateTimeHandleResponse(resp)
+	result, err = client.getUTCLowercaseMaxDateTimeHandleResponse(resp)
+	return
 }
 
 // getUTCLowercaseMaxDateTimeCreateRequest creates the GetUTCLowercaseMaxDateTime request.
@@ -185,11 +227,10 @@ func (client *Datetimerfc1123Client) getUTCLowercaseMaxDateTimeCreateRequest(ctx
 }
 
 // getUTCLowercaseMaxDateTimeHandleResponse handles the GetUTCLowercaseMaxDateTime response.
-func (client *Datetimerfc1123Client) getUTCLowercaseMaxDateTimeHandleResponse(resp *http.Response) (Datetimerfc1123ClientGetUTCLowercaseMaxDateTimeResponse, error) {
-	result := Datetimerfc1123ClientGetUTCLowercaseMaxDateTimeResponse{}
+func (client *Datetimerfc1123Client) getUTCLowercaseMaxDateTimeHandleResponse(resp *http.Response) (result Datetimerfc1123ClientGetUTCLowercaseMaxDateTimeResponse, err error) {
 	var aux *timeRFC1123
-	if err := runtime.UnmarshalAsJSON(resp, &aux); err != nil {
-		return Datetimerfc1123ClientGetUTCLowercaseMaxDateTimeResponse{}, err
+	if err = runtime.UnmarshalAsJSON(resp, &aux); err != nil {
+		return
 	}
 	result.Value = (*time.Time)(aux)
 	return result, nil
@@ -201,19 +242,30 @@ func (client *Datetimerfc1123Client) getUTCLowercaseMaxDateTimeHandleResponse(re
 // Generated from API version 1.0.0
 //   - options - Datetimerfc1123ClientGetUTCMinDateTimeOptions contains the optional parameters for the Datetimerfc1123Client.GetUTCMinDateTime
 //     method.
-func (client *Datetimerfc1123Client) GetUTCMinDateTime(ctx context.Context, options *Datetimerfc1123ClientGetUTCMinDateTimeOptions) (Datetimerfc1123ClientGetUTCMinDateTimeResponse, error) {
+func (client *Datetimerfc1123Client) GetUTCMinDateTime(ctx context.Context, options *Datetimerfc1123ClientGetUTCMinDateTimeOptions) (result Datetimerfc1123ClientGetUTCMinDateTimeResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "Datetimerfc1123Client.GetUTCMinDateTime", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.getUTCMinDateTimeCreateRequest(ctx, options)
 	if err != nil {
-		return Datetimerfc1123ClientGetUTCMinDateTimeResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return Datetimerfc1123ClientGetUTCMinDateTimeResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return Datetimerfc1123ClientGetUTCMinDateTimeResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.getUTCMinDateTimeHandleResponse(resp)
+	result, err = client.getUTCMinDateTimeHandleResponse(resp)
+	return
 }
 
 // getUTCMinDateTimeCreateRequest creates the GetUTCMinDateTime request.
@@ -228,11 +280,10 @@ func (client *Datetimerfc1123Client) getUTCMinDateTimeCreateRequest(ctx context.
 }
 
 // getUTCMinDateTimeHandleResponse handles the GetUTCMinDateTime response.
-func (client *Datetimerfc1123Client) getUTCMinDateTimeHandleResponse(resp *http.Response) (Datetimerfc1123ClientGetUTCMinDateTimeResponse, error) {
-	result := Datetimerfc1123ClientGetUTCMinDateTimeResponse{}
+func (client *Datetimerfc1123Client) getUTCMinDateTimeHandleResponse(resp *http.Response) (result Datetimerfc1123ClientGetUTCMinDateTimeResponse, err error) {
 	var aux *timeRFC1123
-	if err := runtime.UnmarshalAsJSON(resp, &aux); err != nil {
-		return Datetimerfc1123ClientGetUTCMinDateTimeResponse{}, err
+	if err = runtime.UnmarshalAsJSON(resp, &aux); err != nil {
+		return
 	}
 	result.Value = (*time.Time)(aux)
 	return result, nil
@@ -244,19 +295,30 @@ func (client *Datetimerfc1123Client) getUTCMinDateTimeHandleResponse(resp *http.
 // Generated from API version 1.0.0
 //   - options - Datetimerfc1123ClientGetUTCUppercaseMaxDateTimeOptions contains the optional parameters for the Datetimerfc1123Client.GetUTCUppercaseMaxDateTime
 //     method.
-func (client *Datetimerfc1123Client) GetUTCUppercaseMaxDateTime(ctx context.Context, options *Datetimerfc1123ClientGetUTCUppercaseMaxDateTimeOptions) (Datetimerfc1123ClientGetUTCUppercaseMaxDateTimeResponse, error) {
+func (client *Datetimerfc1123Client) GetUTCUppercaseMaxDateTime(ctx context.Context, options *Datetimerfc1123ClientGetUTCUppercaseMaxDateTimeOptions) (result Datetimerfc1123ClientGetUTCUppercaseMaxDateTimeResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "Datetimerfc1123Client.GetUTCUppercaseMaxDateTime", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.getUTCUppercaseMaxDateTimeCreateRequest(ctx, options)
 	if err != nil {
-		return Datetimerfc1123ClientGetUTCUppercaseMaxDateTimeResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return Datetimerfc1123ClientGetUTCUppercaseMaxDateTimeResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return Datetimerfc1123ClientGetUTCUppercaseMaxDateTimeResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.getUTCUppercaseMaxDateTimeHandleResponse(resp)
+	result, err = client.getUTCUppercaseMaxDateTimeHandleResponse(resp)
+	return
 }
 
 // getUTCUppercaseMaxDateTimeCreateRequest creates the GetUTCUppercaseMaxDateTime request.
@@ -271,11 +333,10 @@ func (client *Datetimerfc1123Client) getUTCUppercaseMaxDateTimeCreateRequest(ctx
 }
 
 // getUTCUppercaseMaxDateTimeHandleResponse handles the GetUTCUppercaseMaxDateTime response.
-func (client *Datetimerfc1123Client) getUTCUppercaseMaxDateTimeHandleResponse(resp *http.Response) (Datetimerfc1123ClientGetUTCUppercaseMaxDateTimeResponse, error) {
-	result := Datetimerfc1123ClientGetUTCUppercaseMaxDateTimeResponse{}
+func (client *Datetimerfc1123Client) getUTCUppercaseMaxDateTimeHandleResponse(resp *http.Response) (result Datetimerfc1123ClientGetUTCUppercaseMaxDateTimeResponse, err error) {
 	var aux *timeRFC1123
-	if err := runtime.UnmarshalAsJSON(resp, &aux); err != nil {
-		return Datetimerfc1123ClientGetUTCUppercaseMaxDateTimeResponse{}, err
+	if err = runtime.UnmarshalAsJSON(resp, &aux); err != nil {
+		return
 	}
 	result.Value = (*time.Time)(aux)
 	return result, nil
@@ -287,19 +348,30 @@ func (client *Datetimerfc1123Client) getUTCUppercaseMaxDateTimeHandleResponse(re
 // Generated from API version 1.0.0
 //   - options - Datetimerfc1123ClientGetUnderflowOptions contains the optional parameters for the Datetimerfc1123Client.GetUnderflow
 //     method.
-func (client *Datetimerfc1123Client) GetUnderflow(ctx context.Context, options *Datetimerfc1123ClientGetUnderflowOptions) (Datetimerfc1123ClientGetUnderflowResponse, error) {
+func (client *Datetimerfc1123Client) GetUnderflow(ctx context.Context, options *Datetimerfc1123ClientGetUnderflowOptions) (result Datetimerfc1123ClientGetUnderflowResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "Datetimerfc1123Client.GetUnderflow", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.getUnderflowCreateRequest(ctx, options)
 	if err != nil {
-		return Datetimerfc1123ClientGetUnderflowResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return Datetimerfc1123ClientGetUnderflowResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return Datetimerfc1123ClientGetUnderflowResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.getUnderflowHandleResponse(resp)
+	result, err = client.getUnderflowHandleResponse(resp)
+	return
 }
 
 // getUnderflowCreateRequest creates the GetUnderflow request.
@@ -314,11 +386,10 @@ func (client *Datetimerfc1123Client) getUnderflowCreateRequest(ctx context.Conte
 }
 
 // getUnderflowHandleResponse handles the GetUnderflow response.
-func (client *Datetimerfc1123Client) getUnderflowHandleResponse(resp *http.Response) (Datetimerfc1123ClientGetUnderflowResponse, error) {
-	result := Datetimerfc1123ClientGetUnderflowResponse{}
+func (client *Datetimerfc1123Client) getUnderflowHandleResponse(resp *http.Response) (result Datetimerfc1123ClientGetUnderflowResponse, err error) {
 	var aux *timeRFC1123
-	if err := runtime.UnmarshalAsJSON(resp, &aux); err != nil {
-		return Datetimerfc1123ClientGetUnderflowResponse{}, err
+	if err = runtime.UnmarshalAsJSON(resp, &aux); err != nil {
+		return
 	}
 	result.Value = (*time.Time)(aux)
 	return result, nil
@@ -331,19 +402,29 @@ func (client *Datetimerfc1123Client) getUnderflowHandleResponse(resp *http.Respo
 //   - datetimeBody - datetime body
 //   - options - Datetimerfc1123ClientPutUTCMaxDateTimeOptions contains the optional parameters for the Datetimerfc1123Client.PutUTCMaxDateTime
 //     method.
-func (client *Datetimerfc1123Client) PutUTCMaxDateTime(ctx context.Context, datetimeBody time.Time, options *Datetimerfc1123ClientPutUTCMaxDateTimeOptions) (Datetimerfc1123ClientPutUTCMaxDateTimeResponse, error) {
+func (client *Datetimerfc1123Client) PutUTCMaxDateTime(ctx context.Context, datetimeBody time.Time, options *Datetimerfc1123ClientPutUTCMaxDateTimeOptions) (result Datetimerfc1123ClientPutUTCMaxDateTimeResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "Datetimerfc1123Client.PutUTCMaxDateTime", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.putUTCMaxDateTimeCreateRequest(ctx, datetimeBody, options)
 	if err != nil {
-		return Datetimerfc1123ClientPutUTCMaxDateTimeResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return Datetimerfc1123ClientPutUTCMaxDateTimeResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return Datetimerfc1123ClientPutUTCMaxDateTimeResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return Datetimerfc1123ClientPutUTCMaxDateTimeResponse{}, nil
+	return
 }
 
 // putUTCMaxDateTimeCreateRequest creates the PutUTCMaxDateTime request.
@@ -365,19 +446,29 @@ func (client *Datetimerfc1123Client) putUTCMaxDateTimeCreateRequest(ctx context.
 //   - datetimeBody - datetime body
 //   - options - Datetimerfc1123ClientPutUTCMinDateTimeOptions contains the optional parameters for the Datetimerfc1123Client.PutUTCMinDateTime
 //     method.
-func (client *Datetimerfc1123Client) PutUTCMinDateTime(ctx context.Context, datetimeBody time.Time, options *Datetimerfc1123ClientPutUTCMinDateTimeOptions) (Datetimerfc1123ClientPutUTCMinDateTimeResponse, error) {
+func (client *Datetimerfc1123Client) PutUTCMinDateTime(ctx context.Context, datetimeBody time.Time, options *Datetimerfc1123ClientPutUTCMinDateTimeOptions) (result Datetimerfc1123ClientPutUTCMinDateTimeResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "Datetimerfc1123Client.PutUTCMinDateTime", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.putUTCMinDateTimeCreateRequest(ctx, datetimeBody, options)
 	if err != nil {
-		return Datetimerfc1123ClientPutUTCMinDateTimeResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return Datetimerfc1123ClientPutUTCMinDateTimeResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return Datetimerfc1123ClientPutUTCMinDateTimeResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return Datetimerfc1123ClientPutUTCMinDateTimeResponse{}, nil
+	return
 }
 
 // putUTCMinDateTimeCreateRequest creates the PutUTCMinDateTime request.

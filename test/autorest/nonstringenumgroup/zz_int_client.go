@@ -14,6 +14,7 @@ import (
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/policy"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/runtime"
+	"github.com/Azure/azure-sdk-for-go/sdk/azcore/tracing"
 	"net/http"
 )
 
@@ -28,19 +29,30 @@ type IntClient struct {
 //
 // Generated from API version 2.0-preview
 //   - options - IntClientGetOptions contains the optional parameters for the IntClient.Get method.
-func (client *IntClient) Get(ctx context.Context, options *IntClientGetOptions) (IntClientGetResponse, error) {
+func (client *IntClient) Get(ctx context.Context, options *IntClientGetOptions) (result IntClientGetResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "IntClient.Get", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.getCreateRequest(ctx, options)
 	if err != nil {
-		return IntClientGetResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return IntClientGetResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return IntClientGetResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.getHandleResponse(resp)
+	result, err = client.getHandleResponse(resp)
+	return
 }
 
 // getCreateRequest creates the Get request.
@@ -55,10 +67,10 @@ func (client *IntClient) getCreateRequest(ctx context.Context, options *IntClien
 }
 
 // getHandleResponse handles the Get response.
-func (client *IntClient) getHandleResponse(resp *http.Response) (IntClientGetResponse, error) {
-	result := IntClientGetResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.Value); err != nil {
-		return IntClientGetResponse{}, err
+func (client *IntClient) getHandleResponse(resp *http.Response) (result IntClientGetResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.Value); err != nil {
+		result = IntClientGetResponse{}
+		return
 	}
 	return result, nil
 }
@@ -69,19 +81,30 @@ func (client *IntClient) getHandleResponse(resp *http.Response) (IntClientGetRes
 // Generated from API version 2.0-preview
 //   - input - Input int enum.
 //   - options - IntClientPutOptions contains the optional parameters for the IntClient.Put method.
-func (client *IntClient) Put(ctx context.Context, input IntEnum, options *IntClientPutOptions) (IntClientPutResponse, error) {
+func (client *IntClient) Put(ctx context.Context, input IntEnum, options *IntClientPutOptions) (result IntClientPutResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "IntClient.Put", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.putCreateRequest(ctx, input, options)
 	if err != nil {
-		return IntClientPutResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return IntClientPutResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return IntClientPutResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.putHandleResponse(resp)
+	result, err = client.putHandleResponse(resp)
+	return
 }
 
 // putCreateRequest creates the Put request.
@@ -96,10 +119,10 @@ func (client *IntClient) putCreateRequest(ctx context.Context, input IntEnum, op
 }
 
 // putHandleResponse handles the Put response.
-func (client *IntClient) putHandleResponse(resp *http.Response) (IntClientPutResponse, error) {
-	result := IntClientPutResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.Value); err != nil {
-		return IntClientPutResponse{}, err
+func (client *IntClient) putHandleResponse(resp *http.Response) (result IntClientPutResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.Value); err != nil {
+		result = IntClientPutResponse{}
+		return
 	}
 	return result, nil
 }

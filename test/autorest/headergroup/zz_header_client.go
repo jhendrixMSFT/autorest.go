@@ -15,6 +15,7 @@ import (
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/policy"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/runtime"
+	"github.com/Azure/azure-sdk-for-go/sdk/azcore/tracing"
 	"net/http"
 	"strconv"
 	"time"
@@ -31,19 +32,29 @@ type HeaderClient struct {
 //
 // Generated from API version 1.0.0
 //   - options - HeaderClientCustomRequestIDOptions contains the optional parameters for the HeaderClient.CustomRequestID method.
-func (client *HeaderClient) CustomRequestID(ctx context.Context, options *HeaderClientCustomRequestIDOptions) (HeaderClientCustomRequestIDResponse, error) {
+func (client *HeaderClient) CustomRequestID(ctx context.Context, options *HeaderClientCustomRequestIDOptions) (result HeaderClientCustomRequestIDResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "HeaderClient.CustomRequestID", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.customRequestIDCreateRequest(ctx, options)
 	if err != nil {
-		return HeaderClientCustomRequestIDResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return HeaderClientCustomRequestIDResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return HeaderClientCustomRequestIDResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return HeaderClientCustomRequestIDResponse{}, nil
+	return
 }
 
 // customRequestIDCreateRequest creates the CustomRequestID request.
@@ -64,19 +75,29 @@ func (client *HeaderClient) customRequestIDCreateRequest(ctx context.Context, op
 //   - scenario - Send a post request with header values "scenario": "true" or "false"
 //   - value - Send a post request with header values true or false
 //   - options - HeaderClientParamBoolOptions contains the optional parameters for the HeaderClient.ParamBool method.
-func (client *HeaderClient) ParamBool(ctx context.Context, scenario string, value bool, options *HeaderClientParamBoolOptions) (HeaderClientParamBoolResponse, error) {
+func (client *HeaderClient) ParamBool(ctx context.Context, scenario string, value bool, options *HeaderClientParamBoolOptions) (result HeaderClientParamBoolResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "HeaderClient.ParamBool", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.paramBoolCreateRequest(ctx, scenario, value, options)
 	if err != nil {
-		return HeaderClientParamBoolResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return HeaderClientParamBoolResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return HeaderClientParamBoolResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return HeaderClientParamBoolResponse{}, nil
+	return
 }
 
 // paramBoolCreateRequest creates the ParamBool request.
@@ -99,19 +120,29 @@ func (client *HeaderClient) paramBoolCreateRequest(ctx context.Context, scenario
 //   - scenario - Send a post request with header values "scenario": "valid"
 //   - value - Send a post request with header values "啊齄丂狛狜隣郎隣兀﨩"
 //   - options - HeaderClientParamByteOptions contains the optional parameters for the HeaderClient.ParamByte method.
-func (client *HeaderClient) ParamByte(ctx context.Context, scenario string, value []byte, options *HeaderClientParamByteOptions) (HeaderClientParamByteResponse, error) {
+func (client *HeaderClient) ParamByte(ctx context.Context, scenario string, value []byte, options *HeaderClientParamByteOptions) (result HeaderClientParamByteResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "HeaderClient.ParamByte", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.paramByteCreateRequest(ctx, scenario, value, options)
 	if err != nil {
-		return HeaderClientParamByteResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return HeaderClientParamByteResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return HeaderClientParamByteResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return HeaderClientParamByteResponse{}, nil
+	return
 }
 
 // paramByteCreateRequest creates the ParamByte request.
@@ -135,19 +166,29 @@ func (client *HeaderClient) paramByteCreateRequest(ctx context.Context, scenario
 //   - scenario - Send a post request with header values "scenario": "valid" or "min"
 //   - value - Send a post request with header values "2010-01-01" or "0001-01-01"
 //   - options - HeaderClientParamDateOptions contains the optional parameters for the HeaderClient.ParamDate method.
-func (client *HeaderClient) ParamDate(ctx context.Context, scenario string, value time.Time, options *HeaderClientParamDateOptions) (HeaderClientParamDateResponse, error) {
+func (client *HeaderClient) ParamDate(ctx context.Context, scenario string, value time.Time, options *HeaderClientParamDateOptions) (result HeaderClientParamDateResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "HeaderClient.ParamDate", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.paramDateCreateRequest(ctx, scenario, value, options)
 	if err != nil {
-		return HeaderClientParamDateResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return HeaderClientParamDateResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return HeaderClientParamDateResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return HeaderClientParamDateResponse{}, nil
+	return
 }
 
 // paramDateCreateRequest creates the ParamDate request.
@@ -171,19 +212,29 @@ func (client *HeaderClient) paramDateCreateRequest(ctx context.Context, scenario
 //   - scenario - Send a post request with header values "scenario": "valid" or "min"
 //   - value - Send a post request with header values "2010-01-01T12:34:56Z" or "0001-01-01T00:00:00Z"
 //   - options - HeaderClientParamDatetimeOptions contains the optional parameters for the HeaderClient.ParamDatetime method.
-func (client *HeaderClient) ParamDatetime(ctx context.Context, scenario string, value time.Time, options *HeaderClientParamDatetimeOptions) (HeaderClientParamDatetimeResponse, error) {
+func (client *HeaderClient) ParamDatetime(ctx context.Context, scenario string, value time.Time, options *HeaderClientParamDatetimeOptions) (result HeaderClientParamDatetimeResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "HeaderClient.ParamDatetime", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.paramDatetimeCreateRequest(ctx, scenario, value, options)
 	if err != nil {
-		return HeaderClientParamDatetimeResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return HeaderClientParamDatetimeResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return HeaderClientParamDatetimeResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return HeaderClientParamDatetimeResponse{}, nil
+	return
 }
 
 // paramDatetimeCreateRequest creates the ParamDatetime request.
@@ -207,19 +258,29 @@ func (client *HeaderClient) paramDatetimeCreateRequest(ctx context.Context, scen
 //   - scenario - Send a post request with header values "scenario": "valid" or "min"
 //   - options - HeaderClientParamDatetimeRFC1123Options contains the optional parameters for the HeaderClient.ParamDatetimeRFC1123
 //     method.
-func (client *HeaderClient) ParamDatetimeRFC1123(ctx context.Context, scenario string, options *HeaderClientParamDatetimeRFC1123Options) (HeaderClientParamDatetimeRFC1123Response, error) {
+func (client *HeaderClient) ParamDatetimeRFC1123(ctx context.Context, scenario string, options *HeaderClientParamDatetimeRFC1123Options) (result HeaderClientParamDatetimeRFC1123Response, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "HeaderClient.ParamDatetimeRFC1123", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.paramDatetimeRFC1123CreateRequest(ctx, scenario, options)
 	if err != nil {
-		return HeaderClientParamDatetimeRFC1123Response{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return HeaderClientParamDatetimeRFC1123Response{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return HeaderClientParamDatetimeRFC1123Response{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return HeaderClientParamDatetimeRFC1123Response{}, nil
+	return
 }
 
 // paramDatetimeRFC1123CreateRequest creates the ParamDatetimeRFC1123 request.
@@ -245,19 +306,29 @@ func (client *HeaderClient) paramDatetimeRFC1123CreateRequest(ctx context.Contex
 //   - scenario - Send a post request with header values "scenario": "positive" or "negative"
 //   - value - Send a post request with header values 7e120 or -3.0
 //   - options - HeaderClientParamDoubleOptions contains the optional parameters for the HeaderClient.ParamDouble method.
-func (client *HeaderClient) ParamDouble(ctx context.Context, scenario string, value float64, options *HeaderClientParamDoubleOptions) (HeaderClientParamDoubleResponse, error) {
+func (client *HeaderClient) ParamDouble(ctx context.Context, scenario string, value float64, options *HeaderClientParamDoubleOptions) (result HeaderClientParamDoubleResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "HeaderClient.ParamDouble", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.paramDoubleCreateRequest(ctx, scenario, value, options)
 	if err != nil {
-		return HeaderClientParamDoubleResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return HeaderClientParamDoubleResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return HeaderClientParamDoubleResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return HeaderClientParamDoubleResponse{}, nil
+	return
 }
 
 // paramDoubleCreateRequest creates the ParamDouble request.
@@ -280,19 +351,29 @@ func (client *HeaderClient) paramDoubleCreateRequest(ctx context.Context, scenar
 //   - scenario - Send a post request with header values "scenario": "valid"
 //   - value - Send a post request with header values "P123DT22H14M12.011S"
 //   - options - HeaderClientParamDurationOptions contains the optional parameters for the HeaderClient.ParamDuration method.
-func (client *HeaderClient) ParamDuration(ctx context.Context, scenario string, value string, options *HeaderClientParamDurationOptions) (HeaderClientParamDurationResponse, error) {
+func (client *HeaderClient) ParamDuration(ctx context.Context, scenario string, value string, options *HeaderClientParamDurationOptions) (result HeaderClientParamDurationResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "HeaderClient.ParamDuration", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.paramDurationCreateRequest(ctx, scenario, value, options)
 	if err != nil {
-		return HeaderClientParamDurationResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return HeaderClientParamDurationResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return HeaderClientParamDurationResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return HeaderClientParamDurationResponse{}, nil
+	return
 }
 
 // paramDurationCreateRequest creates the ParamDuration request.
@@ -315,19 +396,29 @@ func (client *HeaderClient) paramDurationCreateRequest(ctx context.Context, scen
 // Generated from API version 1.0.0
 //   - scenario - Send a post request with header values "scenario": "valid" or "null" or "empty"
 //   - options - HeaderClientParamEnumOptions contains the optional parameters for the HeaderClient.ParamEnum method.
-func (client *HeaderClient) ParamEnum(ctx context.Context, scenario string, options *HeaderClientParamEnumOptions) (HeaderClientParamEnumResponse, error) {
+func (client *HeaderClient) ParamEnum(ctx context.Context, scenario string, options *HeaderClientParamEnumOptions) (result HeaderClientParamEnumResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "HeaderClient.ParamEnum", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.paramEnumCreateRequest(ctx, scenario, options)
 	if err != nil {
-		return HeaderClientParamEnumResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return HeaderClientParamEnumResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return HeaderClientParamEnumResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return HeaderClientParamEnumResponse{}, nil
+	return
 }
 
 // paramEnumCreateRequest creates the ParamEnum request.
@@ -351,19 +442,29 @@ func (client *HeaderClient) paramEnumCreateRequest(ctx context.Context, scenario
 // Generated from API version 1.0.0
 //   - userAgent - Send a post request with header value "User-Agent": "overwrite"
 //   - options - HeaderClientParamExistingKeyOptions contains the optional parameters for the HeaderClient.ParamExistingKey method.
-func (client *HeaderClient) ParamExistingKey(ctx context.Context, userAgent string, options *HeaderClientParamExistingKeyOptions) (HeaderClientParamExistingKeyResponse, error) {
+func (client *HeaderClient) ParamExistingKey(ctx context.Context, userAgent string, options *HeaderClientParamExistingKeyOptions) (result HeaderClientParamExistingKeyResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "HeaderClient.ParamExistingKey", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.paramExistingKeyCreateRequest(ctx, userAgent, options)
 	if err != nil {
-		return HeaderClientParamExistingKeyResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return HeaderClientParamExistingKeyResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return HeaderClientParamExistingKeyResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return HeaderClientParamExistingKeyResponse{}, nil
+	return
 }
 
 // paramExistingKeyCreateRequest creates the ParamExistingKey request.
@@ -386,19 +487,29 @@ func (client *HeaderClient) paramExistingKeyCreateRequest(ctx context.Context, u
 //   - scenario - Send a post request with header values "scenario": "positive" or "negative"
 //   - value - Send a post request with header values 0.07 or -3.0
 //   - options - HeaderClientParamFloatOptions contains the optional parameters for the HeaderClient.ParamFloat method.
-func (client *HeaderClient) ParamFloat(ctx context.Context, scenario string, value float32, options *HeaderClientParamFloatOptions) (HeaderClientParamFloatResponse, error) {
+func (client *HeaderClient) ParamFloat(ctx context.Context, scenario string, value float32, options *HeaderClientParamFloatOptions) (result HeaderClientParamFloatResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "HeaderClient.ParamFloat", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.paramFloatCreateRequest(ctx, scenario, value, options)
 	if err != nil {
-		return HeaderClientParamFloatResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return HeaderClientParamFloatResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return HeaderClientParamFloatResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return HeaderClientParamFloatResponse{}, nil
+	return
 }
 
 // paramFloatCreateRequest creates the ParamFloat request.
@@ -422,19 +533,29 @@ func (client *HeaderClient) paramFloatCreateRequest(ctx context.Context, scenari
 //   - scenario - Send a post request with header values "scenario": "positive" or "negative"
 //   - value - Send a post request with header values 1 or -2
 //   - options - HeaderClientParamIntegerOptions contains the optional parameters for the HeaderClient.ParamInteger method.
-func (client *HeaderClient) ParamInteger(ctx context.Context, scenario string, value int32, options *HeaderClientParamIntegerOptions) (HeaderClientParamIntegerResponse, error) {
+func (client *HeaderClient) ParamInteger(ctx context.Context, scenario string, value int32, options *HeaderClientParamIntegerOptions) (result HeaderClientParamIntegerResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "HeaderClient.ParamInteger", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.paramIntegerCreateRequest(ctx, scenario, value, options)
 	if err != nil {
-		return HeaderClientParamIntegerResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return HeaderClientParamIntegerResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return HeaderClientParamIntegerResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return HeaderClientParamIntegerResponse{}, nil
+	return
 }
 
 // paramIntegerCreateRequest creates the ParamInteger request.
@@ -458,19 +579,29 @@ func (client *HeaderClient) paramIntegerCreateRequest(ctx context.Context, scena
 //   - scenario - Send a post request with header values "scenario": "positive" or "negative"
 //   - value - Send a post request with header values 105 or -2
 //   - options - HeaderClientParamLongOptions contains the optional parameters for the HeaderClient.ParamLong method.
-func (client *HeaderClient) ParamLong(ctx context.Context, scenario string, value int64, options *HeaderClientParamLongOptions) (HeaderClientParamLongResponse, error) {
+func (client *HeaderClient) ParamLong(ctx context.Context, scenario string, value int64, options *HeaderClientParamLongOptions) (result HeaderClientParamLongResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "HeaderClient.ParamLong", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.paramLongCreateRequest(ctx, scenario, value, options)
 	if err != nil {
-		return HeaderClientParamLongResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return HeaderClientParamLongResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return HeaderClientParamLongResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return HeaderClientParamLongResponse{}, nil
+	return
 }
 
 // paramLongCreateRequest creates the ParamLong request.
@@ -493,19 +624,29 @@ func (client *HeaderClient) paramLongCreateRequest(ctx context.Context, scenario
 //   - contentType - Send a post request with header value "Content-Type": "text/html"
 //   - options - HeaderClientParamProtectedKeyOptions contains the optional parameters for the HeaderClient.ParamProtectedKey
 //     method.
-func (client *HeaderClient) ParamProtectedKey(ctx context.Context, contentType string, options *HeaderClientParamProtectedKeyOptions) (HeaderClientParamProtectedKeyResponse, error) {
+func (client *HeaderClient) ParamProtectedKey(ctx context.Context, contentType string, options *HeaderClientParamProtectedKeyOptions) (result HeaderClientParamProtectedKeyResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "HeaderClient.ParamProtectedKey", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.paramProtectedKeyCreateRequest(ctx, contentType, options)
 	if err != nil {
-		return HeaderClientParamProtectedKeyResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return HeaderClientParamProtectedKeyResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return HeaderClientParamProtectedKeyResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return HeaderClientParamProtectedKeyResponse{}, nil
+	return
 }
 
 // paramProtectedKeyCreateRequest creates the ParamProtectedKey request.
@@ -527,19 +668,29 @@ func (client *HeaderClient) paramProtectedKeyCreateRequest(ctx context.Context, 
 // Generated from API version 1.0.0
 //   - scenario - Send a post request with header values "scenario": "valid" or "null" or "empty"
 //   - options - HeaderClientParamStringOptions contains the optional parameters for the HeaderClient.ParamString method.
-func (client *HeaderClient) ParamString(ctx context.Context, scenario string, options *HeaderClientParamStringOptions) (HeaderClientParamStringResponse, error) {
+func (client *HeaderClient) ParamString(ctx context.Context, scenario string, options *HeaderClientParamStringOptions) (result HeaderClientParamStringResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "HeaderClient.ParamString", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.paramStringCreateRequest(ctx, scenario, options)
 	if err != nil {
-		return HeaderClientParamStringResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return HeaderClientParamStringResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return HeaderClientParamStringResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return HeaderClientParamStringResponse{}, nil
+	return
 }
 
 // paramStringCreateRequest creates the ParamString request.
@@ -563,19 +714,30 @@ func (client *HeaderClient) paramStringCreateRequest(ctx context.Context, scenar
 // Generated from API version 1.0.0
 //   - scenario - Send a post request with header values "scenario": "true" or "false"
 //   - options - HeaderClientResponseBoolOptions contains the optional parameters for the HeaderClient.ResponseBool method.
-func (client *HeaderClient) ResponseBool(ctx context.Context, scenario string, options *HeaderClientResponseBoolOptions) (HeaderClientResponseBoolResponse, error) {
+func (client *HeaderClient) ResponseBool(ctx context.Context, scenario string, options *HeaderClientResponseBoolOptions) (result HeaderClientResponseBoolResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "HeaderClient.ResponseBool", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.responseBoolCreateRequest(ctx, scenario, options)
 	if err != nil {
-		return HeaderClientResponseBoolResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return HeaderClientResponseBoolResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return HeaderClientResponseBoolResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.responseBoolHandleResponse(resp)
+	result, err = client.responseBoolHandleResponse(resp)
+	return
 }
 
 // responseBoolCreateRequest creates the ResponseBool request.
@@ -591,8 +753,7 @@ func (client *HeaderClient) responseBoolCreateRequest(ctx context.Context, scena
 }
 
 // responseBoolHandleResponse handles the ResponseBool response.
-func (client *HeaderClient) responseBoolHandleResponse(resp *http.Response) (HeaderClientResponseBoolResponse, error) {
-	result := HeaderClientResponseBoolResponse{}
+func (client *HeaderClient) responseBoolHandleResponse(resp *http.Response) (result HeaderClientResponseBoolResponse, err error) {
 	if val := resp.Header.Get("value"); val != "" {
 		value, err := strconv.ParseBool(val)
 		if err != nil {
@@ -609,19 +770,30 @@ func (client *HeaderClient) responseBoolHandleResponse(resp *http.Response) (Hea
 // Generated from API version 1.0.0
 //   - scenario - Send a post request with header values "scenario": "valid"
 //   - options - HeaderClientResponseByteOptions contains the optional parameters for the HeaderClient.ResponseByte method.
-func (client *HeaderClient) ResponseByte(ctx context.Context, scenario string, options *HeaderClientResponseByteOptions) (HeaderClientResponseByteResponse, error) {
+func (client *HeaderClient) ResponseByte(ctx context.Context, scenario string, options *HeaderClientResponseByteOptions) (result HeaderClientResponseByteResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "HeaderClient.ResponseByte", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.responseByteCreateRequest(ctx, scenario, options)
 	if err != nil {
-		return HeaderClientResponseByteResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return HeaderClientResponseByteResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return HeaderClientResponseByteResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.responseByteHandleResponse(resp)
+	result, err = client.responseByteHandleResponse(resp)
+	return
 }
 
 // responseByteCreateRequest creates the ResponseByte request.
@@ -637,8 +809,7 @@ func (client *HeaderClient) responseByteCreateRequest(ctx context.Context, scena
 }
 
 // responseByteHandleResponse handles the ResponseByte response.
-func (client *HeaderClient) responseByteHandleResponse(resp *http.Response) (HeaderClientResponseByteResponse, error) {
-	result := HeaderClientResponseByteResponse{}
+func (client *HeaderClient) responseByteHandleResponse(resp *http.Response) (result HeaderClientResponseByteResponse, err error) {
 	if val := resp.Header.Get("value"); val != "" {
 		value, err := base64.StdEncoding.DecodeString(val)
 		if err != nil {
@@ -655,19 +826,30 @@ func (client *HeaderClient) responseByteHandleResponse(resp *http.Response) (Hea
 // Generated from API version 1.0.0
 //   - scenario - Send a post request with header values "scenario": "valid" or "min"
 //   - options - HeaderClientResponseDateOptions contains the optional parameters for the HeaderClient.ResponseDate method.
-func (client *HeaderClient) ResponseDate(ctx context.Context, scenario string, options *HeaderClientResponseDateOptions) (HeaderClientResponseDateResponse, error) {
+func (client *HeaderClient) ResponseDate(ctx context.Context, scenario string, options *HeaderClientResponseDateOptions) (result HeaderClientResponseDateResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "HeaderClient.ResponseDate", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.responseDateCreateRequest(ctx, scenario, options)
 	if err != nil {
-		return HeaderClientResponseDateResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return HeaderClientResponseDateResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return HeaderClientResponseDateResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.responseDateHandleResponse(resp)
+	result, err = client.responseDateHandleResponse(resp)
+	return
 }
 
 // responseDateCreateRequest creates the ResponseDate request.
@@ -683,8 +865,7 @@ func (client *HeaderClient) responseDateCreateRequest(ctx context.Context, scena
 }
 
 // responseDateHandleResponse handles the ResponseDate response.
-func (client *HeaderClient) responseDateHandleResponse(resp *http.Response) (HeaderClientResponseDateResponse, error) {
-	result := HeaderClientResponseDateResponse{}
+func (client *HeaderClient) responseDateHandleResponse(resp *http.Response) (result HeaderClientResponseDateResponse, err error) {
 	if val := resp.Header.Get("value"); val != "" {
 		value, err := time.Parse("2006-01-02", val)
 		if err != nil {
@@ -701,19 +882,30 @@ func (client *HeaderClient) responseDateHandleResponse(resp *http.Response) (Hea
 // Generated from API version 1.0.0
 //   - scenario - Send a post request with header values "scenario": "valid" or "min"
 //   - options - HeaderClientResponseDatetimeOptions contains the optional parameters for the HeaderClient.ResponseDatetime method.
-func (client *HeaderClient) ResponseDatetime(ctx context.Context, scenario string, options *HeaderClientResponseDatetimeOptions) (HeaderClientResponseDatetimeResponse, error) {
+func (client *HeaderClient) ResponseDatetime(ctx context.Context, scenario string, options *HeaderClientResponseDatetimeOptions) (result HeaderClientResponseDatetimeResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "HeaderClient.ResponseDatetime", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.responseDatetimeCreateRequest(ctx, scenario, options)
 	if err != nil {
-		return HeaderClientResponseDatetimeResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return HeaderClientResponseDatetimeResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return HeaderClientResponseDatetimeResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.responseDatetimeHandleResponse(resp)
+	result, err = client.responseDatetimeHandleResponse(resp)
+	return
 }
 
 // responseDatetimeCreateRequest creates the ResponseDatetime request.
@@ -729,8 +921,7 @@ func (client *HeaderClient) responseDatetimeCreateRequest(ctx context.Context, s
 }
 
 // responseDatetimeHandleResponse handles the ResponseDatetime response.
-func (client *HeaderClient) responseDatetimeHandleResponse(resp *http.Response) (HeaderClientResponseDatetimeResponse, error) {
-	result := HeaderClientResponseDatetimeResponse{}
+func (client *HeaderClient) responseDatetimeHandleResponse(resp *http.Response) (result HeaderClientResponseDatetimeResponse, err error) {
 	if val := resp.Header.Get("value"); val != "" {
 		value, err := time.Parse(time.RFC3339Nano, val)
 		if err != nil {
@@ -749,19 +940,30 @@ func (client *HeaderClient) responseDatetimeHandleResponse(resp *http.Response) 
 //   - scenario - Send a post request with header values "scenario": "valid" or "min"
 //   - options - HeaderClientResponseDatetimeRFC1123Options contains the optional parameters for the HeaderClient.ResponseDatetimeRFC1123
 //     method.
-func (client *HeaderClient) ResponseDatetimeRFC1123(ctx context.Context, scenario string, options *HeaderClientResponseDatetimeRFC1123Options) (HeaderClientResponseDatetimeRFC1123Response, error) {
+func (client *HeaderClient) ResponseDatetimeRFC1123(ctx context.Context, scenario string, options *HeaderClientResponseDatetimeRFC1123Options) (result HeaderClientResponseDatetimeRFC1123Response, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "HeaderClient.ResponseDatetimeRFC1123", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.responseDatetimeRFC1123CreateRequest(ctx, scenario, options)
 	if err != nil {
-		return HeaderClientResponseDatetimeRFC1123Response{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return HeaderClientResponseDatetimeRFC1123Response{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return HeaderClientResponseDatetimeRFC1123Response{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.responseDatetimeRFC1123HandleResponse(resp)
+	result, err = client.responseDatetimeRFC1123HandleResponse(resp)
+	return
 }
 
 // responseDatetimeRFC1123CreateRequest creates the ResponseDatetimeRFC1123 request.
@@ -777,8 +979,7 @@ func (client *HeaderClient) responseDatetimeRFC1123CreateRequest(ctx context.Con
 }
 
 // responseDatetimeRFC1123HandleResponse handles the ResponseDatetimeRFC1123 response.
-func (client *HeaderClient) responseDatetimeRFC1123HandleResponse(resp *http.Response) (HeaderClientResponseDatetimeRFC1123Response, error) {
-	result := HeaderClientResponseDatetimeRFC1123Response{}
+func (client *HeaderClient) responseDatetimeRFC1123HandleResponse(resp *http.Response) (result HeaderClientResponseDatetimeRFC1123Response, err error) {
 	if val := resp.Header.Get("value"); val != "" {
 		value, err := time.Parse(time.RFC1123, val)
 		if err != nil {
@@ -795,19 +996,30 @@ func (client *HeaderClient) responseDatetimeRFC1123HandleResponse(resp *http.Res
 // Generated from API version 1.0.0
 //   - scenario - Send a post request with header values "scenario": "positive" or "negative"
 //   - options - HeaderClientResponseDoubleOptions contains the optional parameters for the HeaderClient.ResponseDouble method.
-func (client *HeaderClient) ResponseDouble(ctx context.Context, scenario string, options *HeaderClientResponseDoubleOptions) (HeaderClientResponseDoubleResponse, error) {
+func (client *HeaderClient) ResponseDouble(ctx context.Context, scenario string, options *HeaderClientResponseDoubleOptions) (result HeaderClientResponseDoubleResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "HeaderClient.ResponseDouble", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.responseDoubleCreateRequest(ctx, scenario, options)
 	if err != nil {
-		return HeaderClientResponseDoubleResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return HeaderClientResponseDoubleResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return HeaderClientResponseDoubleResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.responseDoubleHandleResponse(resp)
+	result, err = client.responseDoubleHandleResponse(resp)
+	return
 }
 
 // responseDoubleCreateRequest creates the ResponseDouble request.
@@ -823,8 +1035,7 @@ func (client *HeaderClient) responseDoubleCreateRequest(ctx context.Context, sce
 }
 
 // responseDoubleHandleResponse handles the ResponseDouble response.
-func (client *HeaderClient) responseDoubleHandleResponse(resp *http.Response) (HeaderClientResponseDoubleResponse, error) {
-	result := HeaderClientResponseDoubleResponse{}
+func (client *HeaderClient) responseDoubleHandleResponse(resp *http.Response) (result HeaderClientResponseDoubleResponse, err error) {
 	if val := resp.Header.Get("value"); val != "" {
 		value, err := strconv.ParseFloat(val, 64)
 		if err != nil {
@@ -841,19 +1052,30 @@ func (client *HeaderClient) responseDoubleHandleResponse(resp *http.Response) (H
 // Generated from API version 1.0.0
 //   - scenario - Send a post request with header values "scenario": "valid"
 //   - options - HeaderClientResponseDurationOptions contains the optional parameters for the HeaderClient.ResponseDuration method.
-func (client *HeaderClient) ResponseDuration(ctx context.Context, scenario string, options *HeaderClientResponseDurationOptions) (HeaderClientResponseDurationResponse, error) {
+func (client *HeaderClient) ResponseDuration(ctx context.Context, scenario string, options *HeaderClientResponseDurationOptions) (result HeaderClientResponseDurationResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "HeaderClient.ResponseDuration", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.responseDurationCreateRequest(ctx, scenario, options)
 	if err != nil {
-		return HeaderClientResponseDurationResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return HeaderClientResponseDurationResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return HeaderClientResponseDurationResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.responseDurationHandleResponse(resp)
+	result, err = client.responseDurationHandleResponse(resp)
+	return
 }
 
 // responseDurationCreateRequest creates the ResponseDuration request.
@@ -869,8 +1091,7 @@ func (client *HeaderClient) responseDurationCreateRequest(ctx context.Context, s
 }
 
 // responseDurationHandleResponse handles the ResponseDuration response.
-func (client *HeaderClient) responseDurationHandleResponse(resp *http.Response) (HeaderClientResponseDurationResponse, error) {
-	result := HeaderClientResponseDurationResponse{}
+func (client *HeaderClient) responseDurationHandleResponse(resp *http.Response) (result HeaderClientResponseDurationResponse, err error) {
 	if val := resp.Header.Get("value"); val != "" {
 		result.Value = &val
 	}
@@ -883,19 +1104,30 @@ func (client *HeaderClient) responseDurationHandleResponse(resp *http.Response) 
 // Generated from API version 1.0.0
 //   - scenario - Send a post request with header values "scenario": "valid" or "null" or "empty"
 //   - options - HeaderClientResponseEnumOptions contains the optional parameters for the HeaderClient.ResponseEnum method.
-func (client *HeaderClient) ResponseEnum(ctx context.Context, scenario string, options *HeaderClientResponseEnumOptions) (HeaderClientResponseEnumResponse, error) {
+func (client *HeaderClient) ResponseEnum(ctx context.Context, scenario string, options *HeaderClientResponseEnumOptions) (result HeaderClientResponseEnumResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "HeaderClient.ResponseEnum", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.responseEnumCreateRequest(ctx, scenario, options)
 	if err != nil {
-		return HeaderClientResponseEnumResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return HeaderClientResponseEnumResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return HeaderClientResponseEnumResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.responseEnumHandleResponse(resp)
+	result, err = client.responseEnumHandleResponse(resp)
+	return
 }
 
 // responseEnumCreateRequest creates the ResponseEnum request.
@@ -911,8 +1143,7 @@ func (client *HeaderClient) responseEnumCreateRequest(ctx context.Context, scena
 }
 
 // responseEnumHandleResponse handles the ResponseEnum response.
-func (client *HeaderClient) responseEnumHandleResponse(resp *http.Response) (HeaderClientResponseEnumResponse, error) {
-	result := HeaderClientResponseEnumResponse{}
+func (client *HeaderClient) responseEnumHandleResponse(resp *http.Response) (result HeaderClientResponseEnumResponse, err error) {
 	if val := resp.Header.Get("value"); val != "" {
 		result.Value = (*GreyscaleColors)(&val)
 	}
@@ -925,19 +1156,30 @@ func (client *HeaderClient) responseEnumHandleResponse(resp *http.Response) (Hea
 // Generated from API version 1.0.0
 //   - options - HeaderClientResponseExistingKeyOptions contains the optional parameters for the HeaderClient.ResponseExistingKey
 //     method.
-func (client *HeaderClient) ResponseExistingKey(ctx context.Context, options *HeaderClientResponseExistingKeyOptions) (HeaderClientResponseExistingKeyResponse, error) {
+func (client *HeaderClient) ResponseExistingKey(ctx context.Context, options *HeaderClientResponseExistingKeyOptions) (result HeaderClientResponseExistingKeyResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "HeaderClient.ResponseExistingKey", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.responseExistingKeyCreateRequest(ctx, options)
 	if err != nil {
-		return HeaderClientResponseExistingKeyResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return HeaderClientResponseExistingKeyResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return HeaderClientResponseExistingKeyResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.responseExistingKeyHandleResponse(resp)
+	result, err = client.responseExistingKeyHandleResponse(resp)
+	return
 }
 
 // responseExistingKeyCreateRequest creates the ResponseExistingKey request.
@@ -952,8 +1194,7 @@ func (client *HeaderClient) responseExistingKeyCreateRequest(ctx context.Context
 }
 
 // responseExistingKeyHandleResponse handles the ResponseExistingKey response.
-func (client *HeaderClient) responseExistingKeyHandleResponse(resp *http.Response) (HeaderClientResponseExistingKeyResponse, error) {
-	result := HeaderClientResponseExistingKeyResponse{}
+func (client *HeaderClient) responseExistingKeyHandleResponse(resp *http.Response) (result HeaderClientResponseExistingKeyResponse, err error) {
 	if val := resp.Header.Get("User-Agent"); val != "" {
 		result.UserAgent = &val
 	}
@@ -966,19 +1207,30 @@ func (client *HeaderClient) responseExistingKeyHandleResponse(resp *http.Respons
 // Generated from API version 1.0.0
 //   - scenario - Send a post request with header values "scenario": "positive" or "negative"
 //   - options - HeaderClientResponseFloatOptions contains the optional parameters for the HeaderClient.ResponseFloat method.
-func (client *HeaderClient) ResponseFloat(ctx context.Context, scenario string, options *HeaderClientResponseFloatOptions) (HeaderClientResponseFloatResponse, error) {
+func (client *HeaderClient) ResponseFloat(ctx context.Context, scenario string, options *HeaderClientResponseFloatOptions) (result HeaderClientResponseFloatResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "HeaderClient.ResponseFloat", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.responseFloatCreateRequest(ctx, scenario, options)
 	if err != nil {
-		return HeaderClientResponseFloatResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return HeaderClientResponseFloatResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return HeaderClientResponseFloatResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.responseFloatHandleResponse(resp)
+	result, err = client.responseFloatHandleResponse(resp)
+	return
 }
 
 // responseFloatCreateRequest creates the ResponseFloat request.
@@ -994,8 +1246,7 @@ func (client *HeaderClient) responseFloatCreateRequest(ctx context.Context, scen
 }
 
 // responseFloatHandleResponse handles the ResponseFloat response.
-func (client *HeaderClient) responseFloatHandleResponse(resp *http.Response) (HeaderClientResponseFloatResponse, error) {
-	result := HeaderClientResponseFloatResponse{}
+func (client *HeaderClient) responseFloatHandleResponse(resp *http.Response) (result HeaderClientResponseFloatResponse, err error) {
 	if val := resp.Header.Get("value"); val != "" {
 		value32, err := strconv.ParseFloat(val, 32)
 		value := float32(value32)
@@ -1013,19 +1264,30 @@ func (client *HeaderClient) responseFloatHandleResponse(resp *http.Response) (He
 // Generated from API version 1.0.0
 //   - scenario - Send a post request with header values "scenario": "positive" or "negative"
 //   - options - HeaderClientResponseIntegerOptions contains the optional parameters for the HeaderClient.ResponseInteger method.
-func (client *HeaderClient) ResponseInteger(ctx context.Context, scenario string, options *HeaderClientResponseIntegerOptions) (HeaderClientResponseIntegerResponse, error) {
+func (client *HeaderClient) ResponseInteger(ctx context.Context, scenario string, options *HeaderClientResponseIntegerOptions) (result HeaderClientResponseIntegerResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "HeaderClient.ResponseInteger", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.responseIntegerCreateRequest(ctx, scenario, options)
 	if err != nil {
-		return HeaderClientResponseIntegerResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return HeaderClientResponseIntegerResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return HeaderClientResponseIntegerResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.responseIntegerHandleResponse(resp)
+	result, err = client.responseIntegerHandleResponse(resp)
+	return
 }
 
 // responseIntegerCreateRequest creates the ResponseInteger request.
@@ -1041,8 +1303,7 @@ func (client *HeaderClient) responseIntegerCreateRequest(ctx context.Context, sc
 }
 
 // responseIntegerHandleResponse handles the ResponseInteger response.
-func (client *HeaderClient) responseIntegerHandleResponse(resp *http.Response) (HeaderClientResponseIntegerResponse, error) {
-	result := HeaderClientResponseIntegerResponse{}
+func (client *HeaderClient) responseIntegerHandleResponse(resp *http.Response) (result HeaderClientResponseIntegerResponse, err error) {
 	if val := resp.Header.Get("value"); val != "" {
 		value32, err := strconv.ParseInt(val, 10, 32)
 		value := int32(value32)
@@ -1060,19 +1321,30 @@ func (client *HeaderClient) responseIntegerHandleResponse(resp *http.Response) (
 // Generated from API version 1.0.0
 //   - scenario - Send a post request with header values "scenario": "positive" or "negative"
 //   - options - HeaderClientResponseLongOptions contains the optional parameters for the HeaderClient.ResponseLong method.
-func (client *HeaderClient) ResponseLong(ctx context.Context, scenario string, options *HeaderClientResponseLongOptions) (HeaderClientResponseLongResponse, error) {
+func (client *HeaderClient) ResponseLong(ctx context.Context, scenario string, options *HeaderClientResponseLongOptions) (result HeaderClientResponseLongResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "HeaderClient.ResponseLong", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.responseLongCreateRequest(ctx, scenario, options)
 	if err != nil {
-		return HeaderClientResponseLongResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return HeaderClientResponseLongResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return HeaderClientResponseLongResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.responseLongHandleResponse(resp)
+	result, err = client.responseLongHandleResponse(resp)
+	return
 }
 
 // responseLongCreateRequest creates the ResponseLong request.
@@ -1088,8 +1360,7 @@ func (client *HeaderClient) responseLongCreateRequest(ctx context.Context, scena
 }
 
 // responseLongHandleResponse handles the ResponseLong response.
-func (client *HeaderClient) responseLongHandleResponse(resp *http.Response) (HeaderClientResponseLongResponse, error) {
-	result := HeaderClientResponseLongResponse{}
+func (client *HeaderClient) responseLongHandleResponse(resp *http.Response) (result HeaderClientResponseLongResponse, err error) {
 	if val := resp.Header.Get("value"); val != "" {
 		value, err := strconv.ParseInt(val, 10, 64)
 		if err != nil {
@@ -1106,19 +1377,30 @@ func (client *HeaderClient) responseLongHandleResponse(resp *http.Response) (Hea
 // Generated from API version 1.0.0
 //   - options - HeaderClientResponseProtectedKeyOptions contains the optional parameters for the HeaderClient.ResponseProtectedKey
 //     method.
-func (client *HeaderClient) ResponseProtectedKey(ctx context.Context, options *HeaderClientResponseProtectedKeyOptions) (HeaderClientResponseProtectedKeyResponse, error) {
+func (client *HeaderClient) ResponseProtectedKey(ctx context.Context, options *HeaderClientResponseProtectedKeyOptions) (result HeaderClientResponseProtectedKeyResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "HeaderClient.ResponseProtectedKey", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.responseProtectedKeyCreateRequest(ctx, options)
 	if err != nil {
-		return HeaderClientResponseProtectedKeyResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return HeaderClientResponseProtectedKeyResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return HeaderClientResponseProtectedKeyResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.responseProtectedKeyHandleResponse(resp)
+	result, err = client.responseProtectedKeyHandleResponse(resp)
+	return
 }
 
 // responseProtectedKeyCreateRequest creates the ResponseProtectedKey request.
@@ -1133,8 +1415,7 @@ func (client *HeaderClient) responseProtectedKeyCreateRequest(ctx context.Contex
 }
 
 // responseProtectedKeyHandleResponse handles the ResponseProtectedKey response.
-func (client *HeaderClient) responseProtectedKeyHandleResponse(resp *http.Response) (HeaderClientResponseProtectedKeyResponse, error) {
-	result := HeaderClientResponseProtectedKeyResponse{}
+func (client *HeaderClient) responseProtectedKeyHandleResponse(resp *http.Response) (result HeaderClientResponseProtectedKeyResponse, err error) {
 	if val := resp.Header.Get("Content-Type"); val != "" {
 		result.ContentType = &val
 	}
@@ -1147,19 +1428,30 @@ func (client *HeaderClient) responseProtectedKeyHandleResponse(resp *http.Respon
 // Generated from API version 1.0.0
 //   - scenario - Send a post request with header values "scenario": "valid" or "null" or "empty"
 //   - options - HeaderClientResponseStringOptions contains the optional parameters for the HeaderClient.ResponseString method.
-func (client *HeaderClient) ResponseString(ctx context.Context, scenario string, options *HeaderClientResponseStringOptions) (HeaderClientResponseStringResponse, error) {
+func (client *HeaderClient) ResponseString(ctx context.Context, scenario string, options *HeaderClientResponseStringOptions) (result HeaderClientResponseStringResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "HeaderClient.ResponseString", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.responseStringCreateRequest(ctx, scenario, options)
 	if err != nil {
-		return HeaderClientResponseStringResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return HeaderClientResponseStringResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return HeaderClientResponseStringResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.responseStringHandleResponse(resp)
+	result, err = client.responseStringHandleResponse(resp)
+	return
 }
 
 // responseStringCreateRequest creates the ResponseString request.
@@ -1175,8 +1467,7 @@ func (client *HeaderClient) responseStringCreateRequest(ctx context.Context, sce
 }
 
 // responseStringHandleResponse handles the ResponseString response.
-func (client *HeaderClient) responseStringHandleResponse(resp *http.Response) (HeaderClientResponseStringResponse, error) {
-	result := HeaderClientResponseStringResponse{}
+func (client *HeaderClient) responseStringHandleResponse(resp *http.Response) (result HeaderClientResponseStringResponse, err error) {
 	if val := resp.Header.Get("value"); val != "" {
 		result.Value = &val
 	}

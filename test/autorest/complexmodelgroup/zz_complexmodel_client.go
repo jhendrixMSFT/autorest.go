@@ -15,6 +15,7 @@ import (
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/policy"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/runtime"
+	"github.com/Azure/azure-sdk-for-go/sdk/azcore/tracing"
 	"net/http"
 	"net/url"
 	"strings"
@@ -34,19 +35,30 @@ type ComplexModelClient struct {
 //   - resourceGroupName - Resource Group ID.
 //   - bodyParameter - body Parameter
 //   - options - ComplexModelClientCreateOptions contains the optional parameters for the ComplexModelClient.Create method.
-func (client *ComplexModelClient) Create(ctx context.Context, subscriptionID string, resourceGroupName string, bodyParameter CatalogDictionaryOfArray, options *ComplexModelClientCreateOptions) (ComplexModelClientCreateResponse, error) {
+func (client *ComplexModelClient) Create(ctx context.Context, subscriptionID string, resourceGroupName string, bodyParameter CatalogDictionaryOfArray, options *ComplexModelClientCreateOptions) (result ComplexModelClientCreateResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "ComplexModelClient.Create", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.createCreateRequest(ctx, subscriptionID, resourceGroupName, bodyParameter, options)
 	if err != nil {
-		return ComplexModelClientCreateResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return ComplexModelClientCreateResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return ComplexModelClientCreateResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.createHandleResponse(resp)
+	result, err = client.createHandleResponse(resp)
+	return
 }
 
 // createCreateRequest creates the Create request.
@@ -72,10 +84,10 @@ func (client *ComplexModelClient) createCreateRequest(ctx context.Context, subsc
 }
 
 // createHandleResponse handles the Create response.
-func (client *ComplexModelClient) createHandleResponse(resp *http.Response) (ComplexModelClientCreateResponse, error) {
-	result := ComplexModelClientCreateResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.CatalogDictionary); err != nil {
-		return ComplexModelClientCreateResponse{}, err
+func (client *ComplexModelClient) createHandleResponse(resp *http.Response) (result ComplexModelClientCreateResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.CatalogDictionary); err != nil {
+		result = ComplexModelClientCreateResponse{}
+		return
 	}
 	return result, nil
 }
@@ -88,19 +100,30 @@ func (client *ComplexModelClient) createHandleResponse(resp *http.Response) (Com
 // Generated from API version 2014-04-01-preview
 //   - resourceGroupName - Resource Group ID.
 //   - options - ComplexModelClientListOptions contains the optional parameters for the ComplexModelClient.List method.
-func (client *ComplexModelClient) List(ctx context.Context, resourceGroupName string, options *ComplexModelClientListOptions) (ComplexModelClientListResponse, error) {
+func (client *ComplexModelClient) List(ctx context.Context, resourceGroupName string, options *ComplexModelClientListOptions) (result ComplexModelClientListResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "ComplexModelClient.List", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.listCreateRequest(ctx, resourceGroupName, options)
 	if err != nil {
-		return ComplexModelClientListResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return ComplexModelClientListResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return ComplexModelClientListResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.listHandleResponse(resp)
+	result, err = client.listHandleResponse(resp)
+	return
 }
 
 // listCreateRequest creates the List request.
@@ -123,10 +146,10 @@ func (client *ComplexModelClient) listCreateRequest(ctx context.Context, resourc
 }
 
 // listHandleResponse handles the List response.
-func (client *ComplexModelClient) listHandleResponse(resp *http.Response) (ComplexModelClientListResponse, error) {
-	result := ComplexModelClientListResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.CatalogArray); err != nil {
-		return ComplexModelClientListResponse{}, err
+func (client *ComplexModelClient) listHandleResponse(resp *http.Response) (result ComplexModelClientListResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.CatalogArray); err != nil {
+		result = ComplexModelClientListResponse{}
+		return
 	}
 	return result, nil
 }
@@ -139,19 +162,30 @@ func (client *ComplexModelClient) listHandleResponse(resp *http.Response) (Compl
 //   - resourceGroupName - Resource Group ID.
 //   - bodyParameter - body Parameter
 //   - options - ComplexModelClientUpdateOptions contains the optional parameters for the ComplexModelClient.Update method.
-func (client *ComplexModelClient) Update(ctx context.Context, subscriptionID string, resourceGroupName string, bodyParameter CatalogArrayOfDictionary, options *ComplexModelClientUpdateOptions) (ComplexModelClientUpdateResponse, error) {
+func (client *ComplexModelClient) Update(ctx context.Context, subscriptionID string, resourceGroupName string, bodyParameter CatalogArrayOfDictionary, options *ComplexModelClientUpdateOptions) (result ComplexModelClientUpdateResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "ComplexModelClient.Update", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.updateCreateRequest(ctx, subscriptionID, resourceGroupName, bodyParameter, options)
 	if err != nil {
-		return ComplexModelClientUpdateResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return ComplexModelClientUpdateResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return ComplexModelClientUpdateResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.updateHandleResponse(resp)
+	result, err = client.updateHandleResponse(resp)
+	return
 }
 
 // updateCreateRequest creates the Update request.
@@ -177,10 +211,10 @@ func (client *ComplexModelClient) updateCreateRequest(ctx context.Context, subsc
 }
 
 // updateHandleResponse handles the Update response.
-func (client *ComplexModelClient) updateHandleResponse(resp *http.Response) (ComplexModelClientUpdateResponse, error) {
-	result := ComplexModelClientUpdateResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.CatalogArray); err != nil {
-		return ComplexModelClientUpdateResponse{}, err
+func (client *ComplexModelClient) updateHandleResponse(resp *http.Response) (result ComplexModelClientUpdateResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.CatalogArray); err != nil {
+		result = ComplexModelClientUpdateResponse{}
+		return
 	}
 	return result, nil
 }

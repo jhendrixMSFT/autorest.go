@@ -15,6 +15,7 @@ import (
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/policy"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/runtime"
+	"github.com/Azure/azure-sdk-for-go/sdk/azcore/tracing"
 	"net/http"
 	"net/url"
 	"strings"
@@ -36,19 +37,29 @@ type PathsClient struct {
 //   - secret - Secret value.
 //   - keyName - The key name with value 'key1'.
 //   - options - PathsClientGetEmptyOptions contains the optional parameters for the PathsClient.GetEmpty method.
-func (client *PathsClient) GetEmpty(ctx context.Context, vault string, secret string, keyName string, options *PathsClientGetEmptyOptions) (PathsClientGetEmptyResponse, error) {
+func (client *PathsClient) GetEmpty(ctx context.Context, vault string, secret string, keyName string, options *PathsClientGetEmptyOptions) (result PathsClientGetEmptyResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "PathsClient.GetEmpty", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.getEmptyCreateRequest(ctx, vault, secret, keyName, options)
 	if err != nil {
-		return PathsClientGetEmptyResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return PathsClientGetEmptyResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return PathsClientGetEmptyResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return PathsClientGetEmptyResponse{}, nil
+	return
 }
 
 // getEmptyCreateRequest creates the GetEmpty request.

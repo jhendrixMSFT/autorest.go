@@ -14,6 +14,7 @@ import (
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/policy"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/runtime"
+	"github.com/Azure/azure-sdk-for-go/sdk/azcore/tracing"
 	"net/http"
 )
 
@@ -28,19 +29,30 @@ type BoolClient struct {
 //
 // Generated from API version 1.0.0
 //   - options - BoolClientGetFalseOptions contains the optional parameters for the BoolClient.GetFalse method.
-func (client *BoolClient) GetFalse(ctx context.Context, options *BoolClientGetFalseOptions) (BoolClientGetFalseResponse, error) {
+func (client *BoolClient) GetFalse(ctx context.Context, options *BoolClientGetFalseOptions) (result BoolClientGetFalseResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "BoolClient.GetFalse", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.getFalseCreateRequest(ctx, options)
 	if err != nil {
-		return BoolClientGetFalseResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return BoolClientGetFalseResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return BoolClientGetFalseResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.getFalseHandleResponse(resp)
+	result, err = client.getFalseHandleResponse(resp)
+	return
 }
 
 // getFalseCreateRequest creates the GetFalse request.
@@ -55,10 +67,10 @@ func (client *BoolClient) getFalseCreateRequest(ctx context.Context, options *Bo
 }
 
 // getFalseHandleResponse handles the GetFalse response.
-func (client *BoolClient) getFalseHandleResponse(resp *http.Response) (BoolClientGetFalseResponse, error) {
-	result := BoolClientGetFalseResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.Value); err != nil {
-		return BoolClientGetFalseResponse{}, err
+func (client *BoolClient) getFalseHandleResponse(resp *http.Response) (result BoolClientGetFalseResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.Value); err != nil {
+		result = BoolClientGetFalseResponse{}
+		return
 	}
 	return result, nil
 }
@@ -68,19 +80,30 @@ func (client *BoolClient) getFalseHandleResponse(resp *http.Response) (BoolClien
 //
 // Generated from API version 1.0.0
 //   - options - BoolClientGetInvalidOptions contains the optional parameters for the BoolClient.GetInvalid method.
-func (client *BoolClient) GetInvalid(ctx context.Context, options *BoolClientGetInvalidOptions) (BoolClientGetInvalidResponse, error) {
+func (client *BoolClient) GetInvalid(ctx context.Context, options *BoolClientGetInvalidOptions) (result BoolClientGetInvalidResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "BoolClient.GetInvalid", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.getInvalidCreateRequest(ctx, options)
 	if err != nil {
-		return BoolClientGetInvalidResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return BoolClientGetInvalidResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return BoolClientGetInvalidResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.getInvalidHandleResponse(resp)
+	result, err = client.getInvalidHandleResponse(resp)
+	return
 }
 
 // getInvalidCreateRequest creates the GetInvalid request.
@@ -95,10 +118,10 @@ func (client *BoolClient) getInvalidCreateRequest(ctx context.Context, options *
 }
 
 // getInvalidHandleResponse handles the GetInvalid response.
-func (client *BoolClient) getInvalidHandleResponse(resp *http.Response) (BoolClientGetInvalidResponse, error) {
-	result := BoolClientGetInvalidResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.Value); err != nil {
-		return BoolClientGetInvalidResponse{}, err
+func (client *BoolClient) getInvalidHandleResponse(resp *http.Response) (result BoolClientGetInvalidResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.Value); err != nil {
+		result = BoolClientGetInvalidResponse{}
+		return
 	}
 	return result, nil
 }
@@ -108,19 +131,30 @@ func (client *BoolClient) getInvalidHandleResponse(resp *http.Response) (BoolCli
 //
 // Generated from API version 1.0.0
 //   - options - BoolClientGetNullOptions contains the optional parameters for the BoolClient.GetNull method.
-func (client *BoolClient) GetNull(ctx context.Context, options *BoolClientGetNullOptions) (BoolClientGetNullResponse, error) {
+func (client *BoolClient) GetNull(ctx context.Context, options *BoolClientGetNullOptions) (result BoolClientGetNullResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "BoolClient.GetNull", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.getNullCreateRequest(ctx, options)
 	if err != nil {
-		return BoolClientGetNullResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return BoolClientGetNullResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return BoolClientGetNullResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.getNullHandleResponse(resp)
+	result, err = client.getNullHandleResponse(resp)
+	return
 }
 
 // getNullCreateRequest creates the GetNull request.
@@ -135,10 +169,10 @@ func (client *BoolClient) getNullCreateRequest(ctx context.Context, options *Boo
 }
 
 // getNullHandleResponse handles the GetNull response.
-func (client *BoolClient) getNullHandleResponse(resp *http.Response) (BoolClientGetNullResponse, error) {
-	result := BoolClientGetNullResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.Value); err != nil {
-		return BoolClientGetNullResponse{}, err
+func (client *BoolClient) getNullHandleResponse(resp *http.Response) (result BoolClientGetNullResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.Value); err != nil {
+		result = BoolClientGetNullResponse{}
+		return
 	}
 	return result, nil
 }
@@ -148,19 +182,30 @@ func (client *BoolClient) getNullHandleResponse(resp *http.Response) (BoolClient
 //
 // Generated from API version 1.0.0
 //   - options - BoolClientGetTrueOptions contains the optional parameters for the BoolClient.GetTrue method.
-func (client *BoolClient) GetTrue(ctx context.Context, options *BoolClientGetTrueOptions) (BoolClientGetTrueResponse, error) {
+func (client *BoolClient) GetTrue(ctx context.Context, options *BoolClientGetTrueOptions) (result BoolClientGetTrueResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "BoolClient.GetTrue", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.getTrueCreateRequest(ctx, options)
 	if err != nil {
-		return BoolClientGetTrueResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return BoolClientGetTrueResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return BoolClientGetTrueResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.getTrueHandleResponse(resp)
+	result, err = client.getTrueHandleResponse(resp)
+	return
 }
 
 // getTrueCreateRequest creates the GetTrue request.
@@ -175,10 +220,10 @@ func (client *BoolClient) getTrueCreateRequest(ctx context.Context, options *Boo
 }
 
 // getTrueHandleResponse handles the GetTrue response.
-func (client *BoolClient) getTrueHandleResponse(resp *http.Response) (BoolClientGetTrueResponse, error) {
-	result := BoolClientGetTrueResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.Value); err != nil {
-		return BoolClientGetTrueResponse{}, err
+func (client *BoolClient) getTrueHandleResponse(resp *http.Response) (result BoolClientGetTrueResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.Value); err != nil {
+		result = BoolClientGetTrueResponse{}
+		return
 	}
 	return result, nil
 }
@@ -188,19 +233,29 @@ func (client *BoolClient) getTrueHandleResponse(resp *http.Response) (BoolClient
 //
 // Generated from API version 1.0.0
 //   - options - BoolClientPutFalseOptions contains the optional parameters for the BoolClient.PutFalse method.
-func (client *BoolClient) PutFalse(ctx context.Context, options *BoolClientPutFalseOptions) (BoolClientPutFalseResponse, error) {
+func (client *BoolClient) PutFalse(ctx context.Context, options *BoolClientPutFalseOptions) (result BoolClientPutFalseResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "BoolClient.PutFalse", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.putFalseCreateRequest(ctx, options)
 	if err != nil {
-		return BoolClientPutFalseResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return BoolClientPutFalseResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return BoolClientPutFalseResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return BoolClientPutFalseResponse{}, nil
+	return
 }
 
 // putFalseCreateRequest creates the PutFalse request.
@@ -219,19 +274,29 @@ func (client *BoolClient) putFalseCreateRequest(ctx context.Context, options *Bo
 //
 // Generated from API version 1.0.0
 //   - options - BoolClientPutTrueOptions contains the optional parameters for the BoolClient.PutTrue method.
-func (client *BoolClient) PutTrue(ctx context.Context, options *BoolClientPutTrueOptions) (BoolClientPutTrueResponse, error) {
+func (client *BoolClient) PutTrue(ctx context.Context, options *BoolClientPutTrueOptions) (result BoolClientPutTrueResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "BoolClient.PutTrue", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.putTrueCreateRequest(ctx, options)
 	if err != nil {
-		return BoolClientPutTrueResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return BoolClientPutTrueResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return BoolClientPutTrueResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return BoolClientPutTrueResponse{}, nil
+	return
 }
 
 // putTrueCreateRequest creates the PutTrue request.

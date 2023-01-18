@@ -14,6 +14,7 @@ import (
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/policy"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/runtime"
+	"github.com/Azure/azure-sdk-for-go/sdk/azcore/tracing"
 	"net/http"
 	"strconv"
 )
@@ -29,19 +30,29 @@ type ODataClient struct {
 //
 // Generated from API version 2015-07-01-preview
 //   - options - ODataClientGetWithFilterOptions contains the optional parameters for the ODataClient.GetWithFilter method.
-func (client *ODataClient) GetWithFilter(ctx context.Context, options *ODataClientGetWithFilterOptions) (ODataClientGetWithFilterResponse, error) {
+func (client *ODataClient) GetWithFilter(ctx context.Context, options *ODataClientGetWithFilterOptions) (result ODataClientGetWithFilterResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "ODataClient.GetWithFilter", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.getWithFilterCreateRequest(ctx, options)
 	if err != nil {
-		return ODataClientGetWithFilterResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return ODataClientGetWithFilterResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return ODataClientGetWithFilterResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return ODataClientGetWithFilterResponse{}, nil
+	return
 }
 
 // getWithFilterCreateRequest creates the GetWithFilter request.

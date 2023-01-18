@@ -920,7 +920,7 @@ function generateResponseUnmarshaller(op: Operation, response: SchemaResponse, u
   const mediaType = getMediaType(response.protocol);
   if (mediaType === 'JSON' || mediaType === 'XML') {
     if (response.schema.language.go!.rawJSONAsBytes) {
-      unmarshallerText += `\tbody, err = runtime.Payload(resp)\n`;
+      unmarshallerText += `\tbody, err := runtime.Payload(resp)\n`;
       unmarshallerText += '\tif err != nil {\n';
       unmarshallerText += `\t\treturn\n`;
       unmarshallerText += '\t}\n';
@@ -932,7 +932,7 @@ function generateResponseUnmarshaller(op: Operation, response: SchemaResponse, u
       unmarshallerText += '\t}\n';
     }
   } else if (mediaType === 'text') {
-    unmarshallerText += `\tbody, err = runtime.Payload(resp)\n`;
+    unmarshallerText += `\tbody, err := runtime.Payload(resp)\n`;
     unmarshallerText += '\tif err != nil {\n';
     unmarshallerText += `\t\treturn\n`;
     unmarshallerText += '\t}\n';
@@ -986,7 +986,6 @@ function createProtocolResponse(op: Operation, imports: ImportManager): string {
     text += '\treturn result, nil\n';
   } else {
     imports.add('fmt');
-    text += `\tresult := ${getResponseEnvelopeName(op)}{}\n`;
     // unmarshal any header values
     const respEnv = getResponseEnvelope(op);
     addHeaders(respEnv.properties);

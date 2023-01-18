@@ -16,6 +16,7 @@ import (
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/policy"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/runtime"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/streaming"
+	"github.com/Azure/azure-sdk-for-go/sdk/azcore/tracing"
 	"net/http"
 )
 
@@ -30,19 +31,30 @@ type ObjectTypeClient struct {
 //
 // Generated from API version 1.0.0
 //   - options - ObjectTypeClientGetOptions contains the optional parameters for the ObjectTypeClient.Get method.
-func (client *ObjectTypeClient) Get(ctx context.Context, options *ObjectTypeClientGetOptions) (ObjectTypeClientGetResponse, error) {
+func (client *ObjectTypeClient) Get(ctx context.Context, options *ObjectTypeClientGetOptions) (result ObjectTypeClientGetResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "ObjectTypeClient.Get", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.getCreateRequest(ctx, options)
 	if err != nil {
-		return ObjectTypeClientGetResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return ObjectTypeClientGetResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return ObjectTypeClientGetResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.getHandleResponse(resp)
+	result, err = client.getHandleResponse(resp)
+	return
 }
 
 // getCreateRequest creates the Get request.
@@ -57,11 +69,10 @@ func (client *ObjectTypeClient) getCreateRequest(ctx context.Context, options *O
 }
 
 // getHandleResponse handles the Get response.
-func (client *ObjectTypeClient) getHandleResponse(resp *http.Response) (ObjectTypeClientGetResponse, error) {
-	result := ObjectTypeClientGetResponse{}
+func (client *ObjectTypeClient) getHandleResponse(resp *http.Response) (result ObjectTypeClientGetResponse, err error) {
 	body, err := runtime.Payload(resp)
 	if err != nil {
-		return ObjectTypeClientGetResponse{}, err
+		return
 	}
 	result.RawJSON = body
 	return result, nil
@@ -73,19 +84,29 @@ func (client *ObjectTypeClient) getHandleResponse(resp *http.Response) (ObjectTy
 // Generated from API version 1.0.0
 //   - putObject - Pass in {'foo': 'bar'} for a 200, anything else for an object error
 //   - options - ObjectTypeClientPutOptions contains the optional parameters for the ObjectTypeClient.Put method.
-func (client *ObjectTypeClient) Put(ctx context.Context, putObject []byte, options *ObjectTypeClientPutOptions) (ObjectTypeClientPutResponse, error) {
+func (client *ObjectTypeClient) Put(ctx context.Context, putObject []byte, options *ObjectTypeClientPutOptions) (result ObjectTypeClientPutResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "ObjectTypeClient.Put", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.putCreateRequest(ctx, putObject, options)
 	if err != nil {
-		return ObjectTypeClientPutResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return ObjectTypeClientPutResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return ObjectTypeClientPutResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return ObjectTypeClientPutResponse{}, nil
+	return
 }
 
 // putCreateRequest creates the Put request.

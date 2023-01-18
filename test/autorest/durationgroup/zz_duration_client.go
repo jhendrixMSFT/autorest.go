@@ -14,6 +14,7 @@ import (
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/policy"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/runtime"
+	"github.com/Azure/azure-sdk-for-go/sdk/azcore/tracing"
 	"net/http"
 )
 
@@ -28,19 +29,30 @@ type DurationClient struct {
 //
 // Generated from API version 1.0.0
 //   - options - DurationClientGetInvalidOptions contains the optional parameters for the DurationClient.GetInvalid method.
-func (client *DurationClient) GetInvalid(ctx context.Context, options *DurationClientGetInvalidOptions) (DurationClientGetInvalidResponse, error) {
+func (client *DurationClient) GetInvalid(ctx context.Context, options *DurationClientGetInvalidOptions) (result DurationClientGetInvalidResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "DurationClient.GetInvalid", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.getInvalidCreateRequest(ctx, options)
 	if err != nil {
-		return DurationClientGetInvalidResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return DurationClientGetInvalidResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return DurationClientGetInvalidResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.getInvalidHandleResponse(resp)
+	result, err = client.getInvalidHandleResponse(resp)
+	return
 }
 
 // getInvalidCreateRequest creates the GetInvalid request.
@@ -55,10 +67,10 @@ func (client *DurationClient) getInvalidCreateRequest(ctx context.Context, optio
 }
 
 // getInvalidHandleResponse handles the GetInvalid response.
-func (client *DurationClient) getInvalidHandleResponse(resp *http.Response) (DurationClientGetInvalidResponse, error) {
-	result := DurationClientGetInvalidResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.Value); err != nil {
-		return DurationClientGetInvalidResponse{}, err
+func (client *DurationClient) getInvalidHandleResponse(resp *http.Response) (result DurationClientGetInvalidResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.Value); err != nil {
+		result = DurationClientGetInvalidResponse{}
+		return
 	}
 	return result, nil
 }
@@ -68,19 +80,30 @@ func (client *DurationClient) getInvalidHandleResponse(resp *http.Response) (Dur
 //
 // Generated from API version 1.0.0
 //   - options - DurationClientGetNullOptions contains the optional parameters for the DurationClient.GetNull method.
-func (client *DurationClient) GetNull(ctx context.Context, options *DurationClientGetNullOptions) (DurationClientGetNullResponse, error) {
+func (client *DurationClient) GetNull(ctx context.Context, options *DurationClientGetNullOptions) (result DurationClientGetNullResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "DurationClient.GetNull", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.getNullCreateRequest(ctx, options)
 	if err != nil {
-		return DurationClientGetNullResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return DurationClientGetNullResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return DurationClientGetNullResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.getNullHandleResponse(resp)
+	result, err = client.getNullHandleResponse(resp)
+	return
 }
 
 // getNullCreateRequest creates the GetNull request.
@@ -95,10 +118,10 @@ func (client *DurationClient) getNullCreateRequest(ctx context.Context, options 
 }
 
 // getNullHandleResponse handles the GetNull response.
-func (client *DurationClient) getNullHandleResponse(resp *http.Response) (DurationClientGetNullResponse, error) {
-	result := DurationClientGetNullResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.Value); err != nil {
-		return DurationClientGetNullResponse{}, err
+func (client *DurationClient) getNullHandleResponse(resp *http.Response) (result DurationClientGetNullResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.Value); err != nil {
+		result = DurationClientGetNullResponse{}
+		return
 	}
 	return result, nil
 }
@@ -109,19 +132,30 @@ func (client *DurationClient) getNullHandleResponse(resp *http.Response) (Durati
 // Generated from API version 1.0.0
 //   - options - DurationClientGetPositiveDurationOptions contains the optional parameters for the DurationClient.GetPositiveDuration
 //     method.
-func (client *DurationClient) GetPositiveDuration(ctx context.Context, options *DurationClientGetPositiveDurationOptions) (DurationClientGetPositiveDurationResponse, error) {
+func (client *DurationClient) GetPositiveDuration(ctx context.Context, options *DurationClientGetPositiveDurationOptions) (result DurationClientGetPositiveDurationResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "DurationClient.GetPositiveDuration", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.getPositiveDurationCreateRequest(ctx, options)
 	if err != nil {
-		return DurationClientGetPositiveDurationResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return DurationClientGetPositiveDurationResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return DurationClientGetPositiveDurationResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.getPositiveDurationHandleResponse(resp)
+	result, err = client.getPositiveDurationHandleResponse(resp)
+	return
 }
 
 // getPositiveDurationCreateRequest creates the GetPositiveDuration request.
@@ -136,10 +170,10 @@ func (client *DurationClient) getPositiveDurationCreateRequest(ctx context.Conte
 }
 
 // getPositiveDurationHandleResponse handles the GetPositiveDuration response.
-func (client *DurationClient) getPositiveDurationHandleResponse(resp *http.Response) (DurationClientGetPositiveDurationResponse, error) {
-	result := DurationClientGetPositiveDurationResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.Value); err != nil {
-		return DurationClientGetPositiveDurationResponse{}, err
+func (client *DurationClient) getPositiveDurationHandleResponse(resp *http.Response) (result DurationClientGetPositiveDurationResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.Value); err != nil {
+		result = DurationClientGetPositiveDurationResponse{}
+		return
 	}
 	return result, nil
 }
@@ -151,19 +185,29 @@ func (client *DurationClient) getPositiveDurationHandleResponse(resp *http.Respo
 //   - durationBody - duration body
 //   - options - DurationClientPutPositiveDurationOptions contains the optional parameters for the DurationClient.PutPositiveDuration
 //     method.
-func (client *DurationClient) PutPositiveDuration(ctx context.Context, durationBody string, options *DurationClientPutPositiveDurationOptions) (DurationClientPutPositiveDurationResponse, error) {
+func (client *DurationClient) PutPositiveDuration(ctx context.Context, durationBody string, options *DurationClientPutPositiveDurationOptions) (result DurationClientPutPositiveDurationResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "DurationClient.PutPositiveDuration", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.putPositiveDurationCreateRequest(ctx, durationBody, options)
 	if err != nil {
-		return DurationClientPutPositiveDurationResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return DurationClientPutPositiveDurationResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return DurationClientPutPositiveDurationResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return DurationClientPutPositiveDurationResponse{}, nil
+	return
 }
 
 // putPositiveDurationCreateRequest creates the PutPositiveDuration request.

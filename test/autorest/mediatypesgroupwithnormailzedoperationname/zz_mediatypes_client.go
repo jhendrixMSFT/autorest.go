@@ -15,6 +15,7 @@ import (
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/policy"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/runtime"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/streaming"
+	"github.com/Azure/azure-sdk-for-go/sdk/azcore/tracing"
 	"io"
 	"net/http"
 	"strings"
@@ -31,19 +32,30 @@ type MediaTypesClient struct {
 //
 // Generated from API version 2.0-preview
 //   - options - MediaTypesClientAnalyzeBodyOptions contains the optional parameters for the MediaTypesClient.AnalyzeBody method.
-func (client *MediaTypesClient) AnalyzeBody(ctx context.Context, options *MediaTypesClientAnalyzeBodyOptions) (MediaTypesClientAnalyzeBodyResponse, error) {
+func (client *MediaTypesClient) AnalyzeBody(ctx context.Context, options *MediaTypesClientAnalyzeBodyOptions) (result MediaTypesClientAnalyzeBodyResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "MediaTypesClient.AnalyzeBody", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.analyzeBodyCreateRequest(ctx, options)
 	if err != nil {
-		return MediaTypesClientAnalyzeBodyResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return MediaTypesClientAnalyzeBodyResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return MediaTypesClientAnalyzeBodyResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.analyzeBodyHandleResponse(resp)
+	result, err = client.analyzeBodyHandleResponse(resp)
+	return
 }
 
 // analyzeBodyCreateRequest creates the AnalyzeBody request.
@@ -61,10 +73,10 @@ func (client *MediaTypesClient) analyzeBodyCreateRequest(ctx context.Context, op
 }
 
 // analyzeBodyHandleResponse handles the AnalyzeBody response.
-func (client *MediaTypesClient) analyzeBodyHandleResponse(resp *http.Response) (MediaTypesClientAnalyzeBodyResponse, error) {
-	result := MediaTypesClientAnalyzeBodyResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.Value); err != nil {
-		return MediaTypesClientAnalyzeBodyResponse{}, err
+func (client *MediaTypesClient) analyzeBodyHandleResponse(resp *http.Response) (result MediaTypesClientAnalyzeBodyResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.Value); err != nil {
+		result = MediaTypesClientAnalyzeBodyResponse{}
+		return
 	}
 	return result, nil
 }
@@ -76,19 +88,29 @@ func (client *MediaTypesClient) analyzeBodyHandleResponse(resp *http.Response) (
 // Generated from API version 2.0-preview
 //   - options - MediaTypesClientAnalyzeBodyNoAcceptHeaderOptions contains the optional parameters for the MediaTypesClient.AnalyzeBodyNoAcceptHeader
 //     method.
-func (client *MediaTypesClient) AnalyzeBodyNoAcceptHeader(ctx context.Context, options *MediaTypesClientAnalyzeBodyNoAcceptHeaderOptions) (MediaTypesClientAnalyzeBodyNoAcceptHeaderResponse, error) {
+func (client *MediaTypesClient) AnalyzeBodyNoAcceptHeader(ctx context.Context, options *MediaTypesClientAnalyzeBodyNoAcceptHeaderOptions) (result MediaTypesClientAnalyzeBodyNoAcceptHeaderResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "MediaTypesClient.AnalyzeBodyNoAcceptHeader", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.analyzeBodyNoAcceptHeaderCreateRequest(ctx, options)
 	if err != nil {
-		return MediaTypesClientAnalyzeBodyNoAcceptHeaderResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return MediaTypesClientAnalyzeBodyNoAcceptHeaderResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusAccepted) {
-		return MediaTypesClientAnalyzeBodyNoAcceptHeaderResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return MediaTypesClientAnalyzeBodyNoAcceptHeaderResponse{}, nil
+	return
 }
 
 // analyzeBodyNoAcceptHeaderCreateRequest creates the AnalyzeBodyNoAcceptHeader request.
@@ -112,19 +134,29 @@ func (client *MediaTypesClient) analyzeBodyNoAcceptHeaderCreateRequest(ctx conte
 //   - contentType - Upload file type
 //   - options - MediaTypesClientAnalyzeBodyNoAcceptHeaderWithBinaryOptions contains the optional parameters for the MediaTypesClient.AnalyzeBodyNoAcceptHeaderWithBinary
 //     method.
-func (client *MediaTypesClient) AnalyzeBodyNoAcceptHeaderWithBinary(ctx context.Context, contentType ContentType, options *MediaTypesClientAnalyzeBodyNoAcceptHeaderWithBinaryOptions) (MediaTypesClientAnalyzeBodyNoAcceptHeaderWithBinaryResponse, error) {
+func (client *MediaTypesClient) AnalyzeBodyNoAcceptHeaderWithBinary(ctx context.Context, contentType ContentType, options *MediaTypesClientAnalyzeBodyNoAcceptHeaderWithBinaryOptions) (result MediaTypesClientAnalyzeBodyNoAcceptHeaderWithBinaryResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "MediaTypesClient.AnalyzeBodyNoAcceptHeaderWithBinary", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.analyzeBodyNoAcceptHeaderWithBinaryCreateRequest(ctx, contentType, options)
 	if err != nil {
-		return MediaTypesClientAnalyzeBodyNoAcceptHeaderWithBinaryResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return MediaTypesClientAnalyzeBodyNoAcceptHeaderWithBinaryResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusAccepted) {
-		return MediaTypesClientAnalyzeBodyNoAcceptHeaderWithBinaryResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return MediaTypesClientAnalyzeBodyNoAcceptHeaderWithBinaryResponse{}, nil
+	return
 }
 
 // analyzeBodyNoAcceptHeaderWithBinaryCreateRequest creates the AnalyzeBodyNoAcceptHeaderWithBinary request.
@@ -148,19 +180,30 @@ func (client *MediaTypesClient) analyzeBodyNoAcceptHeaderWithBinaryCreateRequest
 //   - contentType - Upload file type
 //   - options - MediaTypesClientAnalyzeBodyWithBinaryOptions contains the optional parameters for the MediaTypesClient.AnalyzeBodyWithBinary
 //     method.
-func (client *MediaTypesClient) AnalyzeBodyWithBinary(ctx context.Context, contentType ContentType, options *MediaTypesClientAnalyzeBodyWithBinaryOptions) (MediaTypesClientAnalyzeBodyWithBinaryResponse, error) {
+func (client *MediaTypesClient) AnalyzeBodyWithBinary(ctx context.Context, contentType ContentType, options *MediaTypesClientAnalyzeBodyWithBinaryOptions) (result MediaTypesClientAnalyzeBodyWithBinaryResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "MediaTypesClient.AnalyzeBodyWithBinary", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.analyzeBodyWithBinaryCreateRequest(ctx, contentType, options)
 	if err != nil {
-		return MediaTypesClientAnalyzeBodyWithBinaryResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return MediaTypesClientAnalyzeBodyWithBinaryResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return MediaTypesClientAnalyzeBodyWithBinaryResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.analyzeBodyWithBinaryHandleResponse(resp)
+	result, err = client.analyzeBodyWithBinaryHandleResponse(resp)
+	return
 }
 
 // analyzeBodyWithBinaryCreateRequest creates the AnalyzeBodyWithBinary request.
@@ -179,10 +222,10 @@ func (client *MediaTypesClient) analyzeBodyWithBinaryCreateRequest(ctx context.C
 }
 
 // analyzeBodyWithBinaryHandleResponse handles the AnalyzeBodyWithBinary response.
-func (client *MediaTypesClient) analyzeBodyWithBinaryHandleResponse(resp *http.Response) (MediaTypesClientAnalyzeBodyWithBinaryResponse, error) {
-	result := MediaTypesClientAnalyzeBodyWithBinaryResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.Value); err != nil {
-		return MediaTypesClientAnalyzeBodyWithBinaryResponse{}, err
+func (client *MediaTypesClient) analyzeBodyWithBinaryHandleResponse(resp *http.Response) (result MediaTypesClientAnalyzeBodyWithBinaryResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.Value); err != nil {
+		result = MediaTypesClientAnalyzeBodyWithBinaryResponse{}
+		return
 	}
 	return result, nil
 }
@@ -197,19 +240,30 @@ func (client *MediaTypesClient) analyzeBodyWithBinaryHandleResponse(resp *http.R
 //   - message - The payload body.
 //   - options - MediaTypesClientBinaryBodyWithThreeContentTypesWithBinaryOptions contains the optional parameters for the MediaTypesClient.BinaryBodyWithThreeContentTypesWithBinary
 //     method.
-func (client *MediaTypesClient) BinaryBodyWithThreeContentTypesWithBinary(ctx context.Context, contentType ContentType1AutoGenerated, message io.ReadSeekCloser, options *MediaTypesClientBinaryBodyWithThreeContentTypesWithBinaryOptions) (MediaTypesClientBinaryBodyWithThreeContentTypesWithBinaryResponse, error) {
+func (client *MediaTypesClient) BinaryBodyWithThreeContentTypesWithBinary(ctx context.Context, contentType ContentType1AutoGenerated, message io.ReadSeekCloser, options *MediaTypesClientBinaryBodyWithThreeContentTypesWithBinaryOptions) (result MediaTypesClientBinaryBodyWithThreeContentTypesWithBinaryResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "MediaTypesClient.BinaryBodyWithThreeContentTypesWithBinary", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.binaryBodyWithThreeContentTypesWithBinaryCreateRequest(ctx, contentType, message, options)
 	if err != nil {
-		return MediaTypesClientBinaryBodyWithThreeContentTypesWithBinaryResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return MediaTypesClientBinaryBodyWithThreeContentTypesWithBinaryResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return MediaTypesClientBinaryBodyWithThreeContentTypesWithBinaryResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.binaryBodyWithThreeContentTypesWithBinaryHandleResponse(resp)
+	result, err = client.binaryBodyWithThreeContentTypesWithBinaryHandleResponse(resp)
+	return
 }
 
 // binaryBodyWithThreeContentTypesWithBinaryCreateRequest creates the BinaryBodyWithThreeContentTypesWithBinary request.
@@ -225,11 +279,10 @@ func (client *MediaTypesClient) binaryBodyWithThreeContentTypesWithBinaryCreateR
 }
 
 // binaryBodyWithThreeContentTypesWithBinaryHandleResponse handles the BinaryBodyWithThreeContentTypesWithBinary response.
-func (client *MediaTypesClient) binaryBodyWithThreeContentTypesWithBinaryHandleResponse(resp *http.Response) (MediaTypesClientBinaryBodyWithThreeContentTypesWithBinaryResponse, error) {
-	result := MediaTypesClientBinaryBodyWithThreeContentTypesWithBinaryResponse{}
+func (client *MediaTypesClient) binaryBodyWithThreeContentTypesWithBinaryHandleResponse(resp *http.Response) (result MediaTypesClientBinaryBodyWithThreeContentTypesWithBinaryResponse, err error) {
 	body, err := runtime.Payload(resp)
 	if err != nil {
-		return MediaTypesClientBinaryBodyWithThreeContentTypesWithBinaryResponse{}, err
+		return
 	}
 	txt := string(body)
 	result.Value = &txt
@@ -245,19 +298,30 @@ func (client *MediaTypesClient) binaryBodyWithThreeContentTypesWithBinaryHandleR
 //   - message - The payload body.
 //   - options - MediaTypesClientBinaryBodyWithTwoContentTypesWithBinaryOptions contains the optional parameters for the MediaTypesClient.BinaryBodyWithTwoContentTypesWithBinary
 //     method.
-func (client *MediaTypesClient) BinaryBodyWithTwoContentTypesWithBinary(ctx context.Context, contentType ContentType1, message io.ReadSeekCloser, options *MediaTypesClientBinaryBodyWithTwoContentTypesWithBinaryOptions) (MediaTypesClientBinaryBodyWithTwoContentTypesWithBinaryResponse, error) {
+func (client *MediaTypesClient) BinaryBodyWithTwoContentTypesWithBinary(ctx context.Context, contentType ContentType1, message io.ReadSeekCloser, options *MediaTypesClientBinaryBodyWithTwoContentTypesWithBinaryOptions) (result MediaTypesClientBinaryBodyWithTwoContentTypesWithBinaryResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "MediaTypesClient.BinaryBodyWithTwoContentTypesWithBinary", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.binaryBodyWithTwoContentTypesWithBinaryCreateRequest(ctx, contentType, message, options)
 	if err != nil {
-		return MediaTypesClientBinaryBodyWithTwoContentTypesWithBinaryResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return MediaTypesClientBinaryBodyWithTwoContentTypesWithBinaryResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return MediaTypesClientBinaryBodyWithTwoContentTypesWithBinaryResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.binaryBodyWithTwoContentTypesWithBinaryHandleResponse(resp)
+	result, err = client.binaryBodyWithTwoContentTypesWithBinaryHandleResponse(resp)
+	return
 }
 
 // binaryBodyWithTwoContentTypesWithBinaryCreateRequest creates the BinaryBodyWithTwoContentTypesWithBinary request.
@@ -273,11 +337,10 @@ func (client *MediaTypesClient) binaryBodyWithTwoContentTypesWithBinaryCreateReq
 }
 
 // binaryBodyWithTwoContentTypesWithBinaryHandleResponse handles the BinaryBodyWithTwoContentTypesWithBinary response.
-func (client *MediaTypesClient) binaryBodyWithTwoContentTypesWithBinaryHandleResponse(resp *http.Response) (MediaTypesClientBinaryBodyWithTwoContentTypesWithBinaryResponse, error) {
-	result := MediaTypesClientBinaryBodyWithTwoContentTypesWithBinaryResponse{}
+func (client *MediaTypesClient) binaryBodyWithTwoContentTypesWithBinaryHandleResponse(resp *http.Response) (result MediaTypesClientBinaryBodyWithTwoContentTypesWithBinaryResponse, err error) {
 	body, err := runtime.Payload(resp)
 	if err != nil {
-		return MediaTypesClientBinaryBodyWithTwoContentTypesWithBinaryResponse{}, err
+		return
 	}
 	txt := string(body)
 	result.Value = &txt
@@ -291,19 +354,30 @@ func (client *MediaTypesClient) binaryBodyWithTwoContentTypesWithBinaryHandleRes
 // Generated from API version 2.0-preview
 //   - options - MediaTypesClientContentTypeWithEncodingWithTextOptions contains the optional parameters for the MediaTypesClient.ContentTypeWithEncodingWithText
 //     method.
-func (client *MediaTypesClient) ContentTypeWithEncodingWithText(ctx context.Context, options *MediaTypesClientContentTypeWithEncodingWithTextOptions) (MediaTypesClientContentTypeWithEncodingWithTextResponse, error) {
+func (client *MediaTypesClient) ContentTypeWithEncodingWithText(ctx context.Context, options *MediaTypesClientContentTypeWithEncodingWithTextOptions) (result MediaTypesClientContentTypeWithEncodingWithTextResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "MediaTypesClient.ContentTypeWithEncodingWithText", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.contentTypeWithEncodingWithTextCreateRequest(ctx, options)
 	if err != nil {
-		return MediaTypesClientContentTypeWithEncodingWithTextResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return MediaTypesClientContentTypeWithEncodingWithTextResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return MediaTypesClientContentTypeWithEncodingWithTextResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.contentTypeWithEncodingWithTextHandleResponse(resp)
+	result, err = client.contentTypeWithEncodingWithTextHandleResponse(resp)
+	return
 }
 
 // contentTypeWithEncodingWithTextCreateRequest creates the ContentTypeWithEncodingWithText request.
@@ -322,10 +396,10 @@ func (client *MediaTypesClient) contentTypeWithEncodingWithTextCreateRequest(ctx
 }
 
 // contentTypeWithEncodingWithTextHandleResponse handles the ContentTypeWithEncodingWithText response.
-func (client *MediaTypesClient) contentTypeWithEncodingWithTextHandleResponse(resp *http.Response) (MediaTypesClientContentTypeWithEncodingWithTextResponse, error) {
-	result := MediaTypesClientContentTypeWithEncodingWithTextResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.Value); err != nil {
-		return MediaTypesClientContentTypeWithEncodingWithTextResponse{}, err
+func (client *MediaTypesClient) contentTypeWithEncodingWithTextHandleResponse(resp *http.Response) (result MediaTypesClientContentTypeWithEncodingWithTextResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.Value); err != nil {
+		result = MediaTypesClientContentTypeWithEncodingWithTextResponse{}
+		return
 	}
 	return result, nil
 }
@@ -338,19 +412,30 @@ func (client *MediaTypesClient) contentTypeWithEncodingWithTextHandleResponse(re
 //   - message - The payload body.
 //   - options - MediaTypesClientPutTextAndJSONBodyWithTextOptions contains the optional parameters for the MediaTypesClient.PutTextAndJSONBodyWithText
 //     method.
-func (client *MediaTypesClient) PutTextAndJSONBodyWithText(ctx context.Context, contentType ContentType1AutoGenerated2, message string, options *MediaTypesClientPutTextAndJSONBodyWithTextOptions) (MediaTypesClientPutTextAndJSONBodyWithTextResponse, error) {
+func (client *MediaTypesClient) PutTextAndJSONBodyWithText(ctx context.Context, contentType ContentType1AutoGenerated2, message string, options *MediaTypesClientPutTextAndJSONBodyWithTextOptions) (result MediaTypesClientPutTextAndJSONBodyWithTextResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "MediaTypesClient.PutTextAndJSONBodyWithText", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.putTextAndJSONBodyWithTextCreateRequest(ctx, contentType, message, options)
 	if err != nil {
-		return MediaTypesClientPutTextAndJSONBodyWithTextResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return MediaTypesClientPutTextAndJSONBodyWithTextResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return MediaTypesClientPutTextAndJSONBodyWithTextResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.putTextAndJSONBodyWithTextHandleResponse(resp)
+	result, err = client.putTextAndJSONBodyWithTextHandleResponse(resp)
+	return
 }
 
 // putTextAndJSONBodyWithTextCreateRequest creates the PutTextAndJSONBodyWithText request.
@@ -367,11 +452,10 @@ func (client *MediaTypesClient) putTextAndJSONBodyWithTextCreateRequest(ctx cont
 }
 
 // putTextAndJSONBodyWithTextHandleResponse handles the PutTextAndJSONBodyWithText response.
-func (client *MediaTypesClient) putTextAndJSONBodyWithTextHandleResponse(resp *http.Response) (MediaTypesClientPutTextAndJSONBodyWithTextResponse, error) {
-	result := MediaTypesClientPutTextAndJSONBodyWithTextResponse{}
+func (client *MediaTypesClient) putTextAndJSONBodyWithTextHandleResponse(resp *http.Response) (result MediaTypesClientPutTextAndJSONBodyWithTextResponse, err error) {
 	body, err := runtime.Payload(resp)
 	if err != nil {
-		return MediaTypesClientPutTextAndJSONBodyWithTextResponse{}, err
+		return
 	}
 	txt := string(body)
 	result.Value = &txt

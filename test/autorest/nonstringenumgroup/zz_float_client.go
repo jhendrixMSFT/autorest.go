@@ -14,6 +14,7 @@ import (
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/policy"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/runtime"
+	"github.com/Azure/azure-sdk-for-go/sdk/azcore/tracing"
 	"net/http"
 )
 
@@ -28,19 +29,30 @@ type FloatClient struct {
 //
 // Generated from API version 2.0-preview
 //   - options - FloatClientGetOptions contains the optional parameters for the FloatClient.Get method.
-func (client *FloatClient) Get(ctx context.Context, options *FloatClientGetOptions) (FloatClientGetResponse, error) {
+func (client *FloatClient) Get(ctx context.Context, options *FloatClientGetOptions) (result FloatClientGetResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "FloatClient.Get", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.getCreateRequest(ctx, options)
 	if err != nil {
-		return FloatClientGetResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return FloatClientGetResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return FloatClientGetResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.getHandleResponse(resp)
+	result, err = client.getHandleResponse(resp)
+	return
 }
 
 // getCreateRequest creates the Get request.
@@ -55,10 +67,10 @@ func (client *FloatClient) getCreateRequest(ctx context.Context, options *FloatC
 }
 
 // getHandleResponse handles the Get response.
-func (client *FloatClient) getHandleResponse(resp *http.Response) (FloatClientGetResponse, error) {
-	result := FloatClientGetResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.Value); err != nil {
-		return FloatClientGetResponse{}, err
+func (client *FloatClient) getHandleResponse(resp *http.Response) (result FloatClientGetResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.Value); err != nil {
+		result = FloatClientGetResponse{}
+		return
 	}
 	return result, nil
 }
@@ -69,19 +81,30 @@ func (client *FloatClient) getHandleResponse(resp *http.Response) (FloatClientGe
 // Generated from API version 2.0-preview
 //   - input - Input float enum.
 //   - options - FloatClientPutOptions contains the optional parameters for the FloatClient.Put method.
-func (client *FloatClient) Put(ctx context.Context, input FloatEnum, options *FloatClientPutOptions) (FloatClientPutResponse, error) {
+func (client *FloatClient) Put(ctx context.Context, input FloatEnum, options *FloatClientPutOptions) (result FloatClientPutResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "FloatClient.Put", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.putCreateRequest(ctx, input, options)
 	if err != nil {
-		return FloatClientPutResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return FloatClientPutResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return FloatClientPutResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.putHandleResponse(resp)
+	result, err = client.putHandleResponse(resp)
+	return
 }
 
 // putCreateRequest creates the Put request.
@@ -96,10 +119,10 @@ func (client *FloatClient) putCreateRequest(ctx context.Context, input FloatEnum
 }
 
 // putHandleResponse handles the Put response.
-func (client *FloatClient) putHandleResponse(resp *http.Response) (FloatClientPutResponse, error) {
-	result := FloatClientPutResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.Value); err != nil {
-		return FloatClientPutResponse{}, err
+func (client *FloatClient) putHandleResponse(resp *http.Response) (result FloatClientPutResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.Value); err != nil {
+		result = FloatClientPutResponse{}
+		return
 	}
 	return result, nil
 }

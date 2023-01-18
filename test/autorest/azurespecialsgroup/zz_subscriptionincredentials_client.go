@@ -15,6 +15,7 @@ import (
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/policy"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/runtime"
+	"github.com/Azure/azure-sdk-for-go/sdk/azcore/tracing"
 	"net/http"
 	"net/url"
 	"strings"
@@ -34,19 +35,29 @@ type SubscriptionInCredentialsClient struct {
 // Generated from API version 2015-07-01-preview
 //   - options - SubscriptionInCredentialsClientPostMethodGlobalNotProvidedValidOptions contains the optional parameters for the
 //     SubscriptionInCredentialsClient.PostMethodGlobalNotProvidedValid method.
-func (client *SubscriptionInCredentialsClient) PostMethodGlobalNotProvidedValid(ctx context.Context, options *SubscriptionInCredentialsClientPostMethodGlobalNotProvidedValidOptions) (SubscriptionInCredentialsClientPostMethodGlobalNotProvidedValidResponse, error) {
+func (client *SubscriptionInCredentialsClient) PostMethodGlobalNotProvidedValid(ctx context.Context, options *SubscriptionInCredentialsClientPostMethodGlobalNotProvidedValidOptions) (result SubscriptionInCredentialsClientPostMethodGlobalNotProvidedValidResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "SubscriptionInCredentialsClient.PostMethodGlobalNotProvidedValid", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.postMethodGlobalNotProvidedValidCreateRequest(ctx, options)
 	if err != nil {
-		return SubscriptionInCredentialsClientPostMethodGlobalNotProvidedValidResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return SubscriptionInCredentialsClientPostMethodGlobalNotProvidedValidResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return SubscriptionInCredentialsClientPostMethodGlobalNotProvidedValidResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return SubscriptionInCredentialsClientPostMethodGlobalNotProvidedValidResponse{}, nil
+	return
 }
 
 // postMethodGlobalNotProvidedValidCreateRequest creates the PostMethodGlobalNotProvidedValid request.
@@ -74,19 +85,29 @@ func (client *SubscriptionInCredentialsClient) postMethodGlobalNotProvidedValidC
 // Generated from API version 2015-07-01-preview
 //   - options - SubscriptionInCredentialsClientPostMethodGlobalNullOptions contains the optional parameters for the SubscriptionInCredentialsClient.PostMethodGlobalNull
 //     method.
-func (client *SubscriptionInCredentialsClient) PostMethodGlobalNull(ctx context.Context, options *SubscriptionInCredentialsClientPostMethodGlobalNullOptions) (SubscriptionInCredentialsClientPostMethodGlobalNullResponse, error) {
+func (client *SubscriptionInCredentialsClient) PostMethodGlobalNull(ctx context.Context, options *SubscriptionInCredentialsClientPostMethodGlobalNullOptions) (result SubscriptionInCredentialsClientPostMethodGlobalNullResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "SubscriptionInCredentialsClient.PostMethodGlobalNull", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.postMethodGlobalNullCreateRequest(ctx, options)
 	if err != nil {
-		return SubscriptionInCredentialsClientPostMethodGlobalNullResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return SubscriptionInCredentialsClientPostMethodGlobalNullResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return SubscriptionInCredentialsClientPostMethodGlobalNullResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return SubscriptionInCredentialsClientPostMethodGlobalNullResponse{}, nil
+	return
 }
 
 // postMethodGlobalNullCreateRequest creates the PostMethodGlobalNull request.
@@ -111,19 +132,29 @@ func (client *SubscriptionInCredentialsClient) postMethodGlobalNullCreateRequest
 // Generated from API version 2015-07-01-preview
 //   - options - SubscriptionInCredentialsClientPostMethodGlobalValidOptions contains the optional parameters for the SubscriptionInCredentialsClient.PostMethodGlobalValid
 //     method.
-func (client *SubscriptionInCredentialsClient) PostMethodGlobalValid(ctx context.Context, options *SubscriptionInCredentialsClientPostMethodGlobalValidOptions) (SubscriptionInCredentialsClientPostMethodGlobalValidResponse, error) {
+func (client *SubscriptionInCredentialsClient) PostMethodGlobalValid(ctx context.Context, options *SubscriptionInCredentialsClientPostMethodGlobalValidOptions) (result SubscriptionInCredentialsClientPostMethodGlobalValidResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "SubscriptionInCredentialsClient.PostMethodGlobalValid", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.postMethodGlobalValidCreateRequest(ctx, options)
 	if err != nil {
-		return SubscriptionInCredentialsClientPostMethodGlobalValidResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return SubscriptionInCredentialsClientPostMethodGlobalValidResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return SubscriptionInCredentialsClientPostMethodGlobalValidResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return SubscriptionInCredentialsClientPostMethodGlobalValidResponse{}, nil
+	return
 }
 
 // postMethodGlobalValidCreateRequest creates the PostMethodGlobalValid request.
@@ -148,19 +179,29 @@ func (client *SubscriptionInCredentialsClient) postMethodGlobalValidCreateReques
 // Generated from API version 2015-07-01-preview
 //   - options - SubscriptionInCredentialsClientPostPathGlobalValidOptions contains the optional parameters for the SubscriptionInCredentialsClient.PostPathGlobalValid
 //     method.
-func (client *SubscriptionInCredentialsClient) PostPathGlobalValid(ctx context.Context, options *SubscriptionInCredentialsClientPostPathGlobalValidOptions) (SubscriptionInCredentialsClientPostPathGlobalValidResponse, error) {
+func (client *SubscriptionInCredentialsClient) PostPathGlobalValid(ctx context.Context, options *SubscriptionInCredentialsClientPostPathGlobalValidOptions) (result SubscriptionInCredentialsClientPostPathGlobalValidResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "SubscriptionInCredentialsClient.PostPathGlobalValid", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.postPathGlobalValidCreateRequest(ctx, options)
 	if err != nil {
-		return SubscriptionInCredentialsClientPostPathGlobalValidResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return SubscriptionInCredentialsClientPostPathGlobalValidResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return SubscriptionInCredentialsClientPostPathGlobalValidResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return SubscriptionInCredentialsClientPostPathGlobalValidResponse{}, nil
+	return
 }
 
 // postPathGlobalValidCreateRequest creates the PostPathGlobalValid request.
@@ -185,19 +226,29 @@ func (client *SubscriptionInCredentialsClient) postPathGlobalValidCreateRequest(
 // Generated from API version 2015-07-01-preview
 //   - options - SubscriptionInCredentialsClientPostSwaggerGlobalValidOptions contains the optional parameters for the SubscriptionInCredentialsClient.PostSwaggerGlobalValid
 //     method.
-func (client *SubscriptionInCredentialsClient) PostSwaggerGlobalValid(ctx context.Context, options *SubscriptionInCredentialsClientPostSwaggerGlobalValidOptions) (SubscriptionInCredentialsClientPostSwaggerGlobalValidResponse, error) {
+func (client *SubscriptionInCredentialsClient) PostSwaggerGlobalValid(ctx context.Context, options *SubscriptionInCredentialsClientPostSwaggerGlobalValidOptions) (result SubscriptionInCredentialsClientPostSwaggerGlobalValidResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "SubscriptionInCredentialsClient.PostSwaggerGlobalValid", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.postSwaggerGlobalValidCreateRequest(ctx, options)
 	if err != nil {
-		return SubscriptionInCredentialsClientPostSwaggerGlobalValidResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return SubscriptionInCredentialsClientPostSwaggerGlobalValidResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return SubscriptionInCredentialsClientPostSwaggerGlobalValidResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return SubscriptionInCredentialsClientPostSwaggerGlobalValidResponse{}, nil
+	return
 }
 
 // postSwaggerGlobalValidCreateRequest creates the PostSwaggerGlobalValid request.

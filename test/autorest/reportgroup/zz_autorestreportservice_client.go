@@ -14,6 +14,7 @@ import (
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/policy"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/runtime"
+	"github.com/Azure/azure-sdk-for-go/sdk/azcore/tracing"
 	"net/http"
 )
 
@@ -29,19 +30,30 @@ type AutoRestReportServiceClient struct {
 // Generated from API version 1.0.0
 //   - options - AutoRestReportServiceClientGetOptionalReportOptions contains the optional parameters for the AutoRestReportServiceClient.GetOptionalReport
 //     method.
-func (client *AutoRestReportServiceClient) GetOptionalReport(ctx context.Context, options *AutoRestReportServiceClientGetOptionalReportOptions) (AutoRestReportServiceClientGetOptionalReportResponse, error) {
+func (client *AutoRestReportServiceClient) GetOptionalReport(ctx context.Context, options *AutoRestReportServiceClientGetOptionalReportOptions) (result AutoRestReportServiceClientGetOptionalReportResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "AutoRestReportServiceClient.GetOptionalReport", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.getOptionalReportCreateRequest(ctx, options)
 	if err != nil {
-		return AutoRestReportServiceClientGetOptionalReportResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return AutoRestReportServiceClientGetOptionalReportResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return AutoRestReportServiceClientGetOptionalReportResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.getOptionalReportHandleResponse(resp)
+	result, err = client.getOptionalReportHandleResponse(resp)
+	return
 }
 
 // getOptionalReportCreateRequest creates the GetOptionalReport request.
@@ -61,10 +73,10 @@ func (client *AutoRestReportServiceClient) getOptionalReportCreateRequest(ctx co
 }
 
 // getOptionalReportHandleResponse handles the GetOptionalReport response.
-func (client *AutoRestReportServiceClient) getOptionalReportHandleResponse(resp *http.Response) (AutoRestReportServiceClientGetOptionalReportResponse, error) {
-	result := AutoRestReportServiceClientGetOptionalReportResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.Value); err != nil {
-		return AutoRestReportServiceClientGetOptionalReportResponse{}, err
+func (client *AutoRestReportServiceClient) getOptionalReportHandleResponse(resp *http.Response) (result AutoRestReportServiceClientGetOptionalReportResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.Value); err != nil {
+		result = AutoRestReportServiceClientGetOptionalReportResponse{}
+		return
 	}
 	return result, nil
 }
@@ -75,19 +87,30 @@ func (client *AutoRestReportServiceClient) getOptionalReportHandleResponse(resp 
 // Generated from API version 1.0.0
 //   - options - AutoRestReportServiceClientGetReportOptions contains the optional parameters for the AutoRestReportServiceClient.GetReport
 //     method.
-func (client *AutoRestReportServiceClient) GetReport(ctx context.Context, options *AutoRestReportServiceClientGetReportOptions) (AutoRestReportServiceClientGetReportResponse, error) {
+func (client *AutoRestReportServiceClient) GetReport(ctx context.Context, options *AutoRestReportServiceClientGetReportOptions) (result AutoRestReportServiceClientGetReportResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "AutoRestReportServiceClient.GetReport", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.getReportCreateRequest(ctx, options)
 	if err != nil {
-		return AutoRestReportServiceClientGetReportResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return AutoRestReportServiceClientGetReportResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return AutoRestReportServiceClientGetReportResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return client.getReportHandleResponse(resp)
+	result, err = client.getReportHandleResponse(resp)
+	return
 }
 
 // getReportCreateRequest creates the GetReport request.
@@ -107,10 +130,10 @@ func (client *AutoRestReportServiceClient) getReportCreateRequest(ctx context.Co
 }
 
 // getReportHandleResponse handles the GetReport response.
-func (client *AutoRestReportServiceClient) getReportHandleResponse(resp *http.Response) (AutoRestReportServiceClientGetReportResponse, error) {
-	result := AutoRestReportServiceClientGetReportResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.Value); err != nil {
-		return AutoRestReportServiceClientGetReportResponse{}, err
+func (client *AutoRestReportServiceClient) getReportHandleResponse(resp *http.Response) (result AutoRestReportServiceClientGetReportResponse, err error) {
+	if err = runtime.UnmarshalAsJSON(resp, &result.Value); err != nil {
+		result = AutoRestReportServiceClientGetReportResponse{}
+		return
 	}
 	return result, nil
 }

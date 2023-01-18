@@ -14,6 +14,7 @@ import (
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/policy"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/runtime"
+	"github.com/Azure/azure-sdk-for-go/sdk/azcore/tracing"
 	"net/http"
 	"strings"
 )
@@ -31,19 +32,29 @@ type SkipURLEncodingClient struct {
 //   - unencodedPathParam - Unencoded path parameter with value 'path1/path2/path3'
 //   - options - SkipURLEncodingClientGetMethodPathValidOptions contains the optional parameters for the SkipURLEncodingClient.GetMethodPathValid
 //     method.
-func (client *SkipURLEncodingClient) GetMethodPathValid(ctx context.Context, unencodedPathParam string, options *SkipURLEncodingClientGetMethodPathValidOptions) (SkipURLEncodingClientGetMethodPathValidResponse, error) {
+func (client *SkipURLEncodingClient) GetMethodPathValid(ctx context.Context, unencodedPathParam string, options *SkipURLEncodingClientGetMethodPathValidOptions) (result SkipURLEncodingClientGetMethodPathValidResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "SkipURLEncodingClient.GetMethodPathValid", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.getMethodPathValidCreateRequest(ctx, unencodedPathParam, options)
 	if err != nil {
-		return SkipURLEncodingClientGetMethodPathValidResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return SkipURLEncodingClientGetMethodPathValidResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return SkipURLEncodingClientGetMethodPathValidResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return SkipURLEncodingClientGetMethodPathValidResponse{}, nil
+	return
 }
 
 // getMethodPathValidCreateRequest creates the GetMethodPathValid request.
@@ -64,19 +75,29 @@ func (client *SkipURLEncodingClient) getMethodPathValidCreateRequest(ctx context
 // Generated from API version 2015-07-01-preview
 //   - options - SkipURLEncodingClientGetMethodQueryNullOptions contains the optional parameters for the SkipURLEncodingClient.GetMethodQueryNull
 //     method.
-func (client *SkipURLEncodingClient) GetMethodQueryNull(ctx context.Context, options *SkipURLEncodingClientGetMethodQueryNullOptions) (SkipURLEncodingClientGetMethodQueryNullResponse, error) {
+func (client *SkipURLEncodingClient) GetMethodQueryNull(ctx context.Context, options *SkipURLEncodingClientGetMethodQueryNullOptions) (result SkipURLEncodingClientGetMethodQueryNullResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "SkipURLEncodingClient.GetMethodQueryNull", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.getMethodQueryNullCreateRequest(ctx, options)
 	if err != nil {
-		return SkipURLEncodingClientGetMethodQueryNullResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return SkipURLEncodingClientGetMethodQueryNullResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return SkipURLEncodingClientGetMethodQueryNullResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return SkipURLEncodingClientGetMethodQueryNullResponse{}, nil
+	return
 }
 
 // getMethodQueryNullCreateRequest creates the GetMethodQueryNull request.
@@ -102,19 +123,29 @@ func (client *SkipURLEncodingClient) getMethodQueryNullCreateRequest(ctx context
 //   - q1 - Unencoded query parameter with value 'value1&q2=value2&q3=value3'
 //   - options - SkipURLEncodingClientGetMethodQueryValidOptions contains the optional parameters for the SkipURLEncodingClient.GetMethodQueryValid
 //     method.
-func (client *SkipURLEncodingClient) GetMethodQueryValid(ctx context.Context, q1 string, options *SkipURLEncodingClientGetMethodQueryValidOptions) (SkipURLEncodingClientGetMethodQueryValidResponse, error) {
+func (client *SkipURLEncodingClient) GetMethodQueryValid(ctx context.Context, q1 string, options *SkipURLEncodingClientGetMethodQueryValidOptions) (result SkipURLEncodingClientGetMethodQueryValidResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "SkipURLEncodingClient.GetMethodQueryValid", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.getMethodQueryValidCreateRequest(ctx, q1, options)
 	if err != nil {
-		return SkipURLEncodingClientGetMethodQueryValidResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return SkipURLEncodingClientGetMethodQueryValidResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return SkipURLEncodingClientGetMethodQueryValidResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return SkipURLEncodingClientGetMethodQueryValidResponse{}, nil
+	return
 }
 
 // getMethodQueryValidCreateRequest creates the GetMethodQueryValid request.
@@ -138,19 +169,29 @@ func (client *SkipURLEncodingClient) getMethodQueryValidCreateRequest(ctx contex
 //   - q1 - Unencoded query parameter with value 'value1&q2=value2&q3=value3'
 //   - options - SkipURLEncodingClientGetPathQueryValidOptions contains the optional parameters for the SkipURLEncodingClient.GetPathQueryValid
 //     method.
-func (client *SkipURLEncodingClient) GetPathQueryValid(ctx context.Context, q1 string, options *SkipURLEncodingClientGetPathQueryValidOptions) (SkipURLEncodingClientGetPathQueryValidResponse, error) {
+func (client *SkipURLEncodingClient) GetPathQueryValid(ctx context.Context, q1 string, options *SkipURLEncodingClientGetPathQueryValidOptions) (result SkipURLEncodingClientGetPathQueryValidResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "SkipURLEncodingClient.GetPathQueryValid", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.getPathQueryValidCreateRequest(ctx, q1, options)
 	if err != nil {
-		return SkipURLEncodingClientGetPathQueryValidResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return SkipURLEncodingClientGetPathQueryValidResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return SkipURLEncodingClientGetPathQueryValidResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return SkipURLEncodingClientGetPathQueryValidResponse{}, nil
+	return
 }
 
 // getPathQueryValidCreateRequest creates the GetPathQueryValid request.
@@ -174,19 +215,29 @@ func (client *SkipURLEncodingClient) getPathQueryValidCreateRequest(ctx context.
 //   - unencodedPathParam - Unencoded path parameter with value 'path1/path2/path3'
 //   - options - SkipURLEncodingClientGetPathValidOptions contains the optional parameters for the SkipURLEncodingClient.GetPathValid
 //     method.
-func (client *SkipURLEncodingClient) GetPathValid(ctx context.Context, unencodedPathParam string, options *SkipURLEncodingClientGetPathValidOptions) (SkipURLEncodingClientGetPathValidResponse, error) {
+func (client *SkipURLEncodingClient) GetPathValid(ctx context.Context, unencodedPathParam string, options *SkipURLEncodingClientGetPathValidOptions) (result SkipURLEncodingClientGetPathValidResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "SkipURLEncodingClient.GetPathValid", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.getPathValidCreateRequest(ctx, unencodedPathParam, options)
 	if err != nil {
-		return SkipURLEncodingClientGetPathValidResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return SkipURLEncodingClientGetPathValidResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return SkipURLEncodingClientGetPathValidResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return SkipURLEncodingClientGetPathValidResponse{}, nil
+	return
 }
 
 // getPathValidCreateRequest creates the GetPathValid request.
@@ -207,19 +258,29 @@ func (client *SkipURLEncodingClient) getPathValidCreateRequest(ctx context.Conte
 // Generated from API version 2015-07-01-preview
 //   - options - SkipURLEncodingClientGetSwaggerPathValidOptions contains the optional parameters for the SkipURLEncodingClient.GetSwaggerPathValid
 //     method.
-func (client *SkipURLEncodingClient) GetSwaggerPathValid(ctx context.Context, options *SkipURLEncodingClientGetSwaggerPathValidOptions) (SkipURLEncodingClientGetSwaggerPathValidResponse, error) {
+func (client *SkipURLEncodingClient) GetSwaggerPathValid(ctx context.Context, options *SkipURLEncodingClientGetSwaggerPathValidOptions) (result SkipURLEncodingClientGetSwaggerPathValidResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "SkipURLEncodingClient.GetSwaggerPathValid", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.getSwaggerPathValidCreateRequest(ctx, options)
 	if err != nil {
-		return SkipURLEncodingClientGetSwaggerPathValidResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return SkipURLEncodingClientGetSwaggerPathValidResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return SkipURLEncodingClientGetSwaggerPathValidResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return SkipURLEncodingClientGetSwaggerPathValidResponse{}, nil
+	return
 }
 
 // getSwaggerPathValidCreateRequest creates the GetSwaggerPathValid request.
@@ -240,19 +301,29 @@ func (client *SkipURLEncodingClient) getSwaggerPathValidCreateRequest(ctx contex
 // Generated from API version 2015-07-01-preview
 //   - options - SkipURLEncodingClientGetSwaggerQueryValidOptions contains the optional parameters for the SkipURLEncodingClient.GetSwaggerQueryValid
 //     method.
-func (client *SkipURLEncodingClient) GetSwaggerQueryValid(ctx context.Context, options *SkipURLEncodingClientGetSwaggerQueryValidOptions) (SkipURLEncodingClientGetSwaggerQueryValidResponse, error) {
+func (client *SkipURLEncodingClient) GetSwaggerQueryValid(ctx context.Context, options *SkipURLEncodingClientGetSwaggerQueryValidOptions) (result SkipURLEncodingClientGetSwaggerQueryValidResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "SkipURLEncodingClient.GetSwaggerQueryValid", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.getSwaggerQueryValidCreateRequest(ctx, options)
 	if err != nil {
-		return SkipURLEncodingClientGetSwaggerQueryValidResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return SkipURLEncodingClientGetSwaggerQueryValidResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return SkipURLEncodingClientGetSwaggerQueryValidResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return SkipURLEncodingClientGetSwaggerQueryValidResponse{}, nil
+	return
 }
 
 // getSwaggerQueryValidCreateRequest creates the GetSwaggerQueryValid request.

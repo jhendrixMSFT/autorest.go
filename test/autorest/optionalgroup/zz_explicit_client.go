@@ -15,6 +15,7 @@ import (
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/policy"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/runtime"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/streaming"
+	"github.com/Azure/azure-sdk-for-go/sdk/azcore/tracing"
 	"io"
 	"net/http"
 	"strconv"
@@ -33,19 +34,29 @@ type ExplicitClient struct {
 // Generated from API version 1.0.0
 //   - options - ExplicitClientPostOptionalArrayHeaderOptions contains the optional parameters for the ExplicitClient.PostOptionalArrayHeader
 //     method.
-func (client *ExplicitClient) PostOptionalArrayHeader(ctx context.Context, options *ExplicitClientPostOptionalArrayHeaderOptions) (ExplicitClientPostOptionalArrayHeaderResponse, error) {
+func (client *ExplicitClient) PostOptionalArrayHeader(ctx context.Context, options *ExplicitClientPostOptionalArrayHeaderOptions) (result ExplicitClientPostOptionalArrayHeaderResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "ExplicitClient.PostOptionalArrayHeader", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.postOptionalArrayHeaderCreateRequest(ctx, options)
 	if err != nil {
-		return ExplicitClientPostOptionalArrayHeaderResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return ExplicitClientPostOptionalArrayHeaderResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return ExplicitClientPostOptionalArrayHeaderResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return ExplicitClientPostOptionalArrayHeaderResponse{}, nil
+	return
 }
 
 // postOptionalArrayHeaderCreateRequest creates the PostOptionalArrayHeader request.
@@ -68,19 +79,29 @@ func (client *ExplicitClient) postOptionalArrayHeaderCreateRequest(ctx context.C
 // Generated from API version 1.0.0
 //   - options - ExplicitClientPostOptionalArrayParameterOptions contains the optional parameters for the ExplicitClient.PostOptionalArrayParameter
 //     method.
-func (client *ExplicitClient) PostOptionalArrayParameter(ctx context.Context, options *ExplicitClientPostOptionalArrayParameterOptions) (ExplicitClientPostOptionalArrayParameterResponse, error) {
+func (client *ExplicitClient) PostOptionalArrayParameter(ctx context.Context, options *ExplicitClientPostOptionalArrayParameterOptions) (result ExplicitClientPostOptionalArrayParameterResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "ExplicitClient.PostOptionalArrayParameter", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.postOptionalArrayParameterCreateRequest(ctx, options)
 	if err != nil {
-		return ExplicitClientPostOptionalArrayParameterResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return ExplicitClientPostOptionalArrayParameterResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return ExplicitClientPostOptionalArrayParameterResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return ExplicitClientPostOptionalArrayParameterResponse{}, nil
+	return
 }
 
 // postOptionalArrayParameterCreateRequest creates the PostOptionalArrayParameter request.
@@ -103,19 +124,29 @@ func (client *ExplicitClient) postOptionalArrayParameterCreateRequest(ctx contex
 // Generated from API version 1.0.0
 //   - options - ExplicitClientPostOptionalArrayPropertyOptions contains the optional parameters for the ExplicitClient.PostOptionalArrayProperty
 //     method.
-func (client *ExplicitClient) PostOptionalArrayProperty(ctx context.Context, options *ExplicitClientPostOptionalArrayPropertyOptions) (ExplicitClientPostOptionalArrayPropertyResponse, error) {
+func (client *ExplicitClient) PostOptionalArrayProperty(ctx context.Context, options *ExplicitClientPostOptionalArrayPropertyOptions) (result ExplicitClientPostOptionalArrayPropertyResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "ExplicitClient.PostOptionalArrayProperty", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.postOptionalArrayPropertyCreateRequest(ctx, options)
 	if err != nil {
-		return ExplicitClientPostOptionalArrayPropertyResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return ExplicitClientPostOptionalArrayPropertyResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return ExplicitClientPostOptionalArrayPropertyResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return ExplicitClientPostOptionalArrayPropertyResponse{}, nil
+	return
 }
 
 // postOptionalArrayPropertyCreateRequest creates the PostOptionalArrayProperty request.
@@ -138,19 +169,29 @@ func (client *ExplicitClient) postOptionalArrayPropertyCreateRequest(ctx context
 // Generated from API version 1.0.0
 //   - options - ExplicitClientPostOptionalClassParameterOptions contains the optional parameters for the ExplicitClient.PostOptionalClassParameter
 //     method.
-func (client *ExplicitClient) PostOptionalClassParameter(ctx context.Context, options *ExplicitClientPostOptionalClassParameterOptions) (ExplicitClientPostOptionalClassParameterResponse, error) {
+func (client *ExplicitClient) PostOptionalClassParameter(ctx context.Context, options *ExplicitClientPostOptionalClassParameterOptions) (result ExplicitClientPostOptionalClassParameterResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "ExplicitClient.PostOptionalClassParameter", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.postOptionalClassParameterCreateRequest(ctx, options)
 	if err != nil {
-		return ExplicitClientPostOptionalClassParameterResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return ExplicitClientPostOptionalClassParameterResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return ExplicitClientPostOptionalClassParameterResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return ExplicitClientPostOptionalClassParameterResponse{}, nil
+	return
 }
 
 // postOptionalClassParameterCreateRequest creates the PostOptionalClassParameter request.
@@ -173,19 +214,29 @@ func (client *ExplicitClient) postOptionalClassParameterCreateRequest(ctx contex
 // Generated from API version 1.0.0
 //   - options - ExplicitClientPostOptionalClassPropertyOptions contains the optional parameters for the ExplicitClient.PostOptionalClassProperty
 //     method.
-func (client *ExplicitClient) PostOptionalClassProperty(ctx context.Context, options *ExplicitClientPostOptionalClassPropertyOptions) (ExplicitClientPostOptionalClassPropertyResponse, error) {
+func (client *ExplicitClient) PostOptionalClassProperty(ctx context.Context, options *ExplicitClientPostOptionalClassPropertyOptions) (result ExplicitClientPostOptionalClassPropertyResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "ExplicitClient.PostOptionalClassProperty", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.postOptionalClassPropertyCreateRequest(ctx, options)
 	if err != nil {
-		return ExplicitClientPostOptionalClassPropertyResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return ExplicitClientPostOptionalClassPropertyResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return ExplicitClientPostOptionalClassPropertyResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return ExplicitClientPostOptionalClassPropertyResponse{}, nil
+	return
 }
 
 // postOptionalClassPropertyCreateRequest creates the PostOptionalClassProperty request.
@@ -208,19 +259,29 @@ func (client *ExplicitClient) postOptionalClassPropertyCreateRequest(ctx context
 // Generated from API version 1.0.0
 //   - options - ExplicitClientPostOptionalIntegerHeaderOptions contains the optional parameters for the ExplicitClient.PostOptionalIntegerHeader
 //     method.
-func (client *ExplicitClient) PostOptionalIntegerHeader(ctx context.Context, options *ExplicitClientPostOptionalIntegerHeaderOptions) (ExplicitClientPostOptionalIntegerHeaderResponse, error) {
+func (client *ExplicitClient) PostOptionalIntegerHeader(ctx context.Context, options *ExplicitClientPostOptionalIntegerHeaderOptions) (result ExplicitClientPostOptionalIntegerHeaderResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "ExplicitClient.PostOptionalIntegerHeader", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.postOptionalIntegerHeaderCreateRequest(ctx, options)
 	if err != nil {
-		return ExplicitClientPostOptionalIntegerHeaderResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return ExplicitClientPostOptionalIntegerHeaderResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return ExplicitClientPostOptionalIntegerHeaderResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return ExplicitClientPostOptionalIntegerHeaderResponse{}, nil
+	return
 }
 
 // postOptionalIntegerHeaderCreateRequest creates the PostOptionalIntegerHeader request.
@@ -243,19 +304,29 @@ func (client *ExplicitClient) postOptionalIntegerHeaderCreateRequest(ctx context
 // Generated from API version 1.0.0
 //   - options - ExplicitClientPostOptionalIntegerParameterOptions contains the optional parameters for the ExplicitClient.PostOptionalIntegerParameter
 //     method.
-func (client *ExplicitClient) PostOptionalIntegerParameter(ctx context.Context, options *ExplicitClientPostOptionalIntegerParameterOptions) (ExplicitClientPostOptionalIntegerParameterResponse, error) {
+func (client *ExplicitClient) PostOptionalIntegerParameter(ctx context.Context, options *ExplicitClientPostOptionalIntegerParameterOptions) (result ExplicitClientPostOptionalIntegerParameterResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "ExplicitClient.PostOptionalIntegerParameter", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.postOptionalIntegerParameterCreateRequest(ctx, options)
 	if err != nil {
-		return ExplicitClientPostOptionalIntegerParameterResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return ExplicitClientPostOptionalIntegerParameterResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return ExplicitClientPostOptionalIntegerParameterResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return ExplicitClientPostOptionalIntegerParameterResponse{}, nil
+	return
 }
 
 // postOptionalIntegerParameterCreateRequest creates the PostOptionalIntegerParameter request.
@@ -278,19 +349,29 @@ func (client *ExplicitClient) postOptionalIntegerParameterCreateRequest(ctx cont
 // Generated from API version 1.0.0
 //   - options - ExplicitClientPostOptionalIntegerPropertyOptions contains the optional parameters for the ExplicitClient.PostOptionalIntegerProperty
 //     method.
-func (client *ExplicitClient) PostOptionalIntegerProperty(ctx context.Context, options *ExplicitClientPostOptionalIntegerPropertyOptions) (ExplicitClientPostOptionalIntegerPropertyResponse, error) {
+func (client *ExplicitClient) PostOptionalIntegerProperty(ctx context.Context, options *ExplicitClientPostOptionalIntegerPropertyOptions) (result ExplicitClientPostOptionalIntegerPropertyResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "ExplicitClient.PostOptionalIntegerProperty", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.postOptionalIntegerPropertyCreateRequest(ctx, options)
 	if err != nil {
-		return ExplicitClientPostOptionalIntegerPropertyResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return ExplicitClientPostOptionalIntegerPropertyResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return ExplicitClientPostOptionalIntegerPropertyResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return ExplicitClientPostOptionalIntegerPropertyResponse{}, nil
+	return
 }
 
 // postOptionalIntegerPropertyCreateRequest creates the PostOptionalIntegerProperty request.
@@ -313,19 +394,29 @@ func (client *ExplicitClient) postOptionalIntegerPropertyCreateRequest(ctx conte
 // Generated from API version 1.0.0
 //   - options - ExplicitClientPostOptionalStringHeaderOptions contains the optional parameters for the ExplicitClient.PostOptionalStringHeader
 //     method.
-func (client *ExplicitClient) PostOptionalStringHeader(ctx context.Context, options *ExplicitClientPostOptionalStringHeaderOptions) (ExplicitClientPostOptionalStringHeaderResponse, error) {
+func (client *ExplicitClient) PostOptionalStringHeader(ctx context.Context, options *ExplicitClientPostOptionalStringHeaderOptions) (result ExplicitClientPostOptionalStringHeaderResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "ExplicitClient.PostOptionalStringHeader", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.postOptionalStringHeaderCreateRequest(ctx, options)
 	if err != nil {
-		return ExplicitClientPostOptionalStringHeaderResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return ExplicitClientPostOptionalStringHeaderResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return ExplicitClientPostOptionalStringHeaderResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return ExplicitClientPostOptionalStringHeaderResponse{}, nil
+	return
 }
 
 // postOptionalStringHeaderCreateRequest creates the PostOptionalStringHeader request.
@@ -348,19 +439,29 @@ func (client *ExplicitClient) postOptionalStringHeaderCreateRequest(ctx context.
 // Generated from API version 1.0.0
 //   - options - ExplicitClientPostOptionalStringParameterOptions contains the optional parameters for the ExplicitClient.PostOptionalStringParameter
 //     method.
-func (client *ExplicitClient) PostOptionalStringParameter(ctx context.Context, options *ExplicitClientPostOptionalStringParameterOptions) (ExplicitClientPostOptionalStringParameterResponse, error) {
+func (client *ExplicitClient) PostOptionalStringParameter(ctx context.Context, options *ExplicitClientPostOptionalStringParameterOptions) (result ExplicitClientPostOptionalStringParameterResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "ExplicitClient.PostOptionalStringParameter", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.postOptionalStringParameterCreateRequest(ctx, options)
 	if err != nil {
-		return ExplicitClientPostOptionalStringParameterResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return ExplicitClientPostOptionalStringParameterResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return ExplicitClientPostOptionalStringParameterResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return ExplicitClientPostOptionalStringParameterResponse{}, nil
+	return
 }
 
 // postOptionalStringParameterCreateRequest creates the PostOptionalStringParameter request.
@@ -384,19 +485,29 @@ func (client *ExplicitClient) postOptionalStringParameterCreateRequest(ctx conte
 // Generated from API version 1.0.0
 //   - options - ExplicitClientPostOptionalStringPropertyOptions contains the optional parameters for the ExplicitClient.PostOptionalStringProperty
 //     method.
-func (client *ExplicitClient) PostOptionalStringProperty(ctx context.Context, options *ExplicitClientPostOptionalStringPropertyOptions) (ExplicitClientPostOptionalStringPropertyResponse, error) {
+func (client *ExplicitClient) PostOptionalStringProperty(ctx context.Context, options *ExplicitClientPostOptionalStringPropertyOptions) (result ExplicitClientPostOptionalStringPropertyResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "ExplicitClient.PostOptionalStringProperty", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.postOptionalStringPropertyCreateRequest(ctx, options)
 	if err != nil {
-		return ExplicitClientPostOptionalStringPropertyResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return ExplicitClientPostOptionalStringPropertyResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return ExplicitClientPostOptionalStringPropertyResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return ExplicitClientPostOptionalStringPropertyResponse{}, nil
+	return
 }
 
 // postOptionalStringPropertyCreateRequest creates the PostOptionalStringProperty request.
@@ -420,19 +531,29 @@ func (client *ExplicitClient) postOptionalStringPropertyCreateRequest(ctx contex
 // Generated from API version 1.0.0
 //   - options - ExplicitClientPostRequiredArrayHeaderOptions contains the optional parameters for the ExplicitClient.PostRequiredArrayHeader
 //     method.
-func (client *ExplicitClient) PostRequiredArrayHeader(ctx context.Context, headerParameter []string, options *ExplicitClientPostRequiredArrayHeaderOptions) (ExplicitClientPostRequiredArrayHeaderResponse, error) {
+func (client *ExplicitClient) PostRequiredArrayHeader(ctx context.Context, headerParameter []string, options *ExplicitClientPostRequiredArrayHeaderOptions) (result ExplicitClientPostRequiredArrayHeaderResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "ExplicitClient.PostRequiredArrayHeader", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.postRequiredArrayHeaderCreateRequest(ctx, headerParameter, options)
 	if err != nil {
-		return ExplicitClientPostRequiredArrayHeaderResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return ExplicitClientPostRequiredArrayHeaderResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return ExplicitClientPostRequiredArrayHeaderResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return ExplicitClientPostRequiredArrayHeaderResponse{}, nil
+	return
 }
 
 // postRequiredArrayHeaderCreateRequest creates the PostRequiredArrayHeader request.
@@ -454,19 +575,29 @@ func (client *ExplicitClient) postRequiredArrayHeaderCreateRequest(ctx context.C
 // Generated from API version 1.0.0
 //   - options - ExplicitClientPostRequiredArrayParameterOptions contains the optional parameters for the ExplicitClient.PostRequiredArrayParameter
 //     method.
-func (client *ExplicitClient) PostRequiredArrayParameter(ctx context.Context, bodyParameter []*string, options *ExplicitClientPostRequiredArrayParameterOptions) (ExplicitClientPostRequiredArrayParameterResponse, error) {
+func (client *ExplicitClient) PostRequiredArrayParameter(ctx context.Context, bodyParameter []*string, options *ExplicitClientPostRequiredArrayParameterOptions) (result ExplicitClientPostRequiredArrayParameterResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "ExplicitClient.PostRequiredArrayParameter", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.postRequiredArrayParameterCreateRequest(ctx, bodyParameter, options)
 	if err != nil {
-		return ExplicitClientPostRequiredArrayParameterResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return ExplicitClientPostRequiredArrayParameterResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return ExplicitClientPostRequiredArrayParameterResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return ExplicitClientPostRequiredArrayParameterResponse{}, nil
+	return
 }
 
 // postRequiredArrayParameterCreateRequest creates the PostRequiredArrayParameter request.
@@ -487,19 +618,29 @@ func (client *ExplicitClient) postRequiredArrayParameterCreateRequest(ctx contex
 // Generated from API version 1.0.0
 //   - options - ExplicitClientPostRequiredArrayPropertyOptions contains the optional parameters for the ExplicitClient.PostRequiredArrayProperty
 //     method.
-func (client *ExplicitClient) PostRequiredArrayProperty(ctx context.Context, bodyParameter ArrayWrapper, options *ExplicitClientPostRequiredArrayPropertyOptions) (ExplicitClientPostRequiredArrayPropertyResponse, error) {
+func (client *ExplicitClient) PostRequiredArrayProperty(ctx context.Context, bodyParameter ArrayWrapper, options *ExplicitClientPostRequiredArrayPropertyOptions) (result ExplicitClientPostRequiredArrayPropertyResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "ExplicitClient.PostRequiredArrayProperty", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.postRequiredArrayPropertyCreateRequest(ctx, bodyParameter, options)
 	if err != nil {
-		return ExplicitClientPostRequiredArrayPropertyResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return ExplicitClientPostRequiredArrayPropertyResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return ExplicitClientPostRequiredArrayPropertyResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return ExplicitClientPostRequiredArrayPropertyResponse{}, nil
+	return
 }
 
 // postRequiredArrayPropertyCreateRequest creates the PostRequiredArrayProperty request.
@@ -520,19 +661,29 @@ func (client *ExplicitClient) postRequiredArrayPropertyCreateRequest(ctx context
 // Generated from API version 1.0.0
 //   - options - ExplicitClientPostRequiredClassParameterOptions contains the optional parameters for the ExplicitClient.PostRequiredClassParameter
 //     method.
-func (client *ExplicitClient) PostRequiredClassParameter(ctx context.Context, bodyParameter Product, options *ExplicitClientPostRequiredClassParameterOptions) (ExplicitClientPostRequiredClassParameterResponse, error) {
+func (client *ExplicitClient) PostRequiredClassParameter(ctx context.Context, bodyParameter Product, options *ExplicitClientPostRequiredClassParameterOptions) (result ExplicitClientPostRequiredClassParameterResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "ExplicitClient.PostRequiredClassParameter", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.postRequiredClassParameterCreateRequest(ctx, bodyParameter, options)
 	if err != nil {
-		return ExplicitClientPostRequiredClassParameterResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return ExplicitClientPostRequiredClassParameterResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return ExplicitClientPostRequiredClassParameterResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return ExplicitClientPostRequiredClassParameterResponse{}, nil
+	return
 }
 
 // postRequiredClassParameterCreateRequest creates the PostRequiredClassParameter request.
@@ -553,19 +704,29 @@ func (client *ExplicitClient) postRequiredClassParameterCreateRequest(ctx contex
 // Generated from API version 1.0.0
 //   - options - ExplicitClientPostRequiredClassPropertyOptions contains the optional parameters for the ExplicitClient.PostRequiredClassProperty
 //     method.
-func (client *ExplicitClient) PostRequiredClassProperty(ctx context.Context, bodyParameter ClassWrapper, options *ExplicitClientPostRequiredClassPropertyOptions) (ExplicitClientPostRequiredClassPropertyResponse, error) {
+func (client *ExplicitClient) PostRequiredClassProperty(ctx context.Context, bodyParameter ClassWrapper, options *ExplicitClientPostRequiredClassPropertyOptions) (result ExplicitClientPostRequiredClassPropertyResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "ExplicitClient.PostRequiredClassProperty", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.postRequiredClassPropertyCreateRequest(ctx, bodyParameter, options)
 	if err != nil {
-		return ExplicitClientPostRequiredClassPropertyResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return ExplicitClientPostRequiredClassPropertyResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return ExplicitClientPostRequiredClassPropertyResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return ExplicitClientPostRequiredClassPropertyResponse{}, nil
+	return
 }
 
 // postRequiredClassPropertyCreateRequest creates the PostRequiredClassProperty request.
@@ -586,19 +747,29 @@ func (client *ExplicitClient) postRequiredClassPropertyCreateRequest(ctx context
 // Generated from API version 1.0.0
 //   - options - ExplicitClientPostRequiredIntegerHeaderOptions contains the optional parameters for the ExplicitClient.PostRequiredIntegerHeader
 //     method.
-func (client *ExplicitClient) PostRequiredIntegerHeader(ctx context.Context, headerParameter int32, options *ExplicitClientPostRequiredIntegerHeaderOptions) (ExplicitClientPostRequiredIntegerHeaderResponse, error) {
+func (client *ExplicitClient) PostRequiredIntegerHeader(ctx context.Context, headerParameter int32, options *ExplicitClientPostRequiredIntegerHeaderOptions) (result ExplicitClientPostRequiredIntegerHeaderResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "ExplicitClient.PostRequiredIntegerHeader", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.postRequiredIntegerHeaderCreateRequest(ctx, headerParameter, options)
 	if err != nil {
-		return ExplicitClientPostRequiredIntegerHeaderResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return ExplicitClientPostRequiredIntegerHeaderResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return ExplicitClientPostRequiredIntegerHeaderResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return ExplicitClientPostRequiredIntegerHeaderResponse{}, nil
+	return
 }
 
 // postRequiredIntegerHeaderCreateRequest creates the PostRequiredIntegerHeader request.
@@ -620,19 +791,29 @@ func (client *ExplicitClient) postRequiredIntegerHeaderCreateRequest(ctx context
 // Generated from API version 1.0.0
 //   - options - ExplicitClientPostRequiredIntegerParameterOptions contains the optional parameters for the ExplicitClient.PostRequiredIntegerParameter
 //     method.
-func (client *ExplicitClient) PostRequiredIntegerParameter(ctx context.Context, bodyParameter int32, options *ExplicitClientPostRequiredIntegerParameterOptions) (ExplicitClientPostRequiredIntegerParameterResponse, error) {
+func (client *ExplicitClient) PostRequiredIntegerParameter(ctx context.Context, bodyParameter int32, options *ExplicitClientPostRequiredIntegerParameterOptions) (result ExplicitClientPostRequiredIntegerParameterResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "ExplicitClient.PostRequiredIntegerParameter", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.postRequiredIntegerParameterCreateRequest(ctx, bodyParameter, options)
 	if err != nil {
-		return ExplicitClientPostRequiredIntegerParameterResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return ExplicitClientPostRequiredIntegerParameterResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return ExplicitClientPostRequiredIntegerParameterResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return ExplicitClientPostRequiredIntegerParameterResponse{}, nil
+	return
 }
 
 // postRequiredIntegerParameterCreateRequest creates the PostRequiredIntegerParameter request.
@@ -653,19 +834,29 @@ func (client *ExplicitClient) postRequiredIntegerParameterCreateRequest(ctx cont
 // Generated from API version 1.0.0
 //   - options - ExplicitClientPostRequiredIntegerPropertyOptions contains the optional parameters for the ExplicitClient.PostRequiredIntegerProperty
 //     method.
-func (client *ExplicitClient) PostRequiredIntegerProperty(ctx context.Context, bodyParameter IntWrapper, options *ExplicitClientPostRequiredIntegerPropertyOptions) (ExplicitClientPostRequiredIntegerPropertyResponse, error) {
+func (client *ExplicitClient) PostRequiredIntegerProperty(ctx context.Context, bodyParameter IntWrapper, options *ExplicitClientPostRequiredIntegerPropertyOptions) (result ExplicitClientPostRequiredIntegerPropertyResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "ExplicitClient.PostRequiredIntegerProperty", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.postRequiredIntegerPropertyCreateRequest(ctx, bodyParameter, options)
 	if err != nil {
-		return ExplicitClientPostRequiredIntegerPropertyResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return ExplicitClientPostRequiredIntegerPropertyResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return ExplicitClientPostRequiredIntegerPropertyResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return ExplicitClientPostRequiredIntegerPropertyResponse{}, nil
+	return
 }
 
 // postRequiredIntegerPropertyCreateRequest creates the PostRequiredIntegerProperty request.
@@ -686,19 +877,29 @@ func (client *ExplicitClient) postRequiredIntegerPropertyCreateRequest(ctx conte
 // Generated from API version 1.0.0
 //   - options - ExplicitClientPostRequiredStringHeaderOptions contains the optional parameters for the ExplicitClient.PostRequiredStringHeader
 //     method.
-func (client *ExplicitClient) PostRequiredStringHeader(ctx context.Context, headerParameter string, options *ExplicitClientPostRequiredStringHeaderOptions) (ExplicitClientPostRequiredStringHeaderResponse, error) {
+func (client *ExplicitClient) PostRequiredStringHeader(ctx context.Context, headerParameter string, options *ExplicitClientPostRequiredStringHeaderOptions) (result ExplicitClientPostRequiredStringHeaderResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "ExplicitClient.PostRequiredStringHeader", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.postRequiredStringHeaderCreateRequest(ctx, headerParameter, options)
 	if err != nil {
-		return ExplicitClientPostRequiredStringHeaderResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return ExplicitClientPostRequiredStringHeaderResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return ExplicitClientPostRequiredStringHeaderResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return ExplicitClientPostRequiredStringHeaderResponse{}, nil
+	return
 }
 
 // postRequiredStringHeaderCreateRequest creates the PostRequiredStringHeader request.
@@ -720,19 +921,29 @@ func (client *ExplicitClient) postRequiredStringHeaderCreateRequest(ctx context.
 // Generated from API version 1.0.0
 //   - options - ExplicitClientPostRequiredStringParameterOptions contains the optional parameters for the ExplicitClient.PostRequiredStringParameter
 //     method.
-func (client *ExplicitClient) PostRequiredStringParameter(ctx context.Context, bodyParameter string, options *ExplicitClientPostRequiredStringParameterOptions) (ExplicitClientPostRequiredStringParameterResponse, error) {
+func (client *ExplicitClient) PostRequiredStringParameter(ctx context.Context, bodyParameter string, options *ExplicitClientPostRequiredStringParameterOptions) (result ExplicitClientPostRequiredStringParameterResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "ExplicitClient.PostRequiredStringParameter", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.postRequiredStringParameterCreateRequest(ctx, bodyParameter, options)
 	if err != nil {
-		return ExplicitClientPostRequiredStringParameterResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return ExplicitClientPostRequiredStringParameterResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return ExplicitClientPostRequiredStringParameterResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return ExplicitClientPostRequiredStringParameterResponse{}, nil
+	return
 }
 
 // postRequiredStringParameterCreateRequest creates the PostRequiredStringParameter request.
@@ -754,19 +965,29 @@ func (client *ExplicitClient) postRequiredStringParameterCreateRequest(ctx conte
 // Generated from API version 1.0.0
 //   - options - ExplicitClientPostRequiredStringPropertyOptions contains the optional parameters for the ExplicitClient.PostRequiredStringProperty
 //     method.
-func (client *ExplicitClient) PostRequiredStringProperty(ctx context.Context, bodyParameter StringWrapper, options *ExplicitClientPostRequiredStringPropertyOptions) (ExplicitClientPostRequiredStringPropertyResponse, error) {
+func (client *ExplicitClient) PostRequiredStringProperty(ctx context.Context, bodyParameter StringWrapper, options *ExplicitClientPostRequiredStringPropertyOptions) (result ExplicitClientPostRequiredStringPropertyResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "ExplicitClient.PostRequiredStringProperty", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.postRequiredStringPropertyCreateRequest(ctx, bodyParameter, options)
 	if err != nil {
-		return ExplicitClientPostRequiredStringPropertyResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return ExplicitClientPostRequiredStringPropertyResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return ExplicitClientPostRequiredStringPropertyResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return ExplicitClientPostRequiredStringPropertyResponse{}, nil
+	return
 }
 
 // postRequiredStringPropertyCreateRequest creates the PostRequiredStringProperty request.
@@ -786,19 +1007,29 @@ func (client *ExplicitClient) postRequiredStringPropertyCreateRequest(ctx contex
 // Generated from API version 1.0.0
 //   - options - ExplicitClientPutOptionalBinaryBodyOptions contains the optional parameters for the ExplicitClient.PutOptionalBinaryBody
 //     method.
-func (client *ExplicitClient) PutOptionalBinaryBody(ctx context.Context, bodyParameter io.ReadSeekCloser, options *ExplicitClientPutOptionalBinaryBodyOptions) (ExplicitClientPutOptionalBinaryBodyResponse, error) {
+func (client *ExplicitClient) PutOptionalBinaryBody(ctx context.Context, bodyParameter io.ReadSeekCloser, options *ExplicitClientPutOptionalBinaryBodyOptions) (result ExplicitClientPutOptionalBinaryBodyResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "ExplicitClient.PutOptionalBinaryBody", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.putOptionalBinaryBodyCreateRequest(ctx, bodyParameter, options)
 	if err != nil {
-		return ExplicitClientPutOptionalBinaryBodyResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return ExplicitClientPutOptionalBinaryBodyResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return ExplicitClientPutOptionalBinaryBodyResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return ExplicitClientPutOptionalBinaryBodyResponse{}, nil
+	return
 }
 
 // putOptionalBinaryBodyCreateRequest creates the PutOptionalBinaryBody request.
@@ -818,19 +1049,29 @@ func (client *ExplicitClient) putOptionalBinaryBodyCreateRequest(ctx context.Con
 // Generated from API version 1.0.0
 //   - options - ExplicitClientPutRequiredBinaryBodyOptions contains the optional parameters for the ExplicitClient.PutRequiredBinaryBody
 //     method.
-func (client *ExplicitClient) PutRequiredBinaryBody(ctx context.Context, bodyParameter io.ReadSeekCloser, options *ExplicitClientPutRequiredBinaryBodyOptions) (ExplicitClientPutRequiredBinaryBodyResponse, error) {
+func (client *ExplicitClient) PutRequiredBinaryBody(ctx context.Context, bodyParameter io.ReadSeekCloser, options *ExplicitClientPutRequiredBinaryBodyOptions) (result ExplicitClientPutRequiredBinaryBodyResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "ExplicitClient.PutRequiredBinaryBody", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.putRequiredBinaryBodyCreateRequest(ctx, bodyParameter, options)
 	if err != nil {
-		return ExplicitClientPutRequiredBinaryBodyResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return ExplicitClientPutRequiredBinaryBodyResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return ExplicitClientPutRequiredBinaryBodyResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return ExplicitClientPutRequiredBinaryBodyResponse{}, nil
+	return
 }
 
 // putRequiredBinaryBodyCreateRequest creates the PutRequiredBinaryBody request.

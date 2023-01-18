@@ -14,6 +14,7 @@ import (
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/policy"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/runtime"
+	"github.com/Azure/azure-sdk-for-go/sdk/azcore/tracing"
 	"io"
 	"net/http"
 )
@@ -30,19 +31,29 @@ type UploadClient struct {
 // Generated from API version 1.0.0
 //   - fileParam - Non-empty binary file
 //   - options - UploadClientBinaryOptions contains the optional parameters for the UploadClient.Binary method.
-func (client *UploadClient) Binary(ctx context.Context, fileParam io.ReadSeekCloser, options *UploadClientBinaryOptions) (UploadClientBinaryResponse, error) {
+func (client *UploadClient) Binary(ctx context.Context, fileParam io.ReadSeekCloser, options *UploadClientBinaryOptions) (result UploadClientBinaryResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "UploadClient.Binary", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.binaryCreateRequest(ctx, fileParam, options)
 	if err != nil {
-		return UploadClientBinaryResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return UploadClientBinaryResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return UploadClientBinaryResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return UploadClientBinaryResponse{}, nil
+	return
 }
 
 // binaryCreateRequest creates the Binary request.
@@ -61,19 +72,29 @@ func (client *UploadClient) binaryCreateRequest(ctx context.Context, fileParam i
 // Generated from API version 1.0.0
 //   - fileParam - JSON file with payload { "more": "cowbell" }
 //   - options - UploadClientFileOptions contains the optional parameters for the UploadClient.File method.
-func (client *UploadClient) File(ctx context.Context, fileParam io.ReadSeekCloser, options *UploadClientFileOptions) (UploadClientFileResponse, error) {
+func (client *UploadClient) File(ctx context.Context, fileParam io.ReadSeekCloser, options *UploadClientFileOptions) (result UploadClientFileResponse, err error) {
+	ctx, span := client.internal.Tracer().Start(ctx, "UploadClient.File", &tracing.SpanOptions{
+		Kind: tracing.SpanKindInternal,
+	})
+	defer func() {
+		if err != nil {
+			span.AddError(err)
+		}
+		span.End()
+	}()
 	req, err := client.fileCreateRequest(ctx, fileParam, options)
 	if err != nil {
-		return UploadClientFileResponse{}, err
+		return
 	}
 	resp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return UploadClientFileResponse{}, err
+		return
 	}
 	if !runtime.HasStatusCode(resp, http.StatusOK) {
-		return UploadClientFileResponse{}, runtime.NewResponseError(resp)
+		err = runtime.NewResponseError(resp)
+		return
 	}
-	return UploadClientFileResponse{}, nil
+	return
 }
 
 // fileCreateRequest creates the File request.
