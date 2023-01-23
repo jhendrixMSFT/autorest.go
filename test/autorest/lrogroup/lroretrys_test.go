@@ -12,6 +12,7 @@ import (
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/runtime"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/to"
+	azotel "github.com/Azure/azure-sdk-for-go/sdk/azdiagnostics/otel"
 	"github.com/google/go-cmp/cmp"
 	"github.com/stretchr/testify/require"
 )
@@ -20,6 +21,7 @@ func newLRORetrysClient(t *testing.T) *LRORetrysClient {
 	options := azcore.ClientOptions{}
 	options.Retry.RetryDelay = time.Second
 	options.Transport = httpClientWithCookieJar()
+	options.TracingProvider = azotel.NewTracingProvider(tp, nil)
 	client, err := NewLRORetrysClient(&options)
 	require.NoError(t, err)
 	return client

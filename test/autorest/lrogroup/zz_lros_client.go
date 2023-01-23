@@ -14,7 +14,6 @@ import (
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/policy"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/runtime"
-	"github.com/Azure/azure-sdk-for-go/sdk/azcore/tracing"
 	"net/http"
 )
 
@@ -32,24 +31,21 @@ type LROsClient struct {
 //   - options - LROsClientBeginDelete202NoRetry204Options contains the optional parameters for the LROsClient.BeginDelete202NoRetry204
 //     method.
 func (client *LROsClient) BeginDelete202NoRetry204(ctx context.Context, options *LROsClientBeginDelete202NoRetry204Options) (result *runtime.Poller[LROsClientDelete202NoRetry204Response], err error) {
-	ctx, span := client.internal.Tracer().Start(ctx, "LROsClient.BeginDelete202NoRetry204", &tracing.SpanOptions{
-		Kind: tracing.SpanKindInternal,
-	})
-	defer func() {
-		if err != nil {
-			span.AddError(err)
-		}
-		span.End()
-	}()
 	if options == nil || options.ResumeToken == "" {
+		ctx, endSpan := runtime.StartSpan(ctx, "LROsClient.BeginDelete202NoRetry204", client.internal.Tracer(), nil)
+		defer func() { endSpan(err) }()
 		var resp *http.Response
 		resp, err = client.delete202NoRetry204(ctx, options)
 		if err != nil {
 			return
 		}
-		result, err = runtime.NewPoller[LROsClientDelete202NoRetry204Response](resp, client.internal.Pipeline(), nil)
+		result, err = runtime.NewPoller(resp, client.internal.Pipeline(), &runtime.NewPollerOptions[LROsClientDelete202NoRetry204Response]{
+			Tracer: client.internal.Tracer(),
+		})
 	} else {
-		result, err = runtime.NewPollerFromResumeToken[LROsClientDelete202NoRetry204Response](options.ResumeToken, client.internal.Pipeline(), nil)
+		result, err = runtime.NewPollerFromResumeToken(options.ResumeToken, client.internal.Pipeline(), &runtime.NewPollerFromResumeTokenOptions[LROsClientDelete202NoRetry204Response]{
+			Tracer: client.internal.Tracer(),
+		})
 	}
 	return
 }
@@ -94,24 +90,21 @@ func (client *LROsClient) delete202NoRetry204CreateRequest(ctx context.Context, 
 //   - options - LROsClientBeginDelete202Retry200Options contains the optional parameters for the LROsClient.BeginDelete202Retry200
 //     method.
 func (client *LROsClient) BeginDelete202Retry200(ctx context.Context, options *LROsClientBeginDelete202Retry200Options) (result *runtime.Poller[LROsClientDelete202Retry200Response], err error) {
-	ctx, span := client.internal.Tracer().Start(ctx, "LROsClient.BeginDelete202Retry200", &tracing.SpanOptions{
-		Kind: tracing.SpanKindInternal,
-	})
-	defer func() {
-		if err != nil {
-			span.AddError(err)
-		}
-		span.End()
-	}()
 	if options == nil || options.ResumeToken == "" {
+		ctx, endSpan := runtime.StartSpan(ctx, "LROsClient.BeginDelete202Retry200", client.internal.Tracer(), nil)
+		defer func() { endSpan(err) }()
 		var resp *http.Response
 		resp, err = client.delete202Retry200(ctx, options)
 		if err != nil {
 			return
 		}
-		result, err = runtime.NewPoller[LROsClientDelete202Retry200Response](resp, client.internal.Pipeline(), nil)
+		result, err = runtime.NewPoller(resp, client.internal.Pipeline(), &runtime.NewPollerOptions[LROsClientDelete202Retry200Response]{
+			Tracer: client.internal.Tracer(),
+		})
 	} else {
-		result, err = runtime.NewPollerFromResumeToken[LROsClientDelete202Retry200Response](options.ResumeToken, client.internal.Pipeline(), nil)
+		result, err = runtime.NewPollerFromResumeToken(options.ResumeToken, client.internal.Pipeline(), &runtime.NewPollerFromResumeTokenOptions[LROsClientDelete202Retry200Response]{
+			Tracer: client.internal.Tracer(),
+		})
 	}
 	return
 }
@@ -155,24 +148,21 @@ func (client *LROsClient) delete202Retry200CreateRequest(ctx context.Context, op
 //   - options - LROsClientBeginDelete204SucceededOptions contains the optional parameters for the LROsClient.BeginDelete204Succeeded
 //     method.
 func (client *LROsClient) BeginDelete204Succeeded(ctx context.Context, options *LROsClientBeginDelete204SucceededOptions) (result *runtime.Poller[LROsClientDelete204SucceededResponse], err error) {
-	ctx, span := client.internal.Tracer().Start(ctx, "LROsClient.BeginDelete204Succeeded", &tracing.SpanOptions{
-		Kind: tracing.SpanKindInternal,
-	})
-	defer func() {
-		if err != nil {
-			span.AddError(err)
-		}
-		span.End()
-	}()
 	if options == nil || options.ResumeToken == "" {
+		ctx, endSpan := runtime.StartSpan(ctx, "LROsClient.BeginDelete204Succeeded", client.internal.Tracer(), nil)
+		defer func() { endSpan(err) }()
 		var resp *http.Response
 		resp, err = client.delete204Succeeded(ctx, options)
 		if err != nil {
 			return
 		}
-		result, err = runtime.NewPoller[LROsClientDelete204SucceededResponse](resp, client.internal.Pipeline(), nil)
+		result, err = runtime.NewPoller(resp, client.internal.Pipeline(), &runtime.NewPollerOptions[LROsClientDelete204SucceededResponse]{
+			Tracer: client.internal.Tracer(),
+		})
 	} else {
-		result, err = runtime.NewPollerFromResumeToken[LROsClientDelete204SucceededResponse](options.ResumeToken, client.internal.Pipeline(), nil)
+		result, err = runtime.NewPollerFromResumeToken(options.ResumeToken, client.internal.Pipeline(), &runtime.NewPollerFromResumeTokenOptions[LROsClientDelete204SucceededResponse]{
+			Tracer: client.internal.Tracer(),
+		})
 	}
 	return
 }
@@ -216,24 +206,21 @@ func (client *LROsClient) delete204SucceededCreateRequest(ctx context.Context, o
 //   - options - LROsClientBeginDeleteAsyncNoHeaderInRetryOptions contains the optional parameters for the LROsClient.BeginDeleteAsyncNoHeaderInRetry
 //     method.
 func (client *LROsClient) BeginDeleteAsyncNoHeaderInRetry(ctx context.Context, options *LROsClientBeginDeleteAsyncNoHeaderInRetryOptions) (result *runtime.Poller[LROsClientDeleteAsyncNoHeaderInRetryResponse], err error) {
-	ctx, span := client.internal.Tracer().Start(ctx, "LROsClient.BeginDeleteAsyncNoHeaderInRetry", &tracing.SpanOptions{
-		Kind: tracing.SpanKindInternal,
-	})
-	defer func() {
-		if err != nil {
-			span.AddError(err)
-		}
-		span.End()
-	}()
 	if options == nil || options.ResumeToken == "" {
+		ctx, endSpan := runtime.StartSpan(ctx, "LROsClient.BeginDeleteAsyncNoHeaderInRetry", client.internal.Tracer(), nil)
+		defer func() { endSpan(err) }()
 		var resp *http.Response
 		resp, err = client.deleteAsyncNoHeaderInRetry(ctx, options)
 		if err != nil {
 			return
 		}
-		result, err = runtime.NewPoller[LROsClientDeleteAsyncNoHeaderInRetryResponse](resp, client.internal.Pipeline(), nil)
+		result, err = runtime.NewPoller(resp, client.internal.Pipeline(), &runtime.NewPollerOptions[LROsClientDeleteAsyncNoHeaderInRetryResponse]{
+			Tracer: client.internal.Tracer(),
+		})
 	} else {
-		result, err = runtime.NewPollerFromResumeToken[LROsClientDeleteAsyncNoHeaderInRetryResponse](options.ResumeToken, client.internal.Pipeline(), nil)
+		result, err = runtime.NewPollerFromResumeToken(options.ResumeToken, client.internal.Pipeline(), &runtime.NewPollerFromResumeTokenOptions[LROsClientDeleteAsyncNoHeaderInRetryResponse]{
+			Tracer: client.internal.Tracer(),
+		})
 	}
 	return
 }
@@ -278,24 +265,21 @@ func (client *LROsClient) deleteAsyncNoHeaderInRetryCreateRequest(ctx context.Co
 //   - options - LROsClientBeginDeleteAsyncNoRetrySucceededOptions contains the optional parameters for the LROsClient.BeginDeleteAsyncNoRetrySucceeded
 //     method.
 func (client *LROsClient) BeginDeleteAsyncNoRetrySucceeded(ctx context.Context, options *LROsClientBeginDeleteAsyncNoRetrySucceededOptions) (result *runtime.Poller[LROsClientDeleteAsyncNoRetrySucceededResponse], err error) {
-	ctx, span := client.internal.Tracer().Start(ctx, "LROsClient.BeginDeleteAsyncNoRetrySucceeded", &tracing.SpanOptions{
-		Kind: tracing.SpanKindInternal,
-	})
-	defer func() {
-		if err != nil {
-			span.AddError(err)
-		}
-		span.End()
-	}()
 	if options == nil || options.ResumeToken == "" {
+		ctx, endSpan := runtime.StartSpan(ctx, "LROsClient.BeginDeleteAsyncNoRetrySucceeded", client.internal.Tracer(), nil)
+		defer func() { endSpan(err) }()
 		var resp *http.Response
 		resp, err = client.deleteAsyncNoRetrySucceeded(ctx, options)
 		if err != nil {
 			return
 		}
-		result, err = runtime.NewPoller[LROsClientDeleteAsyncNoRetrySucceededResponse](resp, client.internal.Pipeline(), nil)
+		result, err = runtime.NewPoller(resp, client.internal.Pipeline(), &runtime.NewPollerOptions[LROsClientDeleteAsyncNoRetrySucceededResponse]{
+			Tracer: client.internal.Tracer(),
+		})
 	} else {
-		result, err = runtime.NewPollerFromResumeToken[LROsClientDeleteAsyncNoRetrySucceededResponse](options.ResumeToken, client.internal.Pipeline(), nil)
+		result, err = runtime.NewPollerFromResumeToken(options.ResumeToken, client.internal.Pipeline(), &runtime.NewPollerFromResumeTokenOptions[LROsClientDeleteAsyncNoRetrySucceededResponse]{
+			Tracer: client.internal.Tracer(),
+		})
 	}
 	return
 }
@@ -340,24 +324,21 @@ func (client *LROsClient) deleteAsyncNoRetrySucceededCreateRequest(ctx context.C
 //   - options - LROsClientBeginDeleteAsyncRetryFailedOptions contains the optional parameters for the LROsClient.BeginDeleteAsyncRetryFailed
 //     method.
 func (client *LROsClient) BeginDeleteAsyncRetryFailed(ctx context.Context, options *LROsClientBeginDeleteAsyncRetryFailedOptions) (result *runtime.Poller[LROsClientDeleteAsyncRetryFailedResponse], err error) {
-	ctx, span := client.internal.Tracer().Start(ctx, "LROsClient.BeginDeleteAsyncRetryFailed", &tracing.SpanOptions{
-		Kind: tracing.SpanKindInternal,
-	})
-	defer func() {
-		if err != nil {
-			span.AddError(err)
-		}
-		span.End()
-	}()
 	if options == nil || options.ResumeToken == "" {
+		ctx, endSpan := runtime.StartSpan(ctx, "LROsClient.BeginDeleteAsyncRetryFailed", client.internal.Tracer(), nil)
+		defer func() { endSpan(err) }()
 		var resp *http.Response
 		resp, err = client.deleteAsyncRetryFailed(ctx, options)
 		if err != nil {
 			return
 		}
-		result, err = runtime.NewPoller[LROsClientDeleteAsyncRetryFailedResponse](resp, client.internal.Pipeline(), nil)
+		result, err = runtime.NewPoller(resp, client.internal.Pipeline(), &runtime.NewPollerOptions[LROsClientDeleteAsyncRetryFailedResponse]{
+			Tracer: client.internal.Tracer(),
+		})
 	} else {
-		result, err = runtime.NewPollerFromResumeToken[LROsClientDeleteAsyncRetryFailedResponse](options.ResumeToken, client.internal.Pipeline(), nil)
+		result, err = runtime.NewPollerFromResumeToken(options.ResumeToken, client.internal.Pipeline(), &runtime.NewPollerFromResumeTokenOptions[LROsClientDeleteAsyncRetryFailedResponse]{
+			Tracer: client.internal.Tracer(),
+		})
 	}
 	return
 }
@@ -402,24 +383,21 @@ func (client *LROsClient) deleteAsyncRetryFailedCreateRequest(ctx context.Contex
 //   - options - LROsClientBeginDeleteAsyncRetrySucceededOptions contains the optional parameters for the LROsClient.BeginDeleteAsyncRetrySucceeded
 //     method.
 func (client *LROsClient) BeginDeleteAsyncRetrySucceeded(ctx context.Context, options *LROsClientBeginDeleteAsyncRetrySucceededOptions) (result *runtime.Poller[LROsClientDeleteAsyncRetrySucceededResponse], err error) {
-	ctx, span := client.internal.Tracer().Start(ctx, "LROsClient.BeginDeleteAsyncRetrySucceeded", &tracing.SpanOptions{
-		Kind: tracing.SpanKindInternal,
-	})
-	defer func() {
-		if err != nil {
-			span.AddError(err)
-		}
-		span.End()
-	}()
 	if options == nil || options.ResumeToken == "" {
+		ctx, endSpan := runtime.StartSpan(ctx, "LROsClient.BeginDeleteAsyncRetrySucceeded", client.internal.Tracer(), nil)
+		defer func() { endSpan(err) }()
 		var resp *http.Response
 		resp, err = client.deleteAsyncRetrySucceeded(ctx, options)
 		if err != nil {
 			return
 		}
-		result, err = runtime.NewPoller[LROsClientDeleteAsyncRetrySucceededResponse](resp, client.internal.Pipeline(), nil)
+		result, err = runtime.NewPoller(resp, client.internal.Pipeline(), &runtime.NewPollerOptions[LROsClientDeleteAsyncRetrySucceededResponse]{
+			Tracer: client.internal.Tracer(),
+		})
 	} else {
-		result, err = runtime.NewPollerFromResumeToken[LROsClientDeleteAsyncRetrySucceededResponse](options.ResumeToken, client.internal.Pipeline(), nil)
+		result, err = runtime.NewPollerFromResumeToken(options.ResumeToken, client.internal.Pipeline(), &runtime.NewPollerFromResumeTokenOptions[LROsClientDeleteAsyncRetrySucceededResponse]{
+			Tracer: client.internal.Tracer(),
+		})
 	}
 	return
 }
@@ -464,24 +442,21 @@ func (client *LROsClient) deleteAsyncRetrySucceededCreateRequest(ctx context.Con
 //   - options - LROsClientBeginDeleteAsyncRetrycanceledOptions contains the optional parameters for the LROsClient.BeginDeleteAsyncRetrycanceled
 //     method.
 func (client *LROsClient) BeginDeleteAsyncRetrycanceled(ctx context.Context, options *LROsClientBeginDeleteAsyncRetrycanceledOptions) (result *runtime.Poller[LROsClientDeleteAsyncRetrycanceledResponse], err error) {
-	ctx, span := client.internal.Tracer().Start(ctx, "LROsClient.BeginDeleteAsyncRetrycanceled", &tracing.SpanOptions{
-		Kind: tracing.SpanKindInternal,
-	})
-	defer func() {
-		if err != nil {
-			span.AddError(err)
-		}
-		span.End()
-	}()
 	if options == nil || options.ResumeToken == "" {
+		ctx, endSpan := runtime.StartSpan(ctx, "LROsClient.BeginDeleteAsyncRetrycanceled", client.internal.Tracer(), nil)
+		defer func() { endSpan(err) }()
 		var resp *http.Response
 		resp, err = client.deleteAsyncRetrycanceled(ctx, options)
 		if err != nil {
 			return
 		}
-		result, err = runtime.NewPoller[LROsClientDeleteAsyncRetrycanceledResponse](resp, client.internal.Pipeline(), nil)
+		result, err = runtime.NewPoller(resp, client.internal.Pipeline(), &runtime.NewPollerOptions[LROsClientDeleteAsyncRetrycanceledResponse]{
+			Tracer: client.internal.Tracer(),
+		})
 	} else {
-		result, err = runtime.NewPollerFromResumeToken[LROsClientDeleteAsyncRetrycanceledResponse](options.ResumeToken, client.internal.Pipeline(), nil)
+		result, err = runtime.NewPollerFromResumeToken(options.ResumeToken, client.internal.Pipeline(), &runtime.NewPollerFromResumeTokenOptions[LROsClientDeleteAsyncRetrycanceledResponse]{
+			Tracer: client.internal.Tracer(),
+		})
 	}
 	return
 }
@@ -526,24 +501,21 @@ func (client *LROsClient) deleteAsyncRetrycanceledCreateRequest(ctx context.Cont
 //   - options - LROsClientBeginDeleteNoHeaderInRetryOptions contains the optional parameters for the LROsClient.BeginDeleteNoHeaderInRetry
 //     method.
 func (client *LROsClient) BeginDeleteNoHeaderInRetry(ctx context.Context, options *LROsClientBeginDeleteNoHeaderInRetryOptions) (result *runtime.Poller[LROsClientDeleteNoHeaderInRetryResponse], err error) {
-	ctx, span := client.internal.Tracer().Start(ctx, "LROsClient.BeginDeleteNoHeaderInRetry", &tracing.SpanOptions{
-		Kind: tracing.SpanKindInternal,
-	})
-	defer func() {
-		if err != nil {
-			span.AddError(err)
-		}
-		span.End()
-	}()
 	if options == nil || options.ResumeToken == "" {
+		ctx, endSpan := runtime.StartSpan(ctx, "LROsClient.BeginDeleteNoHeaderInRetry", client.internal.Tracer(), nil)
+		defer func() { endSpan(err) }()
 		var resp *http.Response
 		resp, err = client.deleteNoHeaderInRetry(ctx, options)
 		if err != nil {
 			return
 		}
-		result, err = runtime.NewPoller[LROsClientDeleteNoHeaderInRetryResponse](resp, client.internal.Pipeline(), nil)
+		result, err = runtime.NewPoller(resp, client.internal.Pipeline(), &runtime.NewPollerOptions[LROsClientDeleteNoHeaderInRetryResponse]{
+			Tracer: client.internal.Tracer(),
+		})
 	} else {
-		result, err = runtime.NewPollerFromResumeToken[LROsClientDeleteNoHeaderInRetryResponse](options.ResumeToken, client.internal.Pipeline(), nil)
+		result, err = runtime.NewPollerFromResumeToken(options.ResumeToken, client.internal.Pipeline(), &runtime.NewPollerFromResumeTokenOptions[LROsClientDeleteNoHeaderInRetryResponse]{
+			Tracer: client.internal.Tracer(),
+		})
 	}
 	return
 }
@@ -590,24 +562,21 @@ func (client *LROsClient) deleteNoHeaderInRetryCreateRequest(ctx context.Context
 //   - options - LROsClientBeginDeleteProvisioning202Accepted200SucceededOptions contains the optional parameters for the LROsClient.BeginDeleteProvisioning202Accepted200Succeeded
 //     method.
 func (client *LROsClient) BeginDeleteProvisioning202Accepted200Succeeded(ctx context.Context, options *LROsClientBeginDeleteProvisioning202Accepted200SucceededOptions) (result *runtime.Poller[LROsClientDeleteProvisioning202Accepted200SucceededResponse], err error) {
-	ctx, span := client.internal.Tracer().Start(ctx, "LROsClient.BeginDeleteProvisioning202Accepted200Succeeded", &tracing.SpanOptions{
-		Kind: tracing.SpanKindInternal,
-	})
-	defer func() {
-		if err != nil {
-			span.AddError(err)
-		}
-		span.End()
-	}()
 	if options == nil || options.ResumeToken == "" {
+		ctx, endSpan := runtime.StartSpan(ctx, "LROsClient.BeginDeleteProvisioning202Accepted200Succeeded", client.internal.Tracer(), nil)
+		defer func() { endSpan(err) }()
 		var resp *http.Response
 		resp, err = client.deleteProvisioning202Accepted200Succeeded(ctx, options)
 		if err != nil {
 			return
 		}
-		result, err = runtime.NewPoller[LROsClientDeleteProvisioning202Accepted200SucceededResponse](resp, client.internal.Pipeline(), nil)
+		result, err = runtime.NewPoller(resp, client.internal.Pipeline(), &runtime.NewPollerOptions[LROsClientDeleteProvisioning202Accepted200SucceededResponse]{
+			Tracer: client.internal.Tracer(),
+		})
 	} else {
-		result, err = runtime.NewPollerFromResumeToken[LROsClientDeleteProvisioning202Accepted200SucceededResponse](options.ResumeToken, client.internal.Pipeline(), nil)
+		result, err = runtime.NewPollerFromResumeToken(options.ResumeToken, client.internal.Pipeline(), &runtime.NewPollerFromResumeTokenOptions[LROsClientDeleteProvisioning202Accepted200SucceededResponse]{
+			Tracer: client.internal.Tracer(),
+		})
 	}
 	return
 }
@@ -656,24 +625,21 @@ func (client *LROsClient) deleteProvisioning202Accepted200SucceededCreateRequest
 //   - options - LROsClientBeginDeleteProvisioning202DeletingFailed200Options contains the optional parameters for the LROsClient.BeginDeleteProvisioning202DeletingFailed200
 //     method.
 func (client *LROsClient) BeginDeleteProvisioning202DeletingFailed200(ctx context.Context, options *LROsClientBeginDeleteProvisioning202DeletingFailed200Options) (result *runtime.Poller[LROsClientDeleteProvisioning202DeletingFailed200Response], err error) {
-	ctx, span := client.internal.Tracer().Start(ctx, "LROsClient.BeginDeleteProvisioning202DeletingFailed200", &tracing.SpanOptions{
-		Kind: tracing.SpanKindInternal,
-	})
-	defer func() {
-		if err != nil {
-			span.AddError(err)
-		}
-		span.End()
-	}()
 	if options == nil || options.ResumeToken == "" {
+		ctx, endSpan := runtime.StartSpan(ctx, "LROsClient.BeginDeleteProvisioning202DeletingFailed200", client.internal.Tracer(), nil)
+		defer func() { endSpan(err) }()
 		var resp *http.Response
 		resp, err = client.deleteProvisioning202DeletingFailed200(ctx, options)
 		if err != nil {
 			return
 		}
-		result, err = runtime.NewPoller[LROsClientDeleteProvisioning202DeletingFailed200Response](resp, client.internal.Pipeline(), nil)
+		result, err = runtime.NewPoller(resp, client.internal.Pipeline(), &runtime.NewPollerOptions[LROsClientDeleteProvisioning202DeletingFailed200Response]{
+			Tracer: client.internal.Tracer(),
+		})
 	} else {
-		result, err = runtime.NewPollerFromResumeToken[LROsClientDeleteProvisioning202DeletingFailed200Response](options.ResumeToken, client.internal.Pipeline(), nil)
+		result, err = runtime.NewPollerFromResumeToken(options.ResumeToken, client.internal.Pipeline(), &runtime.NewPollerFromResumeTokenOptions[LROsClientDeleteProvisioning202DeletingFailed200Response]{
+			Tracer: client.internal.Tracer(),
+		})
 	}
 	return
 }
@@ -721,24 +687,21 @@ func (client *LROsClient) deleteProvisioning202DeletingFailed200CreateRequest(ct
 //   - options - LROsClientBeginDeleteProvisioning202Deletingcanceled200Options contains the optional parameters for the LROsClient.BeginDeleteProvisioning202Deletingcanceled200
 //     method.
 func (client *LROsClient) BeginDeleteProvisioning202Deletingcanceled200(ctx context.Context, options *LROsClientBeginDeleteProvisioning202Deletingcanceled200Options) (result *runtime.Poller[LROsClientDeleteProvisioning202Deletingcanceled200Response], err error) {
-	ctx, span := client.internal.Tracer().Start(ctx, "LROsClient.BeginDeleteProvisioning202Deletingcanceled200", &tracing.SpanOptions{
-		Kind: tracing.SpanKindInternal,
-	})
-	defer func() {
-		if err != nil {
-			span.AddError(err)
-		}
-		span.End()
-	}()
 	if options == nil || options.ResumeToken == "" {
+		ctx, endSpan := runtime.StartSpan(ctx, "LROsClient.BeginDeleteProvisioning202Deletingcanceled200", client.internal.Tracer(), nil)
+		defer func() { endSpan(err) }()
 		var resp *http.Response
 		resp, err = client.deleteProvisioning202Deletingcanceled200(ctx, options)
 		if err != nil {
 			return
 		}
-		result, err = runtime.NewPoller[LROsClientDeleteProvisioning202Deletingcanceled200Response](resp, client.internal.Pipeline(), nil)
+		result, err = runtime.NewPoller(resp, client.internal.Pipeline(), &runtime.NewPollerOptions[LROsClientDeleteProvisioning202Deletingcanceled200Response]{
+			Tracer: client.internal.Tracer(),
+		})
 	} else {
-		result, err = runtime.NewPollerFromResumeToken[LROsClientDeleteProvisioning202Deletingcanceled200Response](options.ResumeToken, client.internal.Pipeline(), nil)
+		result, err = runtime.NewPollerFromResumeToken(options.ResumeToken, client.internal.Pipeline(), &runtime.NewPollerFromResumeTokenOptions[LROsClientDeleteProvisioning202Deletingcanceled200Response]{
+			Tracer: client.internal.Tracer(),
+		})
 	}
 	return
 }
@@ -785,24 +748,21 @@ func (client *LROsClient) deleteProvisioning202Deletingcanceled200CreateRequest(
 //   - options - LROsClientBeginPatch200SucceededIgnoreHeadersOptions contains the optional parameters for the LROsClient.BeginPatch200SucceededIgnoreHeaders
 //     method.
 func (client *LROsClient) BeginPatch200SucceededIgnoreHeaders(ctx context.Context, product Product, options *LROsClientBeginPatch200SucceededIgnoreHeadersOptions) (result *runtime.Poller[LROsClientPatch200SucceededIgnoreHeadersResponse], err error) {
-	ctx, span := client.internal.Tracer().Start(ctx, "LROsClient.BeginPatch200SucceededIgnoreHeaders", &tracing.SpanOptions{
-		Kind: tracing.SpanKindInternal,
-	})
-	defer func() {
-		if err != nil {
-			span.AddError(err)
-		}
-		span.End()
-	}()
 	if options == nil || options.ResumeToken == "" {
+		ctx, endSpan := runtime.StartSpan(ctx, "LROsClient.BeginPatch200SucceededIgnoreHeaders", client.internal.Tracer(), nil)
+		defer func() { endSpan(err) }()
 		var resp *http.Response
 		resp, err = client.patch200SucceededIgnoreHeaders(ctx, product, options)
 		if err != nil {
 			return
 		}
-		result, err = runtime.NewPoller[LROsClientPatch200SucceededIgnoreHeadersResponse](resp, client.internal.Pipeline(), nil)
+		result, err = runtime.NewPoller(resp, client.internal.Pipeline(), &runtime.NewPollerOptions[LROsClientPatch200SucceededIgnoreHeadersResponse]{
+			Tracer: client.internal.Tracer(),
+		})
 	} else {
-		result, err = runtime.NewPollerFromResumeToken[LROsClientPatch200SucceededIgnoreHeadersResponse](options.ResumeToken, client.internal.Pipeline(), nil)
+		result, err = runtime.NewPollerFromResumeToken(options.ResumeToken, client.internal.Pipeline(), &runtime.NewPollerFromResumeTokenOptions[LROsClientPatch200SucceededIgnoreHeadersResponse]{
+			Tracer: client.internal.Tracer(),
+		})
 	}
 	return
 }
@@ -848,26 +808,22 @@ func (client *LROsClient) patch200SucceededIgnoreHeadersCreateRequest(ctx contex
 //   - options - LROsClientBeginPatch201RetryWithAsyncHeaderOptions contains the optional parameters for the LROsClient.BeginPatch201RetryWithAsyncHeader
 //     method.
 func (client *LROsClient) BeginPatch201RetryWithAsyncHeader(ctx context.Context, product Product, options *LROsClientBeginPatch201RetryWithAsyncHeaderOptions) (result *runtime.Poller[LROsClientPatch201RetryWithAsyncHeaderResponse], err error) {
-	ctx, span := client.internal.Tracer().Start(ctx, "LROsClient.BeginPatch201RetryWithAsyncHeader", &tracing.SpanOptions{
-		Kind: tracing.SpanKindInternal,
-	})
-	defer func() {
-		if err != nil {
-			span.AddError(err)
-		}
-		span.End()
-	}()
 	if options == nil || options.ResumeToken == "" {
+		ctx, endSpan := runtime.StartSpan(ctx, "LROsClient.BeginPatch201RetryWithAsyncHeader", client.internal.Tracer(), nil)
+		defer func() { endSpan(err) }()
 		var resp *http.Response
 		resp, err = client.patch201RetryWithAsyncHeader(ctx, product, options)
 		if err != nil {
 			return
 		}
 		result, err = runtime.NewPoller(resp, client.internal.Pipeline(), &runtime.NewPollerOptions[LROsClientPatch201RetryWithAsyncHeaderResponse]{
+			Tracer:        client.internal.Tracer(),
 			FinalStateVia: runtime.FinalStateViaAzureAsyncOp,
 		})
 	} else {
-		result, err = runtime.NewPollerFromResumeToken[LROsClientPatch201RetryWithAsyncHeaderResponse](options.ResumeToken, client.internal.Pipeline(), nil)
+		result, err = runtime.NewPollerFromResumeToken(options.ResumeToken, client.internal.Pipeline(), &runtime.NewPollerFromResumeTokenOptions[LROsClientPatch201RetryWithAsyncHeaderResponse]{
+			Tracer: client.internal.Tracer(),
+		})
 	}
 	return
 }
@@ -912,24 +868,21 @@ func (client *LROsClient) patch201RetryWithAsyncHeaderCreateRequest(ctx context.
 //   - options - LROsClientBeginPatch202RetryWithAsyncAndLocationHeaderOptions contains the optional parameters for the LROsClient.BeginPatch202RetryWithAsyncAndLocationHeader
 //     method.
 func (client *LROsClient) BeginPatch202RetryWithAsyncAndLocationHeader(ctx context.Context, product Product, options *LROsClientBeginPatch202RetryWithAsyncAndLocationHeaderOptions) (result *runtime.Poller[LROsClientPatch202RetryWithAsyncAndLocationHeaderResponse], err error) {
-	ctx, span := client.internal.Tracer().Start(ctx, "LROsClient.BeginPatch202RetryWithAsyncAndLocationHeader", &tracing.SpanOptions{
-		Kind: tracing.SpanKindInternal,
-	})
-	defer func() {
-		if err != nil {
-			span.AddError(err)
-		}
-		span.End()
-	}()
 	if options == nil || options.ResumeToken == "" {
+		ctx, endSpan := runtime.StartSpan(ctx, "LROsClient.BeginPatch202RetryWithAsyncAndLocationHeader", client.internal.Tracer(), nil)
+		defer func() { endSpan(err) }()
 		var resp *http.Response
 		resp, err = client.patch202RetryWithAsyncAndLocationHeader(ctx, product, options)
 		if err != nil {
 			return
 		}
-		result, err = runtime.NewPoller[LROsClientPatch202RetryWithAsyncAndLocationHeaderResponse](resp, client.internal.Pipeline(), nil)
+		result, err = runtime.NewPoller(resp, client.internal.Pipeline(), &runtime.NewPollerOptions[LROsClientPatch202RetryWithAsyncAndLocationHeaderResponse]{
+			Tracer: client.internal.Tracer(),
+		})
 	} else {
-		result, err = runtime.NewPollerFromResumeToken[LROsClientPatch202RetryWithAsyncAndLocationHeaderResponse](options.ResumeToken, client.internal.Pipeline(), nil)
+		result, err = runtime.NewPollerFromResumeToken(options.ResumeToken, client.internal.Pipeline(), &runtime.NewPollerFromResumeTokenOptions[LROsClientPatch202RetryWithAsyncAndLocationHeaderResponse]{
+			Tracer: client.internal.Tracer(),
+		})
 	}
 	return
 }
@@ -974,24 +927,21 @@ func (client *LROsClient) patch202RetryWithAsyncAndLocationHeaderCreateRequest(c
 //   - options - LROsClientBeginPost200WithPayloadOptions contains the optional parameters for the LROsClient.BeginPost200WithPayload
 //     method.
 func (client *LROsClient) BeginPost200WithPayload(ctx context.Context, options *LROsClientBeginPost200WithPayloadOptions) (result *runtime.Poller[LROsClientPost200WithPayloadResponse], err error) {
-	ctx, span := client.internal.Tracer().Start(ctx, "LROsClient.BeginPost200WithPayload", &tracing.SpanOptions{
-		Kind: tracing.SpanKindInternal,
-	})
-	defer func() {
-		if err != nil {
-			span.AddError(err)
-		}
-		span.End()
-	}()
 	if options == nil || options.ResumeToken == "" {
+		ctx, endSpan := runtime.StartSpan(ctx, "LROsClient.BeginPost200WithPayload", client.internal.Tracer(), nil)
+		defer func() { endSpan(err) }()
 		var resp *http.Response
 		resp, err = client.post200WithPayload(ctx, options)
 		if err != nil {
 			return
 		}
-		result, err = runtime.NewPoller[LROsClientPost200WithPayloadResponse](resp, client.internal.Pipeline(), nil)
+		result, err = runtime.NewPoller(resp, client.internal.Pipeline(), &runtime.NewPollerOptions[LROsClientPost200WithPayloadResponse]{
+			Tracer: client.internal.Tracer(),
+		})
 	} else {
-		result, err = runtime.NewPollerFromResumeToken[LROsClientPost200WithPayloadResponse](options.ResumeToken, client.internal.Pipeline(), nil)
+		result, err = runtime.NewPollerFromResumeToken(options.ResumeToken, client.internal.Pipeline(), &runtime.NewPollerFromResumeTokenOptions[LROsClientPost200WithPayloadResponse]{
+			Tracer: client.internal.Tracer(),
+		})
 	}
 	return
 }
@@ -1035,24 +985,21 @@ func (client *LROsClient) post200WithPayloadCreateRequest(ctx context.Context, o
 // Generated from API version 1.0.0
 //   - options - LROsClientBeginPost202ListOptions contains the optional parameters for the LROsClient.BeginPost202List method.
 func (client *LROsClient) BeginPost202List(ctx context.Context, options *LROsClientBeginPost202ListOptions) (result *runtime.Poller[LROsClientPost202ListResponse], err error) {
-	ctx, span := client.internal.Tracer().Start(ctx, "LROsClient.BeginPost202List", &tracing.SpanOptions{
-		Kind: tracing.SpanKindInternal,
-	})
-	defer func() {
-		if err != nil {
-			span.AddError(err)
-		}
-		span.End()
-	}()
 	if options == nil || options.ResumeToken == "" {
+		ctx, endSpan := runtime.StartSpan(ctx, "LROsClient.BeginPost202List", client.internal.Tracer(), nil)
+		defer func() { endSpan(err) }()
 		var resp *http.Response
 		resp, err = client.post202List(ctx, options)
 		if err != nil {
 			return
 		}
-		result, err = runtime.NewPoller[LROsClientPost202ListResponse](resp, client.internal.Pipeline(), nil)
+		result, err = runtime.NewPoller(resp, client.internal.Pipeline(), &runtime.NewPollerOptions[LROsClientPost202ListResponse]{
+			Tracer: client.internal.Tracer(),
+		})
 	} else {
-		result, err = runtime.NewPollerFromResumeToken[LROsClientPost202ListResponse](options.ResumeToken, client.internal.Pipeline(), nil)
+		result, err = runtime.NewPollerFromResumeToken(options.ResumeToken, client.internal.Pipeline(), &runtime.NewPollerFromResumeTokenOptions[LROsClientPost202ListResponse]{
+			Tracer: client.internal.Tracer(),
+		})
 	}
 	return
 }
@@ -1097,24 +1044,21 @@ func (client *LROsClient) post202ListCreateRequest(ctx context.Context, options 
 //   - options - LROsClientBeginPost202NoRetry204Options contains the optional parameters for the LROsClient.BeginPost202NoRetry204
 //     method.
 func (client *LROsClient) BeginPost202NoRetry204(ctx context.Context, options *LROsClientBeginPost202NoRetry204Options) (result *runtime.Poller[LROsClientPost202NoRetry204Response], err error) {
-	ctx, span := client.internal.Tracer().Start(ctx, "LROsClient.BeginPost202NoRetry204", &tracing.SpanOptions{
-		Kind: tracing.SpanKindInternal,
-	})
-	defer func() {
-		if err != nil {
-			span.AddError(err)
-		}
-		span.End()
-	}()
 	if options == nil || options.ResumeToken == "" {
+		ctx, endSpan := runtime.StartSpan(ctx, "LROsClient.BeginPost202NoRetry204", client.internal.Tracer(), nil)
+		defer func() { endSpan(err) }()
 		var resp *http.Response
 		resp, err = client.post202NoRetry204(ctx, options)
 		if err != nil {
 			return
 		}
-		result, err = runtime.NewPoller[LROsClientPost202NoRetry204Response](resp, client.internal.Pipeline(), nil)
+		result, err = runtime.NewPoller(resp, client.internal.Pipeline(), &runtime.NewPollerOptions[LROsClientPost202NoRetry204Response]{
+			Tracer: client.internal.Tracer(),
+		})
 	} else {
-		result, err = runtime.NewPollerFromResumeToken[LROsClientPost202NoRetry204Response](options.ResumeToken, client.internal.Pipeline(), nil)
+		result, err = runtime.NewPollerFromResumeToken(options.ResumeToken, client.internal.Pipeline(), &runtime.NewPollerFromResumeTokenOptions[LROsClientPost202NoRetry204Response]{
+			Tracer: client.internal.Tracer(),
+		})
 	}
 	return
 }
@@ -1162,24 +1106,21 @@ func (client *LROsClient) post202NoRetry204CreateRequest(ctx context.Context, op
 //   - options - LROsClientBeginPost202Retry200Options contains the optional parameters for the LROsClient.BeginPost202Retry200
 //     method.
 func (client *LROsClient) BeginPost202Retry200(ctx context.Context, options *LROsClientBeginPost202Retry200Options) (result *runtime.Poller[LROsClientPost202Retry200Response], err error) {
-	ctx, span := client.internal.Tracer().Start(ctx, "LROsClient.BeginPost202Retry200", &tracing.SpanOptions{
-		Kind: tracing.SpanKindInternal,
-	})
-	defer func() {
-		if err != nil {
-			span.AddError(err)
-		}
-		span.End()
-	}()
 	if options == nil || options.ResumeToken == "" {
+		ctx, endSpan := runtime.StartSpan(ctx, "LROsClient.BeginPost202Retry200", client.internal.Tracer(), nil)
+		defer func() { endSpan(err) }()
 		var resp *http.Response
 		resp, err = client.post202Retry200(ctx, options)
 		if err != nil {
 			return
 		}
-		result, err = runtime.NewPoller[LROsClientPost202Retry200Response](resp, client.internal.Pipeline(), nil)
+		result, err = runtime.NewPoller(resp, client.internal.Pipeline(), &runtime.NewPollerOptions[LROsClientPost202Retry200Response]{
+			Tracer: client.internal.Tracer(),
+		})
 	} else {
-		result, err = runtime.NewPollerFromResumeToken[LROsClientPost202Retry200Response](options.ResumeToken, client.internal.Pipeline(), nil)
+		result, err = runtime.NewPollerFromResumeToken(options.ResumeToken, client.internal.Pipeline(), &runtime.NewPollerFromResumeTokenOptions[LROsClientPost202Retry200Response]{
+			Tracer: client.internal.Tracer(),
+		})
 	}
 	return
 }
@@ -1228,24 +1169,21 @@ func (client *LROsClient) post202Retry200CreateRequest(ctx context.Context, opti
 //   - options - LROsClientBeginPostAsyncNoRetrySucceededOptions contains the optional parameters for the LROsClient.BeginPostAsyncNoRetrySucceeded
 //     method.
 func (client *LROsClient) BeginPostAsyncNoRetrySucceeded(ctx context.Context, options *LROsClientBeginPostAsyncNoRetrySucceededOptions) (result *runtime.Poller[LROsClientPostAsyncNoRetrySucceededResponse], err error) {
-	ctx, span := client.internal.Tracer().Start(ctx, "LROsClient.BeginPostAsyncNoRetrySucceeded", &tracing.SpanOptions{
-		Kind: tracing.SpanKindInternal,
-	})
-	defer func() {
-		if err != nil {
-			span.AddError(err)
-		}
-		span.End()
-	}()
 	if options == nil || options.ResumeToken == "" {
+		ctx, endSpan := runtime.StartSpan(ctx, "LROsClient.BeginPostAsyncNoRetrySucceeded", client.internal.Tracer(), nil)
+		defer func() { endSpan(err) }()
 		var resp *http.Response
 		resp, err = client.postAsyncNoRetrySucceeded(ctx, options)
 		if err != nil {
 			return
 		}
-		result, err = runtime.NewPoller[LROsClientPostAsyncNoRetrySucceededResponse](resp, client.internal.Pipeline(), nil)
+		result, err = runtime.NewPoller(resp, client.internal.Pipeline(), &runtime.NewPollerOptions[LROsClientPostAsyncNoRetrySucceededResponse]{
+			Tracer: client.internal.Tracer(),
+		})
 	} else {
-		result, err = runtime.NewPollerFromResumeToken[LROsClientPostAsyncNoRetrySucceededResponse](options.ResumeToken, client.internal.Pipeline(), nil)
+		result, err = runtime.NewPollerFromResumeToken(options.ResumeToken, client.internal.Pipeline(), &runtime.NewPollerFromResumeTokenOptions[LROsClientPostAsyncNoRetrySucceededResponse]{
+			Tracer: client.internal.Tracer(),
+		})
 	}
 	return
 }
@@ -1295,24 +1233,21 @@ func (client *LROsClient) postAsyncNoRetrySucceededCreateRequest(ctx context.Con
 //   - options - LROsClientBeginPostAsyncRetryFailedOptions contains the optional parameters for the LROsClient.BeginPostAsyncRetryFailed
 //     method.
 func (client *LROsClient) BeginPostAsyncRetryFailed(ctx context.Context, options *LROsClientBeginPostAsyncRetryFailedOptions) (result *runtime.Poller[LROsClientPostAsyncRetryFailedResponse], err error) {
-	ctx, span := client.internal.Tracer().Start(ctx, "LROsClient.BeginPostAsyncRetryFailed", &tracing.SpanOptions{
-		Kind: tracing.SpanKindInternal,
-	})
-	defer func() {
-		if err != nil {
-			span.AddError(err)
-		}
-		span.End()
-	}()
 	if options == nil || options.ResumeToken == "" {
+		ctx, endSpan := runtime.StartSpan(ctx, "LROsClient.BeginPostAsyncRetryFailed", client.internal.Tracer(), nil)
+		defer func() { endSpan(err) }()
 		var resp *http.Response
 		resp, err = client.postAsyncRetryFailed(ctx, options)
 		if err != nil {
 			return
 		}
-		result, err = runtime.NewPoller[LROsClientPostAsyncRetryFailedResponse](resp, client.internal.Pipeline(), nil)
+		result, err = runtime.NewPoller(resp, client.internal.Pipeline(), &runtime.NewPollerOptions[LROsClientPostAsyncRetryFailedResponse]{
+			Tracer: client.internal.Tracer(),
+		})
 	} else {
-		result, err = runtime.NewPollerFromResumeToken[LROsClientPostAsyncRetryFailedResponse](options.ResumeToken, client.internal.Pipeline(), nil)
+		result, err = runtime.NewPollerFromResumeToken(options.ResumeToken, client.internal.Pipeline(), &runtime.NewPollerFromResumeTokenOptions[LROsClientPostAsyncRetryFailedResponse]{
+			Tracer: client.internal.Tracer(),
+		})
 	}
 	return
 }
@@ -1362,24 +1297,21 @@ func (client *LROsClient) postAsyncRetryFailedCreateRequest(ctx context.Context,
 //   - options - LROsClientBeginPostAsyncRetrySucceededOptions contains the optional parameters for the LROsClient.BeginPostAsyncRetrySucceeded
 //     method.
 func (client *LROsClient) BeginPostAsyncRetrySucceeded(ctx context.Context, options *LROsClientBeginPostAsyncRetrySucceededOptions) (result *runtime.Poller[LROsClientPostAsyncRetrySucceededResponse], err error) {
-	ctx, span := client.internal.Tracer().Start(ctx, "LROsClient.BeginPostAsyncRetrySucceeded", &tracing.SpanOptions{
-		Kind: tracing.SpanKindInternal,
-	})
-	defer func() {
-		if err != nil {
-			span.AddError(err)
-		}
-		span.End()
-	}()
 	if options == nil || options.ResumeToken == "" {
+		ctx, endSpan := runtime.StartSpan(ctx, "LROsClient.BeginPostAsyncRetrySucceeded", client.internal.Tracer(), nil)
+		defer func() { endSpan(err) }()
 		var resp *http.Response
 		resp, err = client.postAsyncRetrySucceeded(ctx, options)
 		if err != nil {
 			return
 		}
-		result, err = runtime.NewPoller[LROsClientPostAsyncRetrySucceededResponse](resp, client.internal.Pipeline(), nil)
+		result, err = runtime.NewPoller(resp, client.internal.Pipeline(), &runtime.NewPollerOptions[LROsClientPostAsyncRetrySucceededResponse]{
+			Tracer: client.internal.Tracer(),
+		})
 	} else {
-		result, err = runtime.NewPollerFromResumeToken[LROsClientPostAsyncRetrySucceededResponse](options.ResumeToken, client.internal.Pipeline(), nil)
+		result, err = runtime.NewPollerFromResumeToken(options.ResumeToken, client.internal.Pipeline(), &runtime.NewPollerFromResumeTokenOptions[LROsClientPostAsyncRetrySucceededResponse]{
+			Tracer: client.internal.Tracer(),
+		})
 	}
 	return
 }
@@ -1429,24 +1361,21 @@ func (client *LROsClient) postAsyncRetrySucceededCreateRequest(ctx context.Conte
 //   - options - LROsClientBeginPostAsyncRetrycanceledOptions contains the optional parameters for the LROsClient.BeginPostAsyncRetrycanceled
 //     method.
 func (client *LROsClient) BeginPostAsyncRetrycanceled(ctx context.Context, options *LROsClientBeginPostAsyncRetrycanceledOptions) (result *runtime.Poller[LROsClientPostAsyncRetrycanceledResponse], err error) {
-	ctx, span := client.internal.Tracer().Start(ctx, "LROsClient.BeginPostAsyncRetrycanceled", &tracing.SpanOptions{
-		Kind: tracing.SpanKindInternal,
-	})
-	defer func() {
-		if err != nil {
-			span.AddError(err)
-		}
-		span.End()
-	}()
 	if options == nil || options.ResumeToken == "" {
+		ctx, endSpan := runtime.StartSpan(ctx, "LROsClient.BeginPostAsyncRetrycanceled", client.internal.Tracer(), nil)
+		defer func() { endSpan(err) }()
 		var resp *http.Response
 		resp, err = client.postAsyncRetrycanceled(ctx, options)
 		if err != nil {
 			return
 		}
-		result, err = runtime.NewPoller[LROsClientPostAsyncRetrycanceledResponse](resp, client.internal.Pipeline(), nil)
+		result, err = runtime.NewPoller(resp, client.internal.Pipeline(), &runtime.NewPollerOptions[LROsClientPostAsyncRetrycanceledResponse]{
+			Tracer: client.internal.Tracer(),
+		})
 	} else {
-		result, err = runtime.NewPollerFromResumeToken[LROsClientPostAsyncRetrycanceledResponse](options.ResumeToken, client.internal.Pipeline(), nil)
+		result, err = runtime.NewPollerFromResumeToken(options.ResumeToken, client.internal.Pipeline(), &runtime.NewPollerFromResumeTokenOptions[LROsClientPostAsyncRetrycanceledResponse]{
+			Tracer: client.internal.Tracer(),
+		})
 	}
 	return
 }
@@ -1495,26 +1424,22 @@ func (client *LROsClient) postAsyncRetrycanceledCreateRequest(ctx context.Contex
 //   - options - LROsClientBeginPostDoubleHeadersFinalAzureHeaderGetOptions contains the optional parameters for the LROsClient.BeginPostDoubleHeadersFinalAzureHeaderGet
 //     method.
 func (client *LROsClient) BeginPostDoubleHeadersFinalAzureHeaderGet(ctx context.Context, options *LROsClientBeginPostDoubleHeadersFinalAzureHeaderGetOptions) (result *runtime.Poller[LROsClientPostDoubleHeadersFinalAzureHeaderGetResponse], err error) {
-	ctx, span := client.internal.Tracer().Start(ctx, "LROsClient.BeginPostDoubleHeadersFinalAzureHeaderGet", &tracing.SpanOptions{
-		Kind: tracing.SpanKindInternal,
-	})
-	defer func() {
-		if err != nil {
-			span.AddError(err)
-		}
-		span.End()
-	}()
 	if options == nil || options.ResumeToken == "" {
+		ctx, endSpan := runtime.StartSpan(ctx, "LROsClient.BeginPostDoubleHeadersFinalAzureHeaderGet", client.internal.Tracer(), nil)
+		defer func() { endSpan(err) }()
 		var resp *http.Response
 		resp, err = client.postDoubleHeadersFinalAzureHeaderGet(ctx, options)
 		if err != nil {
 			return
 		}
 		result, err = runtime.NewPoller(resp, client.internal.Pipeline(), &runtime.NewPollerOptions[LROsClientPostDoubleHeadersFinalAzureHeaderGetResponse]{
+			Tracer:        client.internal.Tracer(),
 			FinalStateVia: runtime.FinalStateViaAzureAsyncOp,
 		})
 	} else {
-		result, err = runtime.NewPollerFromResumeToken[LROsClientPostDoubleHeadersFinalAzureHeaderGetResponse](options.ResumeToken, client.internal.Pipeline(), nil)
+		result, err = runtime.NewPollerFromResumeToken(options.ResumeToken, client.internal.Pipeline(), &runtime.NewPollerFromResumeTokenOptions[LROsClientPostDoubleHeadersFinalAzureHeaderGetResponse]{
+			Tracer: client.internal.Tracer(),
+		})
 	}
 	return
 }
@@ -1561,24 +1486,21 @@ func (client *LROsClient) postDoubleHeadersFinalAzureHeaderGetCreateRequest(ctx 
 //   - options - LROsClientBeginPostDoubleHeadersFinalAzureHeaderGetDefaultOptions contains the optional parameters for the LROsClient.BeginPostDoubleHeadersFinalAzureHeaderGetDefault
 //     method.
 func (client *LROsClient) BeginPostDoubleHeadersFinalAzureHeaderGetDefault(ctx context.Context, options *LROsClientBeginPostDoubleHeadersFinalAzureHeaderGetDefaultOptions) (result *runtime.Poller[LROsClientPostDoubleHeadersFinalAzureHeaderGetDefaultResponse], err error) {
-	ctx, span := client.internal.Tracer().Start(ctx, "LROsClient.BeginPostDoubleHeadersFinalAzureHeaderGetDefault", &tracing.SpanOptions{
-		Kind: tracing.SpanKindInternal,
-	})
-	defer func() {
-		if err != nil {
-			span.AddError(err)
-		}
-		span.End()
-	}()
 	if options == nil || options.ResumeToken == "" {
+		ctx, endSpan := runtime.StartSpan(ctx, "LROsClient.BeginPostDoubleHeadersFinalAzureHeaderGetDefault", client.internal.Tracer(), nil)
+		defer func() { endSpan(err) }()
 		var resp *http.Response
 		resp, err = client.postDoubleHeadersFinalAzureHeaderGetDefault(ctx, options)
 		if err != nil {
 			return
 		}
-		result, err = runtime.NewPoller[LROsClientPostDoubleHeadersFinalAzureHeaderGetDefaultResponse](resp, client.internal.Pipeline(), nil)
+		result, err = runtime.NewPoller(resp, client.internal.Pipeline(), &runtime.NewPollerOptions[LROsClientPostDoubleHeadersFinalAzureHeaderGetDefaultResponse]{
+			Tracer: client.internal.Tracer(),
+		})
 	} else {
-		result, err = runtime.NewPollerFromResumeToken[LROsClientPostDoubleHeadersFinalAzureHeaderGetDefaultResponse](options.ResumeToken, client.internal.Pipeline(), nil)
+		result, err = runtime.NewPollerFromResumeToken(options.ResumeToken, client.internal.Pipeline(), &runtime.NewPollerFromResumeTokenOptions[LROsClientPostDoubleHeadersFinalAzureHeaderGetDefaultResponse]{
+			Tracer: client.internal.Tracer(),
+		})
 	}
 	return
 }
@@ -1624,26 +1546,22 @@ func (client *LROsClient) postDoubleHeadersFinalAzureHeaderGetDefaultCreateReque
 //   - options - LROsClientBeginPostDoubleHeadersFinalLocationGetOptions contains the optional parameters for the LROsClient.BeginPostDoubleHeadersFinalLocationGet
 //     method.
 func (client *LROsClient) BeginPostDoubleHeadersFinalLocationGet(ctx context.Context, options *LROsClientBeginPostDoubleHeadersFinalLocationGetOptions) (result *runtime.Poller[LROsClientPostDoubleHeadersFinalLocationGetResponse], err error) {
-	ctx, span := client.internal.Tracer().Start(ctx, "LROsClient.BeginPostDoubleHeadersFinalLocationGet", &tracing.SpanOptions{
-		Kind: tracing.SpanKindInternal,
-	})
-	defer func() {
-		if err != nil {
-			span.AddError(err)
-		}
-		span.End()
-	}()
 	if options == nil || options.ResumeToken == "" {
+		ctx, endSpan := runtime.StartSpan(ctx, "LROsClient.BeginPostDoubleHeadersFinalLocationGet", client.internal.Tracer(), nil)
+		defer func() { endSpan(err) }()
 		var resp *http.Response
 		resp, err = client.postDoubleHeadersFinalLocationGet(ctx, options)
 		if err != nil {
 			return
 		}
 		result, err = runtime.NewPoller(resp, client.internal.Pipeline(), &runtime.NewPollerOptions[LROsClientPostDoubleHeadersFinalLocationGetResponse]{
+			Tracer:        client.internal.Tracer(),
 			FinalStateVia: runtime.FinalStateViaLocation,
 		})
 	} else {
-		result, err = runtime.NewPollerFromResumeToken[LROsClientPostDoubleHeadersFinalLocationGetResponse](options.ResumeToken, client.internal.Pipeline(), nil)
+		result, err = runtime.NewPollerFromResumeToken(options.ResumeToken, client.internal.Pipeline(), &runtime.NewPollerFromResumeTokenOptions[LROsClientPostDoubleHeadersFinalLocationGetResponse]{
+			Tracer: client.internal.Tracer(),
+		})
 	}
 	return
 }
@@ -1690,24 +1608,21 @@ func (client *LROsClient) postDoubleHeadersFinalLocationGetCreateRequest(ctx con
 //   - options - LROsClientBeginPut200Acceptedcanceled200Options contains the optional parameters for the LROsClient.BeginPut200Acceptedcanceled200
 //     method.
 func (client *LROsClient) BeginPut200Acceptedcanceled200(ctx context.Context, product Product, options *LROsClientBeginPut200Acceptedcanceled200Options) (result *runtime.Poller[LROsClientPut200Acceptedcanceled200Response], err error) {
-	ctx, span := client.internal.Tracer().Start(ctx, "LROsClient.BeginPut200Acceptedcanceled200", &tracing.SpanOptions{
-		Kind: tracing.SpanKindInternal,
-	})
-	defer func() {
-		if err != nil {
-			span.AddError(err)
-		}
-		span.End()
-	}()
 	if options == nil || options.ResumeToken == "" {
+		ctx, endSpan := runtime.StartSpan(ctx, "LROsClient.BeginPut200Acceptedcanceled200", client.internal.Tracer(), nil)
+		defer func() { endSpan(err) }()
 		var resp *http.Response
 		resp, err = client.put200Acceptedcanceled200(ctx, product, options)
 		if err != nil {
 			return
 		}
-		result, err = runtime.NewPoller[LROsClientPut200Acceptedcanceled200Response](resp, client.internal.Pipeline(), nil)
+		result, err = runtime.NewPoller(resp, client.internal.Pipeline(), &runtime.NewPollerOptions[LROsClientPut200Acceptedcanceled200Response]{
+			Tracer: client.internal.Tracer(),
+		})
 	} else {
-		result, err = runtime.NewPollerFromResumeToken[LROsClientPut200Acceptedcanceled200Response](options.ResumeToken, client.internal.Pipeline(), nil)
+		result, err = runtime.NewPollerFromResumeToken(options.ResumeToken, client.internal.Pipeline(), &runtime.NewPollerFromResumeTokenOptions[LROsClientPut200Acceptedcanceled200Response]{
+			Tracer: client.internal.Tracer(),
+		})
 	}
 	return
 }
@@ -1754,24 +1669,21 @@ func (client *LROsClient) put200Acceptedcanceled200CreateRequest(ctx context.Con
 //   - options - LROsClientBeginPut200SucceededOptions contains the optional parameters for the LROsClient.BeginPut200Succeeded
 //     method.
 func (client *LROsClient) BeginPut200Succeeded(ctx context.Context, product Product, options *LROsClientBeginPut200SucceededOptions) (result *runtime.Poller[LROsClientPut200SucceededResponse], err error) {
-	ctx, span := client.internal.Tracer().Start(ctx, "LROsClient.BeginPut200Succeeded", &tracing.SpanOptions{
-		Kind: tracing.SpanKindInternal,
-	})
-	defer func() {
-		if err != nil {
-			span.AddError(err)
-		}
-		span.End()
-	}()
 	if options == nil || options.ResumeToken == "" {
+		ctx, endSpan := runtime.StartSpan(ctx, "LROsClient.BeginPut200Succeeded", client.internal.Tracer(), nil)
+		defer func() { endSpan(err) }()
 		var resp *http.Response
 		resp, err = client.put200Succeeded(ctx, product, options)
 		if err != nil {
 			return
 		}
-		result, err = runtime.NewPoller[LROsClientPut200SucceededResponse](resp, client.internal.Pipeline(), nil)
+		result, err = runtime.NewPoller(resp, client.internal.Pipeline(), &runtime.NewPollerOptions[LROsClientPut200SucceededResponse]{
+			Tracer: client.internal.Tracer(),
+		})
 	} else {
-		result, err = runtime.NewPollerFromResumeToken[LROsClientPut200SucceededResponse](options.ResumeToken, client.internal.Pipeline(), nil)
+		result, err = runtime.NewPollerFromResumeToken(options.ResumeToken, client.internal.Pipeline(), &runtime.NewPollerFromResumeTokenOptions[LROsClientPut200SucceededResponse]{
+			Tracer: client.internal.Tracer(),
+		})
 	}
 	return
 }
@@ -1817,24 +1729,21 @@ func (client *LROsClient) put200SucceededCreateRequest(ctx context.Context, prod
 //   - options - LROsClientBeginPut200SucceededNoStateOptions contains the optional parameters for the LROsClient.BeginPut200SucceededNoState
 //     method.
 func (client *LROsClient) BeginPut200SucceededNoState(ctx context.Context, product Product, options *LROsClientBeginPut200SucceededNoStateOptions) (result *runtime.Poller[LROsClientPut200SucceededNoStateResponse], err error) {
-	ctx, span := client.internal.Tracer().Start(ctx, "LROsClient.BeginPut200SucceededNoState", &tracing.SpanOptions{
-		Kind: tracing.SpanKindInternal,
-	})
-	defer func() {
-		if err != nil {
-			span.AddError(err)
-		}
-		span.End()
-	}()
 	if options == nil || options.ResumeToken == "" {
+		ctx, endSpan := runtime.StartSpan(ctx, "LROsClient.BeginPut200SucceededNoState", client.internal.Tracer(), nil)
+		defer func() { endSpan(err) }()
 		var resp *http.Response
 		resp, err = client.put200SucceededNoState(ctx, product, options)
 		if err != nil {
 			return
 		}
-		result, err = runtime.NewPoller[LROsClientPut200SucceededNoStateResponse](resp, client.internal.Pipeline(), nil)
+		result, err = runtime.NewPoller(resp, client.internal.Pipeline(), &runtime.NewPollerOptions[LROsClientPut200SucceededNoStateResponse]{
+			Tracer: client.internal.Tracer(),
+		})
 	} else {
-		result, err = runtime.NewPollerFromResumeToken[LROsClientPut200SucceededNoStateResponse](options.ResumeToken, client.internal.Pipeline(), nil)
+		result, err = runtime.NewPollerFromResumeToken(options.ResumeToken, client.internal.Pipeline(), &runtime.NewPollerFromResumeTokenOptions[LROsClientPut200SucceededNoStateResponse]{
+			Tracer: client.internal.Tracer(),
+		})
 	}
 	return
 }
@@ -1881,24 +1790,21 @@ func (client *LROsClient) put200SucceededNoStateCreateRequest(ctx context.Contex
 //   - options - LROsClientBeginPut200UpdatingSucceeded204Options contains the optional parameters for the LROsClient.BeginPut200UpdatingSucceeded204
 //     method.
 func (client *LROsClient) BeginPut200UpdatingSucceeded204(ctx context.Context, product Product, options *LROsClientBeginPut200UpdatingSucceeded204Options) (result *runtime.Poller[LROsClientPut200UpdatingSucceeded204Response], err error) {
-	ctx, span := client.internal.Tracer().Start(ctx, "LROsClient.BeginPut200UpdatingSucceeded204", &tracing.SpanOptions{
-		Kind: tracing.SpanKindInternal,
-	})
-	defer func() {
-		if err != nil {
-			span.AddError(err)
-		}
-		span.End()
-	}()
 	if options == nil || options.ResumeToken == "" {
+		ctx, endSpan := runtime.StartSpan(ctx, "LROsClient.BeginPut200UpdatingSucceeded204", client.internal.Tracer(), nil)
+		defer func() { endSpan(err) }()
 		var resp *http.Response
 		resp, err = client.put200UpdatingSucceeded204(ctx, product, options)
 		if err != nil {
 			return
 		}
-		result, err = runtime.NewPoller[LROsClientPut200UpdatingSucceeded204Response](resp, client.internal.Pipeline(), nil)
+		result, err = runtime.NewPoller(resp, client.internal.Pipeline(), &runtime.NewPollerOptions[LROsClientPut200UpdatingSucceeded204Response]{
+			Tracer: client.internal.Tracer(),
+		})
 	} else {
-		result, err = runtime.NewPollerFromResumeToken[LROsClientPut200UpdatingSucceeded204Response](options.ResumeToken, client.internal.Pipeline(), nil)
+		result, err = runtime.NewPollerFromResumeToken(options.ResumeToken, client.internal.Pipeline(), &runtime.NewPollerFromResumeTokenOptions[LROsClientPut200UpdatingSucceeded204Response]{
+			Tracer: client.internal.Tracer(),
+		})
 	}
 	return
 }
@@ -1946,24 +1852,21 @@ func (client *LROsClient) put200UpdatingSucceeded204CreateRequest(ctx context.Co
 //   - options - LROsClientBeginPut201CreatingFailed200Options contains the optional parameters for the LROsClient.BeginPut201CreatingFailed200
 //     method.
 func (client *LROsClient) BeginPut201CreatingFailed200(ctx context.Context, product Product, options *LROsClientBeginPut201CreatingFailed200Options) (result *runtime.Poller[LROsClientPut201CreatingFailed200Response], err error) {
-	ctx, span := client.internal.Tracer().Start(ctx, "LROsClient.BeginPut201CreatingFailed200", &tracing.SpanOptions{
-		Kind: tracing.SpanKindInternal,
-	})
-	defer func() {
-		if err != nil {
-			span.AddError(err)
-		}
-		span.End()
-	}()
 	if options == nil || options.ResumeToken == "" {
+		ctx, endSpan := runtime.StartSpan(ctx, "LROsClient.BeginPut201CreatingFailed200", client.internal.Tracer(), nil)
+		defer func() { endSpan(err) }()
 		var resp *http.Response
 		resp, err = client.put201CreatingFailed200(ctx, product, options)
 		if err != nil {
 			return
 		}
-		result, err = runtime.NewPoller[LROsClientPut201CreatingFailed200Response](resp, client.internal.Pipeline(), nil)
+		result, err = runtime.NewPoller(resp, client.internal.Pipeline(), &runtime.NewPollerOptions[LROsClientPut201CreatingFailed200Response]{
+			Tracer: client.internal.Tracer(),
+		})
 	} else {
-		result, err = runtime.NewPollerFromResumeToken[LROsClientPut201CreatingFailed200Response](options.ResumeToken, client.internal.Pipeline(), nil)
+		result, err = runtime.NewPollerFromResumeToken(options.ResumeToken, client.internal.Pipeline(), &runtime.NewPollerFromResumeTokenOptions[LROsClientPut201CreatingFailed200Response]{
+			Tracer: client.internal.Tracer(),
+		})
 	}
 	return
 }
@@ -2011,24 +1914,21 @@ func (client *LROsClient) put201CreatingFailed200CreateRequest(ctx context.Conte
 //   - options - LROsClientBeginPut201CreatingSucceeded200Options contains the optional parameters for the LROsClient.BeginPut201CreatingSucceeded200
 //     method.
 func (client *LROsClient) BeginPut201CreatingSucceeded200(ctx context.Context, product Product, options *LROsClientBeginPut201CreatingSucceeded200Options) (result *runtime.Poller[LROsClientPut201CreatingSucceeded200Response], err error) {
-	ctx, span := client.internal.Tracer().Start(ctx, "LROsClient.BeginPut201CreatingSucceeded200", &tracing.SpanOptions{
-		Kind: tracing.SpanKindInternal,
-	})
-	defer func() {
-		if err != nil {
-			span.AddError(err)
-		}
-		span.End()
-	}()
 	if options == nil || options.ResumeToken == "" {
+		ctx, endSpan := runtime.StartSpan(ctx, "LROsClient.BeginPut201CreatingSucceeded200", client.internal.Tracer(), nil)
+		defer func() { endSpan(err) }()
 		var resp *http.Response
 		resp, err = client.put201CreatingSucceeded200(ctx, product, options)
 		if err != nil {
 			return
 		}
-		result, err = runtime.NewPoller[LROsClientPut201CreatingSucceeded200Response](resp, client.internal.Pipeline(), nil)
+		result, err = runtime.NewPoller(resp, client.internal.Pipeline(), &runtime.NewPollerOptions[LROsClientPut201CreatingSucceeded200Response]{
+			Tracer: client.internal.Tracer(),
+		})
 	} else {
-		result, err = runtime.NewPollerFromResumeToken[LROsClientPut201CreatingSucceeded200Response](options.ResumeToken, client.internal.Pipeline(), nil)
+		result, err = runtime.NewPollerFromResumeToken(options.ResumeToken, client.internal.Pipeline(), &runtime.NewPollerFromResumeTokenOptions[LROsClientPut201CreatingSucceeded200Response]{
+			Tracer: client.internal.Tracer(),
+		})
 	}
 	return
 }
@@ -2075,24 +1975,21 @@ func (client *LROsClient) put201CreatingSucceeded200CreateRequest(ctx context.Co
 //   - options - LROsClientBeginPut201SucceededOptions contains the optional parameters for the LROsClient.BeginPut201Succeeded
 //     method.
 func (client *LROsClient) BeginPut201Succeeded(ctx context.Context, product Product, options *LROsClientBeginPut201SucceededOptions) (result *runtime.Poller[LROsClientPut201SucceededResponse], err error) {
-	ctx, span := client.internal.Tracer().Start(ctx, "LROsClient.BeginPut201Succeeded", &tracing.SpanOptions{
-		Kind: tracing.SpanKindInternal,
-	})
-	defer func() {
-		if err != nil {
-			span.AddError(err)
-		}
-		span.End()
-	}()
 	if options == nil || options.ResumeToken == "" {
+		ctx, endSpan := runtime.StartSpan(ctx, "LROsClient.BeginPut201Succeeded", client.internal.Tracer(), nil)
+		defer func() { endSpan(err) }()
 		var resp *http.Response
 		resp, err = client.put201Succeeded(ctx, product, options)
 		if err != nil {
 			return
 		}
-		result, err = runtime.NewPoller[LROsClientPut201SucceededResponse](resp, client.internal.Pipeline(), nil)
+		result, err = runtime.NewPoller(resp, client.internal.Pipeline(), &runtime.NewPollerOptions[LROsClientPut201SucceededResponse]{
+			Tracer: client.internal.Tracer(),
+		})
 	} else {
-		result, err = runtime.NewPollerFromResumeToken[LROsClientPut201SucceededResponse](options.ResumeToken, client.internal.Pipeline(), nil)
+		result, err = runtime.NewPollerFromResumeToken(options.ResumeToken, client.internal.Pipeline(), &runtime.NewPollerFromResumeTokenOptions[LROsClientPut201SucceededResponse]{
+			Tracer: client.internal.Tracer(),
+		})
 	}
 	return
 }
@@ -2138,24 +2035,21 @@ func (client *LROsClient) put201SucceededCreateRequest(ctx context.Context, prod
 //   - options - LROsClientBeginPut202Retry200Options contains the optional parameters for the LROsClient.BeginPut202Retry200
 //     method.
 func (client *LROsClient) BeginPut202Retry200(ctx context.Context, product Product, options *LROsClientBeginPut202Retry200Options) (result *runtime.Poller[LROsClientPut202Retry200Response], err error) {
-	ctx, span := client.internal.Tracer().Start(ctx, "LROsClient.BeginPut202Retry200", &tracing.SpanOptions{
-		Kind: tracing.SpanKindInternal,
-	})
-	defer func() {
-		if err != nil {
-			span.AddError(err)
-		}
-		span.End()
-	}()
 	if options == nil || options.ResumeToken == "" {
+		ctx, endSpan := runtime.StartSpan(ctx, "LROsClient.BeginPut202Retry200", client.internal.Tracer(), nil)
+		defer func() { endSpan(err) }()
 		var resp *http.Response
 		resp, err = client.put202Retry200(ctx, product, options)
 		if err != nil {
 			return
 		}
-		result, err = runtime.NewPoller[LROsClientPut202Retry200Response](resp, client.internal.Pipeline(), nil)
+		result, err = runtime.NewPoller(resp, client.internal.Pipeline(), &runtime.NewPollerOptions[LROsClientPut202Retry200Response]{
+			Tracer: client.internal.Tracer(),
+		})
 	} else {
-		result, err = runtime.NewPollerFromResumeToken[LROsClientPut202Retry200Response](options.ResumeToken, client.internal.Pipeline(), nil)
+		result, err = runtime.NewPollerFromResumeToken(options.ResumeToken, client.internal.Pipeline(), &runtime.NewPollerFromResumeTokenOptions[LROsClientPut202Retry200Response]{
+			Tracer: client.internal.Tracer(),
+		})
 	}
 	return
 }
@@ -2201,24 +2095,21 @@ func (client *LROsClient) put202Retry200CreateRequest(ctx context.Context, produ
 //   - options - LROsClientBeginPutAsyncNoHeaderInRetryOptions contains the optional parameters for the LROsClient.BeginPutAsyncNoHeaderInRetry
 //     method.
 func (client *LROsClient) BeginPutAsyncNoHeaderInRetry(ctx context.Context, product Product, options *LROsClientBeginPutAsyncNoHeaderInRetryOptions) (result *runtime.Poller[LROsClientPutAsyncNoHeaderInRetryResponse], err error) {
-	ctx, span := client.internal.Tracer().Start(ctx, "LROsClient.BeginPutAsyncNoHeaderInRetry", &tracing.SpanOptions{
-		Kind: tracing.SpanKindInternal,
-	})
-	defer func() {
-		if err != nil {
-			span.AddError(err)
-		}
-		span.End()
-	}()
 	if options == nil || options.ResumeToken == "" {
+		ctx, endSpan := runtime.StartSpan(ctx, "LROsClient.BeginPutAsyncNoHeaderInRetry", client.internal.Tracer(), nil)
+		defer func() { endSpan(err) }()
 		var resp *http.Response
 		resp, err = client.putAsyncNoHeaderInRetry(ctx, product, options)
 		if err != nil {
 			return
 		}
-		result, err = runtime.NewPoller[LROsClientPutAsyncNoHeaderInRetryResponse](resp, client.internal.Pipeline(), nil)
+		result, err = runtime.NewPoller(resp, client.internal.Pipeline(), &runtime.NewPollerOptions[LROsClientPutAsyncNoHeaderInRetryResponse]{
+			Tracer: client.internal.Tracer(),
+		})
 	} else {
-		result, err = runtime.NewPollerFromResumeToken[LROsClientPutAsyncNoHeaderInRetryResponse](options.ResumeToken, client.internal.Pipeline(), nil)
+		result, err = runtime.NewPollerFromResumeToken(options.ResumeToken, client.internal.Pipeline(), &runtime.NewPollerFromResumeTokenOptions[LROsClientPutAsyncNoHeaderInRetryResponse]{
+			Tracer: client.internal.Tracer(),
+		})
 	}
 	return
 }
@@ -2265,24 +2156,21 @@ func (client *LROsClient) putAsyncNoHeaderInRetryCreateRequest(ctx context.Conte
 //   - options - LROsClientBeginPutAsyncNoRetrySucceededOptions contains the optional parameters for the LROsClient.BeginPutAsyncNoRetrySucceeded
 //     method.
 func (client *LROsClient) BeginPutAsyncNoRetrySucceeded(ctx context.Context, product Product, options *LROsClientBeginPutAsyncNoRetrySucceededOptions) (result *runtime.Poller[LROsClientPutAsyncNoRetrySucceededResponse], err error) {
-	ctx, span := client.internal.Tracer().Start(ctx, "LROsClient.BeginPutAsyncNoRetrySucceeded", &tracing.SpanOptions{
-		Kind: tracing.SpanKindInternal,
-	})
-	defer func() {
-		if err != nil {
-			span.AddError(err)
-		}
-		span.End()
-	}()
 	if options == nil || options.ResumeToken == "" {
+		ctx, endSpan := runtime.StartSpan(ctx, "LROsClient.BeginPutAsyncNoRetrySucceeded", client.internal.Tracer(), nil)
+		defer func() { endSpan(err) }()
 		var resp *http.Response
 		resp, err = client.putAsyncNoRetrySucceeded(ctx, product, options)
 		if err != nil {
 			return
 		}
-		result, err = runtime.NewPoller[LROsClientPutAsyncNoRetrySucceededResponse](resp, client.internal.Pipeline(), nil)
+		result, err = runtime.NewPoller(resp, client.internal.Pipeline(), &runtime.NewPollerOptions[LROsClientPutAsyncNoRetrySucceededResponse]{
+			Tracer: client.internal.Tracer(),
+		})
 	} else {
-		result, err = runtime.NewPollerFromResumeToken[LROsClientPutAsyncNoRetrySucceededResponse](options.ResumeToken, client.internal.Pipeline(), nil)
+		result, err = runtime.NewPollerFromResumeToken(options.ResumeToken, client.internal.Pipeline(), &runtime.NewPollerFromResumeTokenOptions[LROsClientPutAsyncNoRetrySucceededResponse]{
+			Tracer: client.internal.Tracer(),
+		})
 	}
 	return
 }
@@ -2330,24 +2218,21 @@ func (client *LROsClient) putAsyncNoRetrySucceededCreateRequest(ctx context.Cont
 //   - options - LROsClientBeginPutAsyncNoRetrycanceledOptions contains the optional parameters for the LROsClient.BeginPutAsyncNoRetrycanceled
 //     method.
 func (client *LROsClient) BeginPutAsyncNoRetrycanceled(ctx context.Context, product Product, options *LROsClientBeginPutAsyncNoRetrycanceledOptions) (result *runtime.Poller[LROsClientPutAsyncNoRetrycanceledResponse], err error) {
-	ctx, span := client.internal.Tracer().Start(ctx, "LROsClient.BeginPutAsyncNoRetrycanceled", &tracing.SpanOptions{
-		Kind: tracing.SpanKindInternal,
-	})
-	defer func() {
-		if err != nil {
-			span.AddError(err)
-		}
-		span.End()
-	}()
 	if options == nil || options.ResumeToken == "" {
+		ctx, endSpan := runtime.StartSpan(ctx, "LROsClient.BeginPutAsyncNoRetrycanceled", client.internal.Tracer(), nil)
+		defer func() { endSpan(err) }()
 		var resp *http.Response
 		resp, err = client.putAsyncNoRetrycanceled(ctx, product, options)
 		if err != nil {
 			return
 		}
-		result, err = runtime.NewPoller[LROsClientPutAsyncNoRetrycanceledResponse](resp, client.internal.Pipeline(), nil)
+		result, err = runtime.NewPoller(resp, client.internal.Pipeline(), &runtime.NewPollerOptions[LROsClientPutAsyncNoRetrycanceledResponse]{
+			Tracer: client.internal.Tracer(),
+		})
 	} else {
-		result, err = runtime.NewPollerFromResumeToken[LROsClientPutAsyncNoRetrycanceledResponse](options.ResumeToken, client.internal.Pipeline(), nil)
+		result, err = runtime.NewPollerFromResumeToken(options.ResumeToken, client.internal.Pipeline(), &runtime.NewPollerFromResumeTokenOptions[LROsClientPutAsyncNoRetrycanceledResponse]{
+			Tracer: client.internal.Tracer(),
+		})
 	}
 	return
 }
@@ -2393,24 +2278,21 @@ func (client *LROsClient) putAsyncNoRetrycanceledCreateRequest(ctx context.Conte
 //   - options - LROsClientBeginPutAsyncNonResourceOptions contains the optional parameters for the LROsClient.BeginPutAsyncNonResource
 //     method.
 func (client *LROsClient) BeginPutAsyncNonResource(ctx context.Context, sku SKU, options *LROsClientBeginPutAsyncNonResourceOptions) (result *runtime.Poller[LROsClientPutAsyncNonResourceResponse], err error) {
-	ctx, span := client.internal.Tracer().Start(ctx, "LROsClient.BeginPutAsyncNonResource", &tracing.SpanOptions{
-		Kind: tracing.SpanKindInternal,
-	})
-	defer func() {
-		if err != nil {
-			span.AddError(err)
-		}
-		span.End()
-	}()
 	if options == nil || options.ResumeToken == "" {
+		ctx, endSpan := runtime.StartSpan(ctx, "LROsClient.BeginPutAsyncNonResource", client.internal.Tracer(), nil)
+		defer func() { endSpan(err) }()
 		var resp *http.Response
 		resp, err = client.putAsyncNonResource(ctx, sku, options)
 		if err != nil {
 			return
 		}
-		result, err = runtime.NewPoller[LROsClientPutAsyncNonResourceResponse](resp, client.internal.Pipeline(), nil)
+		result, err = runtime.NewPoller(resp, client.internal.Pipeline(), &runtime.NewPollerOptions[LROsClientPutAsyncNonResourceResponse]{
+			Tracer: client.internal.Tracer(),
+		})
 	} else {
-		result, err = runtime.NewPollerFromResumeToken[LROsClientPutAsyncNonResourceResponse](options.ResumeToken, client.internal.Pipeline(), nil)
+		result, err = runtime.NewPollerFromResumeToken(options.ResumeToken, client.internal.Pipeline(), &runtime.NewPollerFromResumeTokenOptions[LROsClientPutAsyncNonResourceResponse]{
+			Tracer: client.internal.Tracer(),
+		})
 	}
 	return
 }
@@ -2456,24 +2338,21 @@ func (client *LROsClient) putAsyncNonResourceCreateRequest(ctx context.Context, 
 //   - options - LROsClientBeginPutAsyncRetryFailedOptions contains the optional parameters for the LROsClient.BeginPutAsyncRetryFailed
 //     method.
 func (client *LROsClient) BeginPutAsyncRetryFailed(ctx context.Context, product Product, options *LROsClientBeginPutAsyncRetryFailedOptions) (result *runtime.Poller[LROsClientPutAsyncRetryFailedResponse], err error) {
-	ctx, span := client.internal.Tracer().Start(ctx, "LROsClient.BeginPutAsyncRetryFailed", &tracing.SpanOptions{
-		Kind: tracing.SpanKindInternal,
-	})
-	defer func() {
-		if err != nil {
-			span.AddError(err)
-		}
-		span.End()
-	}()
 	if options == nil || options.ResumeToken == "" {
+		ctx, endSpan := runtime.StartSpan(ctx, "LROsClient.BeginPutAsyncRetryFailed", client.internal.Tracer(), nil)
+		defer func() { endSpan(err) }()
 		var resp *http.Response
 		resp, err = client.putAsyncRetryFailed(ctx, product, options)
 		if err != nil {
 			return
 		}
-		result, err = runtime.NewPoller[LROsClientPutAsyncRetryFailedResponse](resp, client.internal.Pipeline(), nil)
+		result, err = runtime.NewPoller(resp, client.internal.Pipeline(), &runtime.NewPollerOptions[LROsClientPutAsyncRetryFailedResponse]{
+			Tracer: client.internal.Tracer(),
+		})
 	} else {
-		result, err = runtime.NewPollerFromResumeToken[LROsClientPutAsyncRetryFailedResponse](options.ResumeToken, client.internal.Pipeline(), nil)
+		result, err = runtime.NewPollerFromResumeToken(options.ResumeToken, client.internal.Pipeline(), &runtime.NewPollerFromResumeTokenOptions[LROsClientPutAsyncRetryFailedResponse]{
+			Tracer: client.internal.Tracer(),
+		})
 	}
 	return
 }
@@ -2521,24 +2400,21 @@ func (client *LROsClient) putAsyncRetryFailedCreateRequest(ctx context.Context, 
 //   - options - LROsClientBeginPutAsyncRetrySucceededOptions contains the optional parameters for the LROsClient.BeginPutAsyncRetrySucceeded
 //     method.
 func (client *LROsClient) BeginPutAsyncRetrySucceeded(ctx context.Context, product Product, options *LROsClientBeginPutAsyncRetrySucceededOptions) (result *runtime.Poller[LROsClientPutAsyncRetrySucceededResponse], err error) {
-	ctx, span := client.internal.Tracer().Start(ctx, "LROsClient.BeginPutAsyncRetrySucceeded", &tracing.SpanOptions{
-		Kind: tracing.SpanKindInternal,
-	})
-	defer func() {
-		if err != nil {
-			span.AddError(err)
-		}
-		span.End()
-	}()
 	if options == nil || options.ResumeToken == "" {
+		ctx, endSpan := runtime.StartSpan(ctx, "LROsClient.BeginPutAsyncRetrySucceeded", client.internal.Tracer(), nil)
+		defer func() { endSpan(err) }()
 		var resp *http.Response
 		resp, err = client.putAsyncRetrySucceeded(ctx, product, options)
 		if err != nil {
 			return
 		}
-		result, err = runtime.NewPoller[LROsClientPutAsyncRetrySucceededResponse](resp, client.internal.Pipeline(), nil)
+		result, err = runtime.NewPoller(resp, client.internal.Pipeline(), &runtime.NewPollerOptions[LROsClientPutAsyncRetrySucceededResponse]{
+			Tracer: client.internal.Tracer(),
+		})
 	} else {
-		result, err = runtime.NewPollerFromResumeToken[LROsClientPutAsyncRetrySucceededResponse](options.ResumeToken, client.internal.Pipeline(), nil)
+		result, err = runtime.NewPollerFromResumeToken(options.ResumeToken, client.internal.Pipeline(), &runtime.NewPollerFromResumeTokenOptions[LROsClientPutAsyncRetrySucceededResponse]{
+			Tracer: client.internal.Tracer(),
+		})
 	}
 	return
 }
@@ -2584,24 +2460,21 @@ func (client *LROsClient) putAsyncRetrySucceededCreateRequest(ctx context.Contex
 //   - options - LROsClientBeginPutAsyncSubResourceOptions contains the optional parameters for the LROsClient.BeginPutAsyncSubResource
 //     method.
 func (client *LROsClient) BeginPutAsyncSubResource(ctx context.Context, product SubProduct, options *LROsClientBeginPutAsyncSubResourceOptions) (result *runtime.Poller[LROsClientPutAsyncSubResourceResponse], err error) {
-	ctx, span := client.internal.Tracer().Start(ctx, "LROsClient.BeginPutAsyncSubResource", &tracing.SpanOptions{
-		Kind: tracing.SpanKindInternal,
-	})
-	defer func() {
-		if err != nil {
-			span.AddError(err)
-		}
-		span.End()
-	}()
 	if options == nil || options.ResumeToken == "" {
+		ctx, endSpan := runtime.StartSpan(ctx, "LROsClient.BeginPutAsyncSubResource", client.internal.Tracer(), nil)
+		defer func() { endSpan(err) }()
 		var resp *http.Response
 		resp, err = client.putAsyncSubResource(ctx, product, options)
 		if err != nil {
 			return
 		}
-		result, err = runtime.NewPoller[LROsClientPutAsyncSubResourceResponse](resp, client.internal.Pipeline(), nil)
+		result, err = runtime.NewPoller(resp, client.internal.Pipeline(), &runtime.NewPollerOptions[LROsClientPutAsyncSubResourceResponse]{
+			Tracer: client.internal.Tracer(),
+		})
 	} else {
-		result, err = runtime.NewPollerFromResumeToken[LROsClientPutAsyncSubResourceResponse](options.ResumeToken, client.internal.Pipeline(), nil)
+		result, err = runtime.NewPollerFromResumeToken(options.ResumeToken, client.internal.Pipeline(), &runtime.NewPollerFromResumeTokenOptions[LROsClientPutAsyncSubResourceResponse]{
+			Tracer: client.internal.Tracer(),
+		})
 	}
 	return
 }
@@ -2646,24 +2519,21 @@ func (client *LROsClient) putAsyncSubResourceCreateRequest(ctx context.Context, 
 //   - options - LROsClientBeginPutNoHeaderInRetryOptions contains the optional parameters for the LROsClient.BeginPutNoHeaderInRetry
 //     method.
 func (client *LROsClient) BeginPutNoHeaderInRetry(ctx context.Context, product Product, options *LROsClientBeginPutNoHeaderInRetryOptions) (result *runtime.Poller[LROsClientPutNoHeaderInRetryResponse], err error) {
-	ctx, span := client.internal.Tracer().Start(ctx, "LROsClient.BeginPutNoHeaderInRetry", &tracing.SpanOptions{
-		Kind: tracing.SpanKindInternal,
-	})
-	defer func() {
-		if err != nil {
-			span.AddError(err)
-		}
-		span.End()
-	}()
 	if options == nil || options.ResumeToken == "" {
+		ctx, endSpan := runtime.StartSpan(ctx, "LROsClient.BeginPutNoHeaderInRetry", client.internal.Tracer(), nil)
+		defer func() { endSpan(err) }()
 		var resp *http.Response
 		resp, err = client.putNoHeaderInRetry(ctx, product, options)
 		if err != nil {
 			return
 		}
-		result, err = runtime.NewPoller[LROsClientPutNoHeaderInRetryResponse](resp, client.internal.Pipeline(), nil)
+		result, err = runtime.NewPoller(resp, client.internal.Pipeline(), &runtime.NewPollerOptions[LROsClientPutNoHeaderInRetryResponse]{
+			Tracer: client.internal.Tracer(),
+		})
 	} else {
-		result, err = runtime.NewPollerFromResumeToken[LROsClientPutNoHeaderInRetryResponse](options.ResumeToken, client.internal.Pipeline(), nil)
+		result, err = runtime.NewPollerFromResumeToken(options.ResumeToken, client.internal.Pipeline(), &runtime.NewPollerFromResumeTokenOptions[LROsClientPutNoHeaderInRetryResponse]{
+			Tracer: client.internal.Tracer(),
+		})
 	}
 	return
 }
@@ -2708,24 +2578,21 @@ func (client *LROsClient) putNoHeaderInRetryCreateRequest(ctx context.Context, p
 //   - options - LROsClientBeginPutNonResourceOptions contains the optional parameters for the LROsClient.BeginPutNonResource
 //     method.
 func (client *LROsClient) BeginPutNonResource(ctx context.Context, sku SKU, options *LROsClientBeginPutNonResourceOptions) (result *runtime.Poller[LROsClientPutNonResourceResponse], err error) {
-	ctx, span := client.internal.Tracer().Start(ctx, "LROsClient.BeginPutNonResource", &tracing.SpanOptions{
-		Kind: tracing.SpanKindInternal,
-	})
-	defer func() {
-		if err != nil {
-			span.AddError(err)
-		}
-		span.End()
-	}()
 	if options == nil || options.ResumeToken == "" {
+		ctx, endSpan := runtime.StartSpan(ctx, "LROsClient.BeginPutNonResource", client.internal.Tracer(), nil)
+		defer func() { endSpan(err) }()
 		var resp *http.Response
 		resp, err = client.putNonResource(ctx, sku, options)
 		if err != nil {
 			return
 		}
-		result, err = runtime.NewPoller[LROsClientPutNonResourceResponse](resp, client.internal.Pipeline(), nil)
+		result, err = runtime.NewPoller(resp, client.internal.Pipeline(), &runtime.NewPollerOptions[LROsClientPutNonResourceResponse]{
+			Tracer: client.internal.Tracer(),
+		})
 	} else {
-		result, err = runtime.NewPollerFromResumeToken[LROsClientPutNonResourceResponse](options.ResumeToken, client.internal.Pipeline(), nil)
+		result, err = runtime.NewPollerFromResumeToken(options.ResumeToken, client.internal.Pipeline(), &runtime.NewPollerFromResumeTokenOptions[LROsClientPutNonResourceResponse]{
+			Tracer: client.internal.Tracer(),
+		})
 	}
 	return
 }
@@ -2769,24 +2636,21 @@ func (client *LROsClient) putNonResourceCreateRequest(ctx context.Context, sku S
 //   - options - LROsClientBeginPutSubResourceOptions contains the optional parameters for the LROsClient.BeginPutSubResource
 //     method.
 func (client *LROsClient) BeginPutSubResource(ctx context.Context, product SubProduct, options *LROsClientBeginPutSubResourceOptions) (result *runtime.Poller[LROsClientPutSubResourceResponse], err error) {
-	ctx, span := client.internal.Tracer().Start(ctx, "LROsClient.BeginPutSubResource", &tracing.SpanOptions{
-		Kind: tracing.SpanKindInternal,
-	})
-	defer func() {
-		if err != nil {
-			span.AddError(err)
-		}
-		span.End()
-	}()
 	if options == nil || options.ResumeToken == "" {
+		ctx, endSpan := runtime.StartSpan(ctx, "LROsClient.BeginPutSubResource", client.internal.Tracer(), nil)
+		defer func() { endSpan(err) }()
 		var resp *http.Response
 		resp, err = client.putSubResource(ctx, product, options)
 		if err != nil {
 			return
 		}
-		result, err = runtime.NewPoller[LROsClientPutSubResourceResponse](resp, client.internal.Pipeline(), nil)
+		result, err = runtime.NewPoller(resp, client.internal.Pipeline(), &runtime.NewPollerOptions[LROsClientPutSubResourceResponse]{
+			Tracer: client.internal.Tracer(),
+		})
 	} else {
-		result, err = runtime.NewPollerFromResumeToken[LROsClientPutSubResourceResponse](options.ResumeToken, client.internal.Pipeline(), nil)
+		result, err = runtime.NewPollerFromResumeToken(options.ResumeToken, client.internal.Pipeline(), &runtime.NewPollerFromResumeTokenOptions[LROsClientPutSubResourceResponse]{
+			Tracer: client.internal.Tracer(),
+		})
 	}
 	return
 }

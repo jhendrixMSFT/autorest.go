@@ -35,7 +35,6 @@ export async function generateOperations(session: Session<CodeModel>): Promise<O
     imports.add('net/http');
     imports.add('github.com/Azure/azure-sdk-for-go/sdk/azcore/policy');
     imports.add('github.com/Azure/azure-sdk-for-go/sdk/azcore/runtime');
-    imports.add('github.com/Azure/azure-sdk-for-go/sdk/azcore/tracing');
 
     let clientPkg = 'azcore';
     if (azureARM) {
@@ -316,7 +315,7 @@ function emitPagerDefinition(op: Operation, imports: ImportManager): string {
     text += '\t\t},\n';
   }
   text += `\t\tFetcher: func(ctx context.Context, page *${getResponseEnvelopeName(op)}) (result ${getResponseEnvelopeName(op)}, err error) {\n`;
-  text += emitTraceSpan(op.language.go!.clientName, `New${op.language.go!.name}Pager`);
+  text += emitTraceSpan(`runtime.Pager[${getResponseEnvelopeName(op)}]`, 'NextPage');
   const reqParams = getCreateRequestParameters(op);
   if (op.language.go!.paging.nextLinkName) {
     const isLRO = isLROOperation(op);
@@ -381,13 +380,8 @@ function genApiVersionDoc(apiVersions?: ApiVersions): string {
 }
 
 function emitTraceSpan(clientName: string, opName: string): string {
-  let text = `\tctx, span := client.internal.Tracer().Start(ctx, "${clientName}.${opName}", &tracing.SpanOptions{\n`;
-  text += '\t\tKind: tracing.SpanKindInternal,\n';
-  text += '\t})\n';
-  text += '\tdefer func() {\n';
-  text += '\t\tif err != nil {\n\t\t\tspan.AddError(err)\n\t\t}\n';
-  text += '\t\tspan.End()\n';
-  text += '\t}()\n';
+  let text = `\tctx, endSpan := runtime.StartSpan(ctx, "${clientName}.${opName}", client.internal.Tracer(), nil)\n`;
+  text += '\tdefer func() { endSpan(err) }()\n';
   return text;
 }
 
@@ -1152,7 +1146,6 @@ function generateLROBeginMethod(op: Operation, imports: ImportManager): string {
     }
   }
   text += `func (client *${clientName}) Begin${op.language.go!.name}(${params}) (${returns.join(', ')}) {\n`;
-  text += emitTraceSpan(clientName, `Begin${op.language.go!.name}`);
   let pollerType = 'nil';
   let pollerTypeParam = `[${getResponseEnvelopeName(op)}]`;
   if (isPageableOperation(op)) {
@@ -1164,6 +1157,7 @@ function generateLROBeginMethod(op: Operation, imports: ImportManager): string {
   }
 
   text += '\tif options == nil || options.ResumeToken == "" {\n';
+  text += emitTraceSpan(clientName, `Begin${op.language.go!.name}`);
   text += '\t\tvar resp *http.Response\n';
   // creating the poller from response branch
 
@@ -1197,43 +1191,27 @@ function generateLROBeginMethod(op: Operation, imports: ImportManager): string {
     }
   }
 
-  text += `\t\tresult, err = runtime.NewPoller`;
-  if (finalStateVia === '' && pollerType === 'nil') {
-    // the generic type param is redundant when it's also specified in the
-    // options struct so we only include it when there's no options.
-    text += pollerTypeParam;
+  text += `\t\tresult, err = runtime.NewPoller(resp, client.internal.Pipeline(), `;
+  text += `&runtime.NewPollerOptions${pollerTypeParam}{\n`;
+  text += '\t\t\tTracer: client.internal.Tracer(),\n';
+  if (finalStateVia !== '') {
+    text += `\t\t\tFinalStateVia: ${finalStateVia},\n`;  
   }
-  text += '(resp, client.internal.Pipeline(), ';
-  if (finalStateVia === '' && pollerType === 'nil') {
-    // no options
-    text += 'nil)\n';
-  } else {
-    // at least one option
-    text += `&runtime.NewPollerOptions${pollerTypeParam}{\n`;
-    if (finalStateVia !== '') {
-      text += `\t\t\tFinalStateVia: ${finalStateVia},\n`;  
-    }
-    if (pollerType !== 'nil') {
-      text += `\t\t\tResponse: ${pollerType},\n`;
-    }
-    text += '\t\t})\n';
+  if (pollerType !== 'nil') {
+    text += `\t\t\tResponse: ${pollerType},\n`;
   }
+  text += '\t\t})\n';
   text += '\t} else {\n';
 
   // creating the poller from resume token branch
 
-  text += `\t\tresult, err = runtime.NewPollerFromResumeToken`;
-  if (pollerType === 'nil') {
-    text += pollerTypeParam;
-  }
-  text += '(options.ResumeToken, client.internal.Pipeline(), ';
-  if (pollerType === 'nil') {
-    text += 'nil)\n';
-  } else {
-    text += `&runtime.NewPollerFromResumeTokenOptions${pollerTypeParam}{\n`;
+  text += `\t\tresult, err = runtime.NewPollerFromResumeToken(options.ResumeToken, client.internal.Pipeline(), `;
+  text += `&runtime.NewPollerFromResumeTokenOptions${pollerTypeParam}{\n`;
+  text += '\t\t\tTracer: client.internal.Tracer(),\n';
+  if (pollerType !== 'nil') {
     text += `\t\t\tResponse: ${pollerType},\n`;
-    text  += '\t\t})\n';
   }
+  text  += '\t\t})\n';
   text += '\t}\n';
   text += '\treturn\n';
   text += '}\n\n';

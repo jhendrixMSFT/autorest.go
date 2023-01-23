@@ -11,6 +11,7 @@ import (
 
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/runtime"
+	azotel "github.com/Azure/azure-sdk-for-go/sdk/azdiagnostics/otel"
 	"github.com/stretchr/testify/require"
 )
 
@@ -18,6 +19,7 @@ func newLrosaDsClient(t *testing.T) *LROSADsClient {
 	options := azcore.ClientOptions{}
 	options.Retry.RetryDelay = time.Second
 	options.Transport = httpClientWithCookieJar()
+	options.TracingProvider = azotel.NewTracingProvider(tp, nil)
 	client, err := NewLROSADsClient(&options)
 	require.NoError(t, err)
 	return client

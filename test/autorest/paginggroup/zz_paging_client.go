@@ -15,7 +15,6 @@ import (
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/policy"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/runtime"
-	"github.com/Azure/azure-sdk-for-go/sdk/azcore/tracing"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -40,15 +39,8 @@ func (client *PagingClient) NewDuplicateParamsPager(options *PagingClientDuplica
 			return page.NextLink != nil && len(*page.NextLink) > 0
 		},
 		Fetcher: func(ctx context.Context, page *PagingClientDuplicateParamsResponse) (result PagingClientDuplicateParamsResponse, err error) {
-			ctx, span := client.internal.Tracer().Start(ctx, "PagingClient.NewDuplicateParamsPager", &tracing.SpanOptions{
-				Kind: tracing.SpanKindInternal,
-			})
-			defer func() {
-				if err != nil {
-					span.AddError(err)
-				}
-				span.End()
-			}()
+			ctx, endSpan := runtime.StartSpan(ctx, "runtime.Pager[PagingClientDuplicateParamsResponse].NextPage", client.internal.Tracer(), nil)
+			defer func() { endSpan(err) }()
 			var req *policy.Request
 			if page == nil {
 				req, err = client.duplicateParamsCreateRequest(ctx, options)
@@ -109,15 +101,8 @@ func (client *PagingClient) NewFirstResponseEmptyPager(options *PagingClientFirs
 			return page.NextLink != nil && len(*page.NextLink) > 0
 		},
 		Fetcher: func(ctx context.Context, page *PagingClientFirstResponseEmptyResponse) (result PagingClientFirstResponseEmptyResponse, err error) {
-			ctx, span := client.internal.Tracer().Start(ctx, "PagingClient.NewFirstResponseEmptyPager", &tracing.SpanOptions{
-				Kind: tracing.SpanKindInternal,
-			})
-			defer func() {
-				if err != nil {
-					span.AddError(err)
-				}
-				span.End()
-			}()
+			ctx, endSpan := runtime.StartSpan(ctx, "runtime.Pager[PagingClientFirstResponseEmptyResponse].NextPage", client.internal.Tracer(), nil)
+			defer func() { endSpan(err) }()
 			var req *policy.Request
 			if page == nil {
 				req, err = client.firstResponseEmptyCreateRequest(ctx, options)
@@ -172,15 +157,8 @@ func (client *PagingClient) NewGetMultiplePagesPager(options *PagingClientGetMul
 			return page.NextLink != nil && len(*page.NextLink) > 0
 		},
 		Fetcher: func(ctx context.Context, page *PagingClientGetMultiplePagesResponse) (result PagingClientGetMultiplePagesResponse, err error) {
-			ctx, span := client.internal.Tracer().Start(ctx, "PagingClient.NewGetMultiplePagesPager", &tracing.SpanOptions{
-				Kind: tracing.SpanKindInternal,
-			})
-			defer func() {
-				if err != nil {
-					span.AddError(err)
-				}
-				span.End()
-			}()
+			ctx, endSpan := runtime.StartSpan(ctx, "runtime.Pager[PagingClientGetMultiplePagesResponse].NextPage", client.internal.Tracer(), nil)
+			defer func() { endSpan(err) }()
 			var req *policy.Request
 			if page == nil {
 				req, err = client.getMultiplePagesCreateRequest(ctx, options)
@@ -244,15 +222,8 @@ func (client *PagingClient) NewGetMultiplePagesFailurePager(options *PagingClien
 			return page.NextLink != nil && len(*page.NextLink) > 0
 		},
 		Fetcher: func(ctx context.Context, page *PagingClientGetMultiplePagesFailureResponse) (result PagingClientGetMultiplePagesFailureResponse, err error) {
-			ctx, span := client.internal.Tracer().Start(ctx, "PagingClient.NewGetMultiplePagesFailurePager", &tracing.SpanOptions{
-				Kind: tracing.SpanKindInternal,
-			})
-			defer func() {
-				if err != nil {
-					span.AddError(err)
-				}
-				span.End()
-			}()
+			ctx, endSpan := runtime.StartSpan(ctx, "runtime.Pager[PagingClientGetMultiplePagesFailureResponse].NextPage", client.internal.Tracer(), nil)
+			defer func() { endSpan(err) }()
 			var req *policy.Request
 			if page == nil {
 				req, err = client.getMultiplePagesFailureCreateRequest(ctx, options)
@@ -307,15 +278,8 @@ func (client *PagingClient) NewGetMultiplePagesFailureURIPager(options *PagingCl
 			return page.NextLink != nil && len(*page.NextLink) > 0
 		},
 		Fetcher: func(ctx context.Context, page *PagingClientGetMultiplePagesFailureURIResponse) (result PagingClientGetMultiplePagesFailureURIResponse, err error) {
-			ctx, span := client.internal.Tracer().Start(ctx, "PagingClient.NewGetMultiplePagesFailureURIPager", &tracing.SpanOptions{
-				Kind: tracing.SpanKindInternal,
-			})
-			defer func() {
-				if err != nil {
-					span.AddError(err)
-				}
-				span.End()
-			}()
+			ctx, endSpan := runtime.StartSpan(ctx, "runtime.Pager[PagingClientGetMultiplePagesFailureURIResponse].NextPage", client.internal.Tracer(), nil)
+			defer func() { endSpan(err) }()
 			var req *policy.Request
 			if page == nil {
 				req, err = client.getMultiplePagesFailureURICreateRequest(ctx, options)
@@ -372,15 +336,8 @@ func (client *PagingClient) NewGetMultiplePagesFragmentNextLinkPager(apiVersion 
 			return page.ODataNextLink != nil && len(*page.ODataNextLink) > 0
 		},
 		Fetcher: func(ctx context.Context, page *PagingClientGetMultiplePagesFragmentNextLinkResponse) (result PagingClientGetMultiplePagesFragmentNextLinkResponse, err error) {
-			ctx, span := client.internal.Tracer().Start(ctx, "PagingClient.NewGetMultiplePagesFragmentNextLinkPager", &tracing.SpanOptions{
-				Kind: tracing.SpanKindInternal,
-			})
-			defer func() {
-				if err != nil {
-					span.AddError(err)
-				}
-				span.End()
-			}()
+			ctx, endSpan := runtime.StartSpan(ctx, "runtime.Pager[PagingClientGetMultiplePagesFragmentNextLinkResponse].NextPage", client.internal.Tracer(), nil)
+			defer func() { endSpan(err) }()
 			var req *policy.Request
 			if page == nil {
 				req, err = client.getMultiplePagesFragmentNextLinkCreateRequest(ctx, apiVersion, tenant, options)
@@ -445,15 +402,8 @@ func (client *PagingClient) NewGetMultiplePagesFragmentWithGroupingNextLinkPager
 			return page.ODataNextLink != nil && len(*page.ODataNextLink) > 0
 		},
 		Fetcher: func(ctx context.Context, page *PagingClientGetMultiplePagesFragmentWithGroupingNextLinkResponse) (result PagingClientGetMultiplePagesFragmentWithGroupingNextLinkResponse, err error) {
-			ctx, span := client.internal.Tracer().Start(ctx, "PagingClient.NewGetMultiplePagesFragmentWithGroupingNextLinkPager", &tracing.SpanOptions{
-				Kind: tracing.SpanKindInternal,
-			})
-			defer func() {
-				if err != nil {
-					span.AddError(err)
-				}
-				span.End()
-			}()
+			ctx, endSpan := runtime.StartSpan(ctx, "runtime.Pager[PagingClientGetMultiplePagesFragmentWithGroupingNextLinkResponse].NextPage", client.internal.Tracer(), nil)
+			defer func() { endSpan(err) }()
 			var req *policy.Request
 			if page == nil {
 				req, err = client.getMultiplePagesFragmentWithGroupingNextLinkCreateRequest(ctx, customParameterGroup, options)
@@ -510,29 +460,13 @@ func (client *PagingClient) getMultiplePagesFragmentWithGroupingNextLinkHandleRe
 //   - options - PagingClientBeginGetMultiplePagesLROOptions contains the optional parameters for the PagingClient.BeginGetMultiplePagesLRO
 //     method.
 func (client *PagingClient) BeginGetMultiplePagesLRO(ctx context.Context, options *PagingClientBeginGetMultiplePagesLROOptions) (result *runtime.Poller[*runtime.Pager[PagingClientGetMultiplePagesLROResponse]], err error) {
-	ctx, span := client.internal.Tracer().Start(ctx, "PagingClient.BeginGetMultiplePagesLRO", &tracing.SpanOptions{
-		Kind: tracing.SpanKindInternal,
-	})
-	defer func() {
-		if err != nil {
-			span.AddError(err)
-		}
-		span.End()
-	}()
 	pager := runtime.NewPager(runtime.PagingHandler[PagingClientGetMultiplePagesLROResponse]{
 		More: func(page PagingClientGetMultiplePagesLROResponse) bool {
 			return page.NextLink != nil && len(*page.NextLink) > 0
 		},
 		Fetcher: func(ctx context.Context, page *PagingClientGetMultiplePagesLROResponse) (result PagingClientGetMultiplePagesLROResponse, err error) {
-			ctx, span := client.internal.Tracer().Start(ctx, "PagingClient.NewGetMultiplePagesLROPager", &tracing.SpanOptions{
-				Kind: tracing.SpanKindInternal,
-			})
-			defer func() {
-				if err != nil {
-					span.AddError(err)
-				}
-				span.End()
-			}()
+			ctx, endSpan := runtime.StartSpan(ctx, "runtime.Pager[PagingClientGetMultiplePagesLROResponse].NextPage", client.internal.Tracer(), nil)
+			defer func() { endSpan(err) }()
 			req, err := runtime.NewRequest(ctx, http.MethodGet, *page.NextLink)
 			if err != nil {
 				return
@@ -550,16 +484,20 @@ func (client *PagingClient) BeginGetMultiplePagesLRO(ctx context.Context, option
 		},
 	})
 	if options == nil || options.ResumeToken == "" {
+		ctx, endSpan := runtime.StartSpan(ctx, "PagingClient.BeginGetMultiplePagesLRO", client.internal.Tracer(), nil)
+		defer func() { endSpan(err) }()
 		var resp *http.Response
 		resp, err = client.getMultiplePagesLRO(ctx, options)
 		if err != nil {
 			return
 		}
 		result, err = runtime.NewPoller(resp, client.internal.Pipeline(), &runtime.NewPollerOptions[*runtime.Pager[PagingClientGetMultiplePagesLROResponse]]{
+			Tracer:   client.internal.Tracer(),
 			Response: &pager,
 		})
 	} else {
 		result, err = runtime.NewPollerFromResumeToken(options.ResumeToken, client.internal.Pipeline(), &runtime.NewPollerFromResumeTokenOptions[*runtime.Pager[PagingClientGetMultiplePagesLROResponse]]{
+			Tracer:   client.internal.Tracer(),
 			Response: &pager,
 		})
 	}
@@ -626,15 +564,8 @@ func (client *PagingClient) NewGetMultiplePagesRetryFirstPager(options *PagingCl
 			return page.NextLink != nil && len(*page.NextLink) > 0
 		},
 		Fetcher: func(ctx context.Context, page *PagingClientGetMultiplePagesRetryFirstResponse) (result PagingClientGetMultiplePagesRetryFirstResponse, err error) {
-			ctx, span := client.internal.Tracer().Start(ctx, "PagingClient.NewGetMultiplePagesRetryFirstPager", &tracing.SpanOptions{
-				Kind: tracing.SpanKindInternal,
-			})
-			defer func() {
-				if err != nil {
-					span.AddError(err)
-				}
-				span.End()
-			}()
+			ctx, endSpan := runtime.StartSpan(ctx, "runtime.Pager[PagingClientGetMultiplePagesRetryFirstResponse].NextPage", client.internal.Tracer(), nil)
+			defer func() { endSpan(err) }()
 			var req *policy.Request
 			if page == nil {
 				req, err = client.getMultiplePagesRetryFirstCreateRequest(ctx, options)
@@ -690,15 +621,8 @@ func (client *PagingClient) NewGetMultiplePagesRetrySecondPager(options *PagingC
 			return page.NextLink != nil && len(*page.NextLink) > 0
 		},
 		Fetcher: func(ctx context.Context, page *PagingClientGetMultiplePagesRetrySecondResponse) (result PagingClientGetMultiplePagesRetrySecondResponse, err error) {
-			ctx, span := client.internal.Tracer().Start(ctx, "PagingClient.NewGetMultiplePagesRetrySecondPager", &tracing.SpanOptions{
-				Kind: tracing.SpanKindInternal,
-			})
-			defer func() {
-				if err != nil {
-					span.AddError(err)
-				}
-				span.End()
-			}()
+			ctx, endSpan := runtime.StartSpan(ctx, "runtime.Pager[PagingClientGetMultiplePagesRetrySecondResponse].NextPage", client.internal.Tracer(), nil)
+			defer func() { endSpan(err) }()
 			var req *policy.Request
 			if page == nil {
 				req, err = client.getMultiplePagesRetrySecondCreateRequest(ctx, options)
@@ -753,15 +677,8 @@ func (client *PagingClient) NewGetMultiplePagesWithOffsetPager(options PagingCli
 			return page.NextLink != nil && len(*page.NextLink) > 0
 		},
 		Fetcher: func(ctx context.Context, page *PagingClientGetMultiplePagesWithOffsetResponse) (result PagingClientGetMultiplePagesWithOffsetResponse, err error) {
-			ctx, span := client.internal.Tracer().Start(ctx, "PagingClient.NewGetMultiplePagesWithOffsetPager", &tracing.SpanOptions{
-				Kind: tracing.SpanKindInternal,
-			})
-			defer func() {
-				if err != nil {
-					span.AddError(err)
-				}
-				span.End()
-			}()
+			ctx, endSpan := runtime.StartSpan(ctx, "runtime.Pager[PagingClientGetMultiplePagesWithOffsetResponse].NextPage", client.internal.Tracer(), nil)
+			defer func() { endSpan(err) }()
 			var req *policy.Request
 			if page == nil {
 				req, err = client.getMultiplePagesWithOffsetCreateRequest(ctx, options)
@@ -826,15 +743,8 @@ func (client *PagingClient) NewGetNoItemNamePagesPager(options *PagingClientGetN
 			return page.NextLink != nil && len(*page.NextLink) > 0
 		},
 		Fetcher: func(ctx context.Context, page *PagingClientGetNoItemNamePagesResponse) (result PagingClientGetNoItemNamePagesResponse, err error) {
-			ctx, span := client.internal.Tracer().Start(ctx, "PagingClient.NewGetNoItemNamePagesPager", &tracing.SpanOptions{
-				Kind: tracing.SpanKindInternal,
-			})
-			defer func() {
-				if err != nil {
-					span.AddError(err)
-				}
-				span.End()
-			}()
+			ctx, endSpan := runtime.StartSpan(ctx, "runtime.Pager[PagingClientGetNoItemNamePagesResponse].NextPage", client.internal.Tracer(), nil)
+			defer func() { endSpan(err) }()
 			var req *policy.Request
 			if page == nil {
 				req, err = client.getNoItemNamePagesCreateRequest(ctx, options)
@@ -889,15 +799,8 @@ func (client *PagingClient) NewGetNullNextLinkNamePagesPager(options *PagingClie
 			return false
 		},
 		Fetcher: func(ctx context.Context, page *PagingClientGetNullNextLinkNamePagesResponse) (result PagingClientGetNullNextLinkNamePagesResponse, err error) {
-			ctx, span := client.internal.Tracer().Start(ctx, "PagingClient.NewGetNullNextLinkNamePagesPager", &tracing.SpanOptions{
-				Kind: tracing.SpanKindInternal,
-			})
-			defer func() {
-				if err != nil {
-					span.AddError(err)
-				}
-				span.End()
-			}()
+			ctx, endSpan := runtime.StartSpan(ctx, "runtime.Pager[PagingClientGetNullNextLinkNamePagesResponse].NextPage", client.internal.Tracer(), nil)
+			defer func() { endSpan(err) }()
 			req, err := client.getNullNextLinkNamePagesCreateRequest(ctx, options)
 			if err != nil {
 				return
@@ -947,15 +850,8 @@ func (client *PagingClient) NewGetODataMultiplePagesPager(options *PagingClientG
 			return page.ODataNextLink != nil && len(*page.ODataNextLink) > 0
 		},
 		Fetcher: func(ctx context.Context, page *PagingClientGetODataMultiplePagesResponse) (result PagingClientGetODataMultiplePagesResponse, err error) {
-			ctx, span := client.internal.Tracer().Start(ctx, "PagingClient.NewGetODataMultiplePagesPager", &tracing.SpanOptions{
-				Kind: tracing.SpanKindInternal,
-			})
-			defer func() {
-				if err != nil {
-					span.AddError(err)
-				}
-				span.End()
-			}()
+			ctx, endSpan := runtime.StartSpan(ctx, "runtime.Pager[PagingClientGetODataMultiplePagesResponse].NextPage", client.internal.Tracer(), nil)
+			defer func() { endSpan(err) }()
 			var req *policy.Request
 			if page == nil {
 				req, err = client.getODataMultiplePagesCreateRequest(ctx, options)
@@ -1020,15 +916,8 @@ func (client *PagingClient) NewGetPagingModelWithItemNameWithXMSClientNamePager(
 			return page.NextLink != nil && len(*page.NextLink) > 0
 		},
 		Fetcher: func(ctx context.Context, page *PagingClientGetPagingModelWithItemNameWithXMSClientNameResponse) (result PagingClientGetPagingModelWithItemNameWithXMSClientNameResponse, err error) {
-			ctx, span := client.internal.Tracer().Start(ctx, "PagingClient.NewGetPagingModelWithItemNameWithXMSClientNamePager", &tracing.SpanOptions{
-				Kind: tracing.SpanKindInternal,
-			})
-			defer func() {
-				if err != nil {
-					span.AddError(err)
-				}
-				span.End()
-			}()
+			ctx, endSpan := runtime.StartSpan(ctx, "runtime.Pager[PagingClientGetPagingModelWithItemNameWithXMSClientNameResponse].NextPage", client.internal.Tracer(), nil)
+			defer func() { endSpan(err) }()
 			var req *policy.Request
 			if page == nil {
 				req, err = client.getPagingModelWithItemNameWithXMSClientNameCreateRequest(ctx, options)
@@ -1083,15 +972,8 @@ func (client *PagingClient) NewGetSinglePagesPager(options *PagingClientGetSingl
 			return page.NextLink != nil && len(*page.NextLink) > 0
 		},
 		Fetcher: func(ctx context.Context, page *PagingClientGetSinglePagesResponse) (result PagingClientGetSinglePagesResponse, err error) {
-			ctx, span := client.internal.Tracer().Start(ctx, "PagingClient.NewGetSinglePagesPager", &tracing.SpanOptions{
-				Kind: tracing.SpanKindInternal,
-			})
-			defer func() {
-				if err != nil {
-					span.AddError(err)
-				}
-				span.End()
-			}()
+			ctx, endSpan := runtime.StartSpan(ctx, "runtime.Pager[PagingClientGetSinglePagesResponse].NextPage", client.internal.Tracer(), nil)
+			defer func() { endSpan(err) }()
 			var req *policy.Request
 			if page == nil {
 				req, err = client.getSinglePagesCreateRequest(ctx, options)
@@ -1146,15 +1028,8 @@ func (client *PagingClient) NewGetSinglePagesFailurePager(options *PagingClientG
 			return page.NextLink != nil && len(*page.NextLink) > 0
 		},
 		Fetcher: func(ctx context.Context, page *PagingClientGetSinglePagesFailureResponse) (result PagingClientGetSinglePagesFailureResponse, err error) {
-			ctx, span := client.internal.Tracer().Start(ctx, "PagingClient.NewGetSinglePagesFailurePager", &tracing.SpanOptions{
-				Kind: tracing.SpanKindInternal,
-			})
-			defer func() {
-				if err != nil {
-					span.AddError(err)
-				}
-				span.End()
-			}()
+			ctx, endSpan := runtime.StartSpan(ctx, "runtime.Pager[PagingClientGetSinglePagesFailureResponse].NextPage", client.internal.Tracer(), nil)
+			defer func() { endSpan(err) }()
 			var req *policy.Request
 			if page == nil {
 				req, err = client.getSinglePagesFailureCreateRequest(ctx, options)
@@ -1211,15 +1086,8 @@ func (client *PagingClient) NewGetWithQueryParamsPager(requiredQueryParameter in
 			return page.NextLink != nil && len(*page.NextLink) > 0
 		},
 		Fetcher: func(ctx context.Context, page *PagingClientGetWithQueryParamsResponse) (result PagingClientGetWithQueryParamsResponse, err error) {
-			ctx, span := client.internal.Tracer().Start(ctx, "PagingClient.NewGetWithQueryParamsPager", &tracing.SpanOptions{
-				Kind: tracing.SpanKindInternal,
-			})
-			defer func() {
-				if err != nil {
-					span.AddError(err)
-				}
-				span.End()
-			}()
+			ctx, endSpan := runtime.StartSpan(ctx, "runtime.Pager[PagingClientGetWithQueryParamsResponse].NextPage", client.internal.Tracer(), nil)
+			defer func() { endSpan(err) }()
 			var req *policy.Request
 			if page == nil {
 				req, err = client.getWithQueryParamsCreateRequest(ctx, requiredQueryParameter, options)

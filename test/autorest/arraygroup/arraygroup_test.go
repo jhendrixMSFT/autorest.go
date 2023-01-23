@@ -719,7 +719,7 @@ func TestPutArrayValid(t *testing.T) {
 	defer shutdown(context.Background())
 	resp, err := client.PutArrayValid(context.Background(), [][]*string{
 		to.SliceOfPtrs("1", "2", "3"),
-		to.SliceOfPtrs("4", "5", "6"),
+		to.SliceOfPtrs("1", "5", "6"),
 		to.SliceOfPtrs("7", "8", "9"),
 	}, nil)
 	require.NoError(t, err)
