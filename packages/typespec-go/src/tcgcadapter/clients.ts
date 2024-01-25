@@ -127,15 +127,47 @@ export class clientAdapter {
       optionalGroup = method.optionalParamsGroup;
     }
 
+    // first we will adapt all of the parameters at the HTTP level
+    // which can be superset of the API parameters. it will include caller
+    // provided params as well as synthesized ones (accept header etc)
+    const paramNameToAdaptedParam = new Map<string, go.Parameter>();
+    for (const param of sdkMethod.operation.parameters) {
+      const adaptedParam = this.adaptMethodParameter(param, optionalGroup);
+      if (paramNameToAdaptedParam.has(param.nameInClient)) {
+        throw new Error(`found duplicate parameter ${param.nameInClient} in method ${sdkMethod.name}`);
+      }
+      paramNameToAdaptedParam.set(param.nameInClient, adaptedParam);
+    }
+
+    // include any body params
     if (sdkMethod.operation.bodyParams.length > 1) {
       throw new Error('multipart body NYI');
     } else if (sdkMethod.operation.bodyParams.length === 1) {
       const bodyParam = sdkMethod.operation.bodyParams[0];
-      method.parameters.push(this.adaptMethodParameter(bodyParam, optionalGroup));
+      const adaptedParam = this.adaptMethodParameter(bodyParam, optionalGroup);
+      if (paramNameToAdaptedParam.has(bodyParam.nameInClient)) {
+        throw new Error(`found duplicate parameter ${bodyParam.nameInClient} in method ${sdkMethod.name}`);
+      }
+      paramNameToAdaptedParam.set(bodyParam.nameInClient, adaptedParam);
     }
-  
-    for (const param of sdkMethod.operation.parameters) {
-      const adaptedParam = this.adaptMethodParameter(param, optionalGroup);
+
+    // now add the adapted parameters to the method in their tsp defined order
+    for (const sdkParam of sdkMethod.parameters) {
+      let adaptedParam = paramNameToAdaptedParam.get(sdkParam.nameInClient);
+      // TODO: sdkMethod.getParameterMapping(sdkParam);
+      if (adaptedParam) {
+        paramNameToAdaptedParam.delete(sdkParam.nameInClient);
+      } else {
+        // TODO: explain
+        adaptedParam = this.adaptMethodParameter(sdkParam, optionalGroup);
+      }
+      method.parameters.push(adaptedParam);
+    }
+
+    // finally, add the remaining adapted parameters. this will
+    // include the client parameters and any synthesized ones.
+    const remainingParams = values(paramNameToAdaptedParam.values()).toArray().sort((a: go.Parameter, b: go.Parameter) => { return a.paramName < b.paramName ? -1 : a.paramName > b.paramName ? 1 : 0; });
+    for (const adaptedParam of remainingParams) {
       method.parameters.push(adaptedParam);
       if (adaptedParam.location === 'client' && !method.client.parameters.includes(adaptedParam)) {
         method.client.parameters.push(adaptedParam);
@@ -143,7 +175,7 @@ export class clientAdapter {
     }
   }
 
-  private adaptMethodParameter(param: tcgc.SdkBodyParameter | tcgc.SdkHeaderParameter | tcgc.SdkPathParameter | tcgc.SdkQueryParameter, optionalGroup?: go.ParameterGroup): go.Parameter {
+  private adaptMethodParameter(param: tcgc.SdkMethodParameter | tcgc.SdkBodyParameter | tcgc.SdkHeaderParameter | tcgc.SdkPathParameter | tcgc.SdkQueryParameter, optionalGroup?: go.ParameterGroup): go.Parameter {
     let location: go.ParameterLocation = 'method';
     if (param.onClient) {
       // check if we've already adapted this client parameter
@@ -179,7 +211,7 @@ export class clientAdapter {
       }
     } else if (param.kind === 'path') {
       adaptedParam = new go.PathParameter(paramName, param.serializedName, param.urlEncode, this.adaptPathParameterType(param.type), paramType, byVal, location);
-    } else {
+    } else if (param.kind === 'query') {
       if (param.collectionFormat) {
         const type = this.ta.getPossibleType(param.type, true, false);
         if (!go.isSliceType(type)) {
@@ -191,6 +223,8 @@ export class clientAdapter {
         // TODO: unencoded query param
         adaptedParam = new go.QueryParameter(paramName, param.serializedName, true, this.adaptQueryParameterType(param.type), paramType, byVal, location);
       }
+    } else {
+      adaptedParam = new go.Parameter(paramName, this.ta.getPossibleType(param.type, false, false), paramType, byVal, location);
     }
 
     adaptedParam.description = param.description;
@@ -328,7 +362,7 @@ export class clientAdapter {
     return type;
   }
   
-  private adaptParameterType(param: tcgc.SdkBodyParameter | tcgc.SdkHeaderParameter | tcgc.SdkPathParameter | tcgc.SdkQueryParameter): go.ParameterType {
+  private adaptParameterType(param: tcgc.SdkMethodParameter | tcgc.SdkBodyParameter | tcgc.SdkHeaderParameter | tcgc.SdkPathParameter | tcgc.SdkQueryParameter): go.ParameterType {
     // NOTE: must check for constant type first as it will also set clientDefaultValue
     if (param.type.kind === 'constant') {
       if (param.optional) {

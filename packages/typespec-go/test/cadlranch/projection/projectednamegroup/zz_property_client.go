@@ -21,10 +21,11 @@ type PropertyClient struct {
 	internal *azcore.Client
 }
 
+// - clientName - Pass in true
 // - options - PropertyClientClientOptions contains the optional parameters for the PropertyClient.Client method.
-func (client *PropertyClient) Client(ctx context.Context, body ClientProjectedNameModel, options *PropertyClientClientOptions) (PropertyClientClientResponse, error) {
+func (client *PropertyClient) Client(ctx context.Context, clientName bool, body ClientProjectedNameModel, options *PropertyClientClientOptions) (PropertyClientClientResponse, error) {
 	var err error
-	req, err := client.clientCreateRequest(ctx, body, options)
+	req, err := client.clientCreateRequest(ctx, clientName, body, options)
 	if err != nil {
 		return PropertyClientClientResponse{}, err
 	}
@@ -40,7 +41,7 @@ func (client *PropertyClient) Client(ctx context.Context, body ClientProjectedNa
 }
 
 // clientCreateRequest creates the Client request.
-func (client *PropertyClient) clientCreateRequest(ctx context.Context, body ClientProjectedNameModel, options *PropertyClientClientOptions) (*policy.Request, error) {
+func (client *PropertyClient) clientCreateRequest(ctx context.Context, clientName bool, body ClientProjectedNameModel, options *PropertyClientClientOptions) (*policy.Request, error) {
 	urlPath := "/projection/projected-name/property/client"
 	req, err := runtime.NewRequest(ctx, http.MethodPost, runtime.JoinPaths(host, urlPath))
 	if err != nil {
@@ -53,10 +54,11 @@ func (client *PropertyClient) clientCreateRequest(ctx context.Context, body Clie
 	return req, nil
 }
 
+// - defaultName - Pass in true
 // - options - PropertyClientJSONOptions contains the optional parameters for the PropertyClient.JSON method.
-func (client *PropertyClient) JSON(ctx context.Context, body JSONProjectedNameModel, options *PropertyClientJSONOptions) (PropertyClientJSONResponse, error) {
+func (client *PropertyClient) JSON(ctx context.Context, defaultName bool, body JSONProjectedNameModel, options *PropertyClientJSONOptions) (PropertyClientJSONResponse, error) {
 	var err error
-	req, err := client.jsonCreateRequest(ctx, body, options)
+	req, err := client.jsonCreateRequest(ctx, defaultName, body, options)
 	if err != nil {
 		return PropertyClientJSONResponse{}, err
 	}
@@ -72,7 +74,7 @@ func (client *PropertyClient) JSON(ctx context.Context, body JSONProjectedNameMo
 }
 
 // jsonCreateRequest creates the JSON request.
-func (client *PropertyClient) jsonCreateRequest(ctx context.Context, body JSONProjectedNameModel, options *PropertyClientJSONOptions) (*policy.Request, error) {
+func (client *PropertyClient) jsonCreateRequest(ctx context.Context, defaultName bool, body JSONProjectedNameModel, options *PropertyClientJSONOptions) (*policy.Request, error) {
 	urlPath := "/projection/projected-name/property/json"
 	req, err := runtime.NewRequest(ctx, http.MethodPost, runtime.JoinPaths(host, urlPath))
 	if err != nil {
@@ -85,10 +87,11 @@ func (client *PropertyClient) jsonCreateRequest(ctx context.Context, body JSONPr
 	return req, nil
 }
 
+// - clientName - Pass in true
 // - options - PropertyClientJSONAndClientOptions contains the optional parameters for the PropertyClient.JSONAndClient method.
-func (client *PropertyClient) JSONAndClient(ctx context.Context, body JSONAndClientProjectedNameModel, options *PropertyClientJSONAndClientOptions) (PropertyClientJSONAndClientResponse, error) {
+func (client *PropertyClient) JSONAndClient(ctx context.Context, clientName bool, body JSONAndClientProjectedNameModel, options *PropertyClientJSONAndClientOptions) (PropertyClientJSONAndClientResponse, error) {
 	var err error
-	req, err := client.jsonAndClientCreateRequest(ctx, body, options)
+	req, err := client.jsonAndClientCreateRequest(ctx, clientName, body, options)
 	if err != nil {
 		return PropertyClientJSONAndClientResponse{}, err
 	}
@@ -104,7 +107,7 @@ func (client *PropertyClient) JSONAndClient(ctx context.Context, body JSONAndCli
 }
 
 // jsonAndClientCreateRequest creates the JSONAndClient request.
-func (client *PropertyClient) jsonAndClientCreateRequest(ctx context.Context, body JSONAndClientProjectedNameModel, options *PropertyClientJSONAndClientOptions) (*policy.Request, error) {
+func (client *PropertyClient) jsonAndClientCreateRequest(ctx context.Context, clientName bool, body JSONAndClientProjectedNameModel, options *PropertyClientJSONAndClientOptions) (*policy.Request, error) {
 	urlPath := "/projection/projected-name/property/json-and-client"
 	req, err := runtime.NewRequest(ctx, http.MethodPost, runtime.JoinPaths(host, urlPath))
 	if err != nil {
@@ -117,10 +120,11 @@ func (client *PropertyClient) jsonAndClientCreateRequest(ctx context.Context, bo
 	return req, nil
 }
 
+// - DoNotUseMeAsAName - Pass in true
 // - options - PropertyClientLanguageOptions contains the optional parameters for the PropertyClient.Language method.
-func (client *PropertyClient) Language(ctx context.Context, body LanguageProjectedNameModel, options *PropertyClientLanguageOptions) (PropertyClientLanguageResponse, error) {
+func (client *PropertyClient) Language(ctx context.Context, doNotUseMeAsAName bool, body LanguageProjectedNameModel, options *PropertyClientLanguageOptions) (PropertyClientLanguageResponse, error) {
 	var err error
-	req, err := client.languageCreateRequest(ctx, body, options)
+	req, err := client.languageCreateRequest(ctx, doNotUseMeAsAName, body, options)
 	if err != nil {
 		return PropertyClientLanguageResponse{}, err
 	}
@@ -136,7 +140,7 @@ func (client *PropertyClient) Language(ctx context.Context, body LanguageProject
 }
 
 // languageCreateRequest creates the Language request.
-func (client *PropertyClient) languageCreateRequest(ctx context.Context, body LanguageProjectedNameModel, options *PropertyClientLanguageOptions) (*policy.Request, error) {
+func (client *PropertyClient) languageCreateRequest(ctx context.Context, doNotUseMeAsAName bool, body LanguageProjectedNameModel, options *PropertyClientLanguageOptions) (*policy.Request, error) {
 	urlPath := "/projection/projected-name/property/language"
 	req, err := runtime.NewRequest(ctx, http.MethodPost, runtime.JoinPaths(host, urlPath))
 	if err != nil {

@@ -56,9 +56,9 @@ func (client *BodyOptionalityClient) requiredExplicitCreateRequest(ctx context.C
 
 //   - options - BodyOptionalityClientRequiredImplicitOptions contains the optional parameters for the BodyOptionalityClient.RequiredImplicit
 //     method.
-func (client *BodyOptionalityClient) RequiredImplicit(ctx context.Context, body BodyModel, options *BodyOptionalityClientRequiredImplicitOptions) (BodyOptionalityClientRequiredImplicitResponse, error) {
+func (client *BodyOptionalityClient) RequiredImplicit(ctx context.Context, name string, body BodyModel, options *BodyOptionalityClientRequiredImplicitOptions) (BodyOptionalityClientRequiredImplicitResponse, error) {
 	var err error
-	req, err := client.requiredImplicitCreateRequest(ctx, body, options)
+	req, err := client.requiredImplicitCreateRequest(ctx, name, body, options)
 	if err != nil {
 		return BodyOptionalityClientRequiredImplicitResponse{}, err
 	}
@@ -74,7 +74,7 @@ func (client *BodyOptionalityClient) RequiredImplicit(ctx context.Context, body 
 }
 
 // requiredImplicitCreateRequest creates the RequiredImplicit request.
-func (client *BodyOptionalityClient) requiredImplicitCreateRequest(ctx context.Context, body BodyModel, options *BodyOptionalityClientRequiredImplicitOptions) (*policy.Request, error) {
+func (client *BodyOptionalityClient) requiredImplicitCreateRequest(ctx context.Context, name string, body BodyModel, options *BodyOptionalityClientRequiredImplicitOptions) (*policy.Request, error) {
 	urlPath := "/parameters/body-optionality/required-implicit"
 	req, err := runtime.NewRequest(ctx, http.MethodPost, runtime.JoinPaths(host, urlPath))
 	if err != nil {

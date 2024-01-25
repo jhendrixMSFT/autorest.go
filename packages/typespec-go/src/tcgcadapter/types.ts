@@ -7,6 +7,7 @@ import * as naming from '../../../naming.go/src/naming.js';
 import * as go from '../../../codemodel.go/src/gocodemodel.js';
 import * as tcgc from '@azure-tools/typespec-client-generator-core';
 import * as tsp from '@typespec/compiler';
+import * as http from '@typespec/http';
 import { values } from '@azure-tools/linq';
 
 // used to convert SDK types to Go code model types

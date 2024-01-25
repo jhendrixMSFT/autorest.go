@@ -22,7 +22,7 @@ const cadlRanch = {
   'unionauthgroup': ['authentication/union'],    // missing tests
   'accessgroup': ['azure/client-generator-core/access'],   // missing tests
   'coreusagegroup': ['azure/client-generator-core/usage'], // missing tests
-  'basicgroup': ['azure/core/basic'], // missing tests
+  'basicgroup': ['azure/core/basic'],
   //'lrorpcgroup': ['azure/core/lro/rpc'],           // requires lro support
   //'lrolegacygroup': ['azure/core/lro/rpc-legacy'], // requires lro support
   //'lrostdgroup': ['azure/core/lro/standard'],      // requires lro support
