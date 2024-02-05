@@ -19,6 +19,7 @@ import (
 // Don't use this type directly, use a constructor function instead.
 type ServiceClient struct {
 	internal *azcore.Client
+	endpoint string
 }
 
 // - options - ServiceClientOneOptions contains the optional parameters for the ServiceClient.One method.
@@ -42,7 +43,7 @@ func (client *ServiceClient) One(ctx context.Context, options *ServiceClientOneO
 // oneCreateRequest creates the One request.
 func (client *ServiceClient) oneCreateRequest(ctx context.Context, options *ServiceClientOneOptions) (*policy.Request, error) {
 	urlPath := "/one"
-	req, err := runtime.NewRequest(ctx, http.MethodPost, runtime.JoinPaths(host, urlPath))
+	req, err := runtime.NewRequest(ctx, http.MethodPost, runtime.JoinPaths(client.endpoint, urlPath))
 	if err != nil {
 		return nil, err
 	}
@@ -70,7 +71,7 @@ func (client *ServiceClient) Two(ctx context.Context, options *ServiceClientTwoO
 // twoCreateRequest creates the Two request.
 func (client *ServiceClient) twoCreateRequest(ctx context.Context, options *ServiceClientTwoOptions) (*policy.Request, error) {
 	urlPath := "/two"
-	req, err := runtime.NewRequest(ctx, http.MethodPost, runtime.JoinPaths(host, urlPath))
+	req, err := runtime.NewRequest(ctx, http.MethodPost, runtime.JoinPaths(client.endpoint, urlPath))
 	if err != nil {
 		return nil, err
 	}

@@ -45,6 +45,23 @@ export class clientAdapter {
         clientName += 'Client';
       }
       const goClient = new go.Client(clientName, sdkPackage.name, `New${clientName}`);
+      if (sdkClient.initialization) {
+        for (const param of sdkClient.initialization.properties) {
+          if (param.kind === 'credential' || param.isApiVersionParam) {
+            // skip these for now as we don't generate client constructors
+            continue;
+          } else if (param.kind === 'method') {
+            throw new Error('client method params NYI');
+          }
+          const paramType = this.ta.getPossibleType(param.type, true, false);
+          if (!go.isConstantType(paramType) && !go.isPrimitiveType(paramType)) {
+            throw new Error(`unexpected URI parameter type ${go.getTypeDeclaration(paramType)}`);
+          }
+          const uriParam = new go.URIParameter(param.nameInClient, param.serializedName!, paramType,
+            this.adaptParameterType(param), isTypePassedByValue(param.type) || !param.optional, 'client');
+          goClient.hostParams.push(uriParam);
+        }
+      }
       goClient.host = sdkClient.endpoint;
       if (!this.ta.codeModel.host) {
         this.ta.codeModel.host = goClient.host;
@@ -126,13 +143,6 @@ export class clientAdapter {
       // NextPageMethods don't have optional params
       optionalGroup = method.optionalParamsGroup;
     }
-
-    if (sdkMethod.operation.bodyParams.length > 1) {
-      throw new Error('multipart body NYI');
-    } else if (sdkMethod.operation.bodyParams.length === 1) {
-      const bodyParam = sdkMethod.operation.bodyParams[0];
-      method.parameters.push(this.adaptMethodParameter(bodyParam, optionalGroup));
-    }
   
     for (const param of sdkMethod.operation.parameters) {
       const adaptedParam = this.adaptMethodParameter(param, optionalGroup);
@@ -140,6 +150,15 @@ export class clientAdapter {
       if (adaptedParam.location === 'client' && !method.client.parameters.includes(adaptedParam)) {
         method.client.parameters.push(adaptedParam);
       }
+    }
+
+    // we add the body param after any required params. this way,
+    // if the body param is required it shows up last in the list.
+    if (sdkMethod.operation.bodyParams.length > 1) {
+      throw new Error('multipart body NYI');
+    } else if (sdkMethod.operation.bodyParams.length === 1) {
+      const bodyParam = sdkMethod.operation.bodyParams[0];
+      method.parameters.push(this.adaptMethodParameter(bodyParam, optionalGroup));
     }
   }
 
@@ -328,7 +347,7 @@ export class clientAdapter {
     return type;
   }
   
-  private adaptParameterType(param: tcgc.SdkBodyParameter | tcgc.SdkHeaderParameter | tcgc.SdkPathParameter | tcgc.SdkQueryParameter): go.ParameterType {
+  private adaptParameterType(param: tcgc.SdkBodyParameter | tcgc.SdkEndpointParameter | tcgc.SdkHeaderParameter | tcgc.SdkPathParameter | tcgc.SdkQueryParameter): go.ParameterType {
     // NOTE: must check for constant type first as it will also set clientDefaultValue
     if (param.type.kind === 'constant') {
       if (param.optional) {
