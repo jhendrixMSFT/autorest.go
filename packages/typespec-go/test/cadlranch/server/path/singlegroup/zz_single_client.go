@@ -19,6 +19,7 @@ import (
 // Don't use this type directly, use a constructor function instead.
 type SingleClient struct {
 	internal *azcore.Client
+	endpoint string
 }
 
 // - options - SingleClientMyOpOptions contains the optional parameters for the SingleClient.MyOp method.
@@ -42,7 +43,7 @@ func (client *SingleClient) MyOp(ctx context.Context, options *SingleClientMyOpO
 // myOpCreateRequest creates the MyOp request.
 func (client *SingleClient) myOpCreateRequest(ctx context.Context, options *SingleClientMyOpOptions) (*policy.Request, error) {
 	urlPath := "/server/path/single/myOp"
-	req, err := runtime.NewRequest(ctx, http.MethodHead, runtime.JoinPaths(host, urlPath))
+	req, err := runtime.NewRequest(ctx, http.MethodHead, runtime.JoinPaths(client.endpoint, urlPath))
 	if err != nil {
 		return nil, err
 	}

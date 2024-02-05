@@ -19,6 +19,7 @@ import (
 // Don't use this type directly, use a constructor function instead.
 type ClientBClient struct {
 	internal *azcore.Client
+	endpoint string
 }
 
 // - options - ClientBClientRenamedFourOptions contains the optional parameters for the ClientBClient.RenamedFour method.
@@ -42,7 +43,7 @@ func (client *ClientBClient) RenamedFour(ctx context.Context, options *ClientBCl
 // renamedFourCreateRequest creates the RenamedFour request.
 func (client *ClientBClient) renamedFourCreateRequest(ctx context.Context, options *ClientBClientRenamedFourOptions) (*policy.Request, error) {
 	urlPath := "/four"
-	req, err := runtime.NewRequest(ctx, http.MethodPost, runtime.JoinPaths(host, urlPath))
+	req, err := runtime.NewRequest(ctx, http.MethodPost, runtime.JoinPaths(client.endpoint, urlPath))
 	if err != nil {
 		return nil, err
 	}
@@ -70,7 +71,7 @@ func (client *ClientBClient) RenamedSix(ctx context.Context, options *ClientBCli
 // renamedSixCreateRequest creates the RenamedSix request.
 func (client *ClientBClient) renamedSixCreateRequest(ctx context.Context, options *ClientBClientRenamedSixOptions) (*policy.Request, error) {
 	urlPath := "/six"
-	req, err := runtime.NewRequest(ctx, http.MethodPost, runtime.JoinPaths(host, urlPath))
+	req, err := runtime.NewRequest(ctx, http.MethodPost, runtime.JoinPaths(client.endpoint, urlPath))
 	if err != nil {
 		return nil, err
 	}
@@ -98,7 +99,7 @@ func (client *ClientBClient) RenamedTwo(ctx context.Context, options *ClientBCli
 // renamedTwoCreateRequest creates the RenamedTwo request.
 func (client *ClientBClient) renamedTwoCreateRequest(ctx context.Context, options *ClientBClientRenamedTwoOptions) (*policy.Request, error) {
 	urlPath := "/two"
-	req, err := runtime.NewRequest(ctx, http.MethodPost, runtime.JoinPaths(host, urlPath))
+	req, err := runtime.NewRequest(ctx, http.MethodPost, runtime.JoinPaths(client.endpoint, urlPath))
 	if err != nil {
 		return nil, err
 	}

@@ -19,6 +19,7 @@ import (
 // Don't use this type directly, use a constructor function instead.
 type UsageClient struct {
 	internal *azcore.Client
+	endpoint string
 }
 
 // - options - UsageClientInputOptions contains the optional parameters for the UsageClient.Input method.
@@ -42,7 +43,7 @@ func (client *UsageClient) Input(ctx context.Context, input InputRecord, options
 // inputCreateRequest creates the Input request.
 func (client *UsageClient) inputCreateRequest(ctx context.Context, input InputRecord, options *UsageClientInputOptions) (*policy.Request, error) {
 	urlPath := "/type/model/usage/input"
-	req, err := runtime.NewRequest(ctx, http.MethodPost, runtime.JoinPaths(host, urlPath))
+	req, err := runtime.NewRequest(ctx, http.MethodPost, runtime.JoinPaths(client.endpoint, urlPath))
 	if err != nil {
 		return nil, err
 	}
@@ -75,7 +76,7 @@ func (client *UsageClient) InputAndOutput(ctx context.Context, body InputOutputR
 // inputAndOutputCreateRequest creates the InputAndOutput request.
 func (client *UsageClient) inputAndOutputCreateRequest(ctx context.Context, body InputOutputRecord, options *UsageClientInputAndOutputOptions) (*policy.Request, error) {
 	urlPath := "/type/model/usage/input-output"
-	req, err := runtime.NewRequest(ctx, http.MethodPost, runtime.JoinPaths(host, urlPath))
+	req, err := runtime.NewRequest(ctx, http.MethodPost, runtime.JoinPaths(client.endpoint, urlPath))
 	if err != nil {
 		return nil, err
 	}
@@ -118,7 +119,7 @@ func (client *UsageClient) Output(ctx context.Context, options *UsageClientOutpu
 // outputCreateRequest creates the Output request.
 func (client *UsageClient) outputCreateRequest(ctx context.Context, options *UsageClientOutputOptions) (*policy.Request, error) {
 	urlPath := "/type/model/usage/output"
-	req, err := runtime.NewRequest(ctx, http.MethodGet, runtime.JoinPaths(host, urlPath))
+	req, err := runtime.NewRequest(ctx, http.MethodGet, runtime.JoinPaths(client.endpoint, urlPath))
 	if err != nil {
 		return nil, err
 	}

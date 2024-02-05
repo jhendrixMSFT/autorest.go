@@ -19,6 +19,7 @@ import (
 // Don't use this type directly, use a constructor function instead.
 type RenamedOperationClient struct {
 	internal *azcore.Client
+	endpoint string
 }
 
 //   - options - RenamedOperationClientRenamedFiveOptions contains the optional parameters for the RenamedOperationClient.RenamedFive
@@ -43,7 +44,7 @@ func (client *RenamedOperationClient) RenamedFive(ctx context.Context, options *
 // renamedFiveCreateRequest creates the RenamedFive request.
 func (client *RenamedOperationClient) renamedFiveCreateRequest(ctx context.Context, options *RenamedOperationClientRenamedFiveOptions) (*policy.Request, error) {
 	urlPath := "/five"
-	req, err := runtime.NewRequest(ctx, http.MethodPost, runtime.JoinPaths(host, urlPath))
+	req, err := runtime.NewRequest(ctx, http.MethodPost, runtime.JoinPaths(client.endpoint, urlPath))
 	if err != nil {
 		return nil, err
 	}
@@ -72,7 +73,7 @@ func (client *RenamedOperationClient) RenamedOne(ctx context.Context, options *R
 // renamedOneCreateRequest creates the RenamedOne request.
 func (client *RenamedOperationClient) renamedOneCreateRequest(ctx context.Context, options *RenamedOperationClientRenamedOneOptions) (*policy.Request, error) {
 	urlPath := "/one"
-	req, err := runtime.NewRequest(ctx, http.MethodPost, runtime.JoinPaths(host, urlPath))
+	req, err := runtime.NewRequest(ctx, http.MethodPost, runtime.JoinPaths(client.endpoint, urlPath))
 	if err != nil {
 		return nil, err
 	}
@@ -101,7 +102,7 @@ func (client *RenamedOperationClient) RenamedThree(ctx context.Context, options 
 // renamedThreeCreateRequest creates the RenamedThree request.
 func (client *RenamedOperationClient) renamedThreeCreateRequest(ctx context.Context, options *RenamedOperationClientRenamedThreeOptions) (*policy.Request, error) {
 	urlPath := "/three"
-	req, err := runtime.NewRequest(ctx, http.MethodPost, runtime.JoinPaths(host, urlPath))
+	req, err := runtime.NewRequest(ctx, http.MethodPost, runtime.JoinPaths(client.endpoint, urlPath))
 	if err != nil {
 		return nil, err
 	}

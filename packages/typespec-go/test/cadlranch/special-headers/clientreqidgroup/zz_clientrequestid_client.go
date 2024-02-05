@@ -19,6 +19,7 @@ import (
 // Don't use this type directly, use a constructor function instead.
 type ClientRequestIdClient struct {
 	internal *azcore.Client
+	endpoint string
 }
 
 // Get - Get operation with azure client request id header.
@@ -43,7 +44,7 @@ func (client *ClientRequestIdClient) Get(ctx context.Context, options *ClientReq
 // getCreateRequest creates the Get request.
 func (client *ClientRequestIdClient) getCreateRequest(ctx context.Context, options *ClientRequestIdClientGetOptions) (*policy.Request, error) {
 	urlPath := "/special-headers/client-request-id"
-	req, err := runtime.NewRequest(ctx, http.MethodGet, runtime.JoinPaths(host, urlPath))
+	req, err := runtime.NewRequest(ctx, http.MethodGet, runtime.JoinPaths(client.endpoint, urlPath))
 	if err != nil {
 		return nil, err
 	}

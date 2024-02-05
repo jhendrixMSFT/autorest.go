@@ -19,6 +19,7 @@ import (
 // Don't use this type directly, use a constructor function instead.
 type ApiKeyClient struct {
 	internal *azcore.Client
+	endpoint string
 }
 
 // Invalid - Check whether client is authenticated.
@@ -43,7 +44,7 @@ func (client *ApiKeyClient) Invalid(ctx context.Context, options *ApiKeyClientIn
 // invalidCreateRequest creates the Invalid request.
 func (client *ApiKeyClient) invalidCreateRequest(ctx context.Context, options *ApiKeyClientInvalidOptions) (*policy.Request, error) {
 	urlPath := "/authentication/api-key/invalid"
-	req, err := runtime.NewRequest(ctx, http.MethodGet, runtime.JoinPaths(host, urlPath))
+	req, err := runtime.NewRequest(ctx, http.MethodGet, runtime.JoinPaths(client.endpoint, urlPath))
 	if err != nil {
 		return nil, err
 	}
@@ -73,7 +74,7 @@ func (client *ApiKeyClient) Valid(ctx context.Context, options *ApiKeyClientVali
 // validCreateRequest creates the Valid request.
 func (client *ApiKeyClient) validCreateRequest(ctx context.Context, options *ApiKeyClientValidOptions) (*policy.Request, error) {
 	urlPath := "/authentication/api-key/valid"
-	req, err := runtime.NewRequest(ctx, http.MethodGet, runtime.JoinPaths(host, urlPath))
+	req, err := runtime.NewRequest(ctx, http.MethodGet, runtime.JoinPaths(client.endpoint, urlPath))
 	if err != nil {
 		return nil, err
 	}

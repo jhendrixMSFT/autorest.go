@@ -19,6 +19,7 @@ import (
 // Don't use this type directly, use a constructor function instead.
 type RecursiveClient struct {
 	internal *azcore.Client
+	endpoint string
 }
 
 // - options - RecursiveClientGetOptions contains the optional parameters for the RecursiveClient.Get method.
@@ -43,7 +44,7 @@ func (client *RecursiveClient) Get(ctx context.Context, options *RecursiveClient
 // getCreateRequest creates the Get request.
 func (client *RecursiveClient) getCreateRequest(ctx context.Context, options *RecursiveClientGetOptions) (*policy.Request, error) {
 	urlPath := "/type/model/inheritance/recursive"
-	req, err := runtime.NewRequest(ctx, http.MethodGet, runtime.JoinPaths(host, urlPath))
+	req, err := runtime.NewRequest(ctx, http.MethodGet, runtime.JoinPaths(client.endpoint, urlPath))
 	if err != nil {
 		return nil, err
 	}
@@ -81,7 +82,7 @@ func (client *RecursiveClient) Put(ctx context.Context, input Extension, options
 // putCreateRequest creates the Put request.
 func (client *RecursiveClient) putCreateRequest(ctx context.Context, input Extension, options *RecursiveClientPutOptions) (*policy.Request, error) {
 	urlPath := "/type/model/inheritance/recursive"
-	req, err := runtime.NewRequest(ctx, http.MethodPut, runtime.JoinPaths(host, urlPath))
+	req, err := runtime.NewRequest(ctx, http.MethodPut, runtime.JoinPaths(client.endpoint, urlPath))
 	if err != nil {
 		return nil, err
 	}

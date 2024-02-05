@@ -19,6 +19,7 @@ import (
 // Don't use this type directly, use a constructor function instead.
 type ResiliencyServiceDrivenClient struct {
 	internal *azcore.Client
+	endpoint string
 }
 
 // AddOperation - Added operation
@@ -44,7 +45,7 @@ func (client *ResiliencyServiceDrivenClient) AddOperation(ctx context.Context, o
 // addOperationCreateRequest creates the AddOperation request.
 func (client *ResiliencyServiceDrivenClient) addOperationCreateRequest(ctx context.Context, options *ResiliencyServiceDrivenClientAddOperationOptions) (*policy.Request, error) {
 	urlPath := "/add-operation"
-	req, err := runtime.NewRequest(ctx, http.MethodDelete, runtime.JoinPaths(host, urlPath))
+	req, err := runtime.NewRequest(ctx, http.MethodDelete, runtime.JoinPaths(client.endpoint, urlPath))
 	if err != nil {
 		return nil, err
 	}
@@ -74,7 +75,7 @@ func (client *ResiliencyServiceDrivenClient) FromNone(ctx context.Context, optio
 // fromNoneCreateRequest creates the FromNone request.
 func (client *ResiliencyServiceDrivenClient) fromNoneCreateRequest(ctx context.Context, options *ResiliencyServiceDrivenClientFromNoneOptions) (*policy.Request, error) {
 	urlPath := "/add-optional-param/from-none"
-	req, err := runtime.NewRequest(ctx, http.MethodHead, runtime.JoinPaths(host, urlPath))
+	req, err := runtime.NewRequest(ctx, http.MethodHead, runtime.JoinPaths(client.endpoint, urlPath))
 	if err != nil {
 		return nil, err
 	}
@@ -110,7 +111,7 @@ func (client *ResiliencyServiceDrivenClient) FromOneOptional(ctx context.Context
 // fromOneOptionalCreateRequest creates the FromOneOptional request.
 func (client *ResiliencyServiceDrivenClient) fromOneOptionalCreateRequest(ctx context.Context, options *ResiliencyServiceDrivenClientFromOneOptionalOptions) (*policy.Request, error) {
 	urlPath := "/add-optional-param/from-one-optional"
-	req, err := runtime.NewRequest(ctx, http.MethodGet, runtime.JoinPaths(host, urlPath))
+	req, err := runtime.NewRequest(ctx, http.MethodGet, runtime.JoinPaths(client.endpoint, urlPath))
 	if err != nil {
 		return nil, err
 	}
@@ -150,7 +151,7 @@ func (client *ResiliencyServiceDrivenClient) FromOneRequired(ctx context.Context
 // fromOneRequiredCreateRequest creates the FromOneRequired request.
 func (client *ResiliencyServiceDrivenClient) fromOneRequiredCreateRequest(ctx context.Context, parameter string, options *ResiliencyServiceDrivenClientFromOneRequiredOptions) (*policy.Request, error) {
 	urlPath := "/add-optional-param/from-one-required"
-	req, err := runtime.NewRequest(ctx, http.MethodGet, runtime.JoinPaths(host, urlPath))
+	req, err := runtime.NewRequest(ctx, http.MethodGet, runtime.JoinPaths(client.endpoint, urlPath))
 	if err != nil {
 		return nil, err
 	}

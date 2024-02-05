@@ -19,6 +19,7 @@ import (
 // Don't use this type directly, use a constructor function instead.
 type EmptyClient struct {
 	internal *azcore.Client
+	endpoint string
 }
 
 // - options - GetEmptyOptions contains the optional parameters for the EmptyClient.GetEmpty method.
@@ -43,7 +44,7 @@ func (client *EmptyClient) GetEmpty(ctx context.Context, options *GetEmptyOption
 // getEmptyCreateRequest creates the GetEmpty request.
 func (client *EmptyClient) getEmptyCreateRequest(ctx context.Context, options *GetEmptyOptions) (*policy.Request, error) {
 	urlPath := "/type/model/empty/alone"
-	req, err := runtime.NewRequest(ctx, http.MethodGet, runtime.JoinPaths(host, urlPath))
+	req, err := runtime.NewRequest(ctx, http.MethodGet, runtime.JoinPaths(client.endpoint, urlPath))
 	if err != nil {
 		return nil, err
 	}
@@ -82,7 +83,7 @@ func (client *EmptyClient) PostRoundTripEmpty(ctx context.Context, body EmptyInp
 // postRoundTripEmptyCreateRequest creates the PostRoundTripEmpty request.
 func (client *EmptyClient) postRoundTripEmptyCreateRequest(ctx context.Context, body EmptyInputOutput, options *PostRoundTripEmptyOptions) (*policy.Request, error) {
 	urlPath := "/type/model/empty/round-trip"
-	req, err := runtime.NewRequest(ctx, http.MethodPost, runtime.JoinPaths(host, urlPath))
+	req, err := runtime.NewRequest(ctx, http.MethodPost, runtime.JoinPaths(client.endpoint, urlPath))
 	if err != nil {
 		return nil, err
 	}
@@ -124,7 +125,7 @@ func (client *EmptyClient) PutEmpty(ctx context.Context, input EmptyInput, optio
 // putEmptyCreateRequest creates the PutEmpty request.
 func (client *EmptyClient) putEmptyCreateRequest(ctx context.Context, input EmptyInput, options *PutEmptyOptions) (*policy.Request, error) {
 	urlPath := "/type/model/empty/alone"
-	req, err := runtime.NewRequest(ctx, http.MethodPut, runtime.JoinPaths(host, urlPath))
+	req, err := runtime.NewRequest(ctx, http.MethodPut, runtime.JoinPaths(client.endpoint, urlPath))
 	if err != nil {
 		return nil, err
 	}

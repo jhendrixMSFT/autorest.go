@@ -19,6 +19,7 @@ import (
 // Don't use this type directly, use a constructor function instead.
 type ProjectedNameClient struct {
 	internal *azcore.Client
+	endpoint string
 }
 
 //   - options - ProjectedNameClientClientNameOptions contains the optional parameters for the ProjectedNameClient.ClientName
@@ -43,7 +44,7 @@ func (client *ProjectedNameClient) ClientName(ctx context.Context, options *Proj
 // clientNameCreateRequest creates the ClientName request.
 func (client *ProjectedNameClient) clientNameCreateRequest(ctx context.Context, options *ProjectedNameClientClientNameOptions) (*policy.Request, error) {
 	urlPath := "/projection/projected-name/operation"
-	req, err := runtime.NewRequest(ctx, http.MethodPost, runtime.JoinPaths(host, urlPath))
+	req, err := runtime.NewRequest(ctx, http.MethodPost, runtime.JoinPaths(client.endpoint, urlPath))
 	if err != nil {
 		return nil, err
 	}
@@ -71,7 +72,7 @@ func (client *ProjectedNameClient) Parameter(ctx context.Context, clientName str
 // parameterCreateRequest creates the Parameter request.
 func (client *ProjectedNameClient) parameterCreateRequest(ctx context.Context, clientName string, options *ProjectedNameClientParameterOptions) (*policy.Request, error) {
 	urlPath := "/projection/projected-name/parameter"
-	req, err := runtime.NewRequest(ctx, http.MethodPost, runtime.JoinPaths(host, urlPath))
+	req, err := runtime.NewRequest(ctx, http.MethodPost, runtime.JoinPaths(client.endpoint, urlPath))
 	if err != nil {
 		return nil, err
 	}
