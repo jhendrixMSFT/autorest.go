@@ -43,6 +43,9 @@ export async function generateOperations(codeModel: go.CodeModel): Promise<Array
     } else {
       imports.add('github.com/Azure/azure-sdk-for-go/sdk/azcore');
     }
+    if (client.clientAccessors.length > 0) {
+      imports.add('sync/atomic');
+    }
 
     // generate client type
 
@@ -53,6 +56,8 @@ export async function generateOperations(codeModel: go.CodeModel): Promise<Array
     clientText += '// Don\'t use this type directly, use ';
     if (azureARM) {
       clientText += `${client.ctorName}() instead.\n`;
+    } else if (client.parent) {
+      clientText += `[${client.parent.clientName}.${client.clientName}] instead.`;
     } else {
       clientText += 'a constructor function instead.\n';
     }
@@ -115,6 +120,13 @@ export async function generateOperations(codeModel: go.CodeModel): Promise<Array
         }
       }
     }
+
+    // emit any subclient holders
+    for (const clientAccessor of client.clientAccessors) {
+      clientText += `\t${uncapitalize(clientAccessor.subClient.clientName)} atomic.Pointer[${clientAccessor.subClient.clientName}]\n`;
+    }
+
+    // end of client definition
     clientText += '}\n\n';
 
     if (azureARM && optionalParams.length > 0) {
@@ -166,8 +178,19 @@ export async function generateOperations(codeModel: go.CodeModel): Promise<Array
       clientText += '}\n\n';
     }
 
-    // generate operations
+    // generate client accessors and operations
     let opText = '';
+    for (const clientAccessor of client.clientAccessors) {
+      opText += clientAccessor.description + '\n';
+      opText += `func (client *${client.clientName}) ${clientAccessor.methodName}() *${clientAccessor.subClient.clientName} {\n`;
+      opText += `\tif c := client.${uncapitalize(clientAccessor.subClient.clientName)}.Load(); c != nil {\n\t\treturn c\n\t}\n`;
+      opText += `\tc := &${clientAccessor.subClient.clientName}{\n`;
+      // TODO: propagate client params
+      opText += '\t}\n';
+      opText += `\tif client.${uncapitalize(clientAccessor.subClient.clientName)}.CompareAndSwap(nil, c) {\n\t\treturn c\n\t}\n`;
+      opText += `\treturn client.${uncapitalize(clientAccessor.subClient.clientName)}.Load()\n}\n\n`;
+    }
+
     const nextPageMethods = new Array<go.NextPageMethod>();
     for (const method of client.methods) {
       // protocol creation can add imports to the list so

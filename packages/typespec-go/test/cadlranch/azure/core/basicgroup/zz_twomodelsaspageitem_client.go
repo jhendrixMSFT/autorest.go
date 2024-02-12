@@ -16,10 +16,11 @@ import (
 )
 
 // TwoModelsAsPageItemClient contains the methods for the _Specs_.Azure.Core.Basic group.
-// Don't use this type directly, use a constructor function instead.
+// Don't use this type directly, use [BasicClient.TwoModelsAsPageItemClient] instead.
 type TwoModelsAsPageItemClient struct {
 	internal   *azcore.Client
 	apiVersion string
+	endpoint   string
 }
 
 // NewListFirstItemPager - Two operations with two different page item types should be successfully generated. Should generate
@@ -50,7 +51,7 @@ func (client *TwoModelsAsPageItemClient) NewListFirstItemPager(options *TwoModel
 // listFirstItemCreateRequest creates the ListFirstItem request.
 func (client *TwoModelsAsPageItemClient) listFirstItemCreateRequest(ctx context.Context, options *TwoModelsAsPageItemClientListFirstItemOptions) (*policy.Request, error) {
 	urlPath := "/azure/core/basic/first-item"
-	req, err := runtime.NewRequest(ctx, http.MethodGet, runtime.JoinPaths(host, urlPath))
+	req, err := runtime.NewRequest(ctx, http.MethodGet, runtime.JoinPaths(client.endpoint, urlPath))
 	if err != nil {
 		return nil, err
 	}
@@ -98,7 +99,7 @@ func (client *TwoModelsAsPageItemClient) NewListSecondItemPager(options *TwoMode
 // listSecondItemCreateRequest creates the ListSecondItem request.
 func (client *TwoModelsAsPageItemClient) listSecondItemCreateRequest(ctx context.Context, options *TwoModelsAsPageItemClientListSecondItemOptions) (*policy.Request, error) {
 	urlPath := "/azure/core/basic/second-item"
-	req, err := runtime.NewRequest(ctx, http.MethodGet, runtime.JoinPaths(host, urlPath))
+	req, err := runtime.NewRequest(ctx, http.MethodGet, runtime.JoinPaths(client.endpoint, urlPath))
 	if err != nil {
 		return nil, err
 	}
