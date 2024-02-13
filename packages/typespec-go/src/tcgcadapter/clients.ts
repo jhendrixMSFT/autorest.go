@@ -40,34 +40,43 @@ export class clientAdapter {
         // it as we don't currently support hierarchical clients.
         continue;
       }
+      if (!sdkClient.initialization) {
+        throw new Error(`missing initialization for client ${sdkClient.name}`);
+      }
+
       let clientName = sdkClient.name;
       if (!clientName.match(/Client$/)) {
         clientName += 'Client';
       }
       const goClient = new go.Client(clientName, sdkPackage.name, `New${clientName}`);
-      if (sdkClient.initialization) {
-        for (const param of sdkClient.initialization.properties) {
-          if (param.kind === 'credential' || param.isApiVersionParam) {
-            // skip these for now as we don't generate client constructors
-            continue;
-          } else if (param.kind === 'method') {
-            throw new Error('client method params NYI');
+
+      for (const param of sdkClient.initialization.properties) {
+        if (param.kind === 'credential' || param.isApiVersionParam) {
+          // skip these for now as we don't generate client constructors
+          continue;
+        } else if (param.kind === 'endpoint' && param.type.kind === 'constant') {
+          // this is the param for the fixed host, don't create a param for it
+          goClient.host = <string>param.type.value;
+          if (!this.ta.codeModel.host) {
+            this.ta.codeModel.host = goClient.host;
+          } else if (this.ta.codeModel.host !== goClient.host) {
+            throw new Error(`client ${goClient.clientName} has a conflicting host ${goClient.host}`);
           }
-          const paramType = this.ta.getPossibleType(param.type, true, false);
-          if (!go.isConstantType(paramType) && !go.isPrimitiveType(paramType)) {
-            throw new Error(`unexpected URI parameter type ${go.getTypeDeclaration(paramType)}`);
-          }
-          const uriParam = new go.URIParameter(param.nameInClient, param.serializedName!, paramType,
-            this.adaptParameterType(param), isTypePassedByValue(param.type) || !param.optional, 'client');
-          goClient.hostParams.push(uriParam);
+          continue;
+        } else if (param.kind === 'method') {
+          throw new Error('client method params NYI');
         }
+
+        const paramType = this.ta.getPossibleType(param.type, true, false);
+        if (!go.isConstantType(paramType) && !go.isPrimitiveType(paramType)) {
+          throw new Error(`unexpected URI parameter type ${go.getTypeDeclaration(paramType)}`);
+        }
+        const uriParam = new go.URIParameter(param.nameInClient, param.serializedName!, paramType,
+          this.adaptParameterType(param), isTypePassedByValue(param.type) || !param.optional, 'client');
+        goClient.hostParams.push(uriParam);
       }
-      goClient.host = sdkClient.endpoint;
-      if (!this.ta.codeModel.host) {
-        this.ta.codeModel.host = goClient.host;
-      } else if (this.ta.codeModel.host !== goClient.host) {
-        throw new Error(`client ${goClient.clientName} has a conflicting host`);
-      }
+
+      //if (sdkClient.hasParameterizedEndpoint)
       for (const sdkMethod of sdkClient.methods) {
         if (sdkMethod.kind === 'clientaccessor') {
           // used for hierarchical clients which isn't currently supported
