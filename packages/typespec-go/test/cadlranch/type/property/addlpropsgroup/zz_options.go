@@ -57,28 +57,6 @@ type ExtendsUnknownClientPutOptions struct {
 	// placeholder for future optional parameters
 }
 
-// ExtendsUnknownDerivedClientGetOptions contains the optional parameters for the ExtendsUnknownDerivedClient.Get method.
-type ExtendsUnknownDerivedClientGetOptions struct {
-	// placeholder for future optional parameters
-}
-
-// ExtendsUnknownDerivedClientPutOptions contains the optional parameters for the ExtendsUnknownDerivedClient.Put method.
-type ExtendsUnknownDerivedClientPutOptions struct {
-	// placeholder for future optional parameters
-}
-
-// ExtendsUnknownDiscriminatedClientGetOptions contains the optional parameters for the ExtendsUnknownDiscriminatedClient.Get
-// method.
-type ExtendsUnknownDiscriminatedClientGetOptions struct {
-	// placeholder for future optional parameters
-}
-
-// ExtendsUnknownDiscriminatedClientPutOptions contains the optional parameters for the ExtendsUnknownDiscriminatedClient.Put
-// method.
-type ExtendsUnknownDiscriminatedClientPutOptions struct {
-	// placeholder for future optional parameters
-}
-
 // IsFloatClientGetOptions contains the optional parameters for the IsFloatClient.Get method.
 type IsFloatClientGetOptions struct {
 	// placeholder for future optional parameters
@@ -126,25 +104,5 @@ type IsUnknownClientGetOptions struct {
 
 // IsUnknownClientPutOptions contains the optional parameters for the IsUnknownClient.Put method.
 type IsUnknownClientPutOptions struct {
-	// placeholder for future optional parameters
-}
-
-// IsUnknownDerivedClientGetOptions contains the optional parameters for the IsUnknownDerivedClient.Get method.
-type IsUnknownDerivedClientGetOptions struct {
-	// placeholder for future optional parameters
-}
-
-// IsUnknownDerivedClientPutOptions contains the optional parameters for the IsUnknownDerivedClient.Put method.
-type IsUnknownDerivedClientPutOptions struct {
-	// placeholder for future optional parameters
-}
-
-// IsUnknownDiscriminatedClientGetOptions contains the optional parameters for the IsUnknownDiscriminatedClient.Get method.
-type IsUnknownDiscriminatedClientGetOptions struct {
-	// placeholder for future optional parameters
-}
-
-// IsUnknownDiscriminatedClientPutOptions contains the optional parameters for the IsUnknownDiscriminatedClient.Put method.
-type IsUnknownDiscriminatedClientPutOptions struct {
 	// placeholder for future optional parameters
 }

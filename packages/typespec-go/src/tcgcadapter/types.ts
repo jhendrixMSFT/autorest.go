@@ -94,17 +94,17 @@ export class typeAdapter {
 
     // now adapt model fields
     for (const modelType of modelTypes) {
-      const content = aggregateProperties(modelType.tcgc);
-      for (const prop of values(content.props)) {
+      const props = aggregateProperties(modelType.tcgc);
+      for (const prop of values(props)) {
         if (prop.kind !== 'property') {
           throw new Error(`unexpected kind ${prop.kind} for property ${prop.nameInClient} in model ${modelType.tcgc.name}`);
         }
         const field = this.getModelField(prop, modelType.tcgc);
         modelType.go.fields.push(field);
       }
-      if (content.addlProps) {
+      if (modelType.tcgc.additionalProperties) {
         const annotations = new go.ModelFieldAnnotations(false, false, true, false);
-        const addlPropsType = new go.MapType(this.getPossibleType(content.addlProps, false, false), isTypePassedByValue(content.addlProps));
+        const addlPropsType = new go.MapType(this.getPossibleType(modelType.tcgc.additionalProperties, false, false), isTypePassedByValue(modelType.tcgc.additionalProperties));
         const addlProps = new go.ModelField('AdditionalProperties', addlPropsType, true, '', annotations);
         modelType.go.fields.push(addlProps);
       }
@@ -121,18 +121,17 @@ export class typeAdapter {
       case 'armId':
       case 'boolean':
       case 'bytes':
+      case 'date':
       case 'decimal':
       case 'decimal128':
       case 'etag':
-      case 'float':
       case 'float32':
       case 'float64':
       case 'guid':
-      case 'int8':
-      case 'int16':
       case 'int32':
       case 'int64':
       case 'string':
+      case 'time':
       case 'url':
       case 'uuid':
         return this.getBuiltInType(type);
@@ -216,7 +215,6 @@ export class typeAdapter {
       }
       case 'duration': {
         switch (type.wireType.kind) {
-          case 'float':
           case 'float32':
           case 'float64':
           case 'int32':
@@ -271,7 +269,7 @@ export class typeAdapter {
       }
       case 'bytes':
         return this.adaptBytesType(type);
-      case 'plainDate': {
+      case 'date': {
         if (type.encode !== 'rfc3339') {
           throw new Error(`unsupported date encoding ${type.encode}`);
         }
@@ -306,7 +304,6 @@ export class typeAdapter {
         this.types.set(etagKey, etag);
         return etag;
       }
-      case 'float': // C# and Java define float as 32 bits so we're following suit
       case 'float32': {
         const float32Key = 'float32';
         let float32 = this.types.get(float32Key);
@@ -326,26 +323,6 @@ export class typeAdapter {
         float64 = new go.PrimitiveType(float64Key);
         this. types.set(float64Key, float64);
         return float64;
-      }
-      case 'int8': {
-        const int8Key = 'int8';
-        let int8 = this.types.get(int8Key);
-        if (int8) {
-          return int8;
-        }
-        int8 = new go.PrimitiveType(int8Key);
-        this.types.set(int8Key, int8);
-        return int8;
-      }
-      case 'int16': {
-        const int16Key = 'int16';
-        let int16 = this.types.get(int16Key);
-        if (int16) {
-          return int16;
-        }
-        int16 = new go.PrimitiveType(int16Key);
-        this.types.set(int16Key, int16);
-        return int16;
       }
       case 'int32': {
         const int32Key = 'int32';
@@ -378,7 +355,7 @@ export class typeAdapter {
         this.types.set(stringKey, stringType);
         return stringType;
       }
-      case 'plainTime': {
+      case 'time': {
         if (type.encode !== 'rfc3339') {
           throw new Error(`unsupported time encoding ${type.encode}`);
         }
@@ -750,7 +727,7 @@ function recursiveKeyName(root: string, obj: tcgc.SdkType, substituteDiscriminat
       return `${root}-${obj.enumType.name}-${obj.value}`;
     case 'dict':
       return recursiveKeyName(`${root}-dict`, obj.valueType, substituteDiscriminator);
-    case 'plainDate':
+    case 'date':
       if (obj.encode !== 'rfc3339') {
         throw new Error(`unsupported date encoding ${obj.encode}`);
       }
@@ -764,7 +741,7 @@ function recursiveKeyName(root: string, obj: tcgc.SdkType, substituteDiscriminat
         return `${root}-${naming.createPolymorphicInterfaceName(obj.name)}`;
       }
       return `${root}-${obj.name}`;
-    case 'plainTime':
+    case 'time':
       if (obj.encode !== 'rfc3339') {
         throw new Error(`unsupported time encoding ${obj.encode}`);
       }
@@ -790,15 +767,13 @@ interface InterfaceTypeSdkModelType {
   tcgc: tcgc.SdkModelType;
 }
 
-// aggregate the properties from the provided type and its parent types.
-// this includes any inherited additional properties.
-function aggregateProperties(model: tcgc.SdkModelType): {props: Array<tcgc.SdkModelPropertyType>, addlProps?: tcgc.SdkType} {
+// aggregate the properties from the provided type and its parent types
+function aggregateProperties(model: tcgc.SdkModelType): Array<tcgc.SdkModelPropertyType> {
   const allProps = new Array<tcgc.SdkModelPropertyType>();
   for (const prop of model.properties) {
     allProps.push(prop);
   }
 
-  let addlProps = model.additionalProperties;
   let parent = model.baseModel;
   while (parent) {
     for (const parentProp of parent.properties) {
@@ -810,11 +785,7 @@ function aggregateProperties(model: tcgc.SdkModelType): {props: Array<tcgc.SdkMo
       }
       allProps.push(parentProp);
     }
-    // if we haven't found additional properties yet and the parent has it, use it
-    if (!addlProps && parent.additionalProperties) {
-      addlProps = parent.additionalProperties;
-    }
     parent = parent.baseModel;
   }
-  return {props: allProps, addlProps: addlProps};
+  return allProps;
 }

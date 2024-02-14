@@ -51,26 +51,6 @@ func NewExtendsUnknownClient(options *azcore.ClientOptions) (*ExtendsUnknownClie
 	}, nil
 }
 
-func NewExtendsUnknownDerivedClient(options *azcore.ClientOptions) (*ExtendsUnknownDerivedClient, error) {
-	internal, err := newClient(options)
-	if err != nil {
-		return nil, err
-	}
-	return &ExtendsUnknownDerivedClient{
-		internal: internal,
-	}, nil
-}
-
-func NewExtendsUnknownDiscriminatedClient(options *azcore.ClientOptions) (*ExtendsUnknownDiscriminatedClient, error) {
-	internal, err := newClient(options)
-	if err != nil {
-		return nil, err
-	}
-	return &ExtendsUnknownDiscriminatedClient{
-		internal: internal,
-	}, nil
-}
-
 func NewIsFloatClient(options *azcore.ClientOptions) (*IsFloatClient, error) {
 	internal, err := newClient(options)
 	if err != nil {
@@ -117,26 +97,6 @@ func NewIsUnknownClient(options *azcore.ClientOptions) (*IsUnknownClient, error)
 		return nil, err
 	}
 	return &IsUnknownClient{
-		internal: internal,
-	}, nil
-}
-
-func NewIsUnknownDerivedClient(options *azcore.ClientOptions) (*IsUnknownDerivedClient, error) {
-	internal, err := newClient(options)
-	if err != nil {
-		return nil, err
-	}
-	return &IsUnknownDerivedClient{
-		internal: internal,
-	}, nil
-}
-
-func NewIsUnknownDiscriminatedClient(options *azcore.ClientOptions) (*IsUnknownDiscriminatedClient, error) {
-	internal, err := newClient(options)
-	if err != nil {
-		return nil, err
-	}
-	return &IsUnknownDiscriminatedClient{
 		internal: internal,
 	}, nil
 }

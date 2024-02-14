@@ -7,33 +7,32 @@
 
 package renamedopgroup
 
-// GroupClientRenamedFourOptions contains the optional parameters for the GroupClient.RenamedFour method.
-type GroupClientRenamedFourOptions struct {
+// BarClientFiveOptions contains the optional parameters for the BarClient.Five method.
+type BarClientFiveOptions struct {
 	// placeholder for future optional parameters
 }
 
-// GroupClientRenamedSixOptions contains the optional parameters for the GroupClient.RenamedSix method.
-type GroupClientRenamedSixOptions struct {
+// BarClientSixOptions contains the optional parameters for the BarClient.Six method.
+type BarClientSixOptions struct {
 	// placeholder for future optional parameters
 }
 
-// GroupClientRenamedTwoOptions contains the optional parameters for the GroupClient.RenamedTwo method.
-type GroupClientRenamedTwoOptions struct {
+// FooClientFourOptions contains the optional parameters for the FooClient.Four method.
+type FooClientFourOptions struct {
 	// placeholder for future optional parameters
 }
 
-// RenamedOperationClientRenamedFiveOptions contains the optional parameters for the RenamedOperationClient.RenamedFive method.
-type RenamedOperationClientRenamedFiveOptions struct {
+// FooClientThreeOptions contains the optional parameters for the FooClient.Three method.
+type FooClientThreeOptions struct {
 	// placeholder for future optional parameters
 }
 
-// RenamedOperationClientRenamedOneOptions contains the optional parameters for the RenamedOperationClient.RenamedOne method.
-type RenamedOperationClientRenamedOneOptions struct {
+// ServiceClientOneOptions contains the optional parameters for the ServiceClient.One method.
+type ServiceClientOneOptions struct {
 	// placeholder for future optional parameters
 }
 
-// RenamedOperationClientRenamedThreeOptions contains the optional parameters for the RenamedOperationClient.RenamedThree
-// method.
-type RenamedOperationClientRenamedThreeOptions struct {
+// ServiceClientTwoOptions contains the optional parameters for the ServiceClient.Two method.
+type ServiceClientTwoOptions struct {
 	// placeholder for future optional parameters
 }

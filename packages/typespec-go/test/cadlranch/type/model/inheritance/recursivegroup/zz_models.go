@@ -15,6 +15,6 @@ type Element struct {
 // extension
 type Extension struct {
 	// REQUIRED
-	Level     *int8
+	Level     *int32
 	Extension []Extension
 }

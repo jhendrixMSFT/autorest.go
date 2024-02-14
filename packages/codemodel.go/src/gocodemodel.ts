@@ -746,7 +746,7 @@ export interface HeaderMapResponse {
   collectionPrefix: string;
 }
 
-export type PrimitiveTypeName = 'any' | 'bool' | 'byte' | 'float32' | 'float64' | 'int8' | 'int16' | 'int32' | 'int64' | 'rune' | 'string';
+export type PrimitiveTypeName = 'any' | 'bool' | 'byte' | 'float32' | 'float64' | 'int32' | 'int64' | 'rune' | 'string';
 
 export type BytesEncoding = 'Std' | 'URL';
 
@@ -1396,9 +1396,9 @@ export class URIParameter implements URIParameter {
 }
 
 export class ResumeTokenParameter implements ResumeTokenParameter {
-  constructor(paramName: string) {
+  constructor() {
     this.isResumeToken = true;
-    this.paramName = paramName;
+    this.paramName = 'ResumeToken';
     this.type = new PrimitiveType('string');
     this.paramType = 'optional';
     this.byValue = true;

@@ -6,6 +6,9 @@ pool:
 
 steps:
   - template: ../steps/set-env.yaml
+    parameters:
+      NodeVersion: "18.x"
+      GoVersion: "1.21.4"
 
   - template: ../steps/build-test-go.yaml
 
@@ -14,10 +17,6 @@ steps:
       cd packages/autorest.go
       npm version --no-git-tag-version $currentVersion
       npm pack;
-      npm install -g autorest-go-$currentVersion.tgz
-      if ($LASTEXITCODE) {
-        exit $LASTEXITCODE
-      }
       npx publish-release --token $(azuresdk-github-pat) --repo autorest.go --owner azure --name "Autorest for Go v$currentVersion" --tag v$currentVersion --notes='Autorest for Go track 2' --prerelease --editRelease false --assets autorest-go-$currentVersion.tgz --target_commitish $(Build.SourceBranchName);
     displayName: "Publish GitHub Release"
 

@@ -7,19 +7,9 @@
 
 package projectednamegroup
 
-type ClientModel struct {
-	// REQUIRED; Pass in true
-	DefaultName *bool
-}
-
 type ClientProjectedNameModel struct {
 	// REQUIRED; Pass in true
 	ClientName *bool
-}
-
-type GoModel struct {
-	// REQUIRED; Pass in true
-	DefaultName *bool
 }
 
 type JSONAndClientProjectedNameModel struct {
@@ -34,5 +24,5 @@ type JSONProjectedNameModel struct {
 
 type LanguageProjectedNameModel struct {
 	// REQUIRED; Pass in true
-	GoName *bool
+	DoNotUseMeAsAName *bool
 }

@@ -35,7 +35,7 @@ export class clientAdapter {
       throw new Error('single-client cannot be enabled when there are multiple clients');
     }
     for (const sdkClient of sdkPackage.clients) {
-      if (values(sdkClient.methods).all((each: tcgc.SdkMethod<tcgc.SdkHttpOperation>) => { return each.kind === 'clientaccessor'; })) {
+      if (sdkClient.initialization && values(sdkClient.methods).all((each: tcgc.SdkMethod<tcgc.SdkHttpOperation>) => { return each.kind === 'clientaccessor'; })) {
         // this is a hierarchical client with only client accessors so skip
         // it as we don't currently support hierarchical clients.
         continue;
@@ -77,19 +77,22 @@ export class clientAdapter {
     };
   
     const methodName = capitalize(ensureNameCase(sdkMethod.name));
+    const statusCodes = getStatusCodes(sdkMethod.operation);
 
     if (sdkMethod.kind === 'basic') {
-      method = new go.Method(methodName, goClient, sdkMethod.operation.path, sdkMethod.operation.verb, getStatusCodes(sdkMethod.operation), naming);
+      method = new go.Method(methodName, goClient, sdkMethod.operation.path, sdkMethod.operation.verb, statusCodes, naming);
     } else if (sdkMethod.kind === 'paging') {
-      method = new go.PageableMethod(methodName, goClient, sdkMethod.operation.path, sdkMethod.operation.verb, getStatusCodes(sdkMethod.operation), naming);
+      method = new go.PageableMethod(methodName, goClient, sdkMethod.operation.path, sdkMethod.operation.verb, statusCodes, naming);
       if (sdkMethod.nextLinkPath) {
         // TODO: handle nested next link
         (<go.PageableMethod>method).nextLinkName = capitalize(ensureNameCase(sdkMethod.nextLinkPath));
       }
+    } else if (sdkMethod.kind === 'lro') {
+      method = new go.LROMethod(methodName, goClient, sdkMethod.operation.path, sdkMethod.operation.verb, statusCodes, naming);
     } else {
       throw new Error(`method kind ${sdkMethod.kind} NYI`);
     }
-  
+
     method.description = sdkMethod.description;
     goClient.methods.push(method);
     this.populateMethod(sdkMethod, method);
@@ -125,6 +128,9 @@ export class clientAdapter {
     if (go.isMethod(method)) {
       // NextPageMethods don't have optional params
       optionalGroup = method.optionalParamsGroup;
+      if (go.isLROMethod(method)) {
+        optionalGroup.params.push(new go.ResumeTokenParameter());
+      }
     }
 
     if (sdkMethod.operation.bodyParams.length > 1) {
@@ -227,12 +233,8 @@ export class clientAdapter {
     const bodyResponses = new Array<tcgc.SdkType>();
 
     // add any headers
-    for (const httpResp of Object.values(sdkMethod.operation.responses)) {
-      const addedHeaders = new Set<string>();
-      if (httpResp.type && !bodyResponses.includes(httpResp.type)) {
-        bodyResponses.push(httpResp.type);
-      }
-  
+    const addedHeaders = new Set<string>();
+    for (const httpResp of Object.values(sdkMethod.operation.responses)) { 
       for (const httpHeader of httpResp.headers) {
         if (addedHeaders.has(httpHeader.serializedName)) {
           continue;
@@ -243,8 +245,18 @@ export class clientAdapter {
         respEnv.headers.push(headerResp);
         addedHeaders.add(httpHeader.serializedName);
       }
+
+      // workaround until https://github.com/Azure/typespec-azure/issues/124 is fixed
+      if (httpResp.type?.kind === 'model' && (httpResp.type.name === 'OperationStatus' || httpResp.type.name === 'ResourceOperationStatus')) {
+        continue;
+      }
+      // end workaround
+
+      if (httpResp.type && !bodyResponses.includes(httpResp.type)) {
+        bodyResponses.push(httpResp.type);
+      }
     }
-  
+
     if (bodyResponses.length === 0) {
       return respEnv;
     }

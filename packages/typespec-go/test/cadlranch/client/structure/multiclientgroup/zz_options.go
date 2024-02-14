@@ -7,32 +7,32 @@
 
 package multiclientgroup
 
-// ClientAClientRenamedFiveOptions contains the optional parameters for the ClientAClient.RenamedFive method.
-type ClientAClientRenamedFiveOptions struct {
+// BarClientFiveOptions contains the optional parameters for the BarClient.Five method.
+type BarClientFiveOptions struct {
 	// placeholder for future optional parameters
 }
 
-// ClientAClientRenamedOneOptions contains the optional parameters for the ClientAClient.RenamedOne method.
-type ClientAClientRenamedOneOptions struct {
+// BarClientSixOptions contains the optional parameters for the BarClient.Six method.
+type BarClientSixOptions struct {
 	// placeholder for future optional parameters
 }
 
-// ClientAClientRenamedThreeOptions contains the optional parameters for the ClientAClient.RenamedThree method.
-type ClientAClientRenamedThreeOptions struct {
+// FooClientFourOptions contains the optional parameters for the FooClient.Four method.
+type FooClientFourOptions struct {
 	// placeholder for future optional parameters
 }
 
-// ClientBClientRenamedFourOptions contains the optional parameters for the ClientBClient.RenamedFour method.
-type ClientBClientRenamedFourOptions struct {
+// FooClientThreeOptions contains the optional parameters for the FooClient.Three method.
+type FooClientThreeOptions struct {
 	// placeholder for future optional parameters
 }
 
-// ClientBClientRenamedSixOptions contains the optional parameters for the ClientBClient.RenamedSix method.
-type ClientBClientRenamedSixOptions struct {
+// ServiceClientOneOptions contains the optional parameters for the ServiceClient.One method.
+type ServiceClientOneOptions struct {
 	// placeholder for future optional parameters
 }
 
-// ClientBClientRenamedTwoOptions contains the optional parameters for the ClientBClient.RenamedTwo method.
-type ClientBClientRenamedTwoOptions struct {
+// ServiceClientTwoOptions contains the optional parameters for the ServiceClient.Two method.
+type ServiceClientTwoOptions struct {
 	// placeholder for future optional parameters
 }
