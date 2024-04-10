@@ -5,3 +5,8 @@
 package lrostdgroup
 
 const host = "http://localhost:3000"
+
+const (
+	moduleName    = "lrostdgroup"
+	moduleVersion = "v0.1.0"
+)

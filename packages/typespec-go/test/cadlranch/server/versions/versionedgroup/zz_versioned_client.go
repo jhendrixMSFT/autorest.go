@@ -21,6 +21,26 @@ type VersionedClient struct {
 	endpoint string
 }
 
+// VersionedClientOptions contains the optional values for creating a [VersionedClient].
+type VersionedClientOptions struct {
+	azcore.ClientOptions
+}
+
+// NewVersionedClientWithNoCredential creates a new [VersionedClient].
+//   - options - optional client configuration; pass nil to accept the default values
+func NewVersionedClientWithNoCredential(options *VersionedClientOptions) (*VersionedClient, error) {
+	if options == nil {
+		options = &VersionedClientOptions{}
+	}
+	internal, err := azcore.NewClient(moduleName, moduleVersion, runtime.PipelineOptions{}, &options.ClientOptions)
+	if err != nil {
+		return nil, err
+	}
+	return &VersionedClient{
+		internal: internal,
+	}, nil
+}
+
 //   - options - VersionedClientWithPathAPIVersionOptions contains the optional parameters for the VersionedClient.WithPathAPIVersion
 //     method.
 func (client *VersionedClient) WithPathAPIVersion(ctx context.Context, options *VersionedClientWithPathAPIVersionOptions) (VersionedClientWithPathAPIVersionResponse, error) {

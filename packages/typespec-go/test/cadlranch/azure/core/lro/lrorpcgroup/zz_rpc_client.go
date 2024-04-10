@@ -18,6 +18,26 @@ type RpcClient struct {
 	internal *azcore.Client
 }
 
+// RpcClientOptions contains the optional values for creating a [RpcClient].
+type RpcClientOptions struct {
+	azcore.ClientOptions
+}
+
+// NewRpcClientWithNoCredential creates a new [RpcClient].
+//   - options - optional client configuration; pass nil to accept the default values
+func NewRpcClientWithNoCredential(options *RpcClientOptions) (*RpcClient, error) {
+	if options == nil {
+		options = &RpcClientOptions{}
+	}
+	internal, err := azcore.NewClient(moduleName, moduleVersion, runtime.PipelineOptions{}, &options.ClientOptions)
+	if err != nil {
+		return nil, err
+	}
+	return &RpcClient{
+		internal: internal,
+	}, nil
+}
+
 // BeginLongRunningRPC - Generate data.
 //   - options - RpcClientLongRunningRPCOptions contains the optional parameters for the RpcClient.LongRunningRPC method.
 func (client *RpcClient) BeginLongRunningRPC(ctx context.Context, generationOptions GenerationOptions, options *RpcClientLongRunningRPCOptions) (*runtime.Poller[RpcClientLongRunningRPCResponse], error) {

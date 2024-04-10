@@ -5,3 +5,8 @@
 package pageablegroup
 
 const host = "http://localhost:3000"
+
+const (
+	moduleName    = "pageablegroup"
+	moduleVersion = "v0.1.0"
+)

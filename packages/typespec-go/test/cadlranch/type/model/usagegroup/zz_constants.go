@@ -5,3 +5,8 @@
 package usagegroup
 
 const host = "http://localhost:3000"
+
+const (
+	moduleName    = "usagegroup"
+	moduleVersion = "v0.1.0"
+)

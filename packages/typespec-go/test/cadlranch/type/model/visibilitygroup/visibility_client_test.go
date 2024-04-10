@@ -16,7 +16,7 @@ import (
 )
 
 func TestVisibilityClientDeleteModel(t *testing.T) {
-	client, err := visibilitygroup.NewVisibilityClient(nil)
+	client, err := visibilitygroup.NewVisibilityClientWithNoCredential(nil)
 	require.NoError(t, err)
 	resp, err := client.DeleteModel(context.Background(), visibilitygroup.VisibilityModel{
 		DeleteProp: to.Ptr(true),
@@ -26,7 +26,7 @@ func TestVisibilityClientDeleteModel(t *testing.T) {
 }
 
 func TestVisibilityClientGetModel(t *testing.T) {
-	client, err := visibilitygroup.NewVisibilityClient(nil)
+	client, err := visibilitygroup.NewVisibilityClientWithNoCredential(nil)
 	require.NoError(t, err)
 	resp, err := client.GetModel(context.Background(), visibilitygroup.VisibilityModel{
 		QueryProp: to.Ptr[int32](123),
@@ -38,7 +38,7 @@ func TestVisibilityClientGetModel(t *testing.T) {
 }
 
 func TestVisibilityClientHeadModel(t *testing.T) {
-	client, err := visibilitygroup.NewVisibilityClient(nil)
+	client, err := visibilitygroup.NewVisibilityClientWithNoCredential(nil)
 	require.NoError(t, err)
 	resp, err := client.HeadModel(context.Background(), visibilitygroup.VisibilityModel{
 		QueryProp: to.Ptr[int32](123),
@@ -48,7 +48,7 @@ func TestVisibilityClientHeadModel(t *testing.T) {
 }
 
 func TestVisibilityClientPatchModel(t *testing.T) {
-	client, err := visibilitygroup.NewVisibilityClient(nil)
+	client, err := visibilitygroup.NewVisibilityClientWithNoCredential(nil)
 	require.NoError(t, err)
 	resp, err := client.PatchModel(context.Background(), visibilitygroup.VisibilityModel{
 		UpdateProp: []*int32{
@@ -61,7 +61,7 @@ func TestVisibilityClientPatchModel(t *testing.T) {
 }
 
 func TestVisibilityClientPostModel(t *testing.T) {
-	client, err := visibilitygroup.NewVisibilityClient(nil)
+	client, err := visibilitygroup.NewVisibilityClientWithNoCredential(nil)
 	require.NoError(t, err)
 	resp, err := client.PostModel(context.Background(), visibilitygroup.VisibilityModel{
 		CreateProp: []*string{
@@ -74,7 +74,7 @@ func TestVisibilityClientPostModel(t *testing.T) {
 }
 
 func TestVisibilityClientPutModel(t *testing.T) {
-	client, err := visibilitygroup.NewVisibilityClient(nil)
+	client, err := visibilitygroup.NewVisibilityClientWithNoCredential(nil)
 	require.NoError(t, err)
 	resp, err := client.PutModel(context.Background(), visibilitygroup.VisibilityModel{
 		CreateProp: []*string{

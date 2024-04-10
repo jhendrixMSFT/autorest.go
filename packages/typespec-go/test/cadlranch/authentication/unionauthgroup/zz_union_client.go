@@ -18,6 +18,26 @@ type UnionClient struct {
 	internal *azcore.Client
 }
 
+// UnionClientOptions contains the optional values for creating a [UnionClient].
+type UnionClientOptions struct {
+	azcore.ClientOptions
+}
+
+// NewUnionClientWithNoCredential creates a new [UnionClient].
+//   - options - optional client configuration; pass nil to accept the default values
+func NewUnionClientWithNoCredential(options *UnionClientOptions) (*UnionClient, error) {
+	if options == nil {
+		options = &UnionClientOptions{}
+	}
+	internal, err := azcore.NewClient(moduleName, moduleVersion, runtime.PipelineOptions{}, &options.ClientOptions)
+	if err != nil {
+		return nil, err
+	}
+	return &UnionClient{
+		internal: internal,
+	}, nil
+}
+
 // ValidKey - Check whether client is authenticated
 //   - options - UnionClientValidKeyOptions contains the optional parameters for the UnionClient.ValidKey method.
 func (client *UnionClient) ValidKey(ctx context.Context, options *UnionClientValidKeyOptions) (UnionClientValidKeyResponse, error) {

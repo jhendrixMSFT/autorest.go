@@ -18,6 +18,26 @@ type ConditionalRequestClient struct {
 	internal *azcore.Client
 }
 
+// ConditionalRequestClientOptions contains the optional values for creating a [ConditionalRequestClient].
+type ConditionalRequestClientOptions struct {
+	azcore.ClientOptions
+}
+
+// NewConditionalRequestClientWithNoCredential creates a new [ConditionalRequestClient].
+//   - options - optional client configuration; pass nil to accept the default values
+func NewConditionalRequestClientWithNoCredential(options *ConditionalRequestClientOptions) (*ConditionalRequestClient, error) {
+	if options == nil {
+		options = &ConditionalRequestClientOptions{}
+	}
+	internal, err := azcore.NewClient(moduleName, moduleVersion, runtime.PipelineOptions{}, &options.ClientOptions)
+	if err != nil {
+		return nil, err
+	}
+	return &ConditionalRequestClient{
+		internal: internal,
+	}, nil
+}
+
 // PostIfMatch - Check when only If-Match in header is defined.
 //   - options - ConditionalRequestClientPostIfMatchOptions contains the optional parameters for the ConditionalRequestClient.PostIfMatch
 //     method.

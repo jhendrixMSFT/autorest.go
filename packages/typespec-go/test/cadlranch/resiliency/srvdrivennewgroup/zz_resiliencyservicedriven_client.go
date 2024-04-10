@@ -33,6 +33,26 @@ type ResiliencyServiceDrivenClient struct {
 	apiVersion               string
 }
 
+// ResiliencyServiceDrivenClientOptions contains the optional values for creating a [ResiliencyServiceDrivenClient].
+type ResiliencyServiceDrivenClientOptions struct {
+	azcore.ClientOptions
+}
+
+// NewResiliencyServiceDrivenClientWithNoCredential creates a new [ResiliencyServiceDrivenClient].
+//   - options - optional client configuration; pass nil to accept the default values
+func NewResiliencyServiceDrivenClientWithNoCredential(options *ResiliencyServiceDrivenClientOptions) (*ResiliencyServiceDrivenClient, error) {
+	if options == nil {
+		options = &ResiliencyServiceDrivenClientOptions{}
+	}
+	internal, err := azcore.NewClient(moduleName, moduleVersion, runtime.PipelineOptions{}, &options.ClientOptions)
+	if err != nil {
+		return nil, err
+	}
+	return &ResiliencyServiceDrivenClient{
+		internal: internal,
+	}, nil
+}
+
 // AddOperation - Added operation
 //   - options - ResiliencyServiceDrivenClientAddOperationOptions contains the optional parameters for the ResiliencyServiceDrivenClient.AddOperation
 //     method.

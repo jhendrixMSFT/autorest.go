@@ -28,6 +28,26 @@ type ServiceClient struct {
 	client   ClientType
 }
 
+// ServiceClientOptions contains the optional values for creating a [ServiceClient].
+type ServiceClientOptions struct {
+	azcore.ClientOptions
+}
+
+// NewServiceClientWithNoCredential creates a new [ServiceClient].
+//   - options - optional client configuration; pass nil to accept the default values
+func NewServiceClientWithNoCredential(options *ServiceClientOptions) (*ServiceClient, error) {
+	if options == nil {
+		options = &ServiceClientOptions{}
+	}
+	internal, err := azcore.NewClient(moduleName, moduleVersion, runtime.PipelineOptions{}, &options.ClientOptions)
+	if err != nil {
+		return nil, err
+	}
+	return &ServiceClient{
+		internal: internal,
+	}, nil
+}
+
 // NewServiceBarClient creates a new instance of [ServiceBarClient].
 func (client *ServiceClient) NewServiceBarClient() *ServiceBarClient {
 	return &ServiceBarClient{

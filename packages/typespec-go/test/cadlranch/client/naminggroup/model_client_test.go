@@ -13,7 +13,7 @@ import (
 )
 
 func TestModelClient_Client(t *testing.T) {
-	client, err := naminggroup.NewNamingClient(nil)
+	client, err := naminggroup.NewNamingClientWithNoCredential(nil)
 	require.NoError(t, err)
 	resp, err := client.NewNamingModelClient().Client(context.Background(), naminggroup.ClientModel{
 		DefaultName: to.Ptr(true),
@@ -23,7 +23,7 @@ func TestModelClient_Client(t *testing.T) {
 }
 
 func TestModelClient_Language(t *testing.T) {
-	client, err := naminggroup.NewNamingClient(nil)
+	client, err := naminggroup.NewNamingClientWithNoCredential(nil)
 	require.NoError(t, err)
 	resp, err := client.NewNamingModelClient().Language(context.Background(), naminggroup.GoModel{
 		DefaultName: to.Ptr(true),

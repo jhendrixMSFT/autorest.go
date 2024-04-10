@@ -5,3 +5,8 @@
 package scalargroup
 
 const host = "http://localhost:3000"
+
+const (
+	moduleName    = "scalargroup"
+	moduleVersion = "v0.1.0"
+)

@@ -21,6 +21,26 @@ type StandardClient struct {
 	internal *azcore.Client
 }
 
+// StandardClientOptions contains the optional values for creating a [StandardClient].
+type StandardClientOptions struct {
+	azcore.ClientOptions
+}
+
+// NewStandardClientWithNoCredential creates a new [StandardClient].
+//   - options - optional client configuration; pass nil to accept the default values
+func NewStandardClientWithNoCredential(options *StandardClientOptions) (*StandardClient, error) {
+	if options == nil {
+		options = &StandardClientOptions{}
+	}
+	internal, err := azcore.NewClient(moduleName, moduleVersion, runtime.PipelineOptions{}, &options.ClientOptions)
+	if err != nil {
+		return nil, err
+	}
+	return &StandardClient{
+		internal: internal,
+	}, nil
+}
+
 // BeginCreateOrReplace - Adds a user or replaces a user's fields.
 //   - name - The name of user.
 //   - resource - The resource instance.

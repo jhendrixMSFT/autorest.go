@@ -16,7 +16,7 @@ import (
 )
 
 func TestExtendsStringClient_Get(t *testing.T) {
-	client, err := addlpropsgroup.NewAdditionalPropertiesClient(nil)
+	client, err := addlpropsgroup.NewAdditionalPropertiesClientWithNoCredential(nil)
 	require.NoError(t, err)
 	resp, err := client.NewAdditionalPropertiesExtendsStringClient().Get(context.Background(), nil)
 	require.NoError(t, err)
@@ -29,7 +29,7 @@ func TestExtendsStringClient_Get(t *testing.T) {
 }
 
 func TestExtendsStringClient_Put(t *testing.T) {
-	client, err := addlpropsgroup.NewAdditionalPropertiesClient(nil)
+	client, err := addlpropsgroup.NewAdditionalPropertiesClientWithNoCredential(nil)
 	require.NoError(t, err)
 	resp, err := client.NewAdditionalPropertiesExtendsStringClient().Put(context.Background(), addlpropsgroup.ExtendsStringAdditionalProperties{
 		Name: to.Ptr("ExtendsStringAdditionalProperties"),

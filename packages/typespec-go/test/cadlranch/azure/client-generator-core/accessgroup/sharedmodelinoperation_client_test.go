@@ -12,7 +12,7 @@ import (
 )
 
 func TestSharedModelInOperationClient_internalMethod(t *testing.T) {
-	client, err := NewAccessClient(nil)
+	client, err := NewAccessClientWithNoCredential(nil)
 	require.NoError(t, err)
 	resp, err := client.NewAccessSharedModelInOperationClient().internalMethod(context.Background(), "foo", nil)
 	require.NoError(t, err)
@@ -22,7 +22,7 @@ func TestSharedModelInOperationClient_internalMethod(t *testing.T) {
 }
 
 func TestSharedModelInOperationClient_Public(t *testing.T) {
-	client, err := NewAccessClient(nil)
+	client, err := NewAccessClientWithNoCredential(nil)
 	require.NoError(t, err)
 	resp, err := client.NewAccessSharedModelInOperationClient().Public(context.Background(), "foo", nil)
 	require.NoError(t, err)

@@ -18,6 +18,26 @@ type EmptyClient struct {
 	internal *azcore.Client
 }
 
+// EmptyClientOptions contains the optional values for creating a [EmptyClient].
+type EmptyClientOptions struct {
+	azcore.ClientOptions
+}
+
+// NewEmptyClientWithNoCredential creates a new [EmptyClient].
+//   - options - optional client configuration; pass nil to accept the default values
+func NewEmptyClientWithNoCredential(options *EmptyClientOptions) (*EmptyClient, error) {
+	if options == nil {
+		options = &EmptyClientOptions{}
+	}
+	internal, err := azcore.NewClient(moduleName, moduleVersion, runtime.PipelineOptions{}, &options.ClientOptions)
+	if err != nil {
+		return nil, err
+	}
+	return &EmptyClient{
+		internal: internal,
+	}, nil
+}
+
 // - options - GetEmptyOptions contains the optional parameters for the EmptyClient.GetEmpty method.
 func (client *EmptyClient) GetEmpty(ctx context.Context, options *GetEmptyOptions) (GetEmptyResponse, error) {
 	var err error

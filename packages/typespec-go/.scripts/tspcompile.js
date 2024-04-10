@@ -158,6 +158,7 @@ function generate(moduleName, input, outputDir, additionalArgs) {
       const options = [];
       options.push(`--option="@azure-tools/typespec-go.module=${moduleName}"`);
       options.push(`--option="@azure-tools/typespec-go.module-version=0.1.0"`);
+      options.push(`--option="@azure-tools/typespec-go.generate-ctors=true"`);
       options.push(`--option="@azure-tools/typespec-go.emitter-output-dir=${fullOutputDir}"`);
       options.push(`--option="@azure-tools/typespec-go.file-prefix=zz_"`);
       options.push(`--option="@azure-tools/typespec-go.generate-fakes=true"`);

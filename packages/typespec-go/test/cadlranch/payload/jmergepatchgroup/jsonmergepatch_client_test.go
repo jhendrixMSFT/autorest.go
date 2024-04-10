@@ -14,7 +14,7 @@ import (
 )
 
 func TestJsonMergePatchClient_CreateResource(t *testing.T) {
-	client, err := jmergepatchgroup.NewJsonMergePatchClient(nil)
+	client, err := jmergepatchgroup.NewJsonMergePatchClientWithNoCredential(nil)
 	require.NoError(t, err)
 	resp, err := client.CreateResource(context.Background(), jmergepatchgroup.Resource{
 		Name:        to.Ptr("Madge"),
@@ -74,7 +74,7 @@ func TestJsonMergePatchClient_CreateResource(t *testing.T) {
 }
 
 func TestJsonMergePatchClient_UpdateOptionalResource(t *testing.T) {
-	client, err := jmergepatchgroup.NewJsonMergePatchClient(nil)
+	client, err := jmergepatchgroup.NewJsonMergePatchClientWithNoCredential(nil)
 	require.NoError(t, err)
 	resp, err := client.UpdateOptionalResource(context.Background(), &jmergepatchgroup.JsonMergePatchClientUpdateOptionalResourceOptions{
 		Body: &jmergepatchgroup.ResourcePatch{
@@ -104,7 +104,7 @@ func TestJsonMergePatchClient_UpdateOptionalResource(t *testing.T) {
 }
 
 func TestJsonMergePatchClient_UpdateResource(t *testing.T) {
-	client, err := jmergepatchgroup.NewJsonMergePatchClient(nil)
+	client, err := jmergepatchgroup.NewJsonMergePatchClientWithNoCredential(nil)
 	require.NoError(t, err)
 	resp, err := client.UpdateResource(context.Background(), jmergepatchgroup.ResourcePatch{
 		Description: azcore.NullValue[*string](),

@@ -4,12 +4,35 @@
 
 package mediatypegroup
 
-import "github.com/Azure/azure-sdk-for-go/sdk/azcore"
+import (
+	"github.com/Azure/azure-sdk-for-go/sdk/azcore"
+	"github.com/Azure/azure-sdk-for-go/sdk/azcore/runtime"
+)
 
 // MediaTypeClient - Test the payload with different media types and different types of the payload itself.
 // Don't use this type directly, use a constructor function instead.
 type MediaTypeClient struct {
 	internal *azcore.Client
+}
+
+// MediaTypeClientOptions contains the optional values for creating a [MediaTypeClient].
+type MediaTypeClientOptions struct {
+	azcore.ClientOptions
+}
+
+// NewMediaTypeClientWithNoCredential creates a new [MediaTypeClient].
+//   - options - optional client configuration; pass nil to accept the default values
+func NewMediaTypeClientWithNoCredential(options *MediaTypeClientOptions) (*MediaTypeClient, error) {
+	if options == nil {
+		options = &MediaTypeClientOptions{}
+	}
+	internal, err := azcore.NewClient(moduleName, moduleVersion, runtime.PipelineOptions{}, &options.ClientOptions)
+	if err != nil {
+		return nil, err
+	}
+	return &MediaTypeClient{
+		internal: internal,
+	}, nil
 }
 
 // NewMediaTypeStringBodyClient creates a new instance of [MediaTypeStringBodyClient].

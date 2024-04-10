@@ -4,12 +4,35 @@
 
 package durationgroup
 
-import "github.com/Azure/azure-sdk-for-go/sdk/azcore"
+import (
+	"github.com/Azure/azure-sdk-for-go/sdk/azcore"
+	"github.com/Azure/azure-sdk-for-go/sdk/azcore/runtime"
+)
 
 // DurationClient - Test for encode decorator on duration.
 // Don't use this type directly, use a constructor function instead.
 type DurationClient struct {
 	internal *azcore.Client
+}
+
+// DurationClientOptions contains the optional values for creating a [DurationClient].
+type DurationClientOptions struct {
+	azcore.ClientOptions
+}
+
+// NewDurationClientWithNoCredential creates a new [DurationClient].
+//   - options - optional client configuration; pass nil to accept the default values
+func NewDurationClientWithNoCredential(options *DurationClientOptions) (*DurationClient, error) {
+	if options == nil {
+		options = &DurationClientOptions{}
+	}
+	internal, err := azcore.NewClient(moduleName, moduleVersion, runtime.PipelineOptions{}, &options.ClientOptions)
+	if err != nil {
+		return nil, err
+	}
+	return &DurationClient{
+		internal: internal,
+	}, nil
 }
 
 // NewDurationHeaderClient creates a new instance of [DurationHeaderClient].

@@ -5,3 +5,8 @@
 package oauth2group
 
 const host = "http://localhost:3000"
+
+const (
+	moduleName    = "oauth2group"
+	moduleVersion = "v0.1.0"
+)

@@ -12,7 +12,7 @@ import (
 )
 
 func TestRelativeModelInOperationClient_discriminator(t *testing.T) {
-	client, err := NewAccessClient(nil)
+	client, err := NewAccessClientWithNoCredential(nil)
 	require.NoError(t, err)
 	resp, err := client.NewAccessRelativeModelInOperationClient().discriminator(context.Background(), "anything", nil)
 	require.NoError(t, err)
@@ -23,7 +23,7 @@ func TestRelativeModelInOperationClient_discriminator(t *testing.T) {
 }
 
 func TestRelativeModelInOperationClient_operation(t *testing.T) {
-	client, err := NewAccessClient(nil)
+	client, err := NewAccessClientWithNoCredential(nil)
 	require.NoError(t, err)
 	resp, err := client.NewAccessRelativeModelInOperationClient().operation(context.Background(), "anything", nil)
 	require.NoError(t, err)

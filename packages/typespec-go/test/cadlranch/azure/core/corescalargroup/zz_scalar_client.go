@@ -4,12 +4,35 @@
 
 package corescalargroup
 
-import "github.com/Azure/azure-sdk-for-go/sdk/azcore"
+import (
+	"github.com/Azure/azure-sdk-for-go/sdk/azcore"
+	"github.com/Azure/azure-sdk-for-go/sdk/azcore/runtime"
+)
 
 // ScalarClient contains the methods for the _Specs_.Azure.Core.Scalar namespace.
 // Don't use this type directly, use a constructor function instead.
 type ScalarClient struct {
 	internal *azcore.Client
+}
+
+// ScalarClientOptions contains the optional values for creating a [ScalarClient].
+type ScalarClientOptions struct {
+	azcore.ClientOptions
+}
+
+// NewScalarClientWithNoCredential creates a new [ScalarClient].
+//   - options - optional client configuration; pass nil to accept the default values
+func NewScalarClientWithNoCredential(options *ScalarClientOptions) (*ScalarClient, error) {
+	if options == nil {
+		options = &ScalarClientOptions{}
+	}
+	internal, err := azcore.NewClient(moduleName, moduleVersion, runtime.PipelineOptions{}, &options.ClientOptions)
+	if err != nil {
+		return nil, err
+	}
+	return &ScalarClient{
+		internal: internal,
+	}, nil
 }
 
 // NewScalarAzureLocationScalarClient creates a new instance of [ScalarAzureLocationScalarClient].

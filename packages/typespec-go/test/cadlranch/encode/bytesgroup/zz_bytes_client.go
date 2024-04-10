@@ -4,12 +4,35 @@
 
 package bytesgroup
 
-import "github.com/Azure/azure-sdk-for-go/sdk/azcore"
+import (
+	"github.com/Azure/azure-sdk-for-go/sdk/azcore"
+	"github.com/Azure/azure-sdk-for-go/sdk/azcore/runtime"
+)
 
 // BytesClient - Test for encode decorator on bytes.
 // Don't use this type directly, use a constructor function instead.
 type BytesClient struct {
 	internal *azcore.Client
+}
+
+// BytesClientOptions contains the optional values for creating a [BytesClient].
+type BytesClientOptions struct {
+	azcore.ClientOptions
+}
+
+// NewBytesClientWithNoCredential creates a new [BytesClient].
+//   - options - optional client configuration; pass nil to accept the default values
+func NewBytesClientWithNoCredential(options *BytesClientOptions) (*BytesClient, error) {
+	if options == nil {
+		options = &BytesClientOptions{}
+	}
+	internal, err := azcore.NewClient(moduleName, moduleVersion, runtime.PipelineOptions{}, &options.ClientOptions)
+	if err != nil {
+		return nil, err
+	}
+	return &BytesClient{
+		internal: internal,
+	}, nil
 }
 
 // NewBytesHeaderClient creates a new instance of [BytesHeaderClient].

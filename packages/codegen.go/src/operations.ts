@@ -37,6 +37,9 @@ export async function generateOperations(codeModel: go.CodeModel): Promise<Array
       imports.add('net/http');
       imports.add('github.com/Azure/azure-sdk-for-go/sdk/azcore/policy');
       imports.add('github.com/Azure/azure-sdk-for-go/sdk/azcore/runtime');
+    } else if (client.constructors.length > 0) {
+      // client constructors will need this
+      imports.add('github.com/Azure/azure-sdk-for-go/sdk/azcore/runtime');
     }
 
     let clientPkg = 'azcore';
@@ -173,6 +176,14 @@ function generateConstructors(azureARM: boolean, client: go.Client, imports: Imp
   }
 
   let ctorText = '';
+
+  if (!azureARM) {
+    const optionsTypeName = client.name + 'Options';
+    ctorText += `// ${} contains the optional values for creating a [${client.name}].\n`;
+    ctorText += `type ${optionsTypeName} struct {\n\tazcore.ClientOptions\n}\n\n`;
+    // TODO: optional client params
+  }
+
   for (const constructor of client.constructors) {
     const ctorParams = new Array<string>();
     const paramDocs = new Array<string>();
@@ -186,6 +197,23 @@ function generateConstructors(azureARM: boolean, client: go.Client, imports: Imp
       }
     }
 
+    let requiresAuth: boolean;
+    switch (constructor.authentication.kind) {
+      case 'apikey':
+        ctorParams.push('credential azcore.KeyCredential');
+        paramDocs.push('credential - the [azcore.KeyCredential] used to authenticate requests.');
+        requiresAuth = true;
+        break;
+      case 'bearer':
+        ctorParams.push('credential azcore.TokenCredential');
+        paramDocs.push('credential - used to authorize requests. Usually a credential from azidentity.');
+        requiresAuth = true;
+        break;
+      case 'none':
+        requiresAuth = false;
+        break;
+    }
+
     // add client options last
     ctorParams.push(`${client.options.name} ${helpers.formatParameterTypeName(client.options)}`);
     paramDocs.push(helpers.formatCommentAsBulletItem(`${client.options.name} - ${client.options.description}`));
@@ -196,12 +224,12 @@ function generateConstructors(azureARM: boolean, client: go.Client, imports: Imp
     }
 
     ctorText += `func ${constructor.name}(${ctorParams.join(', ')}) (*${client.name}, error) {\n`;
-    let clientType = 'azcore';
     if (azureARM) {
-      clientType = 'arm';
+      ctorText += '\tcl, err := arm.NewClient(moduleName, moduleVersion, credential, options)\n';
+    } else if (requiresAuth) {
+
     }
 
-    ctorText += `\tcl, err := ${clientType}.NewClient(moduleName, moduleVersion, credential, options)\n`;
     ctorText += '\tif err != nil {\n';
     ctorText += '\t\treturn nil, err\n';
     ctorText += '\t}\n';
@@ -224,14 +252,14 @@ function generateConstructors(azureARM: boolean, client: go.Client, imports: Imp
 // creates a modeled constructor for an ARM client
 function createARMClientConstructor(client: go.Client, imports: ImportManager): go.Constructor {
   imports.add('github.com/Azure/azure-sdk-for-go/sdk/azcore/arm');
-  const ctor = new go.Constructor(`New${client.name}`);
+  const ctor = new go.Constructor(`New${client.name}`, new go.BearerAuthentication());
   // add any modeled parameter first, which should only be the subscriptionID, then add TokenCredential
   for (const param of client.parameters) {
     ctor.parameters.push(param);
   }
-  const tokenCredParam = new go.Parameter('credential', new go.QualifiedType('TokenCredential', 'github.com/Azure/azure-sdk-for-go/sdk/azcore'), 'required', true, 'client');
+  /*const tokenCredParam = new go.Parameter('credential', new go.QualifiedType('TokenCredential', 'github.com/Azure/azure-sdk-for-go/sdk/azcore'), 'required', true, 'client');
   tokenCredParam.description = 'used to authorize requests. Usually a credential from azidentity.';
-  ctor.parameters.push(tokenCredParam);
+  ctor.parameters.push(tokenCredParam);*/
   return ctor;
 }
 

@@ -6,6 +6,11 @@ package extensiblegroup
 
 const host = "http://localhost:3000"
 
+const (
+	moduleName    = "extensiblegroup"
+	moduleVersion = "v0.1.0"
+)
+
 // DaysOfWeekExtensibleEnum - Days of the week
 type DaysOfWeekExtensibleEnum string
 

@@ -5,3 +5,8 @@
 package apikeygroup
 
 const host = "http://localhost:3000"
+
+const (
+	moduleName    = "apikeygroup"
+	moduleVersion = "v0.1.0"
+)

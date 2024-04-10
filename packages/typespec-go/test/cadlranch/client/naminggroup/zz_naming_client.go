@@ -18,6 +18,26 @@ type NamingClient struct {
 	internal *azcore.Client
 }
 
+// NamingClientOptions contains the optional values for creating a [NamingClient].
+type NamingClientOptions struct {
+	azcore.ClientOptions
+}
+
+// NewNamingClientWithNoCredential creates a new [NamingClient].
+//   - options - optional client configuration; pass nil to accept the default values
+func NewNamingClientWithNoCredential(options *NamingClientOptions) (*NamingClient, error) {
+	if options == nil {
+		options = &NamingClientOptions{}
+	}
+	internal, err := azcore.NewClient(moduleName, moduleVersion, runtime.PipelineOptions{}, &options.ClientOptions)
+	if err != nil {
+		return nil, err
+	}
+	return &NamingClient{
+		internal: internal,
+	}, nil
+}
+
 // NewNamingModelClient creates a new instance of [NamingModelClient].
 func (client *NamingClient) NewNamingModelClient() *NamingModelClient {
 	return &NamingModelClient{

@@ -6,6 +6,11 @@ package lrorpcgroup
 
 const host = "http://localhost:3000"
 
+const (
+	moduleName    = "lrorpcgroup"
+	moduleVersion = "v0.1.0"
+)
+
 // OperationState - Enum describing allowed operation states.
 type OperationState string
 

@@ -18,6 +18,26 @@ type UsageClient struct {
 	internal *azcore.Client
 }
 
+// UsageClientOptions contains the optional values for creating a [UsageClient].
+type UsageClientOptions struct {
+	azcore.ClientOptions
+}
+
+// NewUsageClientWithNoCredential creates a new [UsageClient].
+//   - options - optional client configuration; pass nil to accept the default values
+func NewUsageClientWithNoCredential(options *UsageClientOptions) (*UsageClient, error) {
+	if options == nil {
+		options = &UsageClientOptions{}
+	}
+	internal, err := azcore.NewClient(moduleName, moduleVersion, runtime.PipelineOptions{}, &options.ClientOptions)
+	if err != nil {
+		return nil, err
+	}
+	return &UsageClient{
+		internal: internal,
+	}, nil
+}
+
 // - options - UsageClientInputOptions contains the optional parameters for the UsageClient.Input method.
 func (client *UsageClient) Input(ctx context.Context, input InputRecord, options *UsageClientInputOptions) (UsageClientInputResponse, error) {
 	var err error

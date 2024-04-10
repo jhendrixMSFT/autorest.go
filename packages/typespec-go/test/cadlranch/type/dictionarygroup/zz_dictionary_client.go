@@ -4,12 +4,35 @@
 
 package dictionarygroup
 
-import "github.com/Azure/azure-sdk-for-go/sdk/azcore"
+import (
+	"github.com/Azure/azure-sdk-for-go/sdk/azcore"
+	"github.com/Azure/azure-sdk-for-go/sdk/azcore/runtime"
+)
 
 // DictionaryClient - Illustrates various of dictionaries.
 // Don't use this type directly, use a constructor function instead.
 type DictionaryClient struct {
 	internal *azcore.Client
+}
+
+// DictionaryClientOptions contains the optional values for creating a [DictionaryClient].
+type DictionaryClientOptions struct {
+	azcore.ClientOptions
+}
+
+// NewDictionaryClientWithNoCredential creates a new [DictionaryClient].
+//   - options - optional client configuration; pass nil to accept the default values
+func NewDictionaryClientWithNoCredential(options *DictionaryClientOptions) (*DictionaryClient, error) {
+	if options == nil {
+		options = &DictionaryClientOptions{}
+	}
+	internal, err := azcore.NewClient(moduleName, moduleVersion, runtime.PipelineOptions{}, &options.ClientOptions)
+	if err != nil {
+		return nil, err
+	}
+	return &DictionaryClient{
+		internal: internal,
+	}, nil
 }
 
 // NewDictionaryBooleanValueClient creates a new instance of [DictionaryBooleanValueClient].

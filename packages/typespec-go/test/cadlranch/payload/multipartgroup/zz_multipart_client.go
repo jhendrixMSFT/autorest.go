@@ -4,12 +4,35 @@
 
 package multipartgroup
 
-import "github.com/Azure/azure-sdk-for-go/sdk/azcore"
+import (
+	"github.com/Azure/azure-sdk-for-go/sdk/azcore"
+	"github.com/Azure/azure-sdk-for-go/sdk/azcore/runtime"
+)
 
 // MultiPartClient - Test for multipart
 // Don't use this type directly, use a constructor function instead.
 type MultiPartClient struct {
 	internal *azcore.Client
+}
+
+// MultiPartClientOptions contains the optional values for creating a [MultiPartClient].
+type MultiPartClientOptions struct {
+	azcore.ClientOptions
+}
+
+// NewMultiPartClientWithNoCredential creates a new [MultiPartClient].
+//   - options - optional client configuration; pass nil to accept the default values
+func NewMultiPartClientWithNoCredential(options *MultiPartClientOptions) (*MultiPartClient, error) {
+	if options == nil {
+		options = &MultiPartClientOptions{}
+	}
+	internal, err := azcore.NewClient(moduleName, moduleVersion, runtime.PipelineOptions{}, &options.ClientOptions)
+	if err != nil {
+		return nil, err
+	}
+	return &MultiPartClient{
+		internal: internal,
+	}, nil
 }
 
 // NewMultiPartFormDataClient creates a new instance of [MultiPartFormDataClient].

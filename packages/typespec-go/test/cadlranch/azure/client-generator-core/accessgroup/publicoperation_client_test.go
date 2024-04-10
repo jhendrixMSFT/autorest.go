@@ -12,7 +12,7 @@ import (
 )
 
 func TestPublicOperationClient_NoDecoratorInPublic(t *testing.T) {
-	client, err := NewAccessClient(nil)
+	client, err := NewAccessClientWithNoCredential(nil)
 	require.NoError(t, err)
 	resp, err := client.NewAccessPublicOperationClient().NoDecoratorInPublic(context.Background(), "foo", nil)
 	require.NoError(t, err)
@@ -22,7 +22,7 @@ func TestPublicOperationClient_NoDecoratorInPublic(t *testing.T) {
 }
 
 func TestPublicOperationClient_PublicDecoratorInPublic(t *testing.T) {
-	client, err := NewAccessClient(nil)
+	client, err := NewAccessClientWithNoCredential(nil)
 	require.NoError(t, err)
 	resp, err := client.NewAccessPublicOperationClient().PublicDecoratorInPublic(context.Background(), "foo", nil)
 	require.NoError(t, err)

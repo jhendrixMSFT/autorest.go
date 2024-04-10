@@ -5,3 +5,8 @@
 package addlpropsgroup
 
 const host = "http://localhost:3000"
+
+const (
+	moduleName    = "addlpropsgroup"
+	moduleVersion = "v0.1.0"
+)

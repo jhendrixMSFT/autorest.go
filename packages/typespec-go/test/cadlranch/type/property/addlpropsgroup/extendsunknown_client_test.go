@@ -16,7 +16,7 @@ import (
 )
 
 func TestExtendsUnknownClient_Get(t *testing.T) {
-	client, err := addlpropsgroup.NewAdditionalPropertiesClient(nil)
+	client, err := addlpropsgroup.NewAdditionalPropertiesClientWithNoCredential(nil)
 	require.NoError(t, err)
 	resp, err := client.NewAdditionalPropertiesExtendsUnknownClient().Get(context.Background(), nil)
 	require.NoError(t, err)
@@ -31,7 +31,7 @@ func TestExtendsUnknownClient_Get(t *testing.T) {
 }
 
 func TestExtendsUnknownClient_Put(t *testing.T) {
-	client, err := addlpropsgroup.NewAdditionalPropertiesClient(nil)
+	client, err := addlpropsgroup.NewAdditionalPropertiesClientWithNoCredential(nil)
 	require.NoError(t, err)
 	resp, err := client.NewAdditionalPropertiesExtendsUnknownClient().Put(context.Background(), addlpropsgroup.ExtendsUnknownAdditionalProperties{
 		Name: to.Ptr("ExtendsUnknownAdditionalProperties"),

@@ -6,6 +6,11 @@ package lrolegacygroup
 
 const host = "http://localhost:3000"
 
+const (
+	moduleName    = "lrolegacygroup"
+	moduleVersion = "v0.1.0"
+)
+
 // JobStatus - The status of the processing job.
 type JobStatus string
 

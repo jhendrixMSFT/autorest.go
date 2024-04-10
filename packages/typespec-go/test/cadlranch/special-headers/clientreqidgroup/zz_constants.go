@@ -5,3 +5,8 @@
 package clientreqidgroup
 
 const host = "http://localhost:3000"
+
+const (
+	moduleName    = "clientreqidgroup"
+	moduleVersion = "v0.1.0"
+)

@@ -6,6 +6,11 @@ package basicgroup
 
 const host = "http://localhost:3000"
 
+const (
+	moduleName    = "basicgroup"
+	moduleVersion = "v0.1.0"
+)
+
 // ListItemInputExtensibleEnum - An extensible enum input parameter.
 type ListItemInputExtensibleEnum string
 

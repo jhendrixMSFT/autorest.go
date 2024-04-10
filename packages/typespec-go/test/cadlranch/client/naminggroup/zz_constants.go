@@ -6,6 +6,11 @@ package naminggroup
 
 const host = "http://localhost:3000"
 
+const (
+	moduleName    = "naminggroup"
+	moduleVersion = "v0.1.0"
+)
+
 type ClientExtensibleEnum string
 
 const (

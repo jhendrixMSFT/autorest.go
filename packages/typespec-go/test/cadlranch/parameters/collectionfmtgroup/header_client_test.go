@@ -15,7 +15,7 @@ import (
 )
 
 func TestHeaderClient_CSV(t *testing.T) {
-	client, err := collectionfmtgroup.NewCollectionFormatClient(nil)
+	client, err := collectionfmtgroup.NewCollectionFormatClientWithNoCredential(nil)
 	require.NoError(t, err)
 	resp, err := client.NewCollectionFormatHeaderClient().CSV(context.Background(), []string{"blue", "red", "green"}, nil)
 	require.NoError(t, err)

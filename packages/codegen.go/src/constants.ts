@@ -11,18 +11,17 @@ import * as go from '../../codemodel.go/src/gocodemodel.js';
 // Creates the content in constants.go
 export async function generateConstants(codeModel: go.CodeModel): Promise<string> {
   // lack of operation groups indicates model-only mode.
-  if (!codeModel.clients || (codeModel.constants.length === 0 && !codeModel.host && codeModel.type !== 'azure-arm')) {
+  if (!codeModel.clients || (codeModel.constants.length === 0 && !codeModel.host && !codeModel.options.module)) {
     return '';
   }
   let text = contentPreamble(codeModel);
   if (codeModel.host) {
     text += `const host = "${codeModel.host}"\n\n`;
   }
-  // data-plane clients must manage their own constants for these values
-  if (codeModel.type === 'azure-arm') {
-    if (!codeModel.options.module) {
-      throw new Error('--module and --module-version are required parameters when --azure-arm is set');
-    }
+  if (codeModel.type === 'azure-arm' && !codeModel.options.module) {
+    throw new Error('--module and --module-version are required parameters when --azure-arm is set');
+  }
+  if (codeModel.options.module && (codeModel.type === 'azure-arm' || codeModel.options.generateCtors)) {
     text += 'const (\n';
     // strip off any major version suffix
     text += `\tmoduleName = "${codeModel.options.module.name.replace(/\/v\d+$/, '')}"\n`;

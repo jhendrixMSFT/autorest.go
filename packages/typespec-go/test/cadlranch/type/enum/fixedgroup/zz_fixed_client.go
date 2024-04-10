@@ -4,12 +4,35 @@
 
 package fixedgroup
 
-import "github.com/Azure/azure-sdk-for-go/sdk/azcore"
+import (
+	"github.com/Azure/azure-sdk-for-go/sdk/azcore"
+	"github.com/Azure/azure-sdk-for-go/sdk/azcore/runtime"
+)
 
 // FixedClient contains the methods for the Type.Enum.Fixed namespace.
 // Don't use this type directly, use a constructor function instead.
 type FixedClient struct {
 	internal *azcore.Client
+}
+
+// FixedClientOptions contains the optional values for creating a [FixedClient].
+type FixedClientOptions struct {
+	azcore.ClientOptions
+}
+
+// NewFixedClientWithNoCredential creates a new [FixedClient].
+//   - options - optional client configuration; pass nil to accept the default values
+func NewFixedClientWithNoCredential(options *FixedClientOptions) (*FixedClient, error) {
+	if options == nil {
+		options = &FixedClientOptions{}
+	}
+	internal, err := azcore.NewClient(moduleName, moduleVersion, runtime.PipelineOptions{}, &options.ClientOptions)
+	if err != nil {
+		return nil, err
+	}
+	return &FixedClient{
+		internal: internal,
+	}, nil
 }
 
 // NewFixedStringClient creates a new instance of [FixedStringClient].

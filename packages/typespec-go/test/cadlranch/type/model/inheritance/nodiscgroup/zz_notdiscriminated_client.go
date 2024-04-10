@@ -18,6 +18,26 @@ type NotDiscriminatedClient struct {
 	internal *azcore.Client
 }
 
+// NotDiscriminatedClientOptions contains the optional values for creating a [NotDiscriminatedClient].
+type NotDiscriminatedClientOptions struct {
+	azcore.ClientOptions
+}
+
+// NewNotDiscriminatedClientWithNoCredential creates a new [NotDiscriminatedClient].
+//   - options - optional client configuration; pass nil to accept the default values
+func NewNotDiscriminatedClientWithNoCredential(options *NotDiscriminatedClientOptions) (*NotDiscriminatedClient, error) {
+	if options == nil {
+		options = &NotDiscriminatedClientOptions{}
+	}
+	internal, err := azcore.NewClient(moduleName, moduleVersion, runtime.PipelineOptions{}, &options.ClientOptions)
+	if err != nil {
+		return nil, err
+	}
+	return &NotDiscriminatedClient{
+		internal: internal,
+	}, nil
+}
+
 //   - options - NotDiscriminatedClientGetValidOptions contains the optional parameters for the NotDiscriminatedClient.GetValid
 //     method.
 func (client *NotDiscriminatedClient) GetValid(ctx context.Context, options *NotDiscriminatedClientGetValidOptions) (NotDiscriminatedClientGetValidResponse, error) {

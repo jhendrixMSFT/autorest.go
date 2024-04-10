@@ -17,6 +17,7 @@ export interface GoEmitterOptions {
   'slice-elements-byval'?: boolean;
   'single-client'?: boolean;
   'stutter'?: string;
+  'generate-ctors'?: boolean;
 }
 
 const EmitterOptionsSchema: JSONSchemaType<GoEmitterOptions> = {
@@ -33,7 +34,8 @@ const EmitterOptionsSchema: JSONSchemaType<GoEmitterOptions> = {
     'rawjson-as-bytes': { type: 'boolean', nullable: true },
     'slice-elements-byval': { type: 'boolean', nullable: true },
     'single-client': { type: 'boolean', nullable: true },
-    'stutter': { type: 'string', nullable: true }
+    'stutter': { type: 'string', nullable: true },
+    'generate-ctors': { type: 'boolean', nullable: true }
   },
   required: [],
 };

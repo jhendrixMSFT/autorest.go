@@ -23,6 +23,26 @@ type NotVersionedClient struct {
 	apiVersion string
 }
 
+// NotVersionedClientOptions contains the optional values for creating a [NotVersionedClient].
+type NotVersionedClientOptions struct {
+	azcore.ClientOptions
+}
+
+// NewNotVersionedClientWithNoCredential creates a new [NotVersionedClient].
+//   - options - optional client configuration; pass nil to accept the default values
+func NewNotVersionedClientWithNoCredential(options *NotVersionedClientOptions) (*NotVersionedClient, error) {
+	if options == nil {
+		options = &NotVersionedClientOptions{}
+	}
+	internal, err := azcore.NewClient(moduleName, moduleVersion, runtime.PipelineOptions{}, &options.ClientOptions)
+	if err != nil {
+		return nil, err
+	}
+	return &NotVersionedClient{
+		internal: internal,
+	}, nil
+}
+
 //   - options - NotVersionedClientWithPathAPIVersionOptions contains the optional parameters for the NotVersionedClient.WithPathAPIVersion
 //     method.
 func (client *NotVersionedClient) WithPathAPIVersion(ctx context.Context, options *NotVersionedClientWithPathAPIVersionOptions) (NotVersionedClientWithPathAPIVersionResponse, error) {
