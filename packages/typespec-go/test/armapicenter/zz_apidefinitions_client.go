@@ -22,7 +22,7 @@ type ApiDefinitionsClient struct {
 	internal *arm.Client
 }
 
-// NewApiDefinitionsClient creates a new instance of ApiDefinitionsClient with the specified values.
+// NewApiDefinitionsClient creates a new instance of [ApiDefinitionsClient] with the specified values.
 //   - credential - used to authorize requests. Usually a credential from azidentity.
 //   - options - pass nil to accept the default values.
 func NewApiDefinitionsClient(credential azcore.TokenCredential, options *arm.ClientOptions) (*ApiDefinitionsClient, error) {

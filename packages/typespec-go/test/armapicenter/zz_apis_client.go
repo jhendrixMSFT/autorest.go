@@ -22,7 +22,7 @@ type ApisClient struct {
 	internal *arm.Client
 }
 
-// NewApisClient creates a new instance of ApisClient with the specified values.
+// NewApisClient creates a new instance of [ApisClient] with the specified values.
 //   - credential - used to authorize requests. Usually a credential from azidentity.
 //   - options - pass nil to accept the default values.
 func NewApisClient(credential azcore.TokenCredential, options *arm.ClientOptions) (*ApisClient, error) {

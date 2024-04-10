@@ -13,7 +13,7 @@ import (
 )
 
 // NamingClient - Describe changing names of types in a client with `@clientName`
-// Don't use this type directly, use a constructor function instead.
+// Don't use this type directly, use NewNamingClientWithNoCredential() instead.
 type NamingClient struct {
 	internal *azcore.Client
 }
@@ -23,19 +23,20 @@ type NamingClientOptions struct {
 	azcore.ClientOptions
 }
 
-// NewNamingClientWithNoCredential creates a new [NamingClient].
-//   - options - optional client configuration; pass nil to accept the default values
+// NewNamingClientWithNoCredential creates a new instance of [NamingClient] with the specified values.
+//   - options - NamingClientOptions contains the optional values for creating a [NamingClient]
 func NewNamingClientWithNoCredential(options *NamingClientOptions) (*NamingClient, error) {
 	if options == nil {
 		options = &NamingClientOptions{}
 	}
-	internal, err := azcore.NewClient(moduleName, moduleVersion, runtime.PipelineOptions{}, &options.ClientOptions)
+	cl, err := azcore.NewClient(moduleName, moduleVersion, runtime.PipelineOptions{}, &options.ClientOptions)
 	if err != nil {
 		return nil, err
 	}
-	return &NamingClient{
-		internal: internal,
-	}, nil
+	client := &NamingClient{
+		internal: cl,
+	}
+	return client, nil
 }
 
 // NewNamingModelClient creates a new instance of [NamingModelClient].

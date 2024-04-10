@@ -14,7 +14,7 @@ import (
 )
 
 // ClientAClient contains the methods for the Client.Structure.Service namespace.
-// Don't use this type directly, use a constructor function instead.
+// Don't use this type directly, use NewClientAClientWithNoCredential() instead.
 type ClientAClient struct {
 	internal *azcore.Client
 	endpoint string
@@ -26,19 +26,22 @@ type ClientAClientOptions struct {
 	azcore.ClientOptions
 }
 
-// NewClientAClientWithNoCredential creates a new [ClientAClient].
-//   - options - optional client configuration; pass nil to accept the default values
+// NewClientAClientWithNoCredential creates a new instance of [ClientAClient] with the specified values.
+//   - options - ClientAClientOptions contains the optional values for creating a [ClientAClient]
 func NewClientAClientWithNoCredential(options *ClientAClientOptions) (*ClientAClient, error) {
 	if options == nil {
 		options = &ClientAClientOptions{}
 	}
-	internal, err := azcore.NewClient(moduleName, moduleVersion, runtime.PipelineOptions{}, &options.ClientOptions)
+	cl, err := azcore.NewClient(moduleName, moduleVersion, runtime.PipelineOptions{}, &options.ClientOptions)
 	if err != nil {
 		return nil, err
 	}
-	return &ClientAClient{
-		internal: internal,
-	}, nil
+	client := &ClientAClient{
+		endpoint: endpoint,
+		client:   client,
+		internal: cl,
+	}
+	return client, nil
 }
 
 // - options - ClientAClientRenamedFiveOptions contains the optional parameters for the ClientAClient.RenamedFive method.

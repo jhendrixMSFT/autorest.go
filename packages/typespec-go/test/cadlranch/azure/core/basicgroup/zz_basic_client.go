@@ -16,7 +16,7 @@ import (
 )
 
 // BasicClient - Illustrates bodies templated with Azure Core
-// Don't use this type directly, use a constructor function instead.
+// Don't use this type directly, use NewBasicClientWithNoCredential() instead.
 type BasicClient struct {
 	internal *azcore.Client
 }
@@ -26,19 +26,20 @@ type BasicClientOptions struct {
 	azcore.ClientOptions
 }
 
-// NewBasicClientWithNoCredential creates a new [BasicClient].
-//   - options - optional client configuration; pass nil to accept the default values
+// NewBasicClientWithNoCredential creates a new instance of [BasicClient] with the specified values.
+//   - options - BasicClientOptions contains the optional values for creating a [BasicClient]
 func NewBasicClientWithNoCredential(options *BasicClientOptions) (*BasicClient, error) {
 	if options == nil {
 		options = &BasicClientOptions{}
 	}
-	internal, err := azcore.NewClient(moduleName, moduleVersion, runtime.PipelineOptions{}, &options.ClientOptions)
+	cl, err := azcore.NewClient(moduleName, moduleVersion, runtime.PipelineOptions{}, &options.ClientOptions)
 	if err != nil {
 		return nil, err
 	}
-	return &BasicClient{
-		internal: internal,
-	}, nil
+	client := &BasicClient{
+		internal: cl,
+	}
+	return client, nil
 }
 
 // NewBasicTwoModelsAsPageItemClient creates a new instance of [BasicTwoModelsAsPageItemClient].

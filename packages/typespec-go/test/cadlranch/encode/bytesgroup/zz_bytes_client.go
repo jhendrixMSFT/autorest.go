@@ -10,7 +10,7 @@ import (
 )
 
 // BytesClient - Test for encode decorator on bytes.
-// Don't use this type directly, use a constructor function instead.
+// Don't use this type directly, use NewBytesClientWithNoCredential() instead.
 type BytesClient struct {
 	internal *azcore.Client
 }
@@ -20,19 +20,20 @@ type BytesClientOptions struct {
 	azcore.ClientOptions
 }
 
-// NewBytesClientWithNoCredential creates a new [BytesClient].
-//   - options - optional client configuration; pass nil to accept the default values
+// NewBytesClientWithNoCredential creates a new instance of [BytesClient] with the specified values.
+//   - options - BytesClientOptions contains the optional values for creating a [BytesClient]
 func NewBytesClientWithNoCredential(options *BytesClientOptions) (*BytesClient, error) {
 	if options == nil {
 		options = &BytesClientOptions{}
 	}
-	internal, err := azcore.NewClient(moduleName, moduleVersion, runtime.PipelineOptions{}, &options.ClientOptions)
+	cl, err := azcore.NewClient(moduleName, moduleVersion, runtime.PipelineOptions{}, &options.ClientOptions)
 	if err != nil {
 		return nil, err
 	}
-	return &BytesClient{
-		internal: internal,
-	}, nil
+	client := &BytesClient{
+		internal: cl,
+	}
+	return client, nil
 }
 
 // NewBytesHeaderClient creates a new instance of [BytesHeaderClient].

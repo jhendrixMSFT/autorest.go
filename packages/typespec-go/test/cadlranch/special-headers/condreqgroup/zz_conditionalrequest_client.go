@@ -13,7 +13,7 @@ import (
 )
 
 // ConditionalRequestClient - Illustrates conditional request headers
-// Don't use this type directly, use a constructor function instead.
+// Don't use this type directly, use NewConditionalRequestClientWithNoCredential() instead.
 type ConditionalRequestClient struct {
 	internal *azcore.Client
 }
@@ -23,19 +23,20 @@ type ConditionalRequestClientOptions struct {
 	azcore.ClientOptions
 }
 
-// NewConditionalRequestClientWithNoCredential creates a new [ConditionalRequestClient].
-//   - options - optional client configuration; pass nil to accept the default values
+// NewConditionalRequestClientWithNoCredential creates a new instance of [ConditionalRequestClient] with the specified values.
+//   - options - ConditionalRequestClientOptions contains the optional values for creating a [ConditionalRequestClient]
 func NewConditionalRequestClientWithNoCredential(options *ConditionalRequestClientOptions) (*ConditionalRequestClient, error) {
 	if options == nil {
 		options = &ConditionalRequestClientOptions{}
 	}
-	internal, err := azcore.NewClient(moduleName, moduleVersion, runtime.PipelineOptions{}, &options.ClientOptions)
+	cl, err := azcore.NewClient(moduleName, moduleVersion, runtime.PipelineOptions{}, &options.ClientOptions)
 	if err != nil {
 		return nil, err
 	}
-	return &ConditionalRequestClient{
-		internal: internal,
-	}, nil
+	client := &ConditionalRequestClient{
+		internal: cl,
+	}
+	return client, nil
 }
 
 // PostIfMatch - Check when only If-Match in header is defined.

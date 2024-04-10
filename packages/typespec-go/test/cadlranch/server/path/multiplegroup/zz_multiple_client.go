@@ -16,7 +16,7 @@ import (
 )
 
 // MultipleClient contains the methods for the Server.Path.Multiple namespace.
-// Don't use this type directly, use a constructor function instead.
+// Don't use this type directly, use NewMultipleClientWithNoCredential() instead.
 type MultipleClient struct {
 	internal   *azcore.Client
 	endpoint   string
@@ -28,19 +28,22 @@ type MultipleClientOptions struct {
 	azcore.ClientOptions
 }
 
-// NewMultipleClientWithNoCredential creates a new [MultipleClient].
-//   - options - optional client configuration; pass nil to accept the default values
+// NewMultipleClientWithNoCredential creates a new instance of [MultipleClient] with the specified values.
+//   - options - MultipleClientOptions contains the optional values for creating a [MultipleClient]
 func NewMultipleClientWithNoCredential(options *MultipleClientOptions) (*MultipleClient, error) {
 	if options == nil {
 		options = &MultipleClientOptions{}
 	}
-	internal, err := azcore.NewClient(moduleName, moduleVersion, runtime.PipelineOptions{}, &options.ClientOptions)
+	cl, err := azcore.NewClient(moduleName, moduleVersion, runtime.PipelineOptions{}, &options.ClientOptions)
 	if err != nil {
 		return nil, err
 	}
-	return &MultipleClient{
-		internal: internal,
-	}, nil
+	client := &MultipleClient{
+		endpoint:   endpoint,
+		apiVersion: apiVersion,
+		internal:   cl,
+	}
+	return client, nil
 }
 
 //   - options - MultipleClientNoOperationParamsOptions contains the optional parameters for the MultipleClient.NoOperationParams

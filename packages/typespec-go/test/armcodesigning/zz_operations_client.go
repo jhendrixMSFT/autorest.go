@@ -19,7 +19,7 @@ type OperationsClient struct {
 	internal *arm.Client
 }
 
-// NewOperationsClient creates a new instance of OperationsClient with the specified values.
+// NewOperationsClient creates a new instance of [OperationsClient] with the specified values.
 //   - credential - used to authorize requests. Usually a credential from azidentity.
 //   - options - pass nil to accept the default values.
 func NewOperationsClient(credential azcore.TokenCredential, options *arm.ClientOptions) (*OperationsClient, error) {

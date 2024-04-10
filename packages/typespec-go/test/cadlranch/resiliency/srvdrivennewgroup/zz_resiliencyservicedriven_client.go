@@ -25,7 +25,7 @@ import (
 // We test the following configurations from this service spec:
 // - A client generated from the second service spec can call the second deployment of a service with api version v1
 // - A client generated from the second service spec can call the second deployment of a service with api version v2
-// Don't use this type directly, use a constructor function instead.
+// Don't use this type directly, use NewResiliencyServiceDrivenClientWithNoCredential() instead.
 type ResiliencyServiceDrivenClient struct {
 	internal                 *azcore.Client
 	endpoint                 string
@@ -38,19 +38,23 @@ type ResiliencyServiceDrivenClientOptions struct {
 	azcore.ClientOptions
 }
 
-// NewResiliencyServiceDrivenClientWithNoCredential creates a new [ResiliencyServiceDrivenClient].
-//   - options - optional client configuration; pass nil to accept the default values
+// NewResiliencyServiceDrivenClientWithNoCredential creates a new instance of [ResiliencyServiceDrivenClient] with the specified values.
+//   - options - ResiliencyServiceDrivenClientOptions contains the optional values for creating a [ResiliencyServiceDrivenClient]
 func NewResiliencyServiceDrivenClientWithNoCredential(options *ResiliencyServiceDrivenClientOptions) (*ResiliencyServiceDrivenClient, error) {
 	if options == nil {
 		options = &ResiliencyServiceDrivenClientOptions{}
 	}
-	internal, err := azcore.NewClient(moduleName, moduleVersion, runtime.PipelineOptions{}, &options.ClientOptions)
+	cl, err := azcore.NewClient(moduleName, moduleVersion, runtime.PipelineOptions{}, &options.ClientOptions)
 	if err != nil {
 		return nil, err
 	}
-	return &ResiliencyServiceDrivenClient{
-		internal: internal,
-	}, nil
+	client := &ResiliencyServiceDrivenClient{
+		endpoint:                 endpoint,
+		serviceDeploymentVersion: serviceDeploymentVersion,
+		apiVersion:               apiVersion,
+		internal:                 cl,
+	}
+	return client, nil
 }
 
 // AddOperation - Added operation

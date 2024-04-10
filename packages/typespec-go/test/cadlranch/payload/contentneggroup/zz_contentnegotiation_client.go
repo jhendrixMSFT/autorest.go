@@ -10,7 +10,7 @@ import (
 )
 
 // ContentNegotiationClient - Test describing optionality of the request body.
-// Don't use this type directly, use a constructor function instead.
+// Don't use this type directly, use NewContentNegotiationClientWithNoCredential() instead.
 type ContentNegotiationClient struct {
 	internal *azcore.Client
 }
@@ -20,19 +20,20 @@ type ContentNegotiationClientOptions struct {
 	azcore.ClientOptions
 }
 
-// NewContentNegotiationClientWithNoCredential creates a new [ContentNegotiationClient].
-//   - options - optional client configuration; pass nil to accept the default values
+// NewContentNegotiationClientWithNoCredential creates a new instance of [ContentNegotiationClient] with the specified values.
+//   - options - ContentNegotiationClientOptions contains the optional values for creating a [ContentNegotiationClient]
 func NewContentNegotiationClientWithNoCredential(options *ContentNegotiationClientOptions) (*ContentNegotiationClient, error) {
 	if options == nil {
 		options = &ContentNegotiationClientOptions{}
 	}
-	internal, err := azcore.NewClient(moduleName, moduleVersion, runtime.PipelineOptions{}, &options.ClientOptions)
+	cl, err := azcore.NewClient(moduleName, moduleVersion, runtime.PipelineOptions{}, &options.ClientOptions)
 	if err != nil {
 		return nil, err
 	}
-	return &ContentNegotiationClient{
-		internal: internal,
-	}, nil
+	client := &ContentNegotiationClient{
+		internal: cl,
+	}
+	return client, nil
 }
 
 // NewContentNegotiationDifferentBodyClient creates a new instance of [ContentNegotiationDifferentBodyClient].

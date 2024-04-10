@@ -10,7 +10,7 @@ import (
 )
 
 // CollectionFormatClient - Test for collectionFormat.
-// Don't use this type directly, use a constructor function instead.
+// Don't use this type directly, use NewCollectionFormatClientWithNoCredential() instead.
 type CollectionFormatClient struct {
 	internal *azcore.Client
 }
@@ -20,19 +20,20 @@ type CollectionFormatClientOptions struct {
 	azcore.ClientOptions
 }
 
-// NewCollectionFormatClientWithNoCredential creates a new [CollectionFormatClient].
-//   - options - optional client configuration; pass nil to accept the default values
+// NewCollectionFormatClientWithNoCredential creates a new instance of [CollectionFormatClient] with the specified values.
+//   - options - CollectionFormatClientOptions contains the optional values for creating a [CollectionFormatClient]
 func NewCollectionFormatClientWithNoCredential(options *CollectionFormatClientOptions) (*CollectionFormatClient, error) {
 	if options == nil {
 		options = &CollectionFormatClientOptions{}
 	}
-	internal, err := azcore.NewClient(moduleName, moduleVersion, runtime.PipelineOptions{}, &options.ClientOptions)
+	cl, err := azcore.NewClient(moduleName, moduleVersion, runtime.PipelineOptions{}, &options.ClientOptions)
 	if err != nil {
 		return nil, err
 	}
-	return &CollectionFormatClient{
-		internal: internal,
-	}, nil
+	client := &CollectionFormatClient{
+		internal: cl,
+	}
+	return client, nil
 }
 
 // NewCollectionFormatHeaderClient creates a new instance of [CollectionFormatHeaderClient].

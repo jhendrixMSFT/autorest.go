@@ -22,7 +22,7 @@ type AccountsClient struct {
 	internal *arm.Client
 }
 
-// NewAccountsClient creates a new instance of AccountsClient with the specified values.
+// NewAccountsClient creates a new instance of [AccountsClient] with the specified values.
 //   - credential - used to authorize requests. Usually a credential from azidentity.
 //   - options - pass nil to accept the default values.
 func NewAccountsClient(credential azcore.TokenCredential, options *arm.ClientOptions) (*AccountsClient, error) {

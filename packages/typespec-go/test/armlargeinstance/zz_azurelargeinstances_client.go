@@ -22,7 +22,7 @@ type AzureLargeInstancesClient struct {
 	internal *arm.Client
 }
 
-// NewAzureLargeInstancesClient creates a new instance of AzureLargeInstancesClient with the specified values.
+// NewAzureLargeInstancesClient creates a new instance of [AzureLargeInstancesClient] with the specified values.
 //   - credential - used to authorize requests. Usually a credential from azidentity.
 //   - options - pass nil to accept the default values.
 func NewAzureLargeInstancesClient(credential azcore.TokenCredential, options *arm.ClientOptions) (*AzureLargeInstancesClient, error) {

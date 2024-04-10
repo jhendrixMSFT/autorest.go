@@ -22,7 +22,7 @@ type AzureLargeStorageInstancesClient struct {
 	internal *arm.Client
 }
 
-// NewAzureLargeStorageInstancesClient creates a new instance of AzureLargeStorageInstancesClient with the specified values.
+// NewAzureLargeStorageInstancesClient creates a new instance of [AzureLargeStorageInstancesClient] with the specified values.
 //   - credential - used to authorize requests. Usually a credential from azidentity.
 //   - options - pass nil to accept the default values.
 func NewAzureLargeStorageInstancesClient(credential azcore.TokenCredential, options *arm.ClientOptions) (*AzureLargeStorageInstancesClient, error) {

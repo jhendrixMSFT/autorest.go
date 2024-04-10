@@ -14,7 +14,7 @@ import (
 )
 
 // PageableClient - Test describing pageable.
-// Don't use this type directly, use a constructor function instead.
+// Don't use this type directly, use NewPageableClientWithNoCredential() instead.
 type PageableClient struct {
 	internal *azcore.Client
 }
@@ -24,19 +24,20 @@ type PageableClientOptions struct {
 	azcore.ClientOptions
 }
 
-// NewPageableClientWithNoCredential creates a new [PageableClient].
-//   - options - optional client configuration; pass nil to accept the default values
+// NewPageableClientWithNoCredential creates a new instance of [PageableClient] with the specified values.
+//   - options - PageableClientOptions contains the optional values for creating a [PageableClient]
 func NewPageableClientWithNoCredential(options *PageableClientOptions) (*PageableClient, error) {
 	if options == nil {
 		options = &PageableClientOptions{}
 	}
-	internal, err := azcore.NewClient(moduleName, moduleVersion, runtime.PipelineOptions{}, &options.ClientOptions)
+	cl, err := azcore.NewClient(moduleName, moduleVersion, runtime.PipelineOptions{}, &options.ClientOptions)
 	if err != nil {
 		return nil, err
 	}
-	return &PageableClient{
-		internal: internal,
-	}, nil
+	client := &PageableClient{
+		internal: cl,
+	}
+	return client, nil
 }
 
 // NewListPager - List users

@@ -294,6 +294,8 @@ export interface APIKeyAuthentication extends Authentication {
 
 export interface BearerAuthentication extends Authentication {
   kind: 'bearer';
+
+  scopes: Array<string>;
 }
 
 export interface NoAuthentication extends Authentication {
@@ -1660,7 +1662,8 @@ export class NoAuthentication implements NoAuthentication {
 }
 
 export class BearerAuthentication implements BearerAuthentication {
-  constructor() {
+  constructor(scopes: Array<string>) {
     this.kind = 'bearer';
+    this.scopes = scopes;
   }
 }

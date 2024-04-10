@@ -13,7 +13,7 @@ import (
 )
 
 // BodyOptionalityClient - Test describing optionality of the request body.
-// Don't use this type directly, use a constructor function instead.
+// Don't use this type directly, use NewBodyOptionalityClientWithNoCredential() instead.
 type BodyOptionalityClient struct {
 	internal *azcore.Client
 }
@@ -23,19 +23,20 @@ type BodyOptionalityClientOptions struct {
 	azcore.ClientOptions
 }
 
-// NewBodyOptionalityClientWithNoCredential creates a new [BodyOptionalityClient].
-//   - options - optional client configuration; pass nil to accept the default values
+// NewBodyOptionalityClientWithNoCredential creates a new instance of [BodyOptionalityClient] with the specified values.
+//   - options - BodyOptionalityClientOptions contains the optional values for creating a [BodyOptionalityClient]
 func NewBodyOptionalityClientWithNoCredential(options *BodyOptionalityClientOptions) (*BodyOptionalityClient, error) {
 	if options == nil {
 		options = &BodyOptionalityClientOptions{}
 	}
-	internal, err := azcore.NewClient(moduleName, moduleVersion, runtime.PipelineOptions{}, &options.ClientOptions)
+	cl, err := azcore.NewClient(moduleName, moduleVersion, runtime.PipelineOptions{}, &options.ClientOptions)
 	if err != nil {
 		return nil, err
 	}
-	return &BodyOptionalityClient{
-		internal: internal,
-	}, nil
+	client := &BodyOptionalityClient{
+		internal: cl,
+	}
+	return client, nil
 }
 
 // NewBodyOptionalityOptionalExplicitClient creates a new instance of [BodyOptionalityOptionalExplicitClient].

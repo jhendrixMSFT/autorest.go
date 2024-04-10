@@ -10,7 +10,7 @@ import (
 )
 
 // UsageClient - Test for internal decorator.
-// Don't use this type directly, use a constructor function instead.
+// Don't use this type directly, use NewUsageClientWithNoCredential() instead.
 type UsageClient struct {
 	internal *azcore.Client
 }
@@ -20,19 +20,20 @@ type UsageClientOptions struct {
 	azcore.ClientOptions
 }
 
-// NewUsageClientWithNoCredential creates a new [UsageClient].
-//   - options - optional client configuration; pass nil to accept the default values
+// NewUsageClientWithNoCredential creates a new instance of [UsageClient] with the specified values.
+//   - options - UsageClientOptions contains the optional values for creating a [UsageClient]
 func NewUsageClientWithNoCredential(options *UsageClientOptions) (*UsageClient, error) {
 	if options == nil {
 		options = &UsageClientOptions{}
 	}
-	internal, err := azcore.NewClient(moduleName, moduleVersion, runtime.PipelineOptions{}, &options.ClientOptions)
+	cl, err := azcore.NewClient(moduleName, moduleVersion, runtime.PipelineOptions{}, &options.ClientOptions)
 	if err != nil {
 		return nil, err
 	}
-	return &UsageClient{
-		internal: internal,
-	}, nil
+	client := &UsageClient{
+		internal: cl,
+	}
+	return client, nil
 }
 
 // NewUsageModelInOperationClient creates a new instance of [UsageModelInOperationClient].

@@ -10,7 +10,7 @@ import (
 )
 
 // FixedClient contains the methods for the Type.Enum.Fixed namespace.
-// Don't use this type directly, use a constructor function instead.
+// Don't use this type directly, use NewFixedClientWithNoCredential() instead.
 type FixedClient struct {
 	internal *azcore.Client
 }
@@ -20,19 +20,20 @@ type FixedClientOptions struct {
 	azcore.ClientOptions
 }
 
-// NewFixedClientWithNoCredential creates a new [FixedClient].
-//   - options - optional client configuration; pass nil to accept the default values
+// NewFixedClientWithNoCredential creates a new instance of [FixedClient] with the specified values.
+//   - options - FixedClientOptions contains the optional values for creating a [FixedClient]
 func NewFixedClientWithNoCredential(options *FixedClientOptions) (*FixedClient, error) {
 	if options == nil {
 		options = &FixedClientOptions{}
 	}
-	internal, err := azcore.NewClient(moduleName, moduleVersion, runtime.PipelineOptions{}, &options.ClientOptions)
+	cl, err := azcore.NewClient(moduleName, moduleVersion, runtime.PipelineOptions{}, &options.ClientOptions)
 	if err != nil {
 		return nil, err
 	}
-	return &FixedClient{
-		internal: internal,
-	}, nil
+	client := &FixedClient{
+		internal: cl,
+	}
+	return client, nil
 }
 
 // NewFixedStringClient creates a new instance of [FixedStringClient].

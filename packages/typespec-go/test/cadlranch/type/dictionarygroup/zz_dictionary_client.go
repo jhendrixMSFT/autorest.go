@@ -10,7 +10,7 @@ import (
 )
 
 // DictionaryClient - Illustrates various of dictionaries.
-// Don't use this type directly, use a constructor function instead.
+// Don't use this type directly, use NewDictionaryClientWithNoCredential() instead.
 type DictionaryClient struct {
 	internal *azcore.Client
 }
@@ -20,19 +20,20 @@ type DictionaryClientOptions struct {
 	azcore.ClientOptions
 }
 
-// NewDictionaryClientWithNoCredential creates a new [DictionaryClient].
-//   - options - optional client configuration; pass nil to accept the default values
+// NewDictionaryClientWithNoCredential creates a new instance of [DictionaryClient] with the specified values.
+//   - options - DictionaryClientOptions contains the optional values for creating a [DictionaryClient]
 func NewDictionaryClientWithNoCredential(options *DictionaryClientOptions) (*DictionaryClient, error) {
 	if options == nil {
 		options = &DictionaryClientOptions{}
 	}
-	internal, err := azcore.NewClient(moduleName, moduleVersion, runtime.PipelineOptions{}, &options.ClientOptions)
+	cl, err := azcore.NewClient(moduleName, moduleVersion, runtime.PipelineOptions{}, &options.ClientOptions)
 	if err != nil {
 		return nil, err
 	}
-	return &DictionaryClient{
-		internal: internal,
-	}, nil
+	client := &DictionaryClient{
+		internal: cl,
+	}
+	return client, nil
 }
 
 // NewDictionaryBooleanValueClient creates a new instance of [DictionaryBooleanValueClient].

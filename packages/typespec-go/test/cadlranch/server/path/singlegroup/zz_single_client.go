@@ -14,7 +14,7 @@ import (
 )
 
 // SingleClient - Illustrates server with a single path parameter @server
-// Don't use this type directly, use a constructor function instead.
+// Don't use this type directly, use NewSingleClientWithNoCredential() instead.
 type SingleClient struct {
 	internal *azcore.Client
 	endpoint string
@@ -25,19 +25,21 @@ type SingleClientOptions struct {
 	azcore.ClientOptions
 }
 
-// NewSingleClientWithNoCredential creates a new [SingleClient].
-//   - options - optional client configuration; pass nil to accept the default values
+// NewSingleClientWithNoCredential creates a new instance of [SingleClient] with the specified values.
+//   - options - SingleClientOptions contains the optional values for creating a [SingleClient]
 func NewSingleClientWithNoCredential(options *SingleClientOptions) (*SingleClient, error) {
 	if options == nil {
 		options = &SingleClientOptions{}
 	}
-	internal, err := azcore.NewClient(moduleName, moduleVersion, runtime.PipelineOptions{}, &options.ClientOptions)
+	cl, err := azcore.NewClient(moduleName, moduleVersion, runtime.PipelineOptions{}, &options.ClientOptions)
 	if err != nil {
 		return nil, err
 	}
-	return &SingleClient{
-		internal: internal,
-	}, nil
+	client := &SingleClient{
+		endpoint: endpoint,
+		internal: cl,
+	}
+	return client, nil
 }
 
 // - options - SingleClientMyOpOptions contains the optional parameters for the SingleClient.MyOp method.

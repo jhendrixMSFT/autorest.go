@@ -92,10 +92,10 @@ export class clientAdapter {
                 if (param.type.scheme.in === 'cookie') {
                   throw new Error('cookie api-key NYI');
                 }
-                goClient.authentication.push(new go.APIKeyAuthentication(param.type.scheme.name, param.type.scheme.in));
+                goClient.constructors.push(new go.Constructor(`New${clientName}WithKeyCredential`, new go.APIKeyAuthentication(param.type.scheme.name, param.type.scheme.in)));
                 break;
               case 'noAuth':
-                goClient.authentication.push(new go.NoAuthentication());
+                goClient.constructors.push(new go.Constructor(`New${clientName}WithNoCredential`, new go.NoAuthentication()));
                 break;
               default:
                 // fall through for now to skip this credential kind
@@ -132,7 +132,7 @@ export class clientAdapter {
         goClient.parameters.push(this.adaptURIParam(param));
       }
       if (!explicitCreds && this.ta.codeModel.options.generateCtors) {
-        goClient.authentication.push(new go.NoAuthentication());
+        goClient.constructors.push(new go.Constructor(`New${clientName}WithNoCredential`, new go.NoAuthentication()));
       }
     } else if (parent) {
       // this is a sub-client. it will share the client/host params of the parent.

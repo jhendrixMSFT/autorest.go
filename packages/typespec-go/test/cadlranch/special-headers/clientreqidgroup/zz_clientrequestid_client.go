@@ -13,7 +13,7 @@ import (
 )
 
 // ClientRequestIdClient - Azure client request id header configurations.
-// Don't use this type directly, use a constructor function instead.
+// Don't use this type directly, use NewClientRequestIdClientWithNoCredential() instead.
 type ClientRequestIdClient struct {
 	internal *azcore.Client
 }
@@ -23,19 +23,20 @@ type ClientRequestIdClientOptions struct {
 	azcore.ClientOptions
 }
 
-// NewClientRequestIdClientWithNoCredential creates a new [ClientRequestIdClient].
-//   - options - optional client configuration; pass nil to accept the default values
+// NewClientRequestIdClientWithNoCredential creates a new instance of [ClientRequestIdClient] with the specified values.
+//   - options - ClientRequestIdClientOptions contains the optional values for creating a [ClientRequestIdClient]
 func NewClientRequestIdClientWithNoCredential(options *ClientRequestIdClientOptions) (*ClientRequestIdClient, error) {
 	if options == nil {
 		options = &ClientRequestIdClientOptions{}
 	}
-	internal, err := azcore.NewClient(moduleName, moduleVersion, runtime.PipelineOptions{}, &options.ClientOptions)
+	cl, err := azcore.NewClient(moduleName, moduleVersion, runtime.PipelineOptions{}, &options.ClientOptions)
 	if err != nil {
 		return nil, err
 	}
-	return &ClientRequestIdClient{
-		internal: internal,
-	}, nil
+	client := &ClientRequestIdClient{
+		internal: cl,
+	}
+	return client, nil
 }
 
 // Get - Get operation with azure client request id header.

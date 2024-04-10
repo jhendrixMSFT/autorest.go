@@ -13,7 +13,7 @@ import (
 )
 
 // EnumDiscriminatorClient - Illustrates inheritance with enum discriminator.
-// Don't use this type directly, use a constructor function instead.
+// Don't use this type directly, use NewEnumDiscriminatorClientWithNoCredential() instead.
 type EnumDiscriminatorClient struct {
 	internal *azcore.Client
 }
@@ -23,19 +23,20 @@ type EnumDiscriminatorClientOptions struct {
 	azcore.ClientOptions
 }
 
-// NewEnumDiscriminatorClientWithNoCredential creates a new [EnumDiscriminatorClient].
-//   - options - optional client configuration; pass nil to accept the default values
+// NewEnumDiscriminatorClientWithNoCredential creates a new instance of [EnumDiscriminatorClient] with the specified values.
+//   - options - EnumDiscriminatorClientOptions contains the optional values for creating a [EnumDiscriminatorClient]
 func NewEnumDiscriminatorClientWithNoCredential(options *EnumDiscriminatorClientOptions) (*EnumDiscriminatorClient, error) {
 	if options == nil {
 		options = &EnumDiscriminatorClientOptions{}
 	}
-	internal, err := azcore.NewClient(moduleName, moduleVersion, runtime.PipelineOptions{}, &options.ClientOptions)
+	cl, err := azcore.NewClient(moduleName, moduleVersion, runtime.PipelineOptions{}, &options.ClientOptions)
 	if err != nil {
 		return nil, err
 	}
-	return &EnumDiscriminatorClient{
-		internal: internal,
-	}, nil
+	client := &EnumDiscriminatorClient{
+		internal: cl,
+	}
+	return client, nil
 }
 
 // GetExtensibleModel - Receive model with extensible enum discriminator type.

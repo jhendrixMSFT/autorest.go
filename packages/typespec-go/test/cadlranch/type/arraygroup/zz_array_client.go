@@ -10,7 +10,7 @@ import (
 )
 
 // ArrayClient - Illustrates various types of arrays.
-// Don't use this type directly, use a constructor function instead.
+// Don't use this type directly, use NewArrayClientWithNoCredential() instead.
 type ArrayClient struct {
 	internal *azcore.Client
 }
@@ -20,19 +20,20 @@ type ArrayClientOptions struct {
 	azcore.ClientOptions
 }
 
-// NewArrayClientWithNoCredential creates a new [ArrayClient].
-//   - options - optional client configuration; pass nil to accept the default values
+// NewArrayClientWithNoCredential creates a new instance of [ArrayClient] with the specified values.
+//   - options - ArrayClientOptions contains the optional values for creating a [ArrayClient]
 func NewArrayClientWithNoCredential(options *ArrayClientOptions) (*ArrayClient, error) {
 	if options == nil {
 		options = &ArrayClientOptions{}
 	}
-	internal, err := azcore.NewClient(moduleName, moduleVersion, runtime.PipelineOptions{}, &options.ClientOptions)
+	cl, err := azcore.NewClient(moduleName, moduleVersion, runtime.PipelineOptions{}, &options.ClientOptions)
 	if err != nil {
 		return nil, err
 	}
-	return &ArrayClient{
-		internal: internal,
-	}, nil
+	client := &ArrayClient{
+		internal: cl,
+	}
+	return client, nil
 }
 
 // NewArrayBooleanValueClient creates a new instance of [ArrayBooleanValueClient].

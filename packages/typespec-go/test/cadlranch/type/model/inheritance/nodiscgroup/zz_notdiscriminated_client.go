@@ -13,7 +13,7 @@ import (
 )
 
 // NotDiscriminatedClient - Illustrates not-discriminated inheritance model.
-// Don't use this type directly, use a constructor function instead.
+// Don't use this type directly, use NewNotDiscriminatedClientWithNoCredential() instead.
 type NotDiscriminatedClient struct {
 	internal *azcore.Client
 }
@@ -23,19 +23,20 @@ type NotDiscriminatedClientOptions struct {
 	azcore.ClientOptions
 }
 
-// NewNotDiscriminatedClientWithNoCredential creates a new [NotDiscriminatedClient].
-//   - options - optional client configuration; pass nil to accept the default values
+// NewNotDiscriminatedClientWithNoCredential creates a new instance of [NotDiscriminatedClient] with the specified values.
+//   - options - NotDiscriminatedClientOptions contains the optional values for creating a [NotDiscriminatedClient]
 func NewNotDiscriminatedClientWithNoCredential(options *NotDiscriminatedClientOptions) (*NotDiscriminatedClient, error) {
 	if options == nil {
 		options = &NotDiscriminatedClientOptions{}
 	}
-	internal, err := azcore.NewClient(moduleName, moduleVersion, runtime.PipelineOptions{}, &options.ClientOptions)
+	cl, err := azcore.NewClient(moduleName, moduleVersion, runtime.PipelineOptions{}, &options.ClientOptions)
 	if err != nil {
 		return nil, err
 	}
-	return &NotDiscriminatedClient{
-		internal: internal,
-	}, nil
+	client := &NotDiscriminatedClient{
+		internal: cl,
+	}
+	return client, nil
 }
 
 //   - options - NotDiscriminatedClientGetValidOptions contains the optional parameters for the NotDiscriminatedClient.GetValid

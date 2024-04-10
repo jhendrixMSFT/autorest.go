@@ -22,7 +22,7 @@ type MetadataSchemasClient struct {
 	internal *arm.Client
 }
 
-// NewMetadataSchemasClient creates a new instance of MetadataSchemasClient with the specified values.
+// NewMetadataSchemasClient creates a new instance of [MetadataSchemasClient] with the specified values.
 //   - credential - used to authorize requests. Usually a credential from azidentity.
 //   - options - pass nil to accept the default values.
 func NewMetadataSchemasClient(credential azcore.TokenCredential, options *arm.ClientOptions) (*MetadataSchemasClient, error) {

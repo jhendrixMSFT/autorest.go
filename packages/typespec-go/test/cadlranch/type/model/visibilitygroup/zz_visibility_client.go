@@ -13,7 +13,7 @@ import (
 )
 
 // VisibilityClient - Illustrates models with visibility properties.
-// Don't use this type directly, use a constructor function instead.
+// Don't use this type directly, use NewVisibilityClientWithNoCredential() instead.
 type VisibilityClient struct {
 	internal *azcore.Client
 }
@@ -23,19 +23,20 @@ type VisibilityClientOptions struct {
 	azcore.ClientOptions
 }
 
-// NewVisibilityClientWithNoCredential creates a new [VisibilityClient].
-//   - options - optional client configuration; pass nil to accept the default values
+// NewVisibilityClientWithNoCredential creates a new instance of [VisibilityClient] with the specified values.
+//   - options - VisibilityClientOptions contains the optional values for creating a [VisibilityClient]
 func NewVisibilityClientWithNoCredential(options *VisibilityClientOptions) (*VisibilityClient, error) {
 	if options == nil {
 		options = &VisibilityClientOptions{}
 	}
-	internal, err := azcore.NewClient(moduleName, moduleVersion, runtime.PipelineOptions{}, &options.ClientOptions)
+	cl, err := azcore.NewClient(moduleName, moduleVersion, runtime.PipelineOptions{}, &options.ClientOptions)
 	if err != nil {
 		return nil, err
 	}
-	return &VisibilityClient{
-		internal: internal,
-	}, nil
+	client := &VisibilityClient{
+		internal: cl,
+	}
+	return client, nil
 }
 
 // - options - VisibilityClientDeleteModelOptions contains the optional parameters for the VisibilityClient.DeleteModel method.

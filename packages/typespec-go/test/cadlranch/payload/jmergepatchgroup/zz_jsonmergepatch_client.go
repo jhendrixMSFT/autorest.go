@@ -13,7 +13,7 @@ import (
 )
 
 // JsonMergePatchClient - Test for merge-patch+json content-type
-// Don't use this type directly, use a constructor function instead.
+// Don't use this type directly, use NewJsonMergePatchClientWithNoCredential() instead.
 type JsonMergePatchClient struct {
 	internal *azcore.Client
 }
@@ -23,19 +23,20 @@ type JsonMergePatchClientOptions struct {
 	azcore.ClientOptions
 }
 
-// NewJsonMergePatchClientWithNoCredential creates a new [JsonMergePatchClient].
-//   - options - optional client configuration; pass nil to accept the default values
+// NewJsonMergePatchClientWithNoCredential creates a new instance of [JsonMergePatchClient] with the specified values.
+//   - options - JsonMergePatchClientOptions contains the optional values for creating a [JsonMergePatchClient]
 func NewJsonMergePatchClientWithNoCredential(options *JsonMergePatchClientOptions) (*JsonMergePatchClient, error) {
 	if options == nil {
 		options = &JsonMergePatchClientOptions{}
 	}
-	internal, err := azcore.NewClient(moduleName, moduleVersion, runtime.PipelineOptions{}, &options.ClientOptions)
+	cl, err := azcore.NewClient(moduleName, moduleVersion, runtime.PipelineOptions{}, &options.ClientOptions)
 	if err != nil {
 		return nil, err
 	}
-	return &JsonMergePatchClient{
-		internal: internal,
-	}, nil
+	client := &JsonMergePatchClient{
+		internal: cl,
+	}
+	return client, nil
 }
 
 // CreateResource - Test content-type: application/merge-patch+json with required body

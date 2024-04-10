@@ -10,7 +10,7 @@ import (
 )
 
 // NullableClient - Illustrates models with nullable properties.
-// Don't use this type directly, use a constructor function instead.
+// Don't use this type directly, use NewNullableClientWithNoCredential() instead.
 type NullableClient struct {
 	internal *azcore.Client
 }
@@ -20,19 +20,20 @@ type NullableClientOptions struct {
 	azcore.ClientOptions
 }
 
-// NewNullableClientWithNoCredential creates a new [NullableClient].
-//   - options - optional client configuration; pass nil to accept the default values
+// NewNullableClientWithNoCredential creates a new instance of [NullableClient] with the specified values.
+//   - options - NullableClientOptions contains the optional values for creating a [NullableClient]
 func NewNullableClientWithNoCredential(options *NullableClientOptions) (*NullableClient, error) {
 	if options == nil {
 		options = &NullableClientOptions{}
 	}
-	internal, err := azcore.NewClient(moduleName, moduleVersion, runtime.PipelineOptions{}, &options.ClientOptions)
+	cl, err := azcore.NewClient(moduleName, moduleVersion, runtime.PipelineOptions{}, &options.ClientOptions)
 	if err != nil {
 		return nil, err
 	}
-	return &NullableClient{
-		internal: internal,
-	}, nil
+	client := &NullableClient{
+		internal: cl,
+	}
+	return client, nil
 }
 
 // NewNullableBytesClient creates a new instance of [NullableBytesClient].

@@ -10,7 +10,7 @@ import (
 )
 
 // ScalarClient contains the methods for the Type.Scalar namespace.
-// Don't use this type directly, use a constructor function instead.
+// Don't use this type directly, use NewScalarClientWithNoCredential() instead.
 type ScalarClient struct {
 	internal *azcore.Client
 }
@@ -20,19 +20,20 @@ type ScalarClientOptions struct {
 	azcore.ClientOptions
 }
 
-// NewScalarClientWithNoCredential creates a new [ScalarClient].
-//   - options - optional client configuration; pass nil to accept the default values
+// NewScalarClientWithNoCredential creates a new instance of [ScalarClient] with the specified values.
+//   - options - ScalarClientOptions contains the optional values for creating a [ScalarClient]
 func NewScalarClientWithNoCredential(options *ScalarClientOptions) (*ScalarClient, error) {
 	if options == nil {
 		options = &ScalarClientOptions{}
 	}
-	internal, err := azcore.NewClient(moduleName, moduleVersion, runtime.PipelineOptions{}, &options.ClientOptions)
+	cl, err := azcore.NewClient(moduleName, moduleVersion, runtime.PipelineOptions{}, &options.ClientOptions)
 	if err != nil {
 		return nil, err
 	}
-	return &ScalarClient{
-		internal: internal,
-	}, nil
+	client := &ScalarClient{
+		internal: cl,
+	}
+	return client, nil
 }
 
 // NewScalarBooleanClient creates a new instance of [ScalarBooleanClient].

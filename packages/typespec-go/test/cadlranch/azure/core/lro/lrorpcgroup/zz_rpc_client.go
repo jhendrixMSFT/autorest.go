@@ -13,7 +13,7 @@ import (
 )
 
 // RpcClient - Illustrates bodies templated with Azure Core with long-running RPC operation
-// Don't use this type directly, use a constructor function instead.
+// Don't use this type directly, use NewRpcClientWithNoCredential() instead.
 type RpcClient struct {
 	internal *azcore.Client
 }
@@ -23,19 +23,20 @@ type RpcClientOptions struct {
 	azcore.ClientOptions
 }
 
-// NewRpcClientWithNoCredential creates a new [RpcClient].
-//   - options - optional client configuration; pass nil to accept the default values
+// NewRpcClientWithNoCredential creates a new instance of [RpcClient] with the specified values.
+//   - options - RpcClientOptions contains the optional values for creating a [RpcClient]
 func NewRpcClientWithNoCredential(options *RpcClientOptions) (*RpcClient, error) {
 	if options == nil {
 		options = &RpcClientOptions{}
 	}
-	internal, err := azcore.NewClient(moduleName, moduleVersion, runtime.PipelineOptions{}, &options.ClientOptions)
+	cl, err := azcore.NewClient(moduleName, moduleVersion, runtime.PipelineOptions{}, &options.ClientOptions)
 	if err != nil {
 		return nil, err
 	}
-	return &RpcClient{
-		internal: internal,
-	}, nil
+	client := &RpcClient{
+		internal: cl,
+	}
+	return client, nil
 }
 
 // BeginLongRunningRPC - Generate data.

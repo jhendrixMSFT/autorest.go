@@ -22,7 +22,7 @@ type WorkspacesClient struct {
 	internal *arm.Client
 }
 
-// NewWorkspacesClient creates a new instance of WorkspacesClient with the specified values.
+// NewWorkspacesClient creates a new instance of [WorkspacesClient] with the specified values.
 //   - credential - used to authorize requests. Usually a credential from azidentity.
 //   - options - pass nil to accept the default values.
 func NewWorkspacesClient(credential azcore.TokenCredential, options *arm.ClientOptions) (*WorkspacesClient, error) {

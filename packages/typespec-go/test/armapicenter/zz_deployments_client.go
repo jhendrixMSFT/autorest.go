@@ -22,7 +22,7 @@ type DeploymentsClient struct {
 	internal *arm.Client
 }
 
-// NewDeploymentsClient creates a new instance of DeploymentsClient with the specified values.
+// NewDeploymentsClient creates a new instance of [DeploymentsClient] with the specified values.
 //   - credential - used to authorize requests. Usually a credential from azidentity.
 //   - options - pass nil to accept the default values.
 func NewDeploymentsClient(credential azcore.TokenCredential, options *arm.ClientOptions) (*DeploymentsClient, error) {

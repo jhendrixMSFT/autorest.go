@@ -22,7 +22,7 @@ type CertificateProfilesClient struct {
 	internal *arm.Client
 }
 
-// NewCertificateProfilesClient creates a new instance of CertificateProfilesClient with the specified values.
+// NewCertificateProfilesClient creates a new instance of [CertificateProfilesClient] with the specified values.
 //   - credential - used to authorize requests. Usually a credential from azidentity.
 //   - options - pass nil to accept the default values.
 func NewCertificateProfilesClient(credential azcore.TokenCredential, options *arm.ClientOptions) (*CertificateProfilesClient, error) {

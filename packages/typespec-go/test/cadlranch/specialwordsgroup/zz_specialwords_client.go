@@ -46,7 +46,7 @@ import (
 // with
 // yield
 // ```
-// Don't use this type directly, use a constructor function instead.
+// Don't use this type directly, use NewSpecialWordsClientWithNoCredential() instead.
 type SpecialWordsClient struct {
 	internal *azcore.Client
 }
@@ -56,19 +56,20 @@ type SpecialWordsClientOptions struct {
 	azcore.ClientOptions
 }
 
-// NewSpecialWordsClientWithNoCredential creates a new [SpecialWordsClient].
-//   - options - optional client configuration; pass nil to accept the default values
+// NewSpecialWordsClientWithNoCredential creates a new instance of [SpecialWordsClient] with the specified values.
+//   - options - SpecialWordsClientOptions contains the optional values for creating a [SpecialWordsClient]
 func NewSpecialWordsClientWithNoCredential(options *SpecialWordsClientOptions) (*SpecialWordsClient, error) {
 	if options == nil {
 		options = &SpecialWordsClientOptions{}
 	}
-	internal, err := azcore.NewClient(moduleName, moduleVersion, runtime.PipelineOptions{}, &options.ClientOptions)
+	cl, err := azcore.NewClient(moduleName, moduleVersion, runtime.PipelineOptions{}, &options.ClientOptions)
 	if err != nil {
 		return nil, err
 	}
-	return &SpecialWordsClient{
-		internal: internal,
-	}, nil
+	client := &SpecialWordsClient{
+		internal: cl,
+	}
+	return client, nil
 }
 
 // NewSpecialWordsModelPropertiesClient creates a new instance of [SpecialWordsModelPropertiesClient].

@@ -14,7 +14,7 @@ import (
 )
 
 // ClientBClient contains the methods for the Client.Structure.Service namespace.
-// Don't use this type directly, use a constructor function instead.
+// Don't use this type directly, use NewClientBClientWithNoCredential() instead.
 type ClientBClient struct {
 	internal *azcore.Client
 	endpoint string
@@ -26,19 +26,22 @@ type ClientBClientOptions struct {
 	azcore.ClientOptions
 }
 
-// NewClientBClientWithNoCredential creates a new [ClientBClient].
-//   - options - optional client configuration; pass nil to accept the default values
+// NewClientBClientWithNoCredential creates a new instance of [ClientBClient] with the specified values.
+//   - options - ClientBClientOptions contains the optional values for creating a [ClientBClient]
 func NewClientBClientWithNoCredential(options *ClientBClientOptions) (*ClientBClient, error) {
 	if options == nil {
 		options = &ClientBClientOptions{}
 	}
-	internal, err := azcore.NewClient(moduleName, moduleVersion, runtime.PipelineOptions{}, &options.ClientOptions)
+	cl, err := azcore.NewClient(moduleName, moduleVersion, runtime.PipelineOptions{}, &options.ClientOptions)
 	if err != nil {
 		return nil, err
 	}
-	return &ClientBClient{
-		internal: internal,
-	}, nil
+	client := &ClientBClient{
+		endpoint: endpoint,
+		client:   client,
+		internal: cl,
+	}
+	return client, nil
 }
 
 // - options - ClientBClientRenamedFourOptions contains the optional parameters for the ClientBClient.RenamedFour method.

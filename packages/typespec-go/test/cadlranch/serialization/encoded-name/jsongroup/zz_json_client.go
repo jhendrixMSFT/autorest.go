@@ -10,7 +10,7 @@ import (
 )
 
 // JsonClient - Projection
-// Don't use this type directly, use a constructor function instead.
+// Don't use this type directly, use NewJsonClientWithNoCredential() instead.
 type JsonClient struct {
 	internal *azcore.Client
 }
@@ -20,19 +20,20 @@ type JsonClientOptions struct {
 	azcore.ClientOptions
 }
 
-// NewJsonClientWithNoCredential creates a new [JsonClient].
-//   - options - optional client configuration; pass nil to accept the default values
+// NewJsonClientWithNoCredential creates a new instance of [JsonClient] with the specified values.
+//   - options - JsonClientOptions contains the optional values for creating a [JsonClient]
 func NewJsonClientWithNoCredential(options *JsonClientOptions) (*JsonClient, error) {
 	if options == nil {
 		options = &JsonClientOptions{}
 	}
-	internal, err := azcore.NewClient(moduleName, moduleVersion, runtime.PipelineOptions{}, &options.ClientOptions)
+	cl, err := azcore.NewClient(moduleName, moduleVersion, runtime.PipelineOptions{}, &options.ClientOptions)
 	if err != nil {
 		return nil, err
 	}
-	return &JsonClient{
-		internal: internal,
-	}, nil
+	client := &JsonClient{
+		internal: cl,
+	}
+	return client, nil
 }
 
 // NewJsonPropertyClient creates a new instance of [JsonPropertyClient].

@@ -22,7 +22,7 @@ type ApiVersionsClient struct {
 	internal *arm.Client
 }
 
-// NewApiVersionsClient creates a new instance of ApiVersionsClient with the specified values.
+// NewApiVersionsClient creates a new instance of [ApiVersionsClient] with the specified values.
 //   - credential - used to authorize requests. Usually a credential from azidentity.
 //   - options - pass nil to accept the default values.
 func NewApiVersionsClient(credential azcore.TokenCredential, options *arm.ClientOptions) (*ApiVersionsClient, error) {

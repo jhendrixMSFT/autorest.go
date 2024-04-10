@@ -13,7 +13,7 @@ import (
 )
 
 // UnionClient - Illustrates clients generated with ApiKey and OAuth2 authentication.
-// Don't use this type directly, use a constructor function instead.
+// Don't use this type directly, use NewUnionClientWithNoCredential() instead.
 type UnionClient struct {
 	internal *azcore.Client
 }
@@ -23,19 +23,20 @@ type UnionClientOptions struct {
 	azcore.ClientOptions
 }
 
-// NewUnionClientWithNoCredential creates a new [UnionClient].
-//   - options - optional client configuration; pass nil to accept the default values
+// NewUnionClientWithNoCredential creates a new instance of [UnionClient] with the specified values.
+//   - options - UnionClientOptions contains the optional values for creating a [UnionClient]
 func NewUnionClientWithNoCredential(options *UnionClientOptions) (*UnionClient, error) {
 	if options == nil {
 		options = &UnionClientOptions{}
 	}
-	internal, err := azcore.NewClient(moduleName, moduleVersion, runtime.PipelineOptions{}, &options.ClientOptions)
+	cl, err := azcore.NewClient(moduleName, moduleVersion, runtime.PipelineOptions{}, &options.ClientOptions)
 	if err != nil {
 		return nil, err
 	}
-	return &UnionClient{
-		internal: internal,
-	}, nil
+	client := &UnionClient{
+		internal: cl,
+	}
+	return client, nil
 }
 
 // ValidKey - Check whether client is authenticated

@@ -21,7 +21,7 @@ import (
 // 4. split one interface into two clients
 // 5. have two clients with operations come from different interfaces
 // 6. have two clients with a hierarchy relation.
-// Don't use this type directly, use a constructor function instead.
+// Don't use this type directly, use NewServiceClientWithNoCredential() instead.
 type ServiceClient struct {
 	internal *azcore.Client
 	endpoint string
@@ -33,19 +33,22 @@ type ServiceClientOptions struct {
 	azcore.ClientOptions
 }
 
-// NewServiceClientWithNoCredential creates a new [ServiceClient].
-//   - options - optional client configuration; pass nil to accept the default values
+// NewServiceClientWithNoCredential creates a new instance of [ServiceClient] with the specified values.
+//   - options - ServiceClientOptions contains the optional values for creating a [ServiceClient]
 func NewServiceClientWithNoCredential(options *ServiceClientOptions) (*ServiceClient, error) {
 	if options == nil {
 		options = &ServiceClientOptions{}
 	}
-	internal, err := azcore.NewClient(moduleName, moduleVersion, runtime.PipelineOptions{}, &options.ClientOptions)
+	cl, err := azcore.NewClient(moduleName, moduleVersion, runtime.PipelineOptions{}, &options.ClientOptions)
 	if err != nil {
 		return nil, err
 	}
-	return &ServiceClient{
-		internal: internal,
-	}, nil
+	client := &ServiceClient{
+		endpoint: endpoint,
+		client:   client,
+		internal: cl,
+	}
+	return client, nil
 }
 
 // NewServiceBarClient creates a new instance of [ServiceBarClient].

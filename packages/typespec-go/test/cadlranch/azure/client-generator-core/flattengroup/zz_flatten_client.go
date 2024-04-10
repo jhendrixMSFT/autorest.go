@@ -13,7 +13,7 @@ import (
 )
 
 // FlattenClient - Illustrates the model flatten cases.
-// Don't use this type directly, use a constructor function instead.
+// Don't use this type directly, use NewFlattenClientWithNoCredential() instead.
 type FlattenClient struct {
 	internal *azcore.Client
 }
@@ -23,19 +23,20 @@ type FlattenClientOptions struct {
 	azcore.ClientOptions
 }
 
-// NewFlattenClientWithNoCredential creates a new [FlattenClient].
-//   - options - optional client configuration; pass nil to accept the default values
+// NewFlattenClientWithNoCredential creates a new instance of [FlattenClient] with the specified values.
+//   - options - FlattenClientOptions contains the optional values for creating a [FlattenClient]
 func NewFlattenClientWithNoCredential(options *FlattenClientOptions) (*FlattenClient, error) {
 	if options == nil {
 		options = &FlattenClientOptions{}
 	}
-	internal, err := azcore.NewClient(moduleName, moduleVersion, runtime.PipelineOptions{}, &options.ClientOptions)
+	cl, err := azcore.NewClient(moduleName, moduleVersion, runtime.PipelineOptions{}, &options.ClientOptions)
 	if err != nil {
 		return nil, err
 	}
-	return &FlattenClient{
-		internal: internal,
-	}, nil
+	client := &FlattenClient{
+		internal: cl,
+	}
+	return client, nil
 }
 
 // - options - FlattenClientPutFlattenModelOptions contains the optional parameters for the FlattenClient.PutFlattenModel method.

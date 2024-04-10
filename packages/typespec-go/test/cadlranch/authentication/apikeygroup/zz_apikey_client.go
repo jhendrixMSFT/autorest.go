@@ -13,7 +13,7 @@ import (
 )
 
 // ApiKeyClient - Illustrates clients generated with ApiKey authentication.
-// Don't use this type directly, use a constructor function instead.
+// Don't use this type directly, use NewApiKeyClientWithKeyCredential() instead.
 type ApiKeyClient struct {
 	internal *azcore.Client
 }
@@ -23,14 +23,14 @@ type ApiKeyClientOptions struct {
 	azcore.ClientOptions
 }
 
-// NewApiKeyClientWithKeyCredential creates a new [ApiKeyClient].
+// NewApiKeyClientWithKeyCredential creates a new instance of [ApiKeyClient] with the specified values.
 //   - credential - the [azcore.KeyCredential] used to authenticate requests.
-//   - options - optional client configuration; pass nil to accept the default values
+//   - options - ApiKeyClientOptions contains the optional values for creating a [ApiKeyClient]
 func NewApiKeyClientWithKeyCredential(credential *azcore.KeyCredential, options *ApiKeyClientOptions) (*ApiKeyClient, error) {
 	if options == nil {
 		options = &ApiKeyClientOptions{}
 	}
-	internal, err := azcore.NewClient(moduleName, moduleVersion, runtime.PipelineOptions{
+	cl, err := azcore.NewClient(moduleName, moduleVersion, runtime.PipelineOptions{
 		PerCall: []policy.Policy{
 			runtime.NewKeyCredentialPolicy(credential, "x-ms-api-key", nil),
 		},
@@ -38,9 +38,10 @@ func NewApiKeyClientWithKeyCredential(credential *azcore.KeyCredential, options 
 	if err != nil {
 		return nil, err
 	}
-	return &ApiKeyClient{
-		internal: internal,
-	}, nil
+	client := &ApiKeyClient{
+		internal: cl,
+	}
+	return client, nil
 }
 
 // Invalid - Check whether client is authenticated.

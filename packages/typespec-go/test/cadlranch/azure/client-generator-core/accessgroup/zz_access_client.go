@@ -10,7 +10,7 @@ import (
 )
 
 // AccessClient - Test for internal decorator.
-// Don't use this type directly, use a constructor function instead.
+// Don't use this type directly, use NewAccessClientWithNoCredential() instead.
 type AccessClient struct {
 	internal *azcore.Client
 }
@@ -20,19 +20,20 @@ type AccessClientOptions struct {
 	azcore.ClientOptions
 }
 
-// NewAccessClientWithNoCredential creates a new [AccessClient].
-//   - options - optional client configuration; pass nil to accept the default values
+// NewAccessClientWithNoCredential creates a new instance of [AccessClient] with the specified values.
+//   - options - AccessClientOptions contains the optional values for creating a [AccessClient]
 func NewAccessClientWithNoCredential(options *AccessClientOptions) (*AccessClient, error) {
 	if options == nil {
 		options = &AccessClientOptions{}
 	}
-	internal, err := azcore.NewClient(moduleName, moduleVersion, runtime.PipelineOptions{}, &options.ClientOptions)
+	cl, err := azcore.NewClient(moduleName, moduleVersion, runtime.PipelineOptions{}, &options.ClientOptions)
 	if err != nil {
 		return nil, err
 	}
-	return &AccessClient{
-		internal: internal,
-	}, nil
+	client := &AccessClient{
+		internal: cl,
+	}
+	return client, nil
 }
 
 // NewAccessInternalOperationClient creates a new instance of [AccessInternalOperationClient].

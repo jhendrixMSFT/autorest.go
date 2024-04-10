@@ -14,7 +14,11 @@ import (
 )
 
 func TestApiKeyClient_Invalid(t *testing.T) {
-	client, err := apikeygroup.NewApiKeyClientWithKeyCredential(azcore.NewKeyCredential("invalid-key"), nil)
+	client, err := apikeygroup.NewApiKeyClientWithKeyCredential(azcore.NewKeyCredential("invalid-key"), &apikeygroup.ApiKeyClientOptions{
+		ClientOptions: azcore.ClientOptions{
+			InsecureAllowCredentialWithHTTP: true,
+		},
+	})
 	require.NoError(t, err)
 	resp, err := client.Invalid(context.Background(), nil)
 	var respErr *azcore.ResponseError

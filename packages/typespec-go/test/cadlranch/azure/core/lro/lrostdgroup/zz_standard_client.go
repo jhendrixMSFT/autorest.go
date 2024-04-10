@@ -16,7 +16,7 @@ import (
 )
 
 // StandardClient - Illustrates bodies templated with Azure Core with long-running operation
-// Don't use this type directly, use a constructor function instead.
+// Don't use this type directly, use NewStandardClientWithNoCredential() instead.
 type StandardClient struct {
 	internal *azcore.Client
 }
@@ -26,19 +26,20 @@ type StandardClientOptions struct {
 	azcore.ClientOptions
 }
 
-// NewStandardClientWithNoCredential creates a new [StandardClient].
-//   - options - optional client configuration; pass nil to accept the default values
+// NewStandardClientWithNoCredential creates a new instance of [StandardClient] with the specified values.
+//   - options - StandardClientOptions contains the optional values for creating a [StandardClient]
 func NewStandardClientWithNoCredential(options *StandardClientOptions) (*StandardClient, error) {
 	if options == nil {
 		options = &StandardClientOptions{}
 	}
-	internal, err := azcore.NewClient(moduleName, moduleVersion, runtime.PipelineOptions{}, &options.ClientOptions)
+	cl, err := azcore.NewClient(moduleName, moduleVersion, runtime.PipelineOptions{}, &options.ClientOptions)
 	if err != nil {
 		return nil, err
 	}
-	return &StandardClient{
-		internal: internal,
-	}, nil
+	client := &StandardClient{
+		internal: cl,
+	}
+	return client, nil
 }
 
 // BeginCreateOrReplace - Adds a user or replaces a user's fields.

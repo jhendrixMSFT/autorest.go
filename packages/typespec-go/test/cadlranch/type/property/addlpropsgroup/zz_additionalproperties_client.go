@@ -10,7 +10,7 @@ import (
 )
 
 // AdditionalPropertiesClient - Tests for additional properties of models
-// Don't use this type directly, use a constructor function instead.
+// Don't use this type directly, use NewAdditionalPropertiesClientWithNoCredential() instead.
 type AdditionalPropertiesClient struct {
 	internal *azcore.Client
 }
@@ -20,19 +20,20 @@ type AdditionalPropertiesClientOptions struct {
 	azcore.ClientOptions
 }
 
-// NewAdditionalPropertiesClientWithNoCredential creates a new [AdditionalPropertiesClient].
-//   - options - optional client configuration; pass nil to accept the default values
+// NewAdditionalPropertiesClientWithNoCredential creates a new instance of [AdditionalPropertiesClient] with the specified values.
+//   - options - AdditionalPropertiesClientOptions contains the optional values for creating a [AdditionalPropertiesClient]
 func NewAdditionalPropertiesClientWithNoCredential(options *AdditionalPropertiesClientOptions) (*AdditionalPropertiesClient, error) {
 	if options == nil {
 		options = &AdditionalPropertiesClientOptions{}
 	}
-	internal, err := azcore.NewClient(moduleName, moduleVersion, runtime.PipelineOptions{}, &options.ClientOptions)
+	cl, err := azcore.NewClient(moduleName, moduleVersion, runtime.PipelineOptions{}, &options.ClientOptions)
 	if err != nil {
 		return nil, err
 	}
-	return &AdditionalPropertiesClient{
-		internal: internal,
-	}, nil
+	client := &AdditionalPropertiesClient{
+		internal: cl,
+	}
+	return client, nil
 }
 
 // NewAdditionalPropertiesExtendsFloatClient creates a new instance of [AdditionalPropertiesExtendsFloatClient].

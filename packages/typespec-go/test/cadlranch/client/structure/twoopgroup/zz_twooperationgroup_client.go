@@ -10,7 +10,7 @@ import (
 )
 
 // TwoOperationGroupClient contains the methods for the Client.Structure.Service namespace.
-// Don't use this type directly, use a constructor function instead.
+// Don't use this type directly, use NewTwoOperationGroupClientWithNoCredential() instead.
 type TwoOperationGroupClient struct {
 	internal *azcore.Client
 	endpoint string
@@ -22,19 +22,22 @@ type TwoOperationGroupClientOptions struct {
 	azcore.ClientOptions
 }
 
-// NewTwoOperationGroupClientWithNoCredential creates a new [TwoOperationGroupClient].
-//   - options - optional client configuration; pass nil to accept the default values
+// NewTwoOperationGroupClientWithNoCredential creates a new instance of [TwoOperationGroupClient] with the specified values.
+//   - options - TwoOperationGroupClientOptions contains the optional values for creating a [TwoOperationGroupClient]
 func NewTwoOperationGroupClientWithNoCredential(options *TwoOperationGroupClientOptions) (*TwoOperationGroupClient, error) {
 	if options == nil {
 		options = &TwoOperationGroupClientOptions{}
 	}
-	internal, err := azcore.NewClient(moduleName, moduleVersion, runtime.PipelineOptions{}, &options.ClientOptions)
+	cl, err := azcore.NewClient(moduleName, moduleVersion, runtime.PipelineOptions{}, &options.ClientOptions)
 	if err != nil {
 		return nil, err
 	}
-	return &TwoOperationGroupClient{
-		internal: internal,
-	}, nil
+	client := &TwoOperationGroupClient{
+		endpoint: endpoint,
+		client:   client,
+		internal: cl,
+	}
+	return client, nil
 }
 
 // NewTwoOperationGroupGroup1Client creates a new instance of [TwoOperationGroupGroup1Client].

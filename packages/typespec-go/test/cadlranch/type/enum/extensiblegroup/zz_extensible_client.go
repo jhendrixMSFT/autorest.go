@@ -10,7 +10,7 @@ import (
 )
 
 // ExtensibleClient contains the methods for the Type.Enum.Extensible namespace.
-// Don't use this type directly, use a constructor function instead.
+// Don't use this type directly, use NewExtensibleClientWithNoCredential() instead.
 type ExtensibleClient struct {
 	internal *azcore.Client
 }
@@ -20,19 +20,20 @@ type ExtensibleClientOptions struct {
 	azcore.ClientOptions
 }
 
-// NewExtensibleClientWithNoCredential creates a new [ExtensibleClient].
-//   - options - optional client configuration; pass nil to accept the default values
+// NewExtensibleClientWithNoCredential creates a new instance of [ExtensibleClient] with the specified values.
+//   - options - ExtensibleClientOptions contains the optional values for creating a [ExtensibleClient]
 func NewExtensibleClientWithNoCredential(options *ExtensibleClientOptions) (*ExtensibleClient, error) {
 	if options == nil {
 		options = &ExtensibleClientOptions{}
 	}
-	internal, err := azcore.NewClient(moduleName, moduleVersion, runtime.PipelineOptions{}, &options.ClientOptions)
+	cl, err := azcore.NewClient(moduleName, moduleVersion, runtime.PipelineOptions{}, &options.ClientOptions)
 	if err != nil {
 		return nil, err
 	}
-	return &ExtensibleClient{
-		internal: internal,
-	}, nil
+	client := &ExtensibleClient{
+		internal: cl,
+	}
+	return client, nil
 }
 
 // NewExtensibleStringClient creates a new instance of [ExtensibleStringClient].

@@ -10,7 +10,7 @@ import (
 )
 
 // DurationClient - Test for encode decorator on duration.
-// Don't use this type directly, use a constructor function instead.
+// Don't use this type directly, use NewDurationClientWithNoCredential() instead.
 type DurationClient struct {
 	internal *azcore.Client
 }
@@ -20,19 +20,20 @@ type DurationClientOptions struct {
 	azcore.ClientOptions
 }
 
-// NewDurationClientWithNoCredential creates a new [DurationClient].
-//   - options - optional client configuration; pass nil to accept the default values
+// NewDurationClientWithNoCredential creates a new instance of [DurationClient] with the specified values.
+//   - options - DurationClientOptions contains the optional values for creating a [DurationClient]
 func NewDurationClientWithNoCredential(options *DurationClientOptions) (*DurationClient, error) {
 	if options == nil {
 		options = &DurationClientOptions{}
 	}
-	internal, err := azcore.NewClient(moduleName, moduleVersion, runtime.PipelineOptions{}, &options.ClientOptions)
+	cl, err := azcore.NewClient(moduleName, moduleVersion, runtime.PipelineOptions{}, &options.ClientOptions)
 	if err != nil {
 		return nil, err
 	}
-	return &DurationClient{
-		internal: internal,
-	}, nil
+	client := &DurationClient{
+		internal: cl,
+	}
+	return client, nil
 }
 
 // NewDurationHeaderClient creates a new instance of [DurationHeaderClient].

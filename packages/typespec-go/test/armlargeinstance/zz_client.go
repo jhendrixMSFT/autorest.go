@@ -15,7 +15,7 @@ type Client struct {
 	internal *arm.Client
 }
 
-// NewClient creates a new instance of Client with the specified values.
+// NewClient creates a new instance of [Client] with the specified values.
 //   - credential - used to authorize requests. Usually a credential from azidentity.
 //   - options - pass nil to accept the default values.
 func NewClient(credential azcore.TokenCredential, options *arm.ClientOptions) (*Client, error) {

@@ -10,7 +10,7 @@ import (
 )
 
 // LegacyClient - Illustrates bodies templated with Azure Core with long-running operation
-// Don't use this type directly, use a constructor function instead.
+// Don't use this type directly, use NewLegacyClientWithNoCredential() instead.
 type LegacyClient struct {
 	internal *azcore.Client
 }
@@ -20,19 +20,20 @@ type LegacyClientOptions struct {
 	azcore.ClientOptions
 }
 
-// NewLegacyClientWithNoCredential creates a new [LegacyClient].
-//   - options - optional client configuration; pass nil to accept the default values
+// NewLegacyClientWithNoCredential creates a new instance of [LegacyClient] with the specified values.
+//   - options - LegacyClientOptions contains the optional values for creating a [LegacyClient]
 func NewLegacyClientWithNoCredential(options *LegacyClientOptions) (*LegacyClient, error) {
 	if options == nil {
 		options = &LegacyClientOptions{}
 	}
-	internal, err := azcore.NewClient(moduleName, moduleVersion, runtime.PipelineOptions{}, &options.ClientOptions)
+	cl, err := azcore.NewClient(moduleName, moduleVersion, runtime.PipelineOptions{}, &options.ClientOptions)
 	if err != nil {
 		return nil, err
 	}
-	return &LegacyClient{
-		internal: internal,
-	}, nil
+	client := &LegacyClient{
+		internal: cl,
+	}
+	return client, nil
 }
 
 // NewLegacyCreateResourcePollViaOperationLocationClient creates a new instance of [LegacyCreateResourcePollViaOperationLocationClient].

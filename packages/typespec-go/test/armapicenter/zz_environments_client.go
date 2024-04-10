@@ -22,7 +22,7 @@ type EnvironmentsClient struct {
 	internal *arm.Client
 }
 
-// NewEnvironmentsClient creates a new instance of EnvironmentsClient with the specified values.
+// NewEnvironmentsClient creates a new instance of [EnvironmentsClient] with the specified values.
 //   - credential - used to authorize requests. Usually a credential from azidentity.
 //   - options - pass nil to accept the default values.
 func NewEnvironmentsClient(credential azcore.TokenCredential, options *arm.ClientOptions) (*EnvironmentsClient, error) {
