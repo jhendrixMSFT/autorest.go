@@ -4,7 +4,10 @@
 
 package specialwordsgroup
 
-import "github.com/Azure/azure-sdk-for-go/sdk/azcore"
+import (
+	"github.com/Azure/azure-sdk-for-go/sdk/azcore"
+	"github.com/Azure/azure-sdk-for-go/sdk/azcore/runtime"
+)
 
 // SpecialWordsClient - Scenarios to verify that reserved words can be used in service and generators will handle it appropriately.
 // Current list of special words
@@ -46,6 +49,26 @@ import "github.com/Azure/azure-sdk-for-go/sdk/azcore"
 // Don't use this type directly, use a constructor function instead.
 type SpecialWordsClient struct {
 	internal *azcore.Client
+}
+
+// SpecialWordsClientOptions contains the optional values for creating a [SpecialWordsClient].
+type SpecialWordsClientOptions struct {
+	azcore.ClientOptions
+}
+
+// NewSpecialWordsClientWithNoCredential creates a new [SpecialWordsClient].
+//   - options - optional client configuration; pass nil to accept the default values
+func NewSpecialWordsClientWithNoCredential(options *SpecialWordsClientOptions) (*SpecialWordsClient, error) {
+	if options == nil {
+		options = &SpecialWordsClientOptions{}
+	}
+	internal, err := azcore.NewClient(moduleName, moduleVersion, runtime.PipelineOptions{}, &options.ClientOptions)
+	if err != nil {
+		return nil, err
+	}
+	return &SpecialWordsClient{
+		internal: internal,
+	}, nil
 }
 
 // NewSpecialWordsModelPropertiesClient creates a new instance of [SpecialWordsModelPropertiesClient].

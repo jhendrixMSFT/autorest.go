@@ -16,7 +16,7 @@ import (
 )
 
 func TestIsStringClient_Get(t *testing.T) {
-	client, err := addlpropsgroup.NewAdditionalPropertiesClient(nil)
+	client, err := addlpropsgroup.NewAdditionalPropertiesClientWithNoCredential(nil)
 	require.NoError(t, err)
 	resp, err := client.NewAdditionalPropertiesIsStringClient().Get(context.Background(), nil)
 	require.NoError(t, err)
@@ -29,7 +29,7 @@ func TestIsStringClient_Get(t *testing.T) {
 }
 
 func TestIsStringClient_Put(t *testing.T) {
-	client, err := addlpropsgroup.NewAdditionalPropertiesClient(nil)
+	client, err := addlpropsgroup.NewAdditionalPropertiesClientWithNoCredential(nil)
 	require.NoError(t, err)
 	resp, err := client.NewAdditionalPropertiesIsStringClient().Put(context.Background(), addlpropsgroup.IsStringAdditionalProperties{
 		Name: to.Ptr("IsStringAdditionalProperties"),

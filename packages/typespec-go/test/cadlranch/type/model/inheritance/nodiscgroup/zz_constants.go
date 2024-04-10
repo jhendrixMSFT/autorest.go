@@ -5,3 +5,8 @@
 package nodiscgroup
 
 const host = "http://localhost:3000"
+
+const (
+	moduleName    = "nodiscgroup"
+	moduleVersion = "v0.1.0"
+)

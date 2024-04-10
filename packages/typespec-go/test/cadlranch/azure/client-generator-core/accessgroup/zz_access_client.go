@@ -4,7 +4,10 @@
 
 package accessgroup
 
-import "github.com/Azure/azure-sdk-for-go/sdk/azcore"
+import (
+	"github.com/Azure/azure-sdk-for-go/sdk/azcore"
+	"github.com/Azure/azure-sdk-for-go/sdk/azcore/runtime"
+)
 
 // AccessClient - Test for internal decorator.
 // Don't use this type directly, use a constructor function instead.
@@ -12,7 +15,27 @@ type AccessClient struct {
 	internal *azcore.Client
 }
 
-// NewAccessInternalOperationClient creates a new instance of [AccessInternalOperationClient].
+// AccessClientOptions contains the optional values for creating a [AccessClient].
+type AccessClientOptions struct {
+	azcore.ClientOptions
+}
+
+// NewAccessClientWithNoCredential creates a new [AccessClient].
+//   - options - optional client configuration; pass nil to accept the default values
+func NewAccessClientWithNoCredential(options *AccessClientOptions) (*AccessClient, error) {
+	if options == nil {
+		options = &AccessClientOptions{}
+	}
+	internal, err := azcore.NewClient(moduleName, moduleVersion, runtime.PipelineOptions{}, &options.ClientOptions)
+	if err != nil {
+		return nil, err
+	}
+	return &AccessClient{
+		internal: internal,
+	}, nil
+}
+
+// NewAccessInternalOperationClient creates a new instance of [InternalOperationClient].
 func (client *AccessClient) NewAccessInternalOperationClient() *AccessInternalOperationClient {
 	return &AccessInternalOperationClient{
 		internal: client.internal,

@@ -5,3 +5,8 @@
 package customgroup
 
 const host = "http://localhost:3000"
+
+const (
+	moduleName    = "customgroup"
+	moduleVersion = "v0.1.0"
+)

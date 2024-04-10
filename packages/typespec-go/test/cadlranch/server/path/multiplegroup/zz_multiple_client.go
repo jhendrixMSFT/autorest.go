@@ -23,6 +23,26 @@ type MultipleClient struct {
 	apiVersion Versions
 }
 
+// MultipleClientOptions contains the optional values for creating a [MultipleClient].
+type MultipleClientOptions struct {
+	azcore.ClientOptions
+}
+
+// NewMultipleClientWithNoCredential creates a new [MultipleClient].
+//   - options - optional client configuration; pass nil to accept the default values
+func NewMultipleClientWithNoCredential(options *MultipleClientOptions) (*MultipleClient, error) {
+	if options == nil {
+		options = &MultipleClientOptions{}
+	}
+	internal, err := azcore.NewClient(moduleName, moduleVersion, runtime.PipelineOptions{}, &options.ClientOptions)
+	if err != nil {
+		return nil, err
+	}
+	return &MultipleClient{
+		internal: internal,
+	}, nil
+}
+
 //   - options - MultipleClientNoOperationParamsOptions contains the optional parameters for the MultipleClient.NoOperationParams
 //     method.
 func (client *MultipleClient) NoOperationParams(ctx context.Context, options *MultipleClientNoOperationParamsOptions) (MultipleClientNoOperationParamsResponse, error) {

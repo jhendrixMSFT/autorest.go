@@ -21,6 +21,26 @@ type ClientAClient struct {
 	client   ClientType
 }
 
+// ClientAClientOptions contains the optional values for creating a [ClientAClient].
+type ClientAClientOptions struct {
+	azcore.ClientOptions
+}
+
+// NewClientAClientWithNoCredential creates a new [ClientAClient].
+//   - options - optional client configuration; pass nil to accept the default values
+func NewClientAClientWithNoCredential(options *ClientAClientOptions) (*ClientAClient, error) {
+	if options == nil {
+		options = &ClientAClientOptions{}
+	}
+	internal, err := azcore.NewClient(moduleName, moduleVersion, runtime.PipelineOptions{}, &options.ClientOptions)
+	if err != nil {
+		return nil, err
+	}
+	return &ClientAClient{
+		internal: internal,
+	}, nil
+}
+
 // - options - ClientAClientRenamedFiveOptions contains the optional parameters for the ClientAClient.RenamedFive method.
 func (client *ClientAClient) RenamedFive(ctx context.Context, options *ClientAClientRenamedFiveOptions) (ClientAClientRenamedFiveResponse, error) {
 	var err error

@@ -4,7 +4,10 @@
 
 package lrolegacygroup
 
-import "github.com/Azure/azure-sdk-for-go/sdk/azcore"
+import (
+	"github.com/Azure/azure-sdk-for-go/sdk/azcore"
+	"github.com/Azure/azure-sdk-for-go/sdk/azcore/runtime"
+)
 
 // LegacyClient - Illustrates bodies templated with Azure Core with long-running operation
 // Don't use this type directly, use a constructor function instead.
@@ -12,9 +15,29 @@ type LegacyClient struct {
 	internal *azcore.Client
 }
 
+// LegacyClientOptions contains the optional values for creating a [LegacyClient].
+type LegacyClientOptions struct {
+	azcore.ClientOptions
+}
+
+// NewLegacyClientWithNoCredential creates a new [LegacyClient].
+//   - options - optional client configuration; pass nil to accept the default values
+func NewLegacyClientWithNoCredential(options *LegacyClientOptions) (*LegacyClient, error) {
+	if options == nil {
+		options = &LegacyClientOptions{}
+	}
+	internal, err := azcore.NewClient(moduleName, moduleVersion, runtime.PipelineOptions{}, &options.ClientOptions)
+	if err != nil {
+		return nil, err
+	}
+	return &LegacyClient{
+		internal: internal,
+	}, nil
+}
+
 // NewLegacyCreateResourcePollViaOperationLocationClient creates a new instance of [LegacyCreateResourcePollViaOperationLocationClient].
 func (client *LegacyClient) NewLegacyCreateResourcePollViaOperationLocationClient() *LegacyCreateResourcePollViaOperationLocationClient {
 	return &LegacyCreateResourcePollViaOperationLocationClient{
-		internal: client.internal,
+		internal:   client.internal,
 	}
 }

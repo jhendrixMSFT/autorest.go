@@ -4,6 +4,11 @@
 
 package multiclientgroup
 
+const (
+	moduleName    = "multiclientgroup"
+	moduleVersion = "v0.1.0"
+)
+
 type ClientType string
 
 const (

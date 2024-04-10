@@ -4,6 +4,11 @@
 
 package multiplegroup
 
+const (
+	moduleName    = "multiplegroup"
+	moduleVersion = "v0.1.0"
+)
+
 // Versions - Service versions
 type Versions string
 

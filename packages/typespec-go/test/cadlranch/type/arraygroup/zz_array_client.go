@@ -4,12 +4,35 @@
 
 package arraygroup
 
-import "github.com/Azure/azure-sdk-for-go/sdk/azcore"
+import (
+	"github.com/Azure/azure-sdk-for-go/sdk/azcore"
+	"github.com/Azure/azure-sdk-for-go/sdk/azcore/runtime"
+)
 
 // ArrayClient - Illustrates various types of arrays.
 // Don't use this type directly, use a constructor function instead.
 type ArrayClient struct {
 	internal *azcore.Client
+}
+
+// ArrayClientOptions contains the optional values for creating a [ArrayClient].
+type ArrayClientOptions struct {
+	azcore.ClientOptions
+}
+
+// NewArrayClientWithNoCredential creates a new [ArrayClient].
+//   - options - optional client configuration; pass nil to accept the default values
+func NewArrayClientWithNoCredential(options *ArrayClientOptions) (*ArrayClient, error) {
+	if options == nil {
+		options = &ArrayClientOptions{}
+	}
+	internal, err := azcore.NewClient(moduleName, moduleVersion, runtime.PipelineOptions{}, &options.ClientOptions)
+	if err != nil {
+		return nil, err
+	}
+	return &ArrayClient{
+		internal: internal,
+	}, nil
 }
 
 // NewArrayBooleanValueClient creates a new instance of [ArrayBooleanValueClient].

@@ -77,9 +77,31 @@ export class clientAdapter {
 
     // anything other than public means non-instantiable client
     if (sdkClient.initialization.access === 'public') {
+      // for instantiable clients, if there is no explicit credential
+      // type defined then it implicitly supports no authenticaiton.
+      let explicitCreds = false;
       for (const param of sdkClient.initialization.properties) {
         if (param.kind === 'credential') {
-          // skip this for now as we don't generate client constructors
+          if (!this.ta.codeModel.options.generateCtors) {
+            continue;
+          }
+          if (param.type.kind === 'credential') {
+            explicitCreds = true;
+            switch (param.type.scheme.type) {
+              case 'apiKey':
+                if (param.type.scheme.in === 'cookie') {
+                  throw new Error('cookie api-key NYI');
+                }
+                goClient.authentication.push(new go.APIKeyAuthentication(param.type.scheme.name, param.type.scheme.in));
+                break;
+              case 'noAuth':
+                goClient.authentication.push(new go.NoAuthentication());
+                break;
+              default:
+                // fall through for now to skip this credential kind
+                // throw new Error(`unhandled credential kind ${param.type.scheme.type}`);
+            }
+          }
           continue;
         } else if (param.kind === 'endpoint' && param.type.kind === 'endpoint') {
           // this will either be a fixed or templated host
@@ -108,6 +130,9 @@ export class clientAdapter {
         }
 
         goClient.hostParams.push(this.adaptURIParam(param));
+      }
+      if (!explicitCreds && this.ta.codeModel.options.generateCtors) {
+        goClient.authentication.push(new go.NoAuthentication());
       }
     } else if (parent) {
       // this is a sub-client. it will share the client/host params of the parent.

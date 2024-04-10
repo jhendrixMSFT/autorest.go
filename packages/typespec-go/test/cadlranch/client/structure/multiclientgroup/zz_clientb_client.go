@@ -21,6 +21,26 @@ type ClientBClient struct {
 	client   ClientType
 }
 
+// ClientBClientOptions contains the optional values for creating a [ClientBClient].
+type ClientBClientOptions struct {
+	azcore.ClientOptions
+}
+
+// NewClientBClientWithNoCredential creates a new [ClientBClient].
+//   - options - optional client configuration; pass nil to accept the default values
+func NewClientBClientWithNoCredential(options *ClientBClientOptions) (*ClientBClient, error) {
+	if options == nil {
+		options = &ClientBClientOptions{}
+	}
+	internal, err := azcore.NewClient(moduleName, moduleVersion, runtime.PipelineOptions{}, &options.ClientOptions)
+	if err != nil {
+		return nil, err
+	}
+	return &ClientBClient{
+		internal: internal,
+	}, nil
+}
+
 // - options - ClientBClientRenamedFourOptions contains the optional parameters for the ClientBClient.RenamedFour method.
 func (client *ClientBClient) RenamedFour(ctx context.Context, options *ClientBClientRenamedFourOptions) (ClientBClientRenamedFourResponse, error) {
 	var err error

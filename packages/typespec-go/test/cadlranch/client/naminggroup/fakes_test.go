@@ -37,8 +37,10 @@ func TestFakeNamingServer(t *testing.T) {
 			return
 		},
 	}
-	client, err := naminggroup.NewNamingClient(&azcore.ClientOptions{
-		Transport: fake.NewNamingServerTransport(&server),
+	client, err := naminggroup.NewNamingClientWithNoCredential(&naminggroup.NamingClientOptions{
+		ClientOptions: azcore.ClientOptions{
+			Transport: fake.NewNamingServerTransport(&server),
+		},
 	})
 	require.NoError(t, err)
 

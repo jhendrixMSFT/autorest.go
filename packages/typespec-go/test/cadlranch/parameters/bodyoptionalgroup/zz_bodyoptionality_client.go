@@ -18,7 +18,27 @@ type BodyOptionalityClient struct {
 	internal *azcore.Client
 }
 
-// NewBodyOptionalityOptionalExplicitClient creates a new instance of [BodyOptionalityOptionalExplicitClient].
+// BodyOptionalityClientOptions contains the optional values for creating a [BodyOptionalityClient].
+type BodyOptionalityClientOptions struct {
+	azcore.ClientOptions
+}
+
+// NewBodyOptionalityClientWithNoCredential creates a new [BodyOptionalityClient].
+//   - options - optional client configuration; pass nil to accept the default values
+func NewBodyOptionalityClientWithNoCredential(options *BodyOptionalityClientOptions) (*BodyOptionalityClient, error) {
+	if options == nil {
+		options = &BodyOptionalityClientOptions{}
+	}
+	internal, err := azcore.NewClient(moduleName, moduleVersion, runtime.PipelineOptions{}, &options.ClientOptions)
+	if err != nil {
+		return nil, err
+	}
+	return &BodyOptionalityClient{
+		internal: internal,
+	}, nil
+}
+
+// NewOptionalExplicitClient creates a new instance of [OptionalExplicitClient].
 func (client *BodyOptionalityClient) NewBodyOptionalityOptionalExplicitClient() *BodyOptionalityOptionalExplicitClient {
 	return &BodyOptionalityOptionalExplicitClient{
 		internal: client.internal,

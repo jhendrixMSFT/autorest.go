@@ -6,6 +6,11 @@ package enumdiscgroup
 
 const host = "http://localhost:3000"
 
+const (
+	moduleName    = "enumdiscgroup"
+	moduleVersion = "v0.1.0"
+)
+
 // DogKind - extensible enum type for discriminator
 type DogKind string
 

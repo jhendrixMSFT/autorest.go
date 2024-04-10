@@ -20,6 +20,26 @@ type SingleClient struct {
 	endpoint string
 }
 
+// SingleClientOptions contains the optional values for creating a [SingleClient].
+type SingleClientOptions struct {
+	azcore.ClientOptions
+}
+
+// NewSingleClientWithNoCredential creates a new [SingleClient].
+//   - options - optional client configuration; pass nil to accept the default values
+func NewSingleClientWithNoCredential(options *SingleClientOptions) (*SingleClient, error) {
+	if options == nil {
+		options = &SingleClientOptions{}
+	}
+	internal, err := azcore.NewClient(moduleName, moduleVersion, runtime.PipelineOptions{}, &options.ClientOptions)
+	if err != nil {
+		return nil, err
+	}
+	return &SingleClient{
+		internal: internal,
+	}, nil
+}
+
 // - options - SingleClientMyOpOptions contains the optional parameters for the SingleClient.MyOp method.
 func (client *SingleClient) MyOp(ctx context.Context, options *SingleClientMyOpOptions) (SingleClientMyOpResponse, error) {
 	var err error

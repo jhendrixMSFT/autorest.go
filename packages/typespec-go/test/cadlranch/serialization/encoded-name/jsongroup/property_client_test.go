@@ -13,7 +13,7 @@ import (
 )
 
 func TestPropertyClient_Get(t *testing.T) {
-	client, err := jsongroup.NewJsonClient(nil)
+	client, err := jsongroup.NewJsonClientWithNoCredential(nil)
 	require.NoError(t, err)
 	resp, err := client.NewJsonPropertyClient().Get(context.Background(), nil)
 	require.NoError(t, err)
@@ -23,7 +23,7 @@ func TestPropertyClient_Get(t *testing.T) {
 }
 
 func TestPropertyClient_Send(t *testing.T) {
-	client, err := jsongroup.NewJsonClient(nil)
+	client, err := jsongroup.NewJsonClientWithNoCredential(nil)
 	require.NoError(t, err)
 	resp, err := client.NewJsonPropertyClient().Send(context.Background(), jsongroup.JSONEncodedNameModel{
 		DefaultName: to.Ptr(true),

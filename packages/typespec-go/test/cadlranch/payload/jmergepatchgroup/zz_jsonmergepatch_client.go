@@ -18,6 +18,26 @@ type JsonMergePatchClient struct {
 	internal *azcore.Client
 }
 
+// JsonMergePatchClientOptions contains the optional values for creating a [JsonMergePatchClient].
+type JsonMergePatchClientOptions struct {
+	azcore.ClientOptions
+}
+
+// NewJsonMergePatchClientWithNoCredential creates a new [JsonMergePatchClient].
+//   - options - optional client configuration; pass nil to accept the default values
+func NewJsonMergePatchClientWithNoCredential(options *JsonMergePatchClientOptions) (*JsonMergePatchClient, error) {
+	if options == nil {
+		options = &JsonMergePatchClientOptions{}
+	}
+	internal, err := azcore.NewClient(moduleName, moduleVersion, runtime.PipelineOptions{}, &options.ClientOptions)
+	if err != nil {
+		return nil, err
+	}
+	return &JsonMergePatchClient{
+		internal: internal,
+	}, nil
+}
+
 // CreateResource - Test content-type: application/merge-patch+json with required body
 //   - options - JsonMergePatchClientCreateResourceOptions contains the optional parameters for the JsonMergePatchClient.CreateResource
 //     method.

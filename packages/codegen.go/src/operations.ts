@@ -37,6 +37,9 @@ export async function generateOperations(codeModel: go.CodeModel): Promise<Array
       imports.add('net/http');
       imports.add('github.com/Azure/azure-sdk-for-go/sdk/azcore/policy');
       imports.add('github.com/Azure/azure-sdk-for-go/sdk/azcore/runtime');
+    } else if (client.authentication.length > 0) {
+      // client constructors will need this
+      imports.add('github.com/Azure/azure-sdk-for-go/sdk/azcore/runtime');
     }
 
     let clientPkg = 'azcore';
@@ -138,10 +141,12 @@ export async function generateOperations(codeModel: go.CodeModel): Promise<Array
       throw new Error('optional client parameters for ARM is not supported');
     }
 
-    // generate client constructor (we do this only for ARM)
+    // generate client constructors
 
     if (azureARM) {
       clientText += generateARMClientConstructor(client, imports);
+    } else if (client.authentication.length > 0) {
+      clientText += generateClientConstructors(client);
     }
 
     // generate client accessors and operations
@@ -216,27 +221,73 @@ function generateARMClientConstructor(client: go.Client, imports: ImportManager)
   paramDocs.push(helpers.formatCommentAsBulletItem('options - pass nil to accept the default values.'));
 
   // now build constructor
-  let ctorText = `// ${client.ctorName} creates a new instance of ${client.name} with the specified values.\n`;
+  let clientText = `// ${client.ctorName} creates a new instance of ${client.name} with the specified values.\n`;
   for (const doc of values(paramDocs)) {
-    ctorText += `${doc}\n`;
+    clientText += `${doc}\n`;
   }
 
-  ctorText += `func ${client.ctorName}(${methodParams.join(', ')}) (*${client.name}, error) {\n`;
-  ctorText += '\tcl, err := arm.NewClient(moduleName, moduleVersion, credential, options)\n';
-  ctorText += '\tif err != nil {\n';
-  ctorText += '\t\treturn nil, err\n';
-  ctorText += '\t}\n';
+  clientText += `func ${client.ctorName}(${methodParams.join(', ')}) (*${client.name}, error) {\n`;
+  clientText += '\tcl, err := arm.NewClient(moduleName, moduleVersion, credential, options)\n';
+  clientText += '\tif err != nil {\n';
+  clientText += '\t\treturn nil, err\n';
+  clientText += '\t}\n';
 
   // construct client literal
-  ctorText += `\tclient := &${client.name}{\n`;
+  clientText += `\tclient := &${client.name}{\n`;
   for (const clientParam of values(client.parameters)) {
-    ctorText += `\t\t${clientParam.name}: ${clientParam.name},\n`;
+    clientText += `\t\t${clientParam.name}: ${clientParam.name},\n`;
   }
-  ctorText += '\tinternal: cl,\n';
-  ctorText += '\t}\n';
-  ctorText += '\treturn client, nil\n';
-  ctorText += '}\n\n';
-  return ctorText;
+  clientText += '\tinternal: cl,\n';
+  clientText += '\t}\n';
+  clientText += '\treturn client, nil\n';
+  clientText += '}\n\n';
+  return clientText;
+}
+
+function generateClientConstructors(client: go.Client): string {
+  const optionsTypeName = client.name + 'Options';
+  const emitCtorBody = function(plOpts: string): string {
+    let bodyText = `\tif options == nil {\n\t\toptions = &${optionsTypeName}{}\n\t}\n`;
+    bodyText += `\tinternal, err := azcore.NewClient(moduleName, moduleVersion, runtime.PipelineOptions{${plOpts}}, &options.ClientOptions)\n`;
+    bodyText += '\tif err != nil {\n\t\treturn nil, err\n\t}\n';
+    bodyText += `\treturn &${client.name}{\n`;
+    bodyText += '\t\tinternal: internal,\n';
+    // TODO: client params
+    bodyText += '\t}, nil\n';
+    return bodyText;
+  };
+
+  let ctorsText = `// ${optionsTypeName} contains the optional values for creating a [${client.name}].\n`;
+  ctorsText += `type ${optionsTypeName} struct {\n\tazcore.ClientOptions\n}\n\n`;
+  for (const auth of client.authentication) {
+    switch (auth.kind) {
+      case 'apikey': {
+        const ctorName = `New${client.name}WithKeyCredential`;
+        // TODO: client params
+        ctorsText += `// ${ctorName} creates a new [${client.name}].\n`
+        ctorsText += '//   - credential - the [azcore.KeyCredential] used to authenticate requests.\n';
+        ctorsText += '//   - options - optional client configuration; pass nil to accept the default values\n';
+        ctorsText += `func ${ctorName}(credential *azcore.KeyCredential, options *${optionsTypeName}) (*${client.name}, error) {\n`;
+        const keyPolicy = `\n\t\tPerCall: []policy.Policy{\n\t\truntime.NewKeyCredentialPolicy(credential, "${auth.name}", nil),\n\t\t},\n`;
+        ctorsText += emitCtorBody(keyPolicy);
+        ctorsText += '}\n\n';
+        break;
+      }
+      case 'bearer':
+        throw new Error('bearer auth NYI');
+      case 'none': {
+        const ctorName = `New${client.name}WithNoCredential`;
+        // TODO: client params
+        ctorsText += `// ${ctorName} creates a new [${client.name}].\n`
+        ctorsText += '//   - options - optional client configuration; pass nil to accept the default values\n';
+        ctorsText += `func ${ctorName}(options *${optionsTypeName}) (*${client.name}, error) {\n`;
+        ctorsText += emitCtorBody('');
+        ctorsText += '}\n\n';
+        break;
+      }
+    }
+  }
+  return ctorsText;
 }
 
 // use this to generate the code that will help process values returned in response headers

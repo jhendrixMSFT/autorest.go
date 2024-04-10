@@ -16,7 +16,7 @@ import (
 )
 
 func TestIsFloatClient_Get(t *testing.T) {
-	client, err := addlpropsgroup.NewAdditionalPropertiesClient(nil)
+	client, err := addlpropsgroup.NewAdditionalPropertiesClientWithNoCredential(nil)
 	require.NoError(t, err)
 	resp, err := client.NewAdditionalPropertiesIsFloatClient().Get(context.Background(), nil)
 	require.NoError(t, err)
@@ -29,7 +29,7 @@ func TestIsFloatClient_Get(t *testing.T) {
 }
 
 func TestIsFloatClient_Put(t *testing.T) {
-	client, err := addlpropsgroup.NewAdditionalPropertiesClient(nil)
+	client, err := addlpropsgroup.NewAdditionalPropertiesClientWithNoCredential(nil)
 	require.NoError(t, err)
 	resp, err := client.NewAdditionalPropertiesIsFloatClient().Put(context.Background(), addlpropsgroup.IsFloatAdditionalProperties{
 		ID: to.Ptr[float32](43.125),

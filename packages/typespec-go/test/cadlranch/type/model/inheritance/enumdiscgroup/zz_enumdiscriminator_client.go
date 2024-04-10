@@ -18,6 +18,26 @@ type EnumDiscriminatorClient struct {
 	internal *azcore.Client
 }
 
+// EnumDiscriminatorClientOptions contains the optional values for creating a [EnumDiscriminatorClient].
+type EnumDiscriminatorClientOptions struct {
+	azcore.ClientOptions
+}
+
+// NewEnumDiscriminatorClientWithNoCredential creates a new [EnumDiscriminatorClient].
+//   - options - optional client configuration; pass nil to accept the default values
+func NewEnumDiscriminatorClientWithNoCredential(options *EnumDiscriminatorClientOptions) (*EnumDiscriminatorClient, error) {
+	if options == nil {
+		options = &EnumDiscriminatorClientOptions{}
+	}
+	internal, err := azcore.NewClient(moduleName, moduleVersion, runtime.PipelineOptions{}, &options.ClientOptions)
+	if err != nil {
+		return nil, err
+	}
+	return &EnumDiscriminatorClient{
+		internal: internal,
+	}, nil
+}
+
 // GetExtensibleModel - Receive model with extensible enum discriminator type.
 //   - options - EnumDiscriminatorClientGetExtensibleModelOptions contains the optional parameters for the EnumDiscriminatorClient.GetExtensibleModel
 //     method.

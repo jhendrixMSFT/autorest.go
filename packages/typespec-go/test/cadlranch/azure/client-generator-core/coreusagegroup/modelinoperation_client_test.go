@@ -13,7 +13,7 @@ import (
 )
 
 func TestModelInOperationClient_InputToInputOutput(t *testing.T) {
-	client, err := coreusagegroup.NewUsageClient(nil)
+	client, err := coreusagegroup.NewUsageClientWithNoCredential(nil)
 	require.NoError(t, err)
 	resp, err := client.NewUsageModelInOperationClient().InputToInputOutput(context.Background(), coreusagegroup.InputModel{
 		Name: to.Ptr("Madge"),
@@ -23,7 +23,7 @@ func TestModelInOperationClient_InputToInputOutput(t *testing.T) {
 }
 
 func TestModelInOperationClient_OutputToInputOutput(t *testing.T) {
-	client, err := coreusagegroup.NewUsageClient(nil)
+	client, err := coreusagegroup.NewUsageClientWithNoCredential(nil)
 	require.NoError(t, err)
 	resp, err := client.NewUsageModelInOperationClient().OutputToInputOutput(context.Background(), nil)
 	require.NoError(t, err)

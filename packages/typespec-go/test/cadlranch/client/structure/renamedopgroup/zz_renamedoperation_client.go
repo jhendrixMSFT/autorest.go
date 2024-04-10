@@ -21,6 +21,26 @@ type RenamedOperationClient struct {
 	client   ClientType
 }
 
+// RenamedOperationClientOptions contains the optional values for creating a [RenamedOperationClient].
+type RenamedOperationClientOptions struct {
+	azcore.ClientOptions
+}
+
+// NewRenamedOperationClientWithNoCredential creates a new [RenamedOperationClient].
+//   - options - optional client configuration; pass nil to accept the default values
+func NewRenamedOperationClientWithNoCredential(options *RenamedOperationClientOptions) (*RenamedOperationClient, error) {
+	if options == nil {
+		options = &RenamedOperationClientOptions{}
+	}
+	internal, err := azcore.NewClient(moduleName, moduleVersion, runtime.PipelineOptions{}, &options.ClientOptions)
+	if err != nil {
+		return nil, err
+	}
+	return &RenamedOperationClient{
+		internal: internal,
+	}, nil
+}
+
 // NewRenamedOperationGroupClient creates a new instance of [RenamedOperationGroupClient].
 func (client *RenamedOperationClient) NewRenamedOperationGroupClient() *RenamedOperationGroupClient {
 	return &RenamedOperationGroupClient{

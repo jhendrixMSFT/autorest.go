@@ -18,6 +18,26 @@ type SingleDiscriminatorClient struct {
 	internal *azcore.Client
 }
 
+// SingleDiscriminatorClientOptions contains the optional values for creating a [SingleDiscriminatorClient].
+type SingleDiscriminatorClientOptions struct {
+	azcore.ClientOptions
+}
+
+// NewSingleDiscriminatorClientWithNoCredential creates a new [SingleDiscriminatorClient].
+//   - options - optional client configuration; pass nil to accept the default values
+func NewSingleDiscriminatorClientWithNoCredential(options *SingleDiscriminatorClientOptions) (*SingleDiscriminatorClient, error) {
+	if options == nil {
+		options = &SingleDiscriminatorClientOptions{}
+	}
+	internal, err := azcore.NewClient(moduleName, moduleVersion, runtime.PipelineOptions{}, &options.ClientOptions)
+	if err != nil {
+		return nil, err
+	}
+	return &SingleDiscriminatorClient{
+		internal: internal,
+	}, nil
+}
+
 //   - options - SingleDiscriminatorClientGetLegacyModelOptions contains the optional parameters for the SingleDiscriminatorClient.GetLegacyModel
 //     method.
 func (client *SingleDiscriminatorClient) GetLegacyModel(ctx context.Context, options *SingleDiscriminatorClientGetLegacyModelOptions) (SingleDiscriminatorClientGetLegacyModelResponse, error) {

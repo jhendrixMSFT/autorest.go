@@ -4,6 +4,11 @@
 
 package defaultgroup
 
+const (
+	moduleName    = "defaultgroup"
+	moduleVersion = "v0.1.0"
+)
+
 type ClientType string
 
 const (

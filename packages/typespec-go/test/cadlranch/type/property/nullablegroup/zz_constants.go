@@ -5,3 +5,8 @@
 package nullablegroup
 
 const host = "http://localhost:3000"
+
+const (
+	moduleName    = "nullablegroup"
+	moduleVersion = "v0.1.0"
+)

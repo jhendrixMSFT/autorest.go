@@ -5,3 +5,8 @@
 package accessgroup
 
 const host = "http://localhost:3000"
+
+const (
+	moduleName    = "accessgroup"
+	moduleVersion = "v0.1.0"
+)

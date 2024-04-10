@@ -5,3 +5,8 @@
 package bodyoptionalgroup
 
 const host = "http://localhost:3000"
+
+const (
+	moduleName    = "bodyoptionalgroup"
+	moduleVersion = "v0.1.0"
+)

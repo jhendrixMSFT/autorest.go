@@ -5,3 +5,8 @@
 package collectionfmtgroup
 
 const host = "http://localhost:3000"
+
+const (
+	moduleName    = "collectionfmtgroup"
+	moduleVersion = "v0.1.0"
+)

@@ -5,3 +5,8 @@
 package jmergepatchgroup
 
 const host = "http://localhost:3000"
+
+const (
+	moduleName    = "jmergepatchgroup"
+	moduleVersion = "v0.1.0"
+)

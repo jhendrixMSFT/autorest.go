@@ -5,3 +5,8 @@
 package condreqgroup
 
 const host = "http://localhost:3000"
+
+const (
+	moduleName    = "condreqgroup"
+	moduleVersion = "v0.1.0"
+)

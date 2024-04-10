@@ -16,7 +16,7 @@ import (
 )
 
 func TestBodyOptionalityClient_RequiredExplicit(t *testing.T) {
-	client, err := bodyoptionalgroup.NewBodyOptionalityClient(nil)
+	client, err := bodyoptionalgroup.NewBodyOptionalityClientWithNoCredential(nil)
 	require.NoError(t, err)
 	resp, err := client.RequiredExplicit(context.Background(), bodyoptionalgroup.BodyModel{
 		Name: to.Ptr("foo"),
@@ -26,7 +26,7 @@ func TestBodyOptionalityClient_RequiredExplicit(t *testing.T) {
 }
 
 func TestBodyOptionalityClient_RequiredImplicit(t *testing.T) {
-	client, err := bodyoptionalgroup.NewBodyOptionalityClient(nil)
+	client, err := bodyoptionalgroup.NewBodyOptionalityClientWithNoCredential(nil)
 	require.NoError(t, err)
 	resp, err := client.RequiredImplicit(context.Background(), bodyoptionalgroup.BodyModel{
 		Name: to.Ptr("foo"),

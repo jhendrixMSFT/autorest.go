@@ -21,10 +21,30 @@ type BasicClient struct {
 	internal *azcore.Client
 }
 
+// BasicClientOptions contains the optional values for creating a [BasicClient].
+type BasicClientOptions struct {
+	azcore.ClientOptions
+}
+
+// NewBasicClientWithNoCredential creates a new [BasicClient].
+//   - options - optional client configuration; pass nil to accept the default values
+func NewBasicClientWithNoCredential(options *BasicClientOptions) (*BasicClient, error) {
+	if options == nil {
+		options = &BasicClientOptions{}
+	}
+	internal, err := azcore.NewClient(moduleName, moduleVersion, runtime.PipelineOptions{}, &options.ClientOptions)
+	if err != nil {
+		return nil, err
+	}
+	return &BasicClient{
+		internal: internal,
+	}, nil
+}
+
 // NewBasicTwoModelsAsPageItemClient creates a new instance of [BasicTwoModelsAsPageItemClient].
 func (client *BasicClient) NewBasicTwoModelsAsPageItemClient() *BasicTwoModelsAsPageItemClient {
 	return &BasicTwoModelsAsPageItemClient{
-		internal: client.internal,
+		internal:   client.internal,
 	}
 }
 

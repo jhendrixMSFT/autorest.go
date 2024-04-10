@@ -19,6 +19,26 @@ type PageableClient struct {
 	internal *azcore.Client
 }
 
+// PageableClientOptions contains the optional values for creating a [PageableClient].
+type PageableClientOptions struct {
+	azcore.ClientOptions
+}
+
+// NewPageableClientWithNoCredential creates a new [PageableClient].
+//   - options - optional client configuration; pass nil to accept the default values
+func NewPageableClientWithNoCredential(options *PageableClientOptions) (*PageableClient, error) {
+	if options == nil {
+		options = &PageableClientOptions{}
+	}
+	internal, err := azcore.NewClient(moduleName, moduleVersion, runtime.PipelineOptions{}, &options.ClientOptions)
+	if err != nil {
+		return nil, err
+	}
+	return &PageableClient{
+		internal: internal,
+	}, nil
+}
+
 // NewListPager - List users
 //   - options - PageableClientListOptions contains the optional parameters for the PageableClient.NewListPager method.
 func (client *PageableClient) NewListPager(options *PageableClientListOptions) *runtime.Pager[PageableClientListResponse] {

@@ -16,7 +16,7 @@ import (
 )
 
 func TestIsModelArrayClient_Get(t *testing.T) {
-	client, err := addlpropsgroup.NewAdditionalPropertiesClient(nil)
+	client, err := addlpropsgroup.NewAdditionalPropertiesClientWithNoCredential(nil)
 	require.NoError(t, err)
 	resp, err := client.NewAdditionalPropertiesIsModelArrayClient().Get(context.Background(), nil)
 	require.NoError(t, err)
@@ -35,7 +35,7 @@ func TestIsModelArrayClient_Get(t *testing.T) {
 }
 
 func TestIsModelArrayClient_Put(t *testing.T) {
-	client, err := addlpropsgroup.NewAdditionalPropertiesClient(nil)
+	client, err := addlpropsgroup.NewAdditionalPropertiesClientWithNoCredential(nil)
 	require.NoError(t, err)
 	resp, err := client.NewAdditionalPropertiesIsModelArrayClient().Put(context.Background(), addlpropsgroup.IsModelArrayAdditionalProperties{
 		AdditionalProperties: map[string][]*addlpropsgroup.ModelForRecord{

@@ -5,3 +5,8 @@
 package singlediscgroup
 
 const host = "http://localhost:3000"
+
+const (
+	moduleName    = "singlediscgroup"
+	moduleVersion = "v0.1.0"
+)

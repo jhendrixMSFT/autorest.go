@@ -5,3 +5,8 @@
 package specialwordsgroup
 
 const host = "http://localhost:3000"
+
+const (
+	moduleName    = "specialwordsgroup"
+	moduleVersion = "v0.1.0"
+)

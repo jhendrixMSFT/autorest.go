@@ -53,6 +53,8 @@ export interface Options {
 
   injectSpans: boolean;
 
+  generateCtors: boolean;
+
   // disallowUnknownFields indicates whether or not to disallow unknown fields in the JSON unmarshaller.
   // reproduce the behavior of https://pkg.go.dev/encoding/json#Decoder.DisallowUnknownFields
   disallowUnknownFields: boolean;
@@ -75,7 +77,7 @@ export interface Options {
 export interface Module {
   // the full module path excluding any major version suffix
   name: string;
-  
+
   // the semantic version x.y.z[-beta.N]
   version: string;
 }
@@ -235,7 +237,16 @@ export interface Client {
   description: string;
 
   // the name of the client's constructor func
+  // this is a bit of a hack. for ARM it's correct.
+  // for data-plane it might be wrong or incomplete as some services
+  // have multiple constructors to support different kinds of authentication.
+  // it's also used for the getter name in hierarchical clients.
+  // TODO: clean this up
   ctorName: string;
+
+  // contains the various authentication schemes supported by the client.
+  // an empty list means "don't generate any constructors"
+  authentication: Array<AuthenticationType>;
 
   // contains only modeled client parameters and it's legal for an operation to not have any modeled client parameters
   parameters: Array<Parameter>;
@@ -258,6 +269,30 @@ export interface Client {
 
   // the parent client in a hierarchical client
   parent?: Client;
+}
+
+export type AuthenticationType = APIKeyAuthentication | BearerAuthentication | NoAuthentication;
+
+export interface Authentication {
+  kind: 'bearer' | 'apikey' | 'none';
+}
+
+export interface APIKeyAuthentication extends Authentication {
+  kind: 'apikey';
+
+  // the api-key name
+  name: string;
+
+  // where the api-key goes in the request
+  loc: 'header' | 'query';
+}
+
+export interface BearerAuthentication extends Authentication {
+  kind: 'bearer';
+}
+
+export interface NoAuthentication extends Authentication {
+  kind: 'none';
 }
 
 // ClientAccessor is a client method that returns a sub-client instance.
@@ -965,6 +1000,7 @@ export class Options implements Options {
   constructor(headerText: string, generateFakes: boolean, injectSpans: boolean, disallowUnknownFields: boolean) {
     this.headerText = headerText;
     this.generateFakes = generateFakes;
+    this.generateCtors = false;
     this.injectSpans = injectSpans;
     this.disallowUnknownFields = disallowUnknownFields;
   }
@@ -1059,6 +1095,7 @@ export class CodeModel implements CodeModel {
 
 export class Client implements Client {
   constructor(name: string, description: string, ctorName: string) {
+    this.authentication = new Array<AuthenticationType>();
     this.name = name;
     this.templatedHost = false;
     this.ctorName = ctorName;
@@ -1565,5 +1602,25 @@ export class XMLInfo implements XMLInfo {
   constructor() {
     this.attribute = false;
     this.text = false;
+  }
+}
+
+export class APIKeyAuthentication implements APIKeyAuthentication {
+  constructor(keyName: string, location: 'header' | 'query') {
+    this.kind = 'apikey';
+    this.name = keyName;
+    this.loc = location;
+  }
+}
+
+export class NoAuthentication implements NoAuthentication {
+  constructor() {
+    this.kind = 'none';
+  }
+}
+
+export class BearerAuthentication implements BearerAuthentication {
+  constructor() {
+    this.kind = 'bearer';
   }
 }

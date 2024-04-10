@@ -18,6 +18,26 @@ type ClientRequestIdClient struct {
 	internal *azcore.Client
 }
 
+// ClientRequestIdClientOptions contains the optional values for creating a [ClientRequestIdClient].
+type ClientRequestIdClientOptions struct {
+	azcore.ClientOptions
+}
+
+// NewClientRequestIdClientWithNoCredential creates a new [ClientRequestIdClient].
+//   - options - optional client configuration; pass nil to accept the default values
+func NewClientRequestIdClientWithNoCredential(options *ClientRequestIdClientOptions) (*ClientRequestIdClient, error) {
+	if options == nil {
+		options = &ClientRequestIdClientOptions{}
+	}
+	internal, err := azcore.NewClient(moduleName, moduleVersion, runtime.PipelineOptions{}, &options.ClientOptions)
+	if err != nil {
+		return nil, err
+	}
+	return &ClientRequestIdClient{
+		internal: internal,
+	}, nil
+}
+
 // Get - Get operation with azure client request id header.
 //   - options - ClientRequestIdClientGetOptions contains the optional parameters for the ClientRequestIdClient.Get method.
 func (client *ClientRequestIdClient) Get(ctx context.Context, options *ClientRequestIdClientGetOptions) (ClientRequestIdClientGetResponse, error) {

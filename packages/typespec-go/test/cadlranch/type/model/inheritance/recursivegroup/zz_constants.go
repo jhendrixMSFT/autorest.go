@@ -5,3 +5,8 @@
 package recursivegroup
 
 const host = "http://localhost:3000"
+
+const (
+	moduleName    = "recursivegroup"
+	moduleVersion = "v0.1.0"
+)

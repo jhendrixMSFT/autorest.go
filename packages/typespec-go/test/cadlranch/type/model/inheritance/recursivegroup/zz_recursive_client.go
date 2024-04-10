@@ -18,6 +18,26 @@ type RecursiveClient struct {
 	internal *azcore.Client
 }
 
+// RecursiveClientOptions contains the optional values for creating a [RecursiveClient].
+type RecursiveClientOptions struct {
+	azcore.ClientOptions
+}
+
+// NewRecursiveClientWithNoCredential creates a new [RecursiveClient].
+//   - options - optional client configuration; pass nil to accept the default values
+func NewRecursiveClientWithNoCredential(options *RecursiveClientOptions) (*RecursiveClient, error) {
+	if options == nil {
+		options = &RecursiveClientOptions{}
+	}
+	internal, err := azcore.NewClient(moduleName, moduleVersion, runtime.PipelineOptions{}, &options.ClientOptions)
+	if err != nil {
+		return nil, err
+	}
+	return &RecursiveClient{
+		internal: internal,
+	}, nil
+}
+
 // - options - RecursiveClientGetOptions contains the optional parameters for the RecursiveClient.Get method.
 func (client *RecursiveClient) Get(ctx context.Context, options *RecursiveClientGetOptions) (RecursiveClientGetResponse, error) {
 	var err error
