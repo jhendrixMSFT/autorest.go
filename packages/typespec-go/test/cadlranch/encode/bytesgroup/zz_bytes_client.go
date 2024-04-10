@@ -35,7 +35,7 @@ func NewBytesClientWithNoCredential(options *BytesClientOptions) (*BytesClient, 
 	}, nil
 }
 
-// NewBytesHeaderClient creates a new instance of [HeaderClient].
+// NewBytesHeaderClient creates a new instance of [BytesHeaderClient].
 func (client *BytesClient) NewBytesHeaderClient() *BytesHeaderClient {
 	return &BytesHeaderClient{
 		internal: client.internal,

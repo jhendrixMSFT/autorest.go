@@ -48,7 +48,7 @@ func NewServiceClientWithNoCredential(options *ServiceClientOptions) (*ServiceCl
 	}, nil
 }
 
-// NewServiceBarClient creates a new instance of [BarClient].
+// NewServiceBarClient creates a new instance of [ServiceBarClient].
 func (client *ServiceClient) NewServiceBarClient() *ServiceBarClient {
 	return &ServiceBarClient{
 		internal: client.internal,

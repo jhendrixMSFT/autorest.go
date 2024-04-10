@@ -35,7 +35,7 @@ func NewCollectionFormatClientWithNoCredential(options *CollectionFormatClientOp
 	}, nil
 }
 
-// NewCollectionFormatHeaderClient creates a new instance of [HeaderClient].
+// NewCollectionFormatHeaderClient creates a new instance of [CollectionFormatHeaderClient].
 func (client *CollectionFormatClient) NewCollectionFormatHeaderClient() *CollectionFormatHeaderClient {
 	return &CollectionFormatHeaderClient{
 		internal: client.internal,

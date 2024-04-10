@@ -35,7 +35,7 @@ func NewDatetimeClientWithNoCredential(options *DatetimeClientOptions) (*Datetim
 	}, nil
 }
 
-// NewDatetimeHeaderClient creates a new instance of [HeaderClient].
+// NewDatetimeHeaderClient creates a new instance of [DatetimeHeaderClient].
 func (client *DatetimeClient) NewDatetimeHeaderClient() *DatetimeHeaderClient {
 	return &DatetimeHeaderClient{
 		internal: client.internal,

@@ -35,7 +35,7 @@ func NewDurationClientWithNoCredential(options *DurationClientOptions) (*Duratio
 	}, nil
 }
 
-// NewDurationHeaderClient creates a new instance of [HeaderClient].
+// NewDurationHeaderClient creates a new instance of [DurationHeaderClient].
 func (client *DurationClient) NewDurationHeaderClient() *DurationHeaderClient {
 	return &DurationHeaderClient{
 		internal: client.internal,

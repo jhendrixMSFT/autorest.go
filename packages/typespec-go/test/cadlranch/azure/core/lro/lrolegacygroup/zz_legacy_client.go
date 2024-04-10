@@ -38,6 +38,6 @@ func NewLegacyClientWithNoCredential(options *LegacyClientOptions) (*LegacyClien
 // NewLegacyCreateResourcePollViaOperationLocationClient creates a new instance of [LegacyCreateResourcePollViaOperationLocationClient].
 func (client *LegacyClient) NewLegacyCreateResourcePollViaOperationLocationClient() *LegacyCreateResourcePollViaOperationLocationClient {
 	return &LegacyCreateResourcePollViaOperationLocationClient{
-		internal:   client.internal,
+		internal: client.internal,
 	}
 }

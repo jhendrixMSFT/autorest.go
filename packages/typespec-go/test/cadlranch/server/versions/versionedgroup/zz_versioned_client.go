@@ -24,18 +24,13 @@ type VersionedClient struct {
 // VersionedClientOptions contains the optional values for creating a [VersionedClient].
 type VersionedClientOptions struct {
 	azcore.ClientOptions
-
-	APIVersion string
 }
 
 // NewVersionedClientWithNoCredential creates a new [VersionedClient].
 //   - options - optional client configuration; pass nil to accept the default values
-func NewVersionedClientWithNoCredential(endpoint string, options *VersionedClientOptions) (*VersionedClient, error) {
+func NewVersionedClientWithNoCredential(options *VersionedClientOptions) (*VersionedClient, error) {
 	if options == nil {
 		options = &VersionedClientOptions{}
-	}
-	if options.APIVersion == "" {
-		options.APIVersion = "2022-12-01-preview"
 	}
 	internal, err := azcore.NewClient(moduleName, moduleVersion, runtime.PipelineOptions{}, &options.ClientOptions)
 	if err != nil {
@@ -43,8 +38,6 @@ func NewVersionedClientWithNoCredential(endpoint string, options *VersionedClien
 	}
 	return &VersionedClient{
 		internal: internal,
-		endpoint: endpoint,
-		apiVersion: options.APIVersion,
 	}, nil
 }
 

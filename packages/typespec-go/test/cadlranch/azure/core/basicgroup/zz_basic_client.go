@@ -44,7 +44,7 @@ func NewBasicClientWithNoCredential(options *BasicClientOptions) (*BasicClient, 
 // NewBasicTwoModelsAsPageItemClient creates a new instance of [BasicTwoModelsAsPageItemClient].
 func (client *BasicClient) NewBasicTwoModelsAsPageItemClient() *BasicTwoModelsAsPageItemClient {
 	return &BasicTwoModelsAsPageItemClient{
-		internal:   client.internal,
+		internal: client.internal,
 	}
 }
 

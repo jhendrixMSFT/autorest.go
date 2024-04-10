@@ -35,7 +35,7 @@ func NewAccessClientWithNoCredential(options *AccessClientOptions) (*AccessClien
 	}, nil
 }
 
-// NewAccessInternalOperationClient creates a new instance of [InternalOperationClient].
+// NewAccessInternalOperationClient creates a new instance of [AccessInternalOperationClient].
 func (client *AccessClient) NewAccessInternalOperationClient() *AccessInternalOperationClient {
 	return &AccessInternalOperationClient{
 		internal: client.internal,
