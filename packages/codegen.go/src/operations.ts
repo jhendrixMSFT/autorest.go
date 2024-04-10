@@ -208,7 +208,8 @@ function generateConstructors(azureARM: boolean, client: go.Client, imports: Imp
       case 'apikey':
         ctorParams.push('credential *azcore.KeyCredential');
         paramDocs.push(helpers.formatCommentAsBulletItem('credential - the [azcore.KeyCredential] used to authenticate requests.'));
-        const keyPolicy = `\n\t\tPerCall: []policy.Policy{\n\t\truntime.NewKeyCredentialPolicy(credential, "${constructor.authentication.name}", nil),\n\t\t},\n`;
+        const keyPolicyOpts = '&runtime.KeyCredentialPolicyOptions{\n\t\t\tInsecureAllowCredentialWithHTTP: options.InsecureAllowCredentialWithHTTP,\n\t\t}';
+        const keyPolicy = `\n\t\tPerCall: []policy.Policy{\n\t\truntime.NewKeyCredentialPolicy(credential, "${constructor.authentication.name}", ${keyPolicyOpts}),\n\t\t},\n`;
         prolog = emitProlog((<go.ParameterGroup>client.options).groupName, keyPolicy);
         break;
       case 'bearer':
@@ -218,7 +219,9 @@ function generateConstructors(azureARM: boolean, client: go.Client, imports: Imp
         if (azureARM) {
           prolog = '\tcl, err := arm.NewClient(moduleName, moduleVersion, credential, options)\n';
         } else {
-          const tokenPolicy = `\n\t\tPerCall: []policy.Policy{\n\t\truntime.NewBearerTokenPolicy(credential, "${constructor.authentication.scopes}", nil),\n\t\t},\n`;
+          imports.add('github.com/Azure/azure-sdk-for-go/sdk/azcore/policy');
+          const tokenPolicyOpts = '&policy.BearerTokenOptions{\n\t\t\tInsecureAllowCredentialWithHTTP: options.InsecureAllowCredentialWithHTTP,\n\t\t}';
+          const tokenPolicy = `\n\t\tPerCall: []policy.Policy{\n\t\truntime.NewBearerTokenPolicy(credential, "${constructor.authentication.scopes}", ${tokenPolicyOpts}),\n\t\t},\n`;
           prolog = emitProlog((<go.ParameterGroup>client.options).groupName, tokenPolicy);
         }
         break;

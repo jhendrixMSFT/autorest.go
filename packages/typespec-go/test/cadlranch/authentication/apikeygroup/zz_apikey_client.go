@@ -32,7 +32,9 @@ func NewApiKeyClientWithKeyCredential(credential *azcore.KeyCredential, options 
 	}
 	cl, err := azcore.NewClient(moduleName, moduleVersion, runtime.PipelineOptions{
 		PerCall: []policy.Policy{
-			runtime.NewKeyCredentialPolicy(credential, "x-ms-api-key", nil),
+			runtime.NewKeyCredentialPolicy(credential, "x-ms-api-key", &runtime.KeyCredentialPolicyOptions{
+				InsecureAllowCredentialWithHTTP: options.InsecureAllowCredentialWithHTTP,
+			}),
 		},
 	}, &options.ClientOptions)
 	if err != nil {

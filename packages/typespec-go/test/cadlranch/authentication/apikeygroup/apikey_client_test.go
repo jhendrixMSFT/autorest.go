@@ -27,4 +27,14 @@ func TestApiKeyClient_Invalid(t *testing.T) {
 	require.Zero(t, resp)
 }
 
-func TestApiKeyClient_Valid(t *testing.T) {}
+func TestApiKeyClient_Valid(t *testing.T) {
+	client, err := apikeygroup.NewApiKeyClientWithKeyCredential(azcore.NewKeyCredential("valid-key"), &apikeygroup.ApiKeyClientOptions{
+		ClientOptions: azcore.ClientOptions{
+			InsecureAllowCredentialWithHTTP: true,
+		},
+	})
+	require.NoError(t, err)
+	resp, err := client.Valid(context.Background(), nil)
+	require.NoError(t, err)
+	require.Zero(t, resp)
+}
