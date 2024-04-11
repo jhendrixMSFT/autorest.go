@@ -33,10 +33,10 @@ func NewConditionalRequestClientWithNoCredential(options *ConditionalRequestClie
 	if err != nil {
 		return nil, err
 	}
-	client := &ConditionalRequestClient{
+	conditionalRequestClient := &ConditionalRequestClient{
 		internal: cl,
 	}
-	return client, nil
+	return conditionalRequestClient, nil
 }
 
 // PostIfMatch - Check when only If-Match in header is defined.

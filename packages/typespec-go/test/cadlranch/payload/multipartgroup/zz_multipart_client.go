@@ -30,10 +30,10 @@ func NewMultiPartClientWithNoCredential(options *MultiPartClientOptions) (*Multi
 	if err != nil {
 		return nil, err
 	}
-	client := &MultiPartClient{
+	multiPartClient := &MultiPartClient{
 		internal: cl,
 	}
-	return client, nil
+	return multiPartClient, nil
 }
 
 // NewMultiPartFormDataClient creates a new instance of [MultiPartFormDataClient].

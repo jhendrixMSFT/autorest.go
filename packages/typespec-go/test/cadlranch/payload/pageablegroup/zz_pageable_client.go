@@ -34,10 +34,10 @@ func NewPageableClientWithNoCredential(options *PageableClientOptions) (*Pageabl
 	if err != nil {
 		return nil, err
 	}
-	client := &PageableClient{
+	pageableClient := &PageableClient{
 		internal: cl,
 	}
-	return client, nil
+	return pageableClient, nil
 }
 
 // NewListPager - List users

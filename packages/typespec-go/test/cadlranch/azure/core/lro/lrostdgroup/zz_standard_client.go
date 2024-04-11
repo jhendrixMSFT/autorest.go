@@ -36,10 +36,10 @@ func NewStandardClientWithNoCredential(options *StandardClientOptions) (*Standar
 	if err != nil {
 		return nil, err
 	}
-	client := &StandardClient{
+	standardClient := &StandardClient{
 		internal: cl,
 	}
-	return client, nil
+	return standardClient, nil
 }
 
 // BeginCreateOrReplace - Adds a user or replaces a user's fields.

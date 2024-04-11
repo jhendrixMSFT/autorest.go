@@ -33,10 +33,10 @@ func NewRpcClientWithNoCredential(options *RpcClientOptions) (*RpcClient, error)
 	if err != nil {
 		return nil, err
 	}
-	client := &RpcClient{
+	rpcClient := &RpcClient{
 		internal: cl,
 	}
-	return client, nil
+	return rpcClient, nil
 }
 
 // BeginLongRunningRPC - Generate data.

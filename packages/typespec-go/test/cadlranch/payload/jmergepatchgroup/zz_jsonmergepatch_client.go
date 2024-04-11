@@ -33,10 +33,10 @@ func NewJsonMergePatchClientWithNoCredential(options *JsonMergePatchClientOption
 	if err != nil {
 		return nil, err
 	}
-	client := &JsonMergePatchClient{
+	jsonMergePatchClient := &JsonMergePatchClient{
 		internal: cl,
 	}
-	return client, nil
+	return jsonMergePatchClient, nil
 }
 
 // CreateResource - Test content-type: application/merge-patch+json with required body

@@ -30,10 +30,10 @@ func NewLegacyClientWithNoCredential(options *LegacyClientOptions) (*LegacyClien
 	if err != nil {
 		return nil, err
 	}
-	client := &LegacyClient{
+	legacyClient := &LegacyClient{
 		internal: cl,
 	}
-	return client, nil
+	return legacyClient, nil
 }
 
 // NewLegacyCreateResourcePollViaOperationLocationClient creates a new instance of [LegacyCreateResourcePollViaOperationLocationClient].

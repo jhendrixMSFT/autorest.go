@@ -30,10 +30,10 @@ func NewUsageClientWithNoCredential(options *UsageClientOptions) (*UsageClient, 
 	if err != nil {
 		return nil, err
 	}
-	client := &UsageClient{
+	usageClient := &UsageClient{
 		internal: cl,
 	}
-	return client, nil
+	return usageClient, nil
 }
 
 // NewUsageModelInOperationClient creates a new instance of [UsageModelInOperationClient].

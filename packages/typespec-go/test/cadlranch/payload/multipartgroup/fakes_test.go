@@ -36,8 +36,10 @@ func TestFakeFormDataClientBasic(t *testing.T) {
 			return
 		},
 	}
-	client, err := multipartgroup.NewMultiPartClient(&azcore.ClientOptions{
-		Transport: fake.NewMultiPartFormDataServerTransport(&server),
+	client, err := multipartgroup.NewMultiPartClientWithNoCredential(&multipartgroup.MultiPartClientOptions{
+		ClientOptions: azcore.ClientOptions{
+			Transport: fake.NewMultiPartFormDataServerTransport(&server),
+		},
 	})
 	require.NoError(t, err)
 	_, err = client.NewMultiPartFormDataClient().Basic(context.Background(), multipartgroup.MultiPartRequest{
@@ -93,8 +95,10 @@ func TestFakeFormDataClientBinaryArrayParts(t *testing.T) {
 			return
 		},
 	}
-	client, err := multipartgroup.NewMultiPartClient(&azcore.ClientOptions{
-		Transport: fake.NewMultiPartFormDataServerTransport(&server),
+	client, err := multipartgroup.NewMultiPartClientWithNoCredential(&multipartgroup.MultiPartClientOptions{
+		ClientOptions: azcore.ClientOptions{
+			Transport: fake.NewMultiPartFormDataServerTransport(&server),
+		},
 	})
 	require.NoError(t, err)
 	_, err = client.NewMultiPartFormDataClient().BinaryArrayParts(context.Background(), multipartgroup.BinaryArrayPartsRequest{
@@ -136,8 +140,10 @@ func TestFakeFormDataClientJSONPart(t *testing.T) {
 			return
 		},
 	}
-	client, err := multipartgroup.NewMultiPartClient(&azcore.ClientOptions{
-		Transport: fake.NewMultiPartFormDataServerTransport(&server),
+	client, err := multipartgroup.NewMultiPartClientWithNoCredential(&multipartgroup.MultiPartClientOptions{
+		ClientOptions: azcore.ClientOptions{
+			Transport: fake.NewMultiPartFormDataServerTransport(&server),
+		},
 	})
 	require.NoError(t, err)
 	_, err = client.NewMultiPartFormDataClient().JSONPart(context.Background(), multipartgroup.JSONPartRequest{
@@ -177,8 +183,10 @@ func TestFakeFormDataClientJSONArrayParts(t *testing.T) {
 			return
 		},
 	}
-	client, err := multipartgroup.NewMultiPartClient(&azcore.ClientOptions{
-		Transport: fake.NewMultiPartFormDataServerTransport(&server),
+	client, err := multipartgroup.NewMultiPartClientWithNoCredential(&multipartgroup.MultiPartClientOptions{
+		ClientOptions: azcore.ClientOptions{
+			Transport: fake.NewMultiPartFormDataServerTransport(&server),
+		},
 	})
 	require.NoError(t, err)
 	_, err = client.NewMultiPartFormDataClient().JSONArrayParts(context.Background(), multipartgroup.JSONArrayPartsRequest{

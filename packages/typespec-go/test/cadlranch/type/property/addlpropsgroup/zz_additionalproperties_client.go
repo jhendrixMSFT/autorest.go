@@ -30,10 +30,10 @@ func NewAdditionalPropertiesClientWithNoCredential(options *AdditionalProperties
 	if err != nil {
 		return nil, err
 	}
-	client := &AdditionalPropertiesClient{
+	additionalPropertiesClient := &AdditionalPropertiesClient{
 		internal: cl,
 	}
-	return client, nil
+	return additionalPropertiesClient, nil
 }
 
 // NewAdditionalPropertiesExtendsFloatClient creates a new instance of [AdditionalPropertiesExtendsFloatClient].

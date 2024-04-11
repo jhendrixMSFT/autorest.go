@@ -30,10 +30,10 @@ func NewEnvironmentsClient(credential azcore.TokenCredential, options *arm.Clien
 	if err != nil {
 		return nil, err
 	}
-	client := &EnvironmentsClient{
+	environmentsClient := &EnvironmentsClient{
 		internal: cl,
 	}
-	return client, nil
+	return environmentsClient, nil
 }
 
 // CreateOrUpdate - Creates new or updates existing environment.

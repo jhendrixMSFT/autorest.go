@@ -66,10 +66,10 @@ func NewSpecialWordsClientWithNoCredential(options *SpecialWordsClientOptions) (
 	if err != nil {
 		return nil, err
 	}
-	client := &SpecialWordsClient{
+	specialWordsClient := &SpecialWordsClient{
 		internal: cl,
 	}
-	return client, nil
+	return specialWordsClient, nil
 }
 
 // NewSpecialWordsModelPropertiesClient creates a new instance of [SpecialWordsModelPropertiesClient].

@@ -30,10 +30,10 @@ func NewApiDefinitionsClient(credential azcore.TokenCredential, options *arm.Cli
 	if err != nil {
 		return nil, err
 	}
-	client := &ApiDefinitionsClient{
+	apiDefinitionsClient := &ApiDefinitionsClient{
 		internal: cl,
 	}
-	return client, nil
+	return apiDefinitionsClient, nil
 }
 
 // CreateOrUpdate - Creates new or updates existing API definition.

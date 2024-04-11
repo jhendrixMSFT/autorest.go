@@ -16,7 +16,7 @@ import (
 )
 
 func TestFormDataClient_Basic(t *testing.T) {
-	client, err := multipartgroup.NewMultiPartClient(nil)
+	client, err := multipartgroup.NewMultiPartClientWithNoCredential(nil)
 	require.NoError(t, err)
 	jpgFile, err := os.OpenFile("../../../../node_modules/@azure-tools/cadl-ranch-specs/assets/image.jpg", os.O_RDONLY, 0)
 	require.NoError(t, err)
@@ -32,7 +32,7 @@ func TestFormDataClient_Basic(t *testing.T) {
 }
 
 func TestFormDataClient_BinaryArrayParts(t *testing.T) {
-	client, err := multipartgroup.NewMultiPartClient(nil)
+	client, err := multipartgroup.NewMultiPartClientWithNoCredential(nil)
 	require.NoError(t, err)
 	pngFile, err := os.ReadFile("../../../../node_modules/@azure-tools/cadl-ranch-specs/assets/image.png")
 	require.NoError(t, err)
@@ -52,7 +52,7 @@ func TestFormDataClient_BinaryArrayParts(t *testing.T) {
 }
 
 func TestFormDataClient_CheckFileNameAndContentType(t *testing.T) {
-	client, err := multipartgroup.NewMultiPartClient(nil)
+	client, err := multipartgroup.NewMultiPartClientWithNoCredential(nil)
 	require.NoError(t, err)
 	jpgFile, err := os.OpenFile("../../../../node_modules/@azure-tools/cadl-ranch-specs/assets/image.jpg", os.O_RDONLY, 0)
 	require.NoError(t, err)
@@ -70,7 +70,7 @@ func TestFormDataClient_CheckFileNameAndContentType(t *testing.T) {
 }
 
 func TestFormDataClient_Complex(t *testing.T) {
-	client, err := multipartgroup.NewMultiPartClient(nil)
+	client, err := multipartgroup.NewMultiPartClientWithNoCredential(nil)
 	require.NoError(t, err)
 	jpgFile, err := os.OpenFile("../../../../node_modules/@azure-tools/cadl-ranch-specs/assets/image.jpg", os.O_RDONLY, 0)
 	require.NoError(t, err)
@@ -105,7 +105,7 @@ func TestFormDataClient_Complex(t *testing.T) {
 }
 
 func TestFormDataClient_JSONArrayParts(t *testing.T) {
-	client, err := multipartgroup.NewMultiPartClient(nil)
+	client, err := multipartgroup.NewMultiPartClientWithNoCredential(nil)
 	require.NoError(t, err)
 	jpgFile, err := os.OpenFile("../../../../node_modules/@azure-tools/cadl-ranch-specs/assets/image.jpg", os.O_RDONLY, 0)
 	require.NoError(t, err)
@@ -128,7 +128,7 @@ func TestFormDataClient_JSONArrayParts(t *testing.T) {
 }
 
 func TestFormDataClient_JSONPart(t *testing.T) {
-	client, err := multipartgroup.NewMultiPartClient(nil)
+	client, err := multipartgroup.NewMultiPartClientWithNoCredential(nil)
 	require.NoError(t, err)
 	jpgFile, err := os.OpenFile("../../../../node_modules/@azure-tools/cadl-ranch-specs/assets/image.jpg", os.O_RDONLY, 0)
 	require.NoError(t, err)
@@ -146,7 +146,7 @@ func TestFormDataClient_JSONPart(t *testing.T) {
 }
 
 func TestFormDataClient_MultiBinaryParts(t *testing.T) {
-	client, err := multipartgroup.NewMultiPartClient(nil)
+	client, err := multipartgroup.NewMultiPartClientWithNoCredential(nil)
 	require.NoError(t, err)
 	jpgFile, err := os.OpenFile("../../../../node_modules/@azure-tools/cadl-ranch-specs/assets/image.jpg", os.O_RDONLY, 0)
 	require.NoError(t, err)

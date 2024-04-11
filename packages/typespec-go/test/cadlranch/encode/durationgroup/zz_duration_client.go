@@ -30,10 +30,10 @@ func NewDurationClientWithNoCredential(options *DurationClientOptions) (*Duratio
 	if err != nil {
 		return nil, err
 	}
-	client := &DurationClient{
+	durationClient := &DurationClient{
 		internal: cl,
 	}
-	return client, nil
+	return durationClient, nil
 }
 
 // NewDurationHeaderClient creates a new instance of [DurationHeaderClient].

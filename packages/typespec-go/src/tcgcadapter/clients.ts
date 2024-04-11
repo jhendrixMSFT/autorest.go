@@ -145,6 +145,11 @@ export class clientAdapter {
       throw new Error(`uninstantiable client ${sdkClient.name} has no parent`);
     }
 
+    // if we created constructors, propagate the persisted client params to them
+    for (const constructor of goClient.constructors) {
+      constructor.parameters = goClient.parameters;
+    }
+
     for (const sdkMethod of sdkClient.methods) {
       if (sdkMethod.kind === 'clientaccessor') {
         const subClient = this.recursiveAdaptClient(sdkMethod.response, goClient);

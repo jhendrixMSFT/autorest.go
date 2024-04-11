@@ -33,10 +33,10 @@ func NewNamingClientWithNoCredential(options *NamingClientOptions) (*NamingClien
 	if err != nil {
 		return nil, err
 	}
-	client := &NamingClient{
+	namingClient := &NamingClient{
 		internal: cl,
 	}
-	return client, nil
+	return namingClient, nil
 }
 
 // NewNamingModelClient creates a new instance of [NamingModelClient].

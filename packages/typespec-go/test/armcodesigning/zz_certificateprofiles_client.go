@@ -30,10 +30,10 @@ func NewCertificateProfilesClient(credential azcore.TokenCredential, options *ar
 	if err != nil {
 		return nil, err
 	}
-	client := &CertificateProfilesClient{
+	certificateProfilesClient := &CertificateProfilesClient{
 		internal: cl,
 	}
-	return client, nil
+	return certificateProfilesClient, nil
 }
 
 // BeginCreate - Create a certificate profile.

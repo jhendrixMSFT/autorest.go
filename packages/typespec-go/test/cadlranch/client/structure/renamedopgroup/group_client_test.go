@@ -15,7 +15,7 @@ import (
 )
 
 func TestGroupClient_RenamedFour(t *testing.T) {
-	client, err := renamedopgroup.NewRenamedOperationClient(nil)
+	client, err := renamedopgroup.NewRenamedOperationClientWithNoCredential("http://localhost:3000", renamedopgroup.ClientTypeRenamedOperation, nil)
 	require.NoError(t, err)
 	resp, err := client.NewRenamedOperationGroupClient().RenamedFour(context.Background(), nil)
 	require.NoError(t, err)
@@ -23,7 +23,7 @@ func TestGroupClient_RenamedFour(t *testing.T) {
 }
 
 func TestGroupClient_RenamedSix(t *testing.T) {
-	client, err := renamedopgroup.NewRenamedOperationClient(nil)
+	client, err := renamedopgroup.NewRenamedOperationClientWithNoCredential("http://localhost:3000", renamedopgroup.ClientTypeRenamedOperation, nil)
 	require.NoError(t, err)
 	resp, err := client.NewRenamedOperationGroupClient().RenamedSix(context.Background(), nil)
 	require.NoError(t, err)
@@ -31,7 +31,7 @@ func TestGroupClient_RenamedSix(t *testing.T) {
 }
 
 func TestGroupClient_RenamedTwo(t *testing.T) {
-	client, err := renamedopgroup.NewRenamedOperationClient(nil)
+	client, err := renamedopgroup.NewRenamedOperationClientWithNoCredential("http://localhost:3000", renamedopgroup.ClientTypeRenamedOperation, nil)
 	require.NoError(t, err)
 	resp, err := client.NewRenamedOperationGroupClient().RenamedTwo(context.Background(), nil)
 	require.NoError(t, err)

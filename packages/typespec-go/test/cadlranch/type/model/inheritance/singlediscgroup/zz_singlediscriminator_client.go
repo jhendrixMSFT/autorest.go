@@ -33,10 +33,10 @@ func NewSingleDiscriminatorClientWithNoCredential(options *SingleDiscriminatorCl
 	if err != nil {
 		return nil, err
 	}
-	client := &SingleDiscriminatorClient{
+	singleDiscriminatorClient := &SingleDiscriminatorClient{
 		internal: cl,
 	}
-	return client, nil
+	return singleDiscriminatorClient, nil
 }
 
 //   - options - SingleDiscriminatorClientGetLegacyModelOptions contains the optional parameters for the SingleDiscriminatorClient.GetLegacyModel

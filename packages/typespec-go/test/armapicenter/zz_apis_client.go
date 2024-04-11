@@ -30,10 +30,10 @@ func NewApisClient(credential azcore.TokenCredential, options *arm.ClientOptions
 	if err != nil {
 		return nil, err
 	}
-	client := &ApisClient{
+	apisClient := &ApisClient{
 		internal: cl,
 	}
-	return client, nil
+	return apisClient, nil
 }
 
 // CreateOrUpdate - Creates new or updates existing API.

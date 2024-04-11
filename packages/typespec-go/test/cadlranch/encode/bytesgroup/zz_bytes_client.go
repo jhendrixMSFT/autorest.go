@@ -30,10 +30,10 @@ func NewBytesClientWithNoCredential(options *BytesClientOptions) (*BytesClient, 
 	if err != nil {
 		return nil, err
 	}
-	client := &BytesClient{
+	bytesClient := &BytesClient{
 		internal: cl,
 	}
-	return client, nil
+	return bytesClient, nil
 }
 
 // NewBytesHeaderClient creates a new instance of [BytesHeaderClient].

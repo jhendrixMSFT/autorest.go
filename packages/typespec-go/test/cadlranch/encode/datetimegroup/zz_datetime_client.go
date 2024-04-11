@@ -30,10 +30,10 @@ func NewDatetimeClientWithNoCredential(options *DatetimeClientOptions) (*Datetim
 	if err != nil {
 		return nil, err
 	}
-	client := &DatetimeClient{
+	datetimeClient := &DatetimeClient{
 		internal: cl,
 	}
-	return client, nil
+	return datetimeClient, nil
 }
 
 // NewDatetimeHeaderClient creates a new instance of [DatetimeHeaderClient].

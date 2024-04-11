@@ -28,7 +28,7 @@ type VersionedClientOptions struct {
 
 // NewVersionedClientWithNoCredential creates a new instance of [VersionedClient] with the specified values.
 //   - options - VersionedClientOptions contains the optional values for creating a [VersionedClient]
-func NewVersionedClientWithNoCredential(options *VersionedClientOptions) (*VersionedClient, error) {
+func NewVersionedClientWithNoCredential(endpoint string, options *VersionedClientOptions) (*VersionedClient, error) {
 	if options == nil {
 		options = &VersionedClientOptions{}
 	}
@@ -36,11 +36,11 @@ func NewVersionedClientWithNoCredential(options *VersionedClientOptions) (*Versi
 	if err != nil {
 		return nil, err
 	}
-	client := &VersionedClient{
+	versionedClient := &VersionedClient{
 		endpoint: endpoint,
 		internal: cl,
 	}
-	return client, nil
+	return versionedClient, nil
 }
 
 //   - options - VersionedClientWithPathAPIVersionOptions contains the optional parameters for the VersionedClient.WithPathAPIVersion

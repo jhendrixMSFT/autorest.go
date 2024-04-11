@@ -33,10 +33,10 @@ func NewVisibilityClientWithNoCredential(options *VisibilityClientOptions) (*Vis
 	if err != nil {
 		return nil, err
 	}
-	client := &VisibilityClient{
+	visibilityClient := &VisibilityClient{
 		internal: cl,
 	}
-	return client, nil
+	return visibilityClient, nil
 }
 
 // - options - VisibilityClientDeleteModelOptions contains the optional parameters for the VisibilityClient.DeleteModel method.

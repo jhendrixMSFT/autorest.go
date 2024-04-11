@@ -30,10 +30,10 @@ func NewScalarClientWithNoCredential(options *ScalarClientOptions) (*ScalarClien
 	if err != nil {
 		return nil, err
 	}
-	client := &ScalarClient{
+	scalarClient := &ScalarClient{
 		internal: cl,
 	}
-	return client, nil
+	return scalarClient, nil
 }
 
 // NewScalarAzureLocationScalarClient creates a new instance of [ScalarAzureLocationScalarClient].

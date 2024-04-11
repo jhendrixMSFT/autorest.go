@@ -30,10 +30,10 @@ func NewDeploymentsClient(credential azcore.TokenCredential, options *arm.Client
 	if err != nil {
 		return nil, err
 	}
-	client := &DeploymentsClient{
+	deploymentsClient := &DeploymentsClient{
 		internal: cl,
 	}
-	return client, nil
+	return deploymentsClient, nil
 }
 
 // CreateOrUpdate - Creates new or updates existing API deployment.

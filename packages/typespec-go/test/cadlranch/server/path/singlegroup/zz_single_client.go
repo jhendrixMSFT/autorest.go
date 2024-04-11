@@ -27,7 +27,7 @@ type SingleClientOptions struct {
 
 // NewSingleClientWithNoCredential creates a new instance of [SingleClient] with the specified values.
 //   - options - SingleClientOptions contains the optional values for creating a [SingleClient]
-func NewSingleClientWithNoCredential(options *SingleClientOptions) (*SingleClient, error) {
+func NewSingleClientWithNoCredential(endpoint string, options *SingleClientOptions) (*SingleClient, error) {
 	if options == nil {
 		options = &SingleClientOptions{}
 	}
@@ -35,11 +35,11 @@ func NewSingleClientWithNoCredential(options *SingleClientOptions) (*SingleClien
 	if err != nil {
 		return nil, err
 	}
-	client := &SingleClient{
+	singleClient := &SingleClient{
 		endpoint: endpoint,
 		internal: cl,
 	}
-	return client, nil
+	return singleClient, nil
 }
 
 // - options - SingleClientMyOpOptions contains the optional parameters for the SingleClient.MyOp method.

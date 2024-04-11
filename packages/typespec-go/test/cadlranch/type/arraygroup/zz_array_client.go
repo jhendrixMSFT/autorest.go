@@ -30,10 +30,10 @@ func NewArrayClientWithNoCredential(options *ArrayClientOptions) (*ArrayClient, 
 	if err != nil {
 		return nil, err
 	}
-	client := &ArrayClient{
+	arrayClient := &ArrayClient{
 		internal: cl,
 	}
-	return client, nil
+	return arrayClient, nil
 }
 
 // NewArrayBooleanValueClient creates a new instance of [ArrayBooleanValueClient].

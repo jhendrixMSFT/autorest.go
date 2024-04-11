@@ -30,10 +30,10 @@ func NewCollectionFormatClientWithNoCredential(options *CollectionFormatClientOp
 	if err != nil {
 		return nil, err
 	}
-	client := &CollectionFormatClient{
+	collectionFormatClient := &CollectionFormatClient{
 		internal: cl,
 	}
-	return client, nil
+	return collectionFormatClient, nil
 }
 
 // NewCollectionFormatHeaderClient creates a new instance of [CollectionFormatHeaderClient].

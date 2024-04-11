@@ -33,10 +33,10 @@ func NewUnionClientWithNoCredential(options *UnionClientOptions) (*UnionClient, 
 	if err != nil {
 		return nil, err
 	}
-	client := &UnionClient{
+	unionClient := &UnionClient{
 		internal: cl,
 	}
-	return client, nil
+	return unionClient, nil
 }
 
 // ValidKey - Check whether client is authenticated

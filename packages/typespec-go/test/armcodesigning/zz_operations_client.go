@@ -27,10 +27,10 @@ func NewOperationsClient(credential azcore.TokenCredential, options *arm.ClientO
 	if err != nil {
 		return nil, err
 	}
-	client := &OperationsClient{
+	operationsClient := &OperationsClient{
 		internal: cl,
 	}
-	return client, nil
+	return operationsClient, nil
 }
 
 // NewListPager - List the operations for the provider

@@ -30,10 +30,10 @@ func NewDictionaryClientWithNoCredential(options *DictionaryClientOptions) (*Dic
 	if err != nil {
 		return nil, err
 	}
-	client := &DictionaryClient{
+	dictionaryClient := &DictionaryClient{
 		internal: cl,
 	}
-	return client, nil
+	return dictionaryClient, nil
 }
 
 // NewDictionaryBooleanValueClient creates a new instance of [DictionaryBooleanValueClient].

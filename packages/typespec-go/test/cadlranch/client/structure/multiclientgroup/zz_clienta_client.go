@@ -28,7 +28,7 @@ type ClientAClientOptions struct {
 
 // NewClientAClientWithNoCredential creates a new instance of [ClientAClient] with the specified values.
 //   - options - ClientAClientOptions contains the optional values for creating a [ClientAClient]
-func NewClientAClientWithNoCredential(options *ClientAClientOptions) (*ClientAClient, error) {
+func NewClientAClientWithNoCredential(endpoint string, client ClientType, options *ClientAClientOptions) (*ClientAClient, error) {
 	if options == nil {
 		options = &ClientAClientOptions{}
 	}
@@ -36,12 +36,12 @@ func NewClientAClientWithNoCredential(options *ClientAClientOptions) (*ClientACl
 	if err != nil {
 		return nil, err
 	}
-	client := &ClientAClient{
+	clientAClient := &ClientAClient{
 		endpoint: endpoint,
 		client:   client,
 		internal: cl,
 	}
-	return client, nil
+	return clientAClient, nil
 }
 
 // - options - ClientAClientRenamedFiveOptions contains the optional parameters for the ClientAClient.RenamedFive method.

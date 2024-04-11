@@ -30,10 +30,10 @@ func NewApiVersionsClient(credential azcore.TokenCredential, options *arm.Client
 	if err != nil {
 		return nil, err
 	}
-	client := &ApiVersionsClient{
+	apiVersionsClient := &ApiVersionsClient{
 		internal: cl,
 	}
-	return client, nil
+	return apiVersionsClient, nil
 }
 
 // CreateOrUpdate - Creates new or updates existing API version.

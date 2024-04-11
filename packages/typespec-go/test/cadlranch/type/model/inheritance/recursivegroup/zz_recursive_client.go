@@ -33,10 +33,10 @@ func NewRecursiveClientWithNoCredential(options *RecursiveClientOptions) (*Recur
 	if err != nil {
 		return nil, err
 	}
-	client := &RecursiveClient{
+	recursiveClient := &RecursiveClient{
 		internal: cl,
 	}
-	return client, nil
+	return recursiveClient, nil
 }
 
 // - options - RecursiveClientGetOptions contains the optional parameters for the RecursiveClient.Get method.

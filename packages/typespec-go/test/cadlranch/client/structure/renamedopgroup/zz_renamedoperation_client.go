@@ -28,7 +28,7 @@ type RenamedOperationClientOptions struct {
 
 // NewRenamedOperationClientWithNoCredential creates a new instance of [RenamedOperationClient] with the specified values.
 //   - options - RenamedOperationClientOptions contains the optional values for creating a [RenamedOperationClient]
-func NewRenamedOperationClientWithNoCredential(options *RenamedOperationClientOptions) (*RenamedOperationClient, error) {
+func NewRenamedOperationClientWithNoCredential(endpoint string, client ClientType, options *RenamedOperationClientOptions) (*RenamedOperationClient, error) {
 	if options == nil {
 		options = &RenamedOperationClientOptions{}
 	}
@@ -36,12 +36,12 @@ func NewRenamedOperationClientWithNoCredential(options *RenamedOperationClientOp
 	if err != nil {
 		return nil, err
 	}
-	client := &RenamedOperationClient{
+	renamedOperationClient := &RenamedOperationClient{
 		endpoint: endpoint,
 		client:   client,
 		internal: cl,
 	}
-	return client, nil
+	return renamedOperationClient, nil
 }
 
 // NewRenamedOperationGroupClient creates a new instance of [RenamedOperationGroupClient].

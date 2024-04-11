@@ -33,10 +33,10 @@ func NewBodyOptionalityClientWithNoCredential(options *BodyOptionalityClientOpti
 	if err != nil {
 		return nil, err
 	}
-	client := &BodyOptionalityClient{
+	bodyOptionalityClient := &BodyOptionalityClient{
 		internal: cl,
 	}
-	return client, nil
+	return bodyOptionalityClient, nil
 }
 
 // NewBodyOptionalityOptionalExplicitClient creates a new instance of [BodyOptionalityOptionalExplicitClient].

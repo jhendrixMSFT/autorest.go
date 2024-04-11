@@ -30,10 +30,10 @@ func NewContentNegotiationClientWithNoCredential(options *ContentNegotiationClie
 	if err != nil {
 		return nil, err
 	}
-	client := &ContentNegotiationClient{
+	contentNegotiationClient := &ContentNegotiationClient{
 		internal: cl,
 	}
-	return client, nil
+	return contentNegotiationClient, nil
 }
 
 // NewContentNegotiationDifferentBodyClient creates a new instance of [ContentNegotiationDifferentBodyClient].

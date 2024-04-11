@@ -33,10 +33,10 @@ func NewEmptyClientWithNoCredential(options *EmptyClientOptions) (*EmptyClient, 
 	if err != nil {
 		return nil, err
 	}
-	client := &EmptyClient{
+	emptyClient := &EmptyClient{
 		internal: cl,
 	}
-	return client, nil
+	return emptyClient, nil
 }
 
 // - options - GetEmptyOptions contains the optional parameters for the EmptyClient.GetEmpty method.

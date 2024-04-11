@@ -30,10 +30,10 @@ func NewAccountsClient(credential azcore.TokenCredential, options *arm.ClientOpt
 	if err != nil {
 		return nil, err
 	}
-	client := &AccountsClient{
+	accountsClient := &AccountsClient{
 		internal: cl,
 	}
-	return client, nil
+	return accountsClient, nil
 }
 
 // CheckNameAvailability - Checks that the trusted signing account name is valid and is not already in use.

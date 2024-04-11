@@ -33,10 +33,10 @@ func NewEnumDiscriminatorClientWithNoCredential(options *EnumDiscriminatorClient
 	if err != nil {
 		return nil, err
 	}
-	client := &EnumDiscriminatorClient{
+	enumDiscriminatorClient := &EnumDiscriminatorClient{
 		internal: cl,
 	}
-	return client, nil
+	return enumDiscriminatorClient, nil
 }
 
 // GetExtensibleModel - Receive model with extensible enum discriminator type.

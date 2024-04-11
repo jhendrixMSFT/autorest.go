@@ -35,7 +35,7 @@ type ServiceClientOptions struct {
 
 // NewServiceClientWithNoCredential creates a new instance of [ServiceClient] with the specified values.
 //   - options - ServiceClientOptions contains the optional values for creating a [ServiceClient]
-func NewServiceClientWithNoCredential(options *ServiceClientOptions) (*ServiceClient, error) {
+func NewServiceClientWithNoCredential(endpoint string, client ClientType, options *ServiceClientOptions) (*ServiceClient, error) {
 	if options == nil {
 		options = &ServiceClientOptions{}
 	}
@@ -43,12 +43,12 @@ func NewServiceClientWithNoCredential(options *ServiceClientOptions) (*ServiceCl
 	if err != nil {
 		return nil, err
 	}
-	client := &ServiceClient{
+	serviceClient := &ServiceClient{
 		endpoint: endpoint,
 		client:   client,
 		internal: cl,
 	}
-	return client, nil
+	return serviceClient, nil
 }
 
 // NewServiceBarClient creates a new instance of [ServiceBarClient].

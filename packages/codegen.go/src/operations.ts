@@ -179,9 +179,13 @@ function generateConstructors(azureARM: boolean, client: go.Client, imports: Imp
 
   if (!azureARM) {
     // for non-ARM, the options type will always be a parameter group
-    ctorText += `// ${(<go.ParameterGroup>client.options).groupName} contains the optional values for creating a [${client.name}].\n`;
-    ctorText += `type ${(<go.ParameterGroup>client.options).groupName} struct {\n\tazcore.ClientOptions\n}\n\n`;
-    // TODO: optional client params
+    const optionsGroup = <go.ParameterGroup>client.options;
+    ctorText += `// ${optionsGroup.groupName} contains the optional values for creating a [${client.name}].\n`;
+    ctorText += `type ${optionsGroup.groupName} struct {\n\tazcore.ClientOptions\n`;
+    for (const param of optionsGroup.params) {
+      ctorText += `\t${param.name} ${go.getTypeDeclaration(param.type)}\n`;
+    }
+    ctorText += '}\n\n';
   }
 
   for (const constructor of client.constructors) {
@@ -247,14 +251,15 @@ function generateConstructors(azureARM: boolean, client: go.Client, imports: Imp
     ctorText += '\t}\n';
 
     // construct client literal
-    ctorText += `\tclient := &${client.name}{\n`;
+    const clientLiteral = uncapitalize(client.name);
+    ctorText += `\t${clientLiteral} := &${client.name}{\n`;
     for (const parameter of values(client.parameters)) {
       // each client field will have a matching parameter with the same name
       ctorText += `\t\t${parameter.name}: ${parameter.name},\n`;
     }
     ctorText += '\tinternal: cl,\n';
     ctorText += '\t}\n';
-    ctorText += '\treturn client, nil\n';
+    ctorText += `\treturn ${clientLiteral}, nil\n`;
     ctorText += '}\n\n';
   }
 

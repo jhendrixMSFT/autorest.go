@@ -30,10 +30,10 @@ func NewAzureLargeStorageInstancesClient(credential azcore.TokenCredential, opti
 	if err != nil {
 		return nil, err
 	}
-	client := &AzureLargeStorageInstancesClient{
+	azureLargeStorageInstancesClient := &AzureLargeStorageInstancesClient{
 		internal: cl,
 	}
-	return client, nil
+	return azureLargeStorageInstancesClient, nil
 }
 
 // Get - Gets an Azure Large Storage instance for the specified subscription, resource

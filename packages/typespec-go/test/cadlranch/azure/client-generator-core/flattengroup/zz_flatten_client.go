@@ -33,10 +33,10 @@ func NewFlattenClientWithNoCredential(options *FlattenClientOptions) (*FlattenCl
 	if err != nil {
 		return nil, err
 	}
-	client := &FlattenClient{
+	flattenClient := &FlattenClient{
 		internal: cl,
 	}
-	return client, nil
+	return flattenClient, nil
 }
 
 // - options - FlattenClientPutFlattenModelOptions contains the optional parameters for the FlattenClient.PutFlattenModel method.

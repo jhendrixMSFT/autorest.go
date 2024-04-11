@@ -15,7 +15,7 @@ import (
 )
 
 func TestCreateResourcePollViaOperationLocationClient_BeginCreateJob(t *testing.T) {
-	client, err := lrolegacygroup.NewLegacyClient(nil)
+	client, err := lrolegacygroup.NewLegacyClientWithNoCredential(nil)
 	require.NoError(t, err)
 	poller, err := client.NewLegacyCreateResourcePollViaOperationLocationClient().BeginCreateJob(context.Background(), lrolegacygroup.JobData{
 		Comment: to.Ptr("async job"),
@@ -36,7 +36,7 @@ func TestCreateResourcePollViaOperationLocationClient_BeginCreateJob(t *testing.
 }
 
 func TestCreateResourcePollViaOperationLocationClient_GetJob(t *testing.T) {
-	client, err := lrolegacygroup.NewLegacyClient(nil)
+	client, err := lrolegacygroup.NewLegacyClientWithNoCredential(nil)
 	require.NoError(t, err)
 	resp, err := client.NewLegacyCreateResourcePollViaOperationLocationClient().GetJob(context.Background(), "job1", nil)
 	require.NoError(t, err)

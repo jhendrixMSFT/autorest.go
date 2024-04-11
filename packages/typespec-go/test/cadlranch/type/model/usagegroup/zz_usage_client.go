@@ -33,10 +33,10 @@ func NewUsageClientWithNoCredential(options *UsageClientOptions) (*UsageClient, 
 	if err != nil {
 		return nil, err
 	}
-	client := &UsageClient{
+	usageClient := &UsageClient{
 		internal: cl,
 	}
-	return client, nil
+	return usageClient, nil
 }
 
 // - options - UsageClientInputOptions contains the optional parameters for the UsageClient.Input method.

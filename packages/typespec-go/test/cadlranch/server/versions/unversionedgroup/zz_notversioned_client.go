@@ -30,7 +30,7 @@ type NotVersionedClientOptions struct {
 
 // NewNotVersionedClientWithNoCredential creates a new instance of [NotVersionedClient] with the specified values.
 //   - options - NotVersionedClientOptions contains the optional values for creating a [NotVersionedClient]
-func NewNotVersionedClientWithNoCredential(options *NotVersionedClientOptions) (*NotVersionedClient, error) {
+func NewNotVersionedClientWithNoCredential(endpoint string, apiVersion string, options *NotVersionedClientOptions) (*NotVersionedClient, error) {
 	if options == nil {
 		options = &NotVersionedClientOptions{}
 	}
@@ -38,12 +38,12 @@ func NewNotVersionedClientWithNoCredential(options *NotVersionedClientOptions) (
 	if err != nil {
 		return nil, err
 	}
-	client := &NotVersionedClient{
+	notVersionedClient := &NotVersionedClient{
 		endpoint:   endpoint,
 		apiVersion: apiVersion,
 		internal:   cl,
 	}
-	return client, nil
+	return notVersionedClient, nil
 }
 
 //   - options - NotVersionedClientWithPathAPIVersionOptions contains the optional parameters for the NotVersionedClient.WithPathAPIVersion

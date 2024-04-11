@@ -33,10 +33,10 @@ func NewClientRequestIdClientWithNoCredential(options *ClientRequestIdClientOpti
 	if err != nil {
 		return nil, err
 	}
-	client := &ClientRequestIdClient{
+	clientRequestIdClient := &ClientRequestIdClient{
 		internal: cl,
 	}
-	return client, nil
+	return clientRequestIdClient, nil
 }
 
 // Get - Get operation with azure client request id header.

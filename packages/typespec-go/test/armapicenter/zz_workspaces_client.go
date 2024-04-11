@@ -30,10 +30,10 @@ func NewWorkspacesClient(credential azcore.TokenCredential, options *arm.ClientO
 	if err != nil {
 		return nil, err
 	}
-	client := &WorkspacesClient{
+	workspacesClient := &WorkspacesClient{
 		internal: cl,
 	}
-	return client, nil
+	return workspacesClient, nil
 }
 
 // CreateOrUpdate - Creates new or updates existing workspace.

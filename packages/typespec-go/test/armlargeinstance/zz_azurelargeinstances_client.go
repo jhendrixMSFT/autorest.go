@@ -30,10 +30,10 @@ func NewAzureLargeInstancesClient(credential azcore.TokenCredential, options *ar
 	if err != nil {
 		return nil, err
 	}
-	client := &AzureLargeInstancesClient{
+	azureLargeInstancesClient := &AzureLargeInstancesClient{
 		internal: cl,
 	}
-	return client, nil
+	return azureLargeInstancesClient, nil
 }
 
 // Get - Gets an Azure Large Instance for the specified subscription, resource group,

@@ -33,10 +33,10 @@ func NewNotDiscriminatedClientWithNoCredential(options *NotDiscriminatedClientOp
 	if err != nil {
 		return nil, err
 	}
-	client := &NotDiscriminatedClient{
+	notDiscriminatedClient := &NotDiscriminatedClient{
 		internal: cl,
 	}
-	return client, nil
+	return notDiscriminatedClient, nil
 }
 
 //   - options - NotDiscriminatedClientGetValidOptions contains the optional parameters for the NotDiscriminatedClient.GetValid

@@ -6,16 +6,36 @@ package lrostdgroup_test
 import (
 	"context"
 	"lrostdgroup"
+	"net/http"
 	"testing"
 	"time"
 
+	"github.com/Azure/azure-sdk-for-go/sdk/azcore"
+	"github.com/Azure/azure-sdk-for-go/sdk/azcore/policy"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/runtime"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/to"
 	"github.com/stretchr/testify/require"
 )
 
+type apiVersionPolicy struct {
+	apiVersion string
+}
+
+func (a *apiVersionPolicy) Do(req *policy.Request) (*http.Response, error) {
+	rawQP := req.Raw().URL.Query()
+	rawQP.Set("api-version", a.apiVersion)
+	req.Raw().URL.RawQuery = rawQP.Encode()
+	return req.Next()
+}
+
 func TestStandardClient_BeginCreateOrReplace(t *testing.T) {
-	client, err := lrostdgroup.NewStandardClient(nil)
+	client, err := lrostdgroup.NewStandardClientWithNoCredential(&lrostdgroup.StandardClientOptions{
+		ClientOptions: azcore.ClientOptions{
+			PerCallPolicies: []policy.Policy{
+				&apiVersionPolicy{apiVersion: "2022-12-01-preview"},
+			},
+		},
+	})
 	require.NoError(t, err)
 	poller, err := client.BeginCreateOrReplace(context.Background(), "madge", lrostdgroup.User{
 		Role: to.Ptr("contributor"),
@@ -32,7 +52,13 @@ func TestStandardClient_BeginCreateOrReplace(t *testing.T) {
 }
 
 func TestStandardClient_BeginDelete(t *testing.T) {
-	client, err := lrostdgroup.NewStandardClient(nil)
+	client, err := lrostdgroup.NewStandardClientWithNoCredential(&lrostdgroup.StandardClientOptions{
+		ClientOptions: azcore.ClientOptions{
+			PerCallPolicies: []policy.Policy{
+				&apiVersionPolicy{apiVersion: "2022-12-01-preview"},
+			},
+		},
+	})
 	require.NoError(t, err)
 	poller, err := client.BeginDelete(context.Background(), "madge", nil)
 	require.NoError(t, err)
@@ -45,7 +71,13 @@ func TestStandardClient_BeginDelete(t *testing.T) {
 
 func TestStandardClient_BeginExport(t *testing.T) {
 	t.Skip("https://github.com/Azure/azure-sdk-for-go/issues/22433")
-	client, err := lrostdgroup.NewStandardClient(nil)
+	client, err := lrostdgroup.NewStandardClientWithNoCredential(&lrostdgroup.StandardClientOptions{
+		ClientOptions: azcore.ClientOptions{
+			PerCallPolicies: []policy.Policy{
+				&apiVersionPolicy{apiVersion: "2022-12-01-preview"},
+			},
+		},
+	})
 	require.NoError(t, err)
 	poller, err := client.BeginExport(context.Background(), "madge", "json", nil)
 	require.NoError(t, err)

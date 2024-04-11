@@ -30,10 +30,10 @@ func NewAccessClientWithNoCredential(options *AccessClientOptions) (*AccessClien
 	if err != nil {
 		return nil, err
 	}
-	client := &AccessClient{
+	accessClient := &AccessClient{
 		internal: cl,
 	}
-	return client, nil
+	return accessClient, nil
 }
 
 // NewAccessInternalOperationClient creates a new instance of [AccessInternalOperationClient].

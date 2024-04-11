@@ -30,10 +30,10 @@ func NewNullableClientWithNoCredential(options *NullableClientOptions) (*Nullabl
 	if err != nil {
 		return nil, err
 	}
-	client := &NullableClient{
+	nullableClient := &NullableClient{
 		internal: cl,
 	}
-	return client, nil
+	return nullableClient, nil
 }
 
 // NewNullableBytesClient creates a new instance of [NullableBytesClient].

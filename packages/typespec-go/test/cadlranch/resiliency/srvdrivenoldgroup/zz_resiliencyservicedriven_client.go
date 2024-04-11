@@ -30,7 +30,7 @@ type ResiliencyServiceDrivenClientOptions struct {
 
 // NewResiliencyServiceDrivenClientWithNoCredential creates a new instance of [ResiliencyServiceDrivenClient] with the specified values.
 //   - options - ResiliencyServiceDrivenClientOptions contains the optional values for creating a [ResiliencyServiceDrivenClient]
-func NewResiliencyServiceDrivenClientWithNoCredential(options *ResiliencyServiceDrivenClientOptions) (*ResiliencyServiceDrivenClient, error) {
+func NewResiliencyServiceDrivenClientWithNoCredential(endpoint string, serviceDeploymentVersion string, apiVersion string, options *ResiliencyServiceDrivenClientOptions) (*ResiliencyServiceDrivenClient, error) {
 	if options == nil {
 		options = &ResiliencyServiceDrivenClientOptions{}
 	}
@@ -38,13 +38,13 @@ func NewResiliencyServiceDrivenClientWithNoCredential(options *ResiliencyService
 	if err != nil {
 		return nil, err
 	}
-	client := &ResiliencyServiceDrivenClient{
+	resiliencyServiceDrivenClient := &ResiliencyServiceDrivenClient{
 		endpoint:                 endpoint,
 		serviceDeploymentVersion: serviceDeploymentVersion,
 		apiVersion:               apiVersion,
 		internal:                 cl,
 	}
-	return client, nil
+	return resiliencyServiceDrivenClient, nil
 }
 
 // FromNone - Test that currently accepts no parameters, will be updated in next spec to accept a new optional parameter as

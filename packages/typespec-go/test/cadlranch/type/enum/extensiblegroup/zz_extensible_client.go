@@ -30,10 +30,10 @@ func NewExtensibleClientWithNoCredential(options *ExtensibleClientOptions) (*Ext
 	if err != nil {
 		return nil, err
 	}
-	client := &ExtensibleClient{
+	extensibleClient := &ExtensibleClient{
 		internal: cl,
 	}
-	return client, nil
+	return extensibleClient, nil
 }
 
 // NewExtensibleStringClient creates a new instance of [ExtensibleStringClient].

@@ -30,10 +30,10 @@ func NewMediaTypeClientWithNoCredential(options *MediaTypeClientOptions) (*Media
 	if err != nil {
 		return nil, err
 	}
-	client := &MediaTypeClient{
+	mediaTypeClient := &MediaTypeClient{
 		internal: cl,
 	}
-	return client, nil
+	return mediaTypeClient, nil
 }
 
 // NewMediaTypeStringBodyClient creates a new instance of [MediaTypeStringBodyClient].

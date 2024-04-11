@@ -40,10 +40,10 @@ func NewApiKeyClientWithKeyCredential(credential *azcore.KeyCredential, options 
 	if err != nil {
 		return nil, err
 	}
-	client := &ApiKeyClient{
+	apiKeyClient := &ApiKeyClient{
 		internal: cl,
 	}
-	return client, nil
+	return apiKeyClient, nil
 }
 
 // Invalid - Check whether client is authenticated.

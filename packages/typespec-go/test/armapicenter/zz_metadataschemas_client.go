@@ -30,10 +30,10 @@ func NewMetadataSchemasClient(credential azcore.TokenCredential, options *arm.Cl
 	if err != nil {
 		return nil, err
 	}
-	client := &MetadataSchemasClient{
+	metadataSchemasClient := &MetadataSchemasClient{
 		internal: cl,
 	}
-	return client, nil
+	return metadataSchemasClient, nil
 }
 
 // CreateOrUpdate - Creates new or updates existing metadata schema.

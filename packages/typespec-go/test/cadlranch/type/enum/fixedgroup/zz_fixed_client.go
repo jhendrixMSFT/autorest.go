@@ -30,10 +30,10 @@ func NewFixedClientWithNoCredential(options *FixedClientOptions) (*FixedClient, 
 	if err != nil {
 		return nil, err
 	}
-	client := &FixedClient{
+	fixedClient := &FixedClient{
 		internal: cl,
 	}
-	return client, nil
+	return fixedClient, nil
 }
 
 // NewFixedStringClient creates a new instance of [FixedStringClient].

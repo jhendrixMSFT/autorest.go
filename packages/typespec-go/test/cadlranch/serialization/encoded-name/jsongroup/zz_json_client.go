@@ -30,10 +30,10 @@ func NewJsonClientWithNoCredential(options *JsonClientOptions) (*JsonClient, err
 	if err != nil {
 		return nil, err
 	}
-	client := &JsonClient{
+	jsonClient := &JsonClient{
 		internal: cl,
 	}
-	return client, nil
+	return jsonClient, nil
 }
 
 // NewJsonPropertyClient creates a new instance of [JsonPropertyClient].

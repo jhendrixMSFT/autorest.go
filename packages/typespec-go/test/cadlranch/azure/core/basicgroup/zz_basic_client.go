@@ -36,10 +36,10 @@ func NewBasicClientWithNoCredential(options *BasicClientOptions) (*BasicClient, 
 	if err != nil {
 		return nil, err
 	}
-	client := &BasicClient{
+	basicClient := &BasicClient{
 		internal: cl,
 	}
-	return client, nil
+	return basicClient, nil
 }
 
 // NewBasicTwoModelsAsPageItemClient creates a new instance of [BasicTwoModelsAsPageItemClient].
