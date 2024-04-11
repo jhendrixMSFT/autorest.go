@@ -8,6 +8,7 @@ import { capitalize, comment, uncapitalize } from '@azure-tools/codegen';
 import { values } from '@azure-tools/linq';
 import * as helpers from './helpers.js';
 import { ImportManager } from './imports.js';
+import { ensureNameCase } from '../../naming.go/src/naming.js';
 
 // represents the generated content for an operation group
 export class OperationGroupContent {
@@ -36,6 +37,9 @@ export async function generateOperations(codeModel: go.CodeModel): Promise<Array
       // clients that are purely hierarchical (i.e. having no APIs) won't need them.
       imports.add('net/http');
       imports.add('github.com/Azure/azure-sdk-for-go/sdk/azcore/policy');
+      imports.add('github.com/Azure/azure-sdk-for-go/sdk/azcore/runtime');
+    } else if (client.constructors.length > 0) {
+      // client constructors will need this
       imports.add('github.com/Azure/azure-sdk-for-go/sdk/azcore/runtime');
     }
 
@@ -173,17 +177,77 @@ function generateConstructors(azureARM: boolean, client: go.Client, imports: Imp
   }
 
   let ctorText = '';
+
+  if (!azureARM) {
+    // for non-ARM, the options type will always be a parameter group
+    const optionsGroup = <go.ParameterGroup>client.options;
+    ctorText += `// ${optionsGroup.groupName} contains the optional values for creating a [${client.name}].\n`;
+    ctorText += `type ${optionsGroup.groupName} struct {\n\tazcore.ClientOptions\n`;
+    for (const param of optionsGroup.params) {
+      if (param.description) {
+        ctorText += `\n\t${comment(param.description, '// ')}\n`;
+      }
+      if (go.isClientSideDefault(param.paramType)) {
+        if (!param.description) {
+          ctorText += '\n';
+        }
+        ctorText += `\t${comment(`The default value is ${helpers.formatLiteralValue(param.paramType.defaultValue, false)}`, '// ')}.\n`;
+      }
+      ctorText += `\t${ensureNameCase(param.name)} *${go.getTypeDeclaration(param.type)}\n`;
+    }
+    ctorText += '}\n\n';
+  }
+
   for (const constructor of client.constructors) {
     const ctorParams = new Array<string>();
     const paramDocs = new Array<string>();
 
     constructor.parameters.sort(helpers.sortParametersByRequired);
     for (const ctorParam of constructor.parameters) {
+      if (!go.isRequiredParameter(ctorParam)) {
+        // param is part of the options group
+        continue;
+      }
       imports.addImportForType(ctorParam.type);
       ctorParams.push(`${ctorParam.name} ${helpers.formatParameterTypeName(ctorParam)}`);
       if (ctorParam.description) {
         paramDocs.push(helpers.formatCommentAsBulletItem(`${ctorParam.name} - ${ctorParam.description}`));
       }
+    }
+
+    const emitProlog = function(optionsTypeName: string, plOpts: string): string {
+      let bodyText = `\tif options == nil {\n\t\toptions = &${optionsTypeName}{}\n\t}\n`;
+      bodyText += `\tcl, err := azcore.NewClient(moduleName, moduleVersion, runtime.PipelineOptions{${plOpts}}, &options.ClientOptions)\n`;
+      return bodyText;
+    };
+
+    let prolog: string;
+    switch (constructor.authentication.kind) {
+      case 'apikey':
+        ctorParams.push('credential *azcore.KeyCredential');
+        paramDocs.push(helpers.formatCommentAsBulletItem('credential - the [azcore.KeyCredential] used to authenticate requests.'));
+        const keyPolicyOpts = '&runtime.KeyCredentialPolicyOptions{\n\t\t\tInsecureAllowCredentialWithHTTP: options.InsecureAllowCredentialWithHTTP,\n\t\t}';
+        const keyPolicy = `\n\t\tPerCall: []policy.Policy{\n\t\truntime.NewKeyCredentialPolicy(credential, "${constructor.authentication.name}", ${keyPolicyOpts}),\n\t\t},\n`;
+        prolog = emitProlog((<go.ParameterGroup>client.options).groupName, keyPolicy);
+        break;
+      case 'bearer':
+        imports.add('github.com/Azure/azure-sdk-for-go/sdk/azcore');
+        ctorParams.push('credential azcore.TokenCredential');
+        paramDocs.push(helpers.formatCommentAsBulletItem('credential - used to authorize requests. Usually a credential from azidentity.'));
+        if (azureARM) {
+          prolog = '\tcl, err := arm.NewClient(moduleName, moduleVersion, credential, options)\n';
+        } else {
+          imports.add('github.com/Azure/azure-sdk-for-go/sdk/azcore/policy');
+          const tokenPolicyOpts = '&policy.BearerTokenOptions{\n\t\t\tInsecureAllowCredentialWithHTTP: options.InsecureAllowCredentialWithHTTP,\n\t\t}';
+          const scopesSlice = new Array<string>();
+          values(constructor.authentication.scopes).forEach((scope: string) => { scopesSlice.push(`"${scope}"`); });
+          const tokenPolicy = `\n\t\tPerCall: []policy.Policy{\n\t\truntime.NewBearerTokenPolicy(credential, []string{${scopesSlice.join(', ')}}, ${tokenPolicyOpts}),\n\t\t},\n`;
+          prolog = emitProlog((<go.ParameterGroup>client.options).groupName, tokenPolicy);
+        }
+        break;
+      case 'none':
+        prolog = emitProlog((<go.ParameterGroup>client.options).groupName, '');
+        break;
     }
 
     // add client options last
@@ -196,25 +260,42 @@ function generateConstructors(azureARM: boolean, client: go.Client, imports: Imp
     }
 
     ctorText += `func ${constructor.name}(${ctorParams.join(', ')}) (*${client.name}, error) {\n`;
-    let clientType = 'azcore';
-    if (azureARM) {
-      clientType = 'arm';
-    }
+    ctorText += prolog;
 
-    ctorText += `\tcl, err := ${clientType}.NewClient(moduleName, moduleVersion, credential, options)\n`;
     ctorText += '\tif err != nil {\n';
     ctorText += '\t\treturn nil, err\n';
     ctorText += '\t}\n';
 
+    // handle any client-side defaults
+    if (!azureARM) {
+      // for non-ARM, the options type will always be a parameter group
+      const optionsGroup = <go.ParameterGroup>client.options;
+      for (const param of optionsGroup.params) {
+        if (go.isClientSideDefault(param.paramType)) {
+          ctorText += `\t${param.name} := ${helpers.formatLiteralValue(param.paramType.defaultValue, false)}\n`;
+          ctorText += `\tif options.${ensureNameCase(param.name)} != nil {\n\t\t${param.name} = *options.${ensureNameCase(param.name)}\n\t}\n`;
+        }
+      }
+    }
+
     // construct client literal
-    ctorText += `\tclient := &${client.name}{\n`;
+    let clientVar = 'client';
+    // ensure clientVar doesn't collide with any params
+    for (const param of client.parameters) {
+      if (param.name === clientVar) {
+        clientVar = ensureNameCase(client.name, true);
+        break;
+      }
+    }
+
+    ctorText += `\t${clientVar} := &${client.name}{\n`;
     for (const parameter of values(client.parameters)) {
       // each client field will have a matching parameter with the same name
       ctorText += `\t\t${parameter.name}: ${parameter.name},\n`;
     }
     ctorText += '\tinternal: cl,\n';
     ctorText += '\t}\n';
-    ctorText += '\treturn client, nil\n';
+    ctorText += `\treturn ${clientVar}, nil\n`;
     ctorText += '}\n\n';
   }
 
@@ -224,14 +305,12 @@ function generateConstructors(azureARM: boolean, client: go.Client, imports: Imp
 // creates a modeled constructor for an ARM client
 function createARMClientConstructor(client: go.Client, imports: ImportManager): go.Constructor {
   imports.add('github.com/Azure/azure-sdk-for-go/sdk/azcore/arm');
-  const ctor = new go.Constructor(`New${client.name}`);
+  // we don't need the scopes for ARM, it's handled by pipeline policy
+  const ctor = new go.Constructor(`New${client.name}`, new go.BearerAuthentication([]));
   // add any modeled parameter first, which should only be the subscriptionID, then add TokenCredential
   for (const param of client.parameters) {
     ctor.parameters.push(param);
   }
-  const tokenCredParam = new go.Parameter('credential', new go.QualifiedType('TokenCredential', 'github.com/Azure/azure-sdk-for-go/sdk/azcore'), 'required', true, 'client');
-  tokenCredParam.description = 'used to authorize requests. Usually a credential from azidentity.';
-  ctor.parameters.push(tokenCredParam);
   return ctor;
 }
 

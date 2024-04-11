@@ -34,6 +34,12 @@ export function tcgcToGoCodeModel(context: EmitContext<GoEmitterOptions>): go.Co
   } else if (context.options.module || context.options['module-version']) {
     throw new Error('--module and --module-version must both or neither be set');
   }
+  if (context.options['generate-ctors']) {
+    if (!codeModel.options.module) {
+      throw new Error('--generate-ctors requires --module and --module-version be set');
+    }
+    codeModel.options.generateCtors = true;
+  }
   if (context.options['rawjson-as-bytes']) {
     codeModel.options.rawJSONAsBytes = true;
   }

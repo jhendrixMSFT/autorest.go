@@ -53,6 +53,8 @@ export interface Options {
 
   injectSpans: boolean;
 
+  generateCtors: boolean;
+
   // disallowUnknownFields indicates whether or not to disallow unknown fields in the JSON unmarshaller.
   // reproduce the behavior of https://pkg.go.dev/encoding/json#Decoder.DisallowUnknownFields
   disallowUnknownFields: boolean;
@@ -75,7 +77,7 @@ export interface Options {
 export interface Module {
   // the full module path excluding any major version suffix
   name: string;
-  
+
   // the semantic version x.y.z[-beta.N]
   version: string;
 }
@@ -269,6 +271,35 @@ export interface Constructor {
 
   // the modeled parameters. can be empty
   parameters: Array<Parameter>;
+
+  // the type of authentication for this constructor
+  authentication: AuthenticationType;
+}
+
+export type AuthenticationType = APIKeyAuthentication | BearerAuthentication | NoAuthentication;
+
+export interface Authentication {
+  kind: 'apikey' | 'bearer' | 'none';
+}
+
+export interface APIKeyAuthentication extends Authentication {
+  kind: 'apikey';
+
+  // the api-key name
+  name: string;
+
+  // where the api-key goes in the request
+  loc: 'header' | 'query';
+}
+
+export interface BearerAuthentication extends Authentication {
+  kind: 'bearer';
+
+  scopes: Array<string>;
+}
+
+export interface NoAuthentication extends Authentication {
+  kind: 'none';
 }
 
 // ClientAccessor is a client method that returns a sub-client instance.
@@ -1004,6 +1035,7 @@ export class Options implements Options {
   constructor(headerText: string, generateFakes: boolean, injectSpans: boolean, disallowUnknownFields: boolean) {
     this.headerText = headerText;
     this.generateFakes = generateFakes;
+    this.generateCtors = false;
     this.injectSpans = injectSpans;
     this.disallowUnknownFields = disallowUnknownFields;
   }
@@ -1110,7 +1142,8 @@ export class Client implements Client {
 }
 
 export class Constructor implements Constructor {
-  constructor(name: string) {
+  constructor(name: string, authentication: AuthenticationType) {
+    this.authentication = authentication;
     this.name = name;
     this.parameters = new Array<Parameter>();
   }
@@ -1611,5 +1644,26 @@ export class XMLInfo implements XMLInfo {
   constructor() {
     this.attribute = false;
     this.text = false;
+  }
+}
+
+export class APIKeyAuthentication implements APIKeyAuthentication {
+  constructor(keyName: string, location: 'header' | 'query') {
+    this.kind = 'apikey';
+    this.name = keyName;
+    this.loc = location;
+  }
+}
+
+export class NoAuthentication implements NoAuthentication {
+  constructor() {
+    this.kind = 'none';
+  }
+}
+
+export class BearerAuthentication implements BearerAuthentication {
+  constructor(scopes: Array<string>) {
+    this.kind = 'bearer';
+    this.scopes = scopes;
   }
 }

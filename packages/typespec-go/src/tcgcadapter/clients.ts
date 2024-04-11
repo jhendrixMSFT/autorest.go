@@ -77,9 +77,31 @@ export class clientAdapter {
 
     // anything other than public means non-instantiable client
     if (sdkClient.initialization.access === 'public') {
+      // for instantiable clients, if there is no explicit credential
+      // type defined then it implicitly supports no authenticaiton.
+      let explicitCreds = false;
       for (const param of sdkClient.initialization.properties) {
         if (param.kind === 'credential') {
-          // skip this for now as we don't generate client constructors
+          if (!this.ta.codeModel.options.generateCtors) {
+            continue;
+          }
+          if (param.type.kind === 'credential') {
+            explicitCreds = true;
+            switch (param.type.scheme.type) {
+              case 'apiKey':
+                if (param.type.scheme.in === 'cookie') {
+                  throw new Error('cookie api-key NYI');
+                }
+                goClient.constructors.push(new go.Constructor(`New${clientName}WithKeyCredential`, new go.APIKeyAuthentication(param.type.scheme.name, param.type.scheme.in)));
+                break;
+              case 'noAuth':
+                goClient.constructors.push(new go.Constructor(`New${clientName}WithNoCredential`, new go.NoAuthentication()));
+                break;
+              default:
+                // fall through for now to skip this credential kind
+                // throw new Error(`unhandled credential kind ${param.type.scheme.type}`);
+            }
+          }
           continue;
         } else if (param.kind === 'endpoint' && param.type.kind === 'endpoint') {
           // this will either be a fixed or templated host
@@ -109,6 +131,9 @@ export class clientAdapter {
 
         goClient.parameters.push(this.adaptURIParam(param));
       }
+      if (!explicitCreds && this.ta.codeModel.options.generateCtors) {
+        goClient.constructors.push(new go.Constructor(`New${clientName}WithNoCredential`, new go.NoAuthentication()));
+      }
     } else if (parent) {
       // this is a sub-client. it will share the client/host params of the parent.
       // NOTE: we must propagate parant params before a potential recursive call
@@ -118,6 +143,18 @@ export class clientAdapter {
       goClient.parameters = parent.parameters;
     } else {
       throw new Error(`uninstantiable client ${sdkClient.name} has no parent`);
+    }
+
+    // propagate optional params to the optional params group
+    for (const param of goClient.parameters) {
+      if (!go.isRequiredParameter(param) && !go.isLiteralParameter(param) && this.isParameterGroup(goClient.options)) {
+        goClient.options.params.push(param);
+      }
+    }
+
+    // if we created constructors, propagate the persisted client params to them
+    for (const constructor of goClient.constructors) {
+      constructor.parameters = goClient.parameters;
     }
 
     for (const sdkMethod of sdkClient.methods) {
@@ -133,14 +170,27 @@ export class clientAdapter {
     return goClient;
   }
 
+  private isParameterGroup(clientOptions: go.ClientOptions): clientOptions is go.ParameterGroup {
+    return (<go.ParameterGroup>clientOptions).groupName !== undefined;
+  }
+
   private adaptURIParam(sdkParam: tcgc.SdkEndpointParameter | tcgc.SdkPathParameter): go.URIParameter {
     const paramType = this.ta.getPossibleType(sdkParam.type, true, false);
     if (!go.isConstantType(paramType) && !go.isPrimitiveType(paramType)) {
       throw new Error(`unexpected URI parameter type ${go.getTypeDeclaration(paramType)}`);
     }
+
+    // params with a client-side default are implicitly optional thus aren't passed by value
+    let byVal = !sdkParam.clientDefaultValue;
+    if (byVal) {
+      // if there was no client-side default, check optionality
+      byVal = !sdkParam.optional;
+    }
+
     // TODO: follow up with tcgc if serializedName should actually be optional
-    return new go.URIParameter(sdkParam.name, sdkParam.serializedName ? sdkParam.serializedName : sdkParam.name, paramType,
-      this.adaptParameterType(sdkParam), isTypePassedByValue(sdkParam.type) || !sdkParam.optional, 'client');
+    const uriParam = new go.URIParameter(sdkParam.name, sdkParam.serializedName ? sdkParam.serializedName : sdkParam.name, paramType, this.adaptParameterType(sdkParam), byVal, 'client');
+    uriParam.description = sdkParam.description;
+    return uriParam;
   }
 
   private adaptMethod(sdkMethod: tcgc.SdkServiceMethod<tcgc.SdkHttpOperation>, goClient: go.Client) {
@@ -533,7 +583,14 @@ export class clientAdapter {
       if (!go.isLiteralValueType(adaptedType)) {
         throw new Error(`unsupported client side default type ${go.getTypeDeclaration(adaptedType)} for parameter ${param.name}`);
       }
-      return new go.ClientSideDefault(new go.LiteralValue(adaptedType, param.clientDefaultValue));
+      let defaultValue: go.LiteralValue;
+      if (param.type.kind === 'enum') {
+        // find the matching enum value
+        defaultValue = this.ta.getLiteralValueForEnum(param.type, param.clientDefaultValue);
+      } else {
+        defaultValue = new go.LiteralValue(adaptedType, param.clientDefaultValue);
+      }
+      return new go.ClientSideDefault(defaultValue);
     } else if (param.optional) {
       return 'optional';
     } else {

@@ -17,7 +17,7 @@ const compiler = pkgRoot + 'node_modules/@typespec/compiler/node_modules/.bin/ts
 // 'moduleName': [ 'input', 'additional arg 1', 'additional arg N...' ]
 // if no .tsp file is specified in input, it's assumed to be main.tsp
 const cadlRanch = {
-  'apikeygroup': ['authentication/api-key'],     // missing tests
+  'apikeygroup': ['authentication/api-key', 'generate-ctors=true'],
   'customgroup': ['authentication/http/custom'], // missing tests
   'oauth2group': ['authentication/oauth2'],      // missing tests
   'unionauthgroup': ['authentication/union'],    // missing tests
@@ -35,7 +35,7 @@ const cadlRanch = {
   'multiclientgroup': ['client/structure/multi-client/client.tsp'],
   'renamedopgroup': ['client/structure/renamed-operation/client.tsp'],
   'twoopgroup': ['client/structure/two-operation-group/client.tsp'],
-  'bytesgroup': ['encode/bytes'],
+  'bytesgroup': ['encode/bytes', 'generate-ctors=true'],
   'datetimegroup': ['encode/datetime', 'slice-elements-byval=true'],
   'durationgroup': ['encode/duration'],
   'bodyoptionalgroup': ['parameters/body-optionality'],

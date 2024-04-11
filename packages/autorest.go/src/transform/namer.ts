@@ -88,12 +88,12 @@ export async function namer(session: Session<CodeModel>) {
   if (module !== '') {
     model.language.go!.module = module;
   }
-  model.language.go!.module = module;
 
   const containingModule = await session.getValue('containing-module', '');
   if (containingModule !== '' && module !== '') {
     throw new Error('--module and --containing-module are mutually exclusive');
   }
+
   model.language.go!.containingModule = containingModule;
 
   const singleClient = await session.getValue('single-client', false);
