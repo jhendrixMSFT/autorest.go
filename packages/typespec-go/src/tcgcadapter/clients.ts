@@ -145,6 +145,9 @@ export class clientAdapter {
       throw new Error(`uninstantiable client ${sdkClient.name} has no parent`);
     }
 
+    /*for (const param of goClient.parameters) {
+      if (go)
+    }*/
     // if we created constructors, propagate the persisted client params to them
     for (const constructor of goClient.constructors) {
       constructor.parameters = goClient.parameters;
@@ -170,7 +173,7 @@ export class clientAdapter {
     }
     // TODO: follow up with tcgc if serializedName should actually be optional
     const uriParam = new go.URIParameter(sdkParam.name, sdkParam.serializedName ? sdkParam.serializedName : sdkParam.name, paramType,
-      this.adaptParameterType(sdkParam), isTypePassedByValue(sdkParam.type) || !sdkParam.optional, 'client');
+      this.adaptParameterType(sdkParam), isTypePassedByValue(sdkParam.type) || !sdkParam.clientDefaultValue || !sdkParam.optional, 'client');
     uriParam.description = sdkParam.description;
     return uriParam;
   }
