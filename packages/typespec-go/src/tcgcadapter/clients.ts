@@ -146,7 +146,9 @@ export class clientAdapter {
     }
 
     /*for (const param of goClient.parameters) {
-      if (go)
+      if (!go.isRequiredParameter(param)) {
+
+      }
     }*/
     // if we created constructors, propagate the persisted client params to them
     for (const constructor of goClient.constructors) {
