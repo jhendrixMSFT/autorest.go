@@ -145,11 +145,13 @@ export class clientAdapter {
       throw new Error(`uninstantiable client ${sdkClient.name} has no parent`);
     }
 
-    /*for (const param of goClient.parameters) {
-      if (!go.isRequiredParameter(param)) {
-
+    // propagate optional params to the optional params group
+    for (const param of goClient.parameters) {
+      if (!go.isRequiredParameter(param) && !go.isLiteralParameter(param) && this.isParameterGroup(goClient.options)) {
+        goClient.options.params.push(param);
       }
-    }*/
+    }
+
     // if we created constructors, propagate the persisted client params to them
     for (const constructor of goClient.constructors) {
       constructor.parameters = goClient.parameters;
@@ -168,14 +170,25 @@ export class clientAdapter {
     return goClient;
   }
 
+  private isParameterGroup(clientOptions: go.ClientOptions): clientOptions is go.ParameterGroup {
+    return (<go.ParameterGroup>clientOptions).groupName !== undefined;
+  }
+
   private adaptURIParam(sdkParam: tcgc.SdkEndpointParameter | tcgc.SdkPathParameter): go.URIParameter {
     const paramType = this.ta.getPossibleType(sdkParam.type, true, false);
     if (!go.isConstantType(paramType) && !go.isPrimitiveType(paramType)) {
       throw new Error(`unexpected URI parameter type ${go.getTypeDeclaration(paramType)}`);
     }
+
+    // params with a client-side default are implicitly optional thus aren't passed by value
+    let byVal = !sdkParam.clientDefaultValue;
+    if (byVal) {
+      // if there was no client-side default, check optionality
+      byVal = !sdkParam.optional;
+    }
+
     // TODO: follow up with tcgc if serializedName should actually be optional
-    const uriParam = new go.URIParameter(sdkParam.name, sdkParam.serializedName ? sdkParam.serializedName : sdkParam.name, paramType,
-      this.adaptParameterType(sdkParam), isTypePassedByValue(sdkParam.type) || !sdkParam.clientDefaultValue || !sdkParam.optional, 'client');
+    const uriParam = new go.URIParameter(sdkParam.name, sdkParam.serializedName ? sdkParam.serializedName : sdkParam.name, paramType, this.adaptParameterType(sdkParam), byVal, 'client');
     uriParam.description = sdkParam.description;
     return uriParam;
   }
@@ -570,7 +583,14 @@ export class clientAdapter {
       if (!go.isLiteralValueType(adaptedType)) {
         throw new Error(`unsupported client side default type ${go.getTypeDeclaration(adaptedType)} for parameter ${param.name}`);
       }
-      return new go.ClientSideDefault(new go.LiteralValue(adaptedType, param.clientDefaultValue));
+      let defaultValue: go.LiteralValue;
+      if (param.type.kind === 'enum') {
+        // find the matching enum value
+        defaultValue = this.ta.getLiteralValueForEnum(param.type, param.clientDefaultValue);
+      } else {
+        defaultValue = new go.LiteralValue(adaptedType, param.clientDefaultValue);
+      }
+      return new go.ClientSideDefault(defaultValue);
     } else if (param.optional) {
       return 'optional';
     } else {

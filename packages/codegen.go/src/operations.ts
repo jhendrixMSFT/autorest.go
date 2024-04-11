@@ -8,6 +8,7 @@ import { capitalize, comment, uncapitalize } from '@azure-tools/codegen';
 import { values } from '@azure-tools/linq';
 import * as helpers from './helpers.js';
 import { ImportManager } from './imports.js';
+import { ensureNameCase } from '../../naming.go/src/naming.js';
 
 // represents the generated content for an operation group
 export class OperationGroupContent {
@@ -183,7 +184,16 @@ function generateConstructors(azureARM: boolean, client: go.Client, imports: Imp
     ctorText += `// ${optionsGroup.groupName} contains the optional values for creating a [${client.name}].\n`;
     ctorText += `type ${optionsGroup.groupName} struct {\n\tazcore.ClientOptions\n`;
     for (const param of optionsGroup.params) {
-      ctorText += `\t${param.name} ${go.getTypeDeclaration(param.type)}\n`;
+      if (param.description) {
+        ctorText += `\n\t${comment(param.description, '// ')}\n`;
+      }
+      if (go.isClientSideDefault(param.paramType)) {
+        if (!param.description) {
+          ctorText += '\n';
+        }
+        ctorText += `\t${comment(`The default value is ${helpers.formatLiteralValue(param.paramType.defaultValue, false)}`, '// ')}.\n`;
+      }
+      ctorText += `\t${ensureNameCase(param.name)} *${go.getTypeDeclaration(param.type)}\n`;
     }
     ctorText += '}\n\n';
   }
@@ -194,6 +204,10 @@ function generateConstructors(azureARM: boolean, client: go.Client, imports: Imp
 
     constructor.parameters.sort(helpers.sortParametersByRequired);
     for (const ctorParam of constructor.parameters) {
+      if (!go.isRequiredParameter(ctorParam)) {
+        // param is part of the options group
+        continue;
+      }
       imports.addImportForType(ctorParam.type);
       ctorParams.push(`${ctorParam.name} ${helpers.formatParameterTypeName(ctorParam)}`);
       if (ctorParam.description) {
@@ -249,6 +263,18 @@ function generateConstructors(azureARM: boolean, client: go.Client, imports: Imp
     ctorText += '\tif err != nil {\n';
     ctorText += '\t\treturn nil, err\n';
     ctorText += '\t}\n';
+
+    // handle any client-side defaults
+    if (!azureARM) {
+      // for non-ARM, the options type will always be a parameter group
+      const optionsGroup = <go.ParameterGroup>client.options;
+      for (const param of optionsGroup.params) {
+        if (go.isClientSideDefault(param.paramType)) {
+          ctorText += `\t${param.name} := ${helpers.formatLiteralValue(param.paramType.defaultValue, false)}\n`;
+          ctorText += `\tif options.${ensureNameCase(param.name)} != nil {\n\t\t${param.name} = *options.${ensureNameCase(param.name)}\n\t}\n`;
+        }
+      }
+    }
 
     // construct client literal
     const clientLiteral = uncapitalize(client.name);

@@ -26,19 +26,26 @@ type MultipleClient struct {
 // MultipleClientOptions contains the optional values for creating a [MultipleClient].
 type MultipleClientOptions struct {
 	azcore.ClientOptions
+
+	// Pass in v1.0 for API version.
+	// The default value is VersionsV10.
+	APIVersion *Versions
 }
 
 // NewMultipleClientWithNoCredential creates a new instance of [MultipleClient] with the specified values.
 //   - endpoint - Pass in http://localhost:3000 for endpoint.
-//   - apiVersion - Pass in v1.0 for API version.
 //   - options - MultipleClientOptions contains the optional values for creating a [MultipleClient]
-func NewMultipleClientWithNoCredential(endpoint string, apiVersion Versions, options *MultipleClientOptions) (*MultipleClient, error) {
+func NewMultipleClientWithNoCredential(endpoint string, options *MultipleClientOptions) (*MultipleClient, error) {
 	if options == nil {
 		options = &MultipleClientOptions{}
 	}
 	cl, err := azcore.NewClient(moduleName, moduleVersion, runtime.PipelineOptions{}, &options.ClientOptions)
 	if err != nil {
 		return nil, err
+	}
+	apiVersion := VersionsV10
+	if options.APIVersion != nil {
+		apiVersion = *options.APIVersion
 	}
 	multipleClient := &MultipleClient{
 		endpoint:   endpoint,

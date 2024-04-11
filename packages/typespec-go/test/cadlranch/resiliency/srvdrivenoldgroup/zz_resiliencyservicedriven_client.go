@@ -26,6 +26,10 @@ type ResiliencyServiceDrivenClient struct {
 // ResiliencyServiceDrivenClientOptions contains the optional values for creating a [ResiliencyServiceDrivenClient].
 type ResiliencyServiceDrivenClientOptions struct {
 	azcore.ClientOptions
+
+	// Pass in 'v1'. This represents the API version of the service. Will grow up in the next deployment to be both 'v1' and 'v2'
+	// The default value is "v1".
+	APIVersion *string
 }
 
 // NewResiliencyServiceDrivenClientWithNoCredential creates a new instance of [ResiliencyServiceDrivenClient] with the specified values.
@@ -33,16 +37,18 @@ type ResiliencyServiceDrivenClientOptions struct {
 //   - serviceDeploymentVersion - Pass in either 'v1' or 'v2'. This represents a version of the service deployment in history.
 //     'v1' is for the deployment when the service had only one api version. 'v2' is for the deployment when the service had api-versions
 //     'v1' and 'v2'.
-//   - apiVersion - Pass in 'v1'. This represents the API version of the service. Will grow up in the next deployment to be both
-//     'v1' and 'v2'
 //   - options - ResiliencyServiceDrivenClientOptions contains the optional values for creating a [ResiliencyServiceDrivenClient]
-func NewResiliencyServiceDrivenClientWithNoCredential(endpoint string, serviceDeploymentVersion string, apiVersion string, options *ResiliencyServiceDrivenClientOptions) (*ResiliencyServiceDrivenClient, error) {
+func NewResiliencyServiceDrivenClientWithNoCredential(endpoint string, serviceDeploymentVersion string, options *ResiliencyServiceDrivenClientOptions) (*ResiliencyServiceDrivenClient, error) {
 	if options == nil {
 		options = &ResiliencyServiceDrivenClientOptions{}
 	}
 	cl, err := azcore.NewClient(moduleName, moduleVersion, runtime.PipelineOptions{}, &options.ClientOptions)
 	if err != nil {
 		return nil, err
+	}
+	apiVersion := "v1"
+	if options.APIVersion != nil {
+		apiVersion = *options.APIVersion
 	}
 	resiliencyServiceDrivenClient := &ResiliencyServiceDrivenClient{
 		endpoint:                 endpoint,
