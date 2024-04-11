@@ -29,6 +29,7 @@ type NotVersionedClientOptions struct {
 }
 
 // NewNotVersionedClientWithNoCredential creates a new instance of [NotVersionedClient] with the specified values.
+//   - endpoint - Need to be set as 'http://localhost:3000' in client.
 //   - options - NotVersionedClientOptions contains the optional values for creating a [NotVersionedClient]
 func NewNotVersionedClientWithNoCredential(endpoint string, apiVersion string, options *NotVersionedClientOptions) (*NotVersionedClient, error) {
 	if options == nil {

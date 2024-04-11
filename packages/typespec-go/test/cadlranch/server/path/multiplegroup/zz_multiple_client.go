@@ -29,6 +29,8 @@ type MultipleClientOptions struct {
 }
 
 // NewMultipleClientWithNoCredential creates a new instance of [MultipleClient] with the specified values.
+//   - endpoint - Pass in http://localhost:3000 for endpoint.
+//   - apiVersion - Pass in v1.0 for API version.
 //   - options - MultipleClientOptions contains the optional values for creating a [MultipleClient]
 func NewMultipleClientWithNoCredential(endpoint string, apiVersion Versions, options *MultipleClientOptions) (*MultipleClient, error) {
 	if options == nil {

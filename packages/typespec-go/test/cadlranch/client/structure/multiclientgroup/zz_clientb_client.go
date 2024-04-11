@@ -27,6 +27,8 @@ type ClientBClientOptions struct {
 }
 
 // NewClientBClientWithNoCredential creates a new instance of [ClientBClient] with the specified values.
+//   - endpoint - Need to be set as 'http://localhost:3000' in client.
+//   - client - Need to be set as 'default', 'multi-client', 'renamed-operation', 'two-operation-group' in client.
 //   - options - ClientBClientOptions contains the optional values for creating a [ClientBClient]
 func NewClientBClientWithNoCredential(endpoint string, client ClientType, options *ClientBClientOptions) (*ClientBClient, error) {
 	if options == nil {

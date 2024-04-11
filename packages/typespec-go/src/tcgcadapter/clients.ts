@@ -169,8 +169,10 @@ export class clientAdapter {
       throw new Error(`unexpected URI parameter type ${go.getTypeDeclaration(paramType)}`);
     }
     // TODO: follow up with tcgc if serializedName should actually be optional
-    return new go.URIParameter(sdkParam.name, sdkParam.serializedName ? sdkParam.serializedName : sdkParam.name, paramType,
+    const uriParam = new go.URIParameter(sdkParam.name, sdkParam.serializedName ? sdkParam.serializedName : sdkParam.name, paramType,
       this.adaptParameterType(sdkParam), isTypePassedByValue(sdkParam.type) || !sdkParam.optional, 'client');
+    uriParam.description = sdkParam.description;
+    return uriParam;
   }
 
   private adaptMethod(sdkMethod: tcgc.SdkServiceMethod<tcgc.SdkHttpOperation>, goClient: go.Client) {

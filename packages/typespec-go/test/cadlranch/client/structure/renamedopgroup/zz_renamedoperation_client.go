@@ -27,6 +27,8 @@ type RenamedOperationClientOptions struct {
 }
 
 // NewRenamedOperationClientWithNoCredential creates a new instance of [RenamedOperationClient] with the specified values.
+//   - endpoint - Need to be set as 'http://localhost:3000' in client.
+//   - client - Need to be set as 'default', 'multi-client', 'renamed-operation', 'two-operation-group' in client.
 //   - options - RenamedOperationClientOptions contains the optional values for creating a [RenamedOperationClient]
 func NewRenamedOperationClientWithNoCredential(endpoint string, client ClientType, options *RenamedOperationClientOptions) (*RenamedOperationClient, error) {
 	if options == nil {
