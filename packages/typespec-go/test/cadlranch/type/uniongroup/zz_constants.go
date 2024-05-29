@@ -40,37 +40,37 @@ func PossibleEnumsOnlyCasesUdValues() []EnumsOnlyCasesUd {
 	}
 }
 
-type GetResponseProp1 float32
+type UnionFloatsOnlyClientGetCases float32
 
 const (
-	GetResponseProp111 GetResponseProp1 = 1.1
-	GetResponseProp122 GetResponseProp1 = 2.2
-	GetResponseProp133 GetResponseProp1 = 3.3
+	UnionFloatsOnlyClientGetCases11 UnionFloatsOnlyClientGetCases = 1.1
+	UnionFloatsOnlyClientGetCases22 UnionFloatsOnlyClientGetCases = 2.2
+	UnionFloatsOnlyClientGetCases33 UnionFloatsOnlyClientGetCases = 3.3
 )
 
 // PossibleGetResponseProp1Values returns the possible values for the GetResponseProp1 const type.
-func PossibleGetResponseProp1Values() []GetResponseProp1 {
-	return []GetResponseProp1{
-		GetResponseProp111,
-		GetResponseProp122,
-		GetResponseProp133,
+func PossibleUnionFloatsOnlyClientGetCases() []UnionFloatsOnlyClientGetCases {
+	return []UnionFloatsOnlyClientGetCases{
+		UnionFloatsOnlyClientGetCases11,
+		UnionFloatsOnlyClientGetCases22,
+		UnionFloatsOnlyClientGetCases33,
 	}
 }
 
-type GetResponseProp3 int32
+type UnionIntsOnlyClientGetCases int32
 
 const (
-	GetResponseProp31 GetResponseProp3 = 1
-	GetResponseProp32 GetResponseProp3 = 2
-	GetResponseProp33 GetResponseProp3 = 3
+	UnionIntsOnlyClientGetCases1 UnionIntsOnlyClientGetCases = 1
+	UnionIntsOnlyClientGetCases2 UnionIntsOnlyClientGetCases = 2
+	UnionIntsOnlyClientGetCases3 UnionIntsOnlyClientGetCases = 3
 )
 
 // PossibleGetResponseProp3Values returns the possible values for the GetResponseProp3 const type.
-func PossibleGetResponseProp3Values() []GetResponseProp3 {
-	return []GetResponseProp3{
-		GetResponseProp31,
-		GetResponseProp32,
-		GetResponseProp33,
+func PossibleUnionIntsOnlyClientGetCases() []UnionIntsOnlyClientGetCases {
+	return []UnionIntsOnlyClientGetCases{
+		UnionIntsOnlyClientGetCases1,
+		UnionIntsOnlyClientGetCases2,
+		UnionIntsOnlyClientGetCases3,
 	}
 }
 

@@ -42,60 +42,6 @@ func (e *EnumsOnlyCases) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
-// MarshalJSON implements the json.Marshaller interface for type GetResponse.
-func (g GetResponse) MarshalJSON() ([]byte, error) {
-	objectMap := make(map[string]any)
-	populate(objectMap, "prop", g.Prop)
-	return json.Marshal(objectMap)
-}
-
-// UnmarshalJSON implements the json.Unmarshaller interface for type GetResponse.
-func (g *GetResponse) UnmarshalJSON(data []byte) error {
-	var rawMsg map[string]json.RawMessage
-	if err := json.Unmarshal(data, &rawMsg); err != nil {
-		return fmt.Errorf("unmarshalling type %T: %v", g, err)
-	}
-	for key, val := range rawMsg {
-		var err error
-		switch key {
-		case "prop":
-			err = unpopulate(val, "Prop", &g.Prop)
-			delete(rawMsg, key)
-		}
-		if err != nil {
-			return fmt.Errorf("unmarshalling type %T: %v", g, err)
-		}
-	}
-	return nil
-}
-
-// MarshalJSON implements the json.Marshaller interface for type GetResponse1.
-func (g GetResponse1) MarshalJSON() ([]byte, error) {
-	objectMap := make(map[string]any)
-	populate(objectMap, "prop", g.Prop)
-	return json.Marshal(objectMap)
-}
-
-// UnmarshalJSON implements the json.Unmarshaller interface for type GetResponse1.
-func (g *GetResponse1) UnmarshalJSON(data []byte) error {
-	var rawMsg map[string]json.RawMessage
-	if err := json.Unmarshal(data, &rawMsg); err != nil {
-		return fmt.Errorf("unmarshalling type %T: %v", g, err)
-	}
-	for key, val := range rawMsg {
-		var err error
-		switch key {
-		case "prop":
-			err = unpopulate(val, "Prop", &g.Prop)
-			delete(rawMsg, key)
-		}
-		if err != nil {
-			return fmt.Errorf("unmarshalling type %T: %v", g, err)
-		}
-	}
-	return nil
-}
-
 // MarshalJSON implements the json.Marshaller interface for type GetResponse2.
 func (g GetResponse2) MarshalJSON() ([]byte, error) {
 	objectMap := make(map[string]any)
@@ -105,33 +51,6 @@ func (g GetResponse2) MarshalJSON() ([]byte, error) {
 
 // UnmarshalJSON implements the json.Unmarshaller interface for type GetResponse2.
 func (g *GetResponse2) UnmarshalJSON(data []byte) error {
-	var rawMsg map[string]json.RawMessage
-	if err := json.Unmarshal(data, &rawMsg); err != nil {
-		return fmt.Errorf("unmarshalling type %T: %v", g, err)
-	}
-	for key, val := range rawMsg {
-		var err error
-		switch key {
-		case "prop":
-			err = unpopulate(val, "Prop", &g.Prop)
-			delete(rawMsg, key)
-		}
-		if err != nil {
-			return fmt.Errorf("unmarshalling type %T: %v", g, err)
-		}
-	}
-	return nil
-}
-
-// MarshalJSON implements the json.Marshaller interface for type GetResponse3.
-func (g GetResponse3) MarshalJSON() ([]byte, error) {
-	objectMap := make(map[string]any)
-	populate(objectMap, "prop", g.Prop)
-	return json.Marshal(objectMap)
-}
-
-// UnmarshalJSON implements the json.Unmarshaller interface for type GetResponse3.
-func (g *GetResponse3) UnmarshalJSON(data []byte) error {
 	var rawMsg map[string]json.RawMessage
 	if err := json.Unmarshal(data, &rawMsg); err != nil {
 		return fmt.Errorf("unmarshalling type %T: %v", g, err)
@@ -170,60 +89,6 @@ func (g *GetResponse4) UnmarshalJSON(data []byte) error {
 			if string(val) != "null" {
 				g.Prop = val
 			}
-			delete(rawMsg, key)
-		}
-		if err != nil {
-			return fmt.Errorf("unmarshalling type %T: %v", g, err)
-		}
-	}
-	return nil
-}
-
-// MarshalJSON implements the json.Marshaller interface for type GetResponse5.
-func (g GetResponse5) MarshalJSON() ([]byte, error) {
-	objectMap := make(map[string]any)
-	populate(objectMap, "prop", g.Prop)
-	return json.Marshal(objectMap)
-}
-
-// UnmarshalJSON implements the json.Unmarshaller interface for type GetResponse5.
-func (g *GetResponse5) UnmarshalJSON(data []byte) error {
-	var rawMsg map[string]json.RawMessage
-	if err := json.Unmarshal(data, &rawMsg); err != nil {
-		return fmt.Errorf("unmarshalling type %T: %v", g, err)
-	}
-	for key, val := range rawMsg {
-		var err error
-		switch key {
-		case "prop":
-			err = unpopulate(val, "Prop", &g.Prop)
-			delete(rawMsg, key)
-		}
-		if err != nil {
-			return fmt.Errorf("unmarshalling type %T: %v", g, err)
-		}
-	}
-	return nil
-}
-
-// MarshalJSON implements the json.Marshaller interface for type GetResponse6.
-func (g GetResponse6) MarshalJSON() ([]byte, error) {
-	objectMap := make(map[string]any)
-	populate(objectMap, "prop", g.Prop)
-	return json.Marshal(objectMap)
-}
-
-// UnmarshalJSON implements the json.Unmarshaller interface for type GetResponse6.
-func (g *GetResponse6) UnmarshalJSON(data []byte) error {
-	var rawMsg map[string]json.RawMessage
-	if err := json.Unmarshal(data, &rawMsg); err != nil {
-		return fmt.Errorf("unmarshalling type %T: %v", g, err)
-	}
-	for key, val := range rawMsg {
-		var err error
-		switch key {
-		case "prop":
-			err = unpopulate(val, "Prop", &g.Prop)
 			delete(rawMsg, key)
 		}
 		if err != nil {
@@ -317,10 +182,10 @@ func (g *GetResponse9) UnmarshalJSON(data []byte) error {
 // MarshalJSON implements the json.Marshaller interface for type MixedLiteralsCases.
 func (m MixedLiteralsCases) MarshalJSON() ([]byte, error) {
 	objectMap := make(map[string]any)
-	populate(objectMap, "booleanLiteral", json.RawMessage(m.BooleanLiteral))
-	populate(objectMap, "floatLiteral", json.RawMessage(m.FloatLiteral))
-	populate(objectMap, "intLiteral", json.RawMessage(m.IntLiteral))
-	populate(objectMap, "stringLiteral", json.RawMessage(m.StringLiteral))
+	populate(objectMap, "booleanLiteral", m.BooleanLiteral)
+	populate(objectMap, "floatLiteral", m.FloatLiteral)
+	populate(objectMap, "intLiteral", m.IntLiteral)
+	populate(objectMap, "stringLiteral", m.StringLiteral)
 	return json.Marshal(objectMap)
 }
 
@@ -334,24 +199,16 @@ func (m *MixedLiteralsCases) UnmarshalJSON(data []byte) error {
 		var err error
 		switch key {
 		case "booleanLiteral":
-			if string(val) != "null" {
-				m.BooleanLiteral = val
-			}
+			err = unpopulate(val, "BooleanLiteral", &m.BooleanLiteral)
 			delete(rawMsg, key)
 		case "floatLiteral":
-			if string(val) != "null" {
-				m.FloatLiteral = val
-			}
+			err = unpopulate(val, "FloatLiteral", &m.FloatLiteral)
 			delete(rawMsg, key)
 		case "intLiteral":
-			if string(val) != "null" {
-				m.IntLiteral = val
-			}
+			err = unpopulate(val, "IntLiteral", &m.IntLiteral)
 			delete(rawMsg, key)
 		case "stringLiteral":
-			if string(val) != "null" {
-				m.StringLiteral = val
-			}
+			err = unpopulate(val, "StringLiteral", &m.StringLiteral)
 			delete(rawMsg, key)
 		}
 		if err != nil {

@@ -57,7 +57,7 @@ func (client *UnionEnumsOnlyClient) getCreateRequest(ctx context.Context, _ *Uni
 // getHandleResponse handles the Get response.
 func (client *UnionEnumsOnlyClient) getHandleResponse(resp *http.Response) (UnionEnumsOnlyClientGetResponse, error) {
 	result := UnionEnumsOnlyClientGetResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.GetResponse3); err != nil {
+	if err := runtime.UnmarshalAsJSON(resp, &result); err != nil {
 		return UnionEnumsOnlyClientGetResponse{}, err
 	}
 	return result, nil
@@ -66,13 +66,13 @@ func (client *UnionEnumsOnlyClient) getHandleResponse(resp *http.Response) (Unio
 // Send -
 // If the operation fails it returns an *azcore.ResponseError type.
 //   - options - UnionEnumsOnlyClientSendOptions contains the optional parameters for the UnionEnumsOnlyClient.Send method.
-func (client *UnionEnumsOnlyClient) Send(ctx context.Context, sendRequest3 SendRequest3, options *UnionEnumsOnlyClientSendOptions) (UnionEnumsOnlyClientSendResponse, error) {
+func (client *UnionEnumsOnlyClient) Send(ctx context.Context, enumsOnlyCases EnumsOnlyCases, options *UnionEnumsOnlyClientSendOptions) (UnionEnumsOnlyClientSendResponse, error) {
 	var err error
 	const operationName = "UnionEnumsOnlyClient.Send"
 	ctx = context.WithValue(ctx, runtime.CtxAPINameKey{}, operationName)
 	ctx, endSpan := runtime.StartSpan(ctx, operationName, client.internal.Tracer(), nil)
 	defer func() { endSpan(err) }()
-	req, err := client.sendCreateRequest(ctx, sendRequest3, options)
+	req, err := client.sendCreateRequest(ctx, enumsOnlyCases, options)
 	if err != nil {
 		return UnionEnumsOnlyClientSendResponse{}, err
 	}
@@ -88,14 +88,19 @@ func (client *UnionEnumsOnlyClient) Send(ctx context.Context, sendRequest3 SendR
 }
 
 // sendCreateRequest creates the Send request.
-func (client *UnionEnumsOnlyClient) sendCreateRequest(ctx context.Context, sendRequest3 SendRequest3, _ *UnionEnumsOnlyClientSendOptions) (*policy.Request, error) {
+func (client *UnionEnumsOnlyClient) sendCreateRequest(ctx context.Context, enumsOnlyCases EnumsOnlyCases, _ *UnionEnumsOnlyClientSendOptions) (*policy.Request, error) {
 	urlPath := "/type/union/enums-only"
 	req, err := runtime.NewRequest(ctx, http.MethodPost, runtime.JoinPaths(host, urlPath))
 	if err != nil {
 		return nil, err
 	}
 	req.Raw().Header["Content-Type"] = []string{"application/json"}
-	if err := runtime.MarshalAsJSON(req, sendRequest3); err != nil {
+	body := struct {
+		Prop EnumsOnlyCases `json:"prop"`
+	} {
+		Prop: enumsOnlyCases,
+	}
+	if err := runtime.MarshalAsJSON(req, body); err != nil {
 		return nil, err
 	}
 	return req, nil

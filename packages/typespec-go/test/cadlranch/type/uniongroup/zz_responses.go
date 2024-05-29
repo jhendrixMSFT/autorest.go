@@ -4,9 +4,19 @@
 
 package uniongroup
 
+import "encoding/json"
+
 // UnionEnumsOnlyClientGetResponse contains the response from method UnionEnumsOnlyClient.Get.
 type UnionEnumsOnlyClientGetResponse struct {
-	GetResponse3
+	EnumsOnlyCases
+}
+
+func (u *UnionEnumsOnlyClientGetResponse) UnmarshalJSON(data []byte) error {
+	var rawMsg map[string]json.RawMessage
+	if err := json.Unmarshal(data, &rawMsg); err != nil {
+		return err
+	}
+	return json.Unmarshal(rawMsg["prop"], &u.EnumsOnlyCases)
 }
 
 // UnionEnumsOnlyClientSendResponse contains the response from method UnionEnumsOnlyClient.Send.
@@ -16,7 +26,15 @@ type UnionEnumsOnlyClientSendResponse struct {
 
 // UnionFloatsOnlyClientGetResponse contains the response from method UnionFloatsOnlyClient.Get.
 type UnionFloatsOnlyClientGetResponse struct {
-	GetResponse5
+	Value *UnionFloatsOnlyClientGetCases
+}
+
+func (u *UnionFloatsOnlyClientGetResponse) UnmarshalJSON(data []byte) error {
+	var rawMsg map[string]json.RawMessage
+	if err := json.Unmarshal(data, &rawMsg); err != nil {
+		return err
+	}
+	return json.Unmarshal(rawMsg["prop"], &u.Value)
 }
 
 // UnionFloatsOnlyClientSendResponse contains the response from method UnionFloatsOnlyClient.Send.
@@ -26,7 +44,15 @@ type UnionFloatsOnlyClientSendResponse struct {
 
 // UnionIntsOnlyClientGetResponse contains the response from method UnionIntsOnlyClient.Get.
 type UnionIntsOnlyClientGetResponse struct {
-	GetResponse6
+	Value *UnionIntsOnlyClientGetCases
+}
+
+func (u *UnionIntsOnlyClientGetResponse) UnmarshalJSON(data []byte) error {
+	var rawMsg map[string]json.RawMessage
+	if err := json.Unmarshal(data, &rawMsg); err != nil {
+		return err
+	}
+	return json.Unmarshal(rawMsg["prop"], &u.Value)
 }
 
 // UnionIntsOnlyClientSendResponse contains the response from method UnionIntsOnlyClient.Send.
@@ -36,7 +62,15 @@ type UnionIntsOnlyClientSendResponse struct {
 
 // UnionMixedLiteralsClientGetResponse contains the response from method UnionMixedLiteralsClient.Get.
 type UnionMixedLiteralsClientGetResponse struct {
-	GetResponse1
+	MixedLiteralsCases
+}
+
+func (u *UnionMixedLiteralsClientGetResponse) UnmarshalJSON(data []byte) error {
+	var rawMsg map[string]json.RawMessage
+	if err := json.Unmarshal(data, &rawMsg); err != nil {
+		return err
+	}
+	return json.Unmarshal(rawMsg["prop"], &u.MixedLiteralsCases)
 }
 
 // UnionMixedLiteralsClientSendResponse contains the response from method UnionMixedLiteralsClient.Send.
@@ -46,7 +80,15 @@ type UnionMixedLiteralsClientSendResponse struct {
 
 // UnionMixedTypesClientGetResponse contains the response from method UnionMixedTypesClient.Get.
 type UnionMixedTypesClientGetResponse struct {
-	GetResponse
+	MixedTypesCases
+}
+
+func (u *UnionMixedTypesClientGetResponse) UnmarshalJSON(data []byte) error {
+	var rawMsg map[string]json.RawMessage
+	if err := json.Unmarshal(data, &rawMsg); err != nil {
+		return err
+	}
+	return json.Unmarshal(rawMsg["prop"], &u.MixedTypesCases)
 }
 
 // UnionMixedTypesClientSendResponse contains the response from method UnionMixedTypesClient.Send.

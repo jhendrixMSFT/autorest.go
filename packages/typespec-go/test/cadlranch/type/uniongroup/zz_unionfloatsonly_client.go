@@ -57,7 +57,7 @@ func (client *UnionFloatsOnlyClient) getCreateRequest(ctx context.Context, _ *Un
 // getHandleResponse handles the Get response.
 func (client *UnionFloatsOnlyClient) getHandleResponse(resp *http.Response) (UnionFloatsOnlyClientGetResponse, error) {
 	result := UnionFloatsOnlyClientGetResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.GetResponse5); err != nil {
+	if err := runtime.UnmarshalAsJSON(resp, &result); err != nil {
 		return UnionFloatsOnlyClientGetResponse{}, err
 	}
 	return result, nil
@@ -66,13 +66,13 @@ func (client *UnionFloatsOnlyClient) getHandleResponse(resp *http.Response) (Uni
 // Send -
 // If the operation fails it returns an *azcore.ResponseError type.
 //   - options - UnionFloatsOnlyClientSendOptions contains the optional parameters for the UnionFloatsOnlyClient.Send method.
-func (client *UnionFloatsOnlyClient) Send(ctx context.Context, prop GetResponseProp1, options *UnionFloatsOnlyClientSendOptions) (UnionFloatsOnlyClientSendResponse, error) {
+func (client *UnionFloatsOnlyClient) Send(ctx context.Context, value UnionFloatsOnlyClientGetCases, options *UnionFloatsOnlyClientSendOptions) (UnionFloatsOnlyClientSendResponse, error) {
 	var err error
 	const operationName = "UnionFloatsOnlyClient.Send"
 	ctx = context.WithValue(ctx, runtime.CtxAPINameKey{}, operationName)
 	ctx, endSpan := runtime.StartSpan(ctx, operationName, client.internal.Tracer(), nil)
 	defer func() { endSpan(err) }()
-	req, err := client.sendCreateRequest(ctx, prop, options)
+	req, err := client.sendCreateRequest(ctx, value, options)
 	if err != nil {
 		return UnionFloatsOnlyClientSendResponse{}, err
 	}
@@ -88,7 +88,7 @@ func (client *UnionFloatsOnlyClient) Send(ctx context.Context, prop GetResponseP
 }
 
 // sendCreateRequest creates the Send request.
-func (client *UnionFloatsOnlyClient) sendCreateRequest(ctx context.Context, prop GetResponseProp1, _ *UnionFloatsOnlyClientSendOptions) (*policy.Request, error) {
+func (client *UnionFloatsOnlyClient) sendCreateRequest(ctx context.Context, value UnionFloatsOnlyClientGetCases, _ *UnionFloatsOnlyClientSendOptions) (*policy.Request, error) {
 	urlPath := "/type/union/floats-only"
 	req, err := runtime.NewRequest(ctx, http.MethodPost, runtime.JoinPaths(host, urlPath))
 	if err != nil {
@@ -96,9 +96,9 @@ func (client *UnionFloatsOnlyClient) sendCreateRequest(ctx context.Context, prop
 	}
 	req.Raw().Header["Content-Type"] = []string{"application/json"}
 	body := struct {
-		Prop GetResponseProp1 `json:"prop"`
+		Prop UnionFloatsOnlyClientGetCases `json:"prop"`
 	}{
-		Prop: prop,
+		Prop: value,
 	}
 	if err := runtime.MarshalAsJSON(req, body); err != nil {
 		return nil, err

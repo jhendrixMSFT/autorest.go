@@ -57,7 +57,7 @@ func (client *UnionIntsOnlyClient) getCreateRequest(ctx context.Context, _ *Unio
 // getHandleResponse handles the Get response.
 func (client *UnionIntsOnlyClient) getHandleResponse(resp *http.Response) (UnionIntsOnlyClientGetResponse, error) {
 	result := UnionIntsOnlyClientGetResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.GetResponse6); err != nil {
+	if err := runtime.UnmarshalAsJSON(resp, &result); err != nil {
 		return UnionIntsOnlyClientGetResponse{}, err
 	}
 	return result, nil
@@ -66,13 +66,13 @@ func (client *UnionIntsOnlyClient) getHandleResponse(resp *http.Response) (Union
 // Send -
 // If the operation fails it returns an *azcore.ResponseError type.
 //   - options - UnionIntsOnlyClientSendOptions contains the optional parameters for the UnionIntsOnlyClient.Send method.
-func (client *UnionIntsOnlyClient) Send(ctx context.Context, prop GetResponseProp3, options *UnionIntsOnlyClientSendOptions) (UnionIntsOnlyClientSendResponse, error) {
+func (client *UnionIntsOnlyClient) Send(ctx context.Context, value UnionIntsOnlyClientGetCases, options *UnionIntsOnlyClientSendOptions) (UnionIntsOnlyClientSendResponse, error) {
 	var err error
 	const operationName = "UnionIntsOnlyClient.Send"
 	ctx = context.WithValue(ctx, runtime.CtxAPINameKey{}, operationName)
 	ctx, endSpan := runtime.StartSpan(ctx, operationName, client.internal.Tracer(), nil)
 	defer func() { endSpan(err) }()
-	req, err := client.sendCreateRequest(ctx, prop, options)
+	req, err := client.sendCreateRequest(ctx, value, options)
 	if err != nil {
 		return UnionIntsOnlyClientSendResponse{}, err
 	}
@@ -88,7 +88,7 @@ func (client *UnionIntsOnlyClient) Send(ctx context.Context, prop GetResponsePro
 }
 
 // sendCreateRequest creates the Send request.
-func (client *UnionIntsOnlyClient) sendCreateRequest(ctx context.Context, prop GetResponseProp3, _ *UnionIntsOnlyClientSendOptions) (*policy.Request, error) {
+func (client *UnionIntsOnlyClient) sendCreateRequest(ctx context.Context, value UnionIntsOnlyClientGetCases, _ *UnionIntsOnlyClientSendOptions) (*policy.Request, error) {
 	urlPath := "/type/union/ints-only"
 	req, err := runtime.NewRequest(ctx, http.MethodPost, runtime.JoinPaths(host, urlPath))
 	if err != nil {
@@ -96,9 +96,9 @@ func (client *UnionIntsOnlyClient) sendCreateRequest(ctx context.Context, prop G
 	}
 	req.Raw().Header["Content-Type"] = []string{"application/json"}
 	body := struct {
-		Prop GetResponseProp3 `json:"prop"`
+		Prop UnionIntsOnlyClientGetCases `json:"prop"`
 	}{
-		Prop: prop,
+		Prop: value,
 	}
 	if err := runtime.MarshalAsJSON(req, body); err != nil {
 		return nil, err

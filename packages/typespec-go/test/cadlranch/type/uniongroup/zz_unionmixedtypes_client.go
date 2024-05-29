@@ -57,7 +57,7 @@ func (client *UnionMixedTypesClient) getCreateRequest(ctx context.Context, _ *Un
 // getHandleResponse handles the Get response.
 func (client *UnionMixedTypesClient) getHandleResponse(resp *http.Response) (UnionMixedTypesClientGetResponse, error) {
 	result := UnionMixedTypesClientGetResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.GetResponse); err != nil {
+	if err := runtime.UnmarshalAsJSON(resp, &result); err != nil {
 		return UnionMixedTypesClientGetResponse{}, err
 	}
 	return result, nil
@@ -66,13 +66,13 @@ func (client *UnionMixedTypesClient) getHandleResponse(resp *http.Response) (Uni
 // Send -
 // If the operation fails it returns an *azcore.ResponseError type.
 //   - options - UnionMixedTypesClientSendOptions contains the optional parameters for the UnionMixedTypesClient.Send method.
-func (client *UnionMixedTypesClient) Send(ctx context.Context, sendRequest SendRequest, options *UnionMixedTypesClientSendOptions) (UnionMixedTypesClientSendResponse, error) {
+func (client *UnionMixedTypesClient) Send(ctx context.Context, mixedTypesCases MixedTypesCases, options *UnionMixedTypesClientSendOptions) (UnionMixedTypesClientSendResponse, error) {
 	var err error
 	const operationName = "UnionMixedTypesClient.Send"
 	ctx = context.WithValue(ctx, runtime.CtxAPINameKey{}, operationName)
 	ctx, endSpan := runtime.StartSpan(ctx, operationName, client.internal.Tracer(), nil)
 	defer func() { endSpan(err) }()
-	req, err := client.sendCreateRequest(ctx, sendRequest, options)
+	req, err := client.sendCreateRequest(ctx, mixedTypesCases, options)
 	if err != nil {
 		return UnionMixedTypesClientSendResponse{}, err
 	}
@@ -88,14 +88,19 @@ func (client *UnionMixedTypesClient) Send(ctx context.Context, sendRequest SendR
 }
 
 // sendCreateRequest creates the Send request.
-func (client *UnionMixedTypesClient) sendCreateRequest(ctx context.Context, sendRequest SendRequest, _ *UnionMixedTypesClientSendOptions) (*policy.Request, error) {
+func (client *UnionMixedTypesClient) sendCreateRequest(ctx context.Context, mixedTypesCases MixedTypesCases, _ *UnionMixedTypesClientSendOptions) (*policy.Request, error) {
 	urlPath := "/type/union/mixed-types"
 	req, err := runtime.NewRequest(ctx, http.MethodPost, runtime.JoinPaths(host, urlPath))
 	if err != nil {
 		return nil, err
 	}
 	req.Raw().Header["Content-Type"] = []string{"application/json"}
-	if err := runtime.MarshalAsJSON(req, sendRequest); err != nil {
+	body := struct {
+		Prop MixedTypesCases `json:"prop"`
+	}{
+		Prop: mixedTypesCases,
+	}
+	if err := runtime.MarshalAsJSON(req, body); err != nil {
 		return nil, err
 	}
 	return req, nil

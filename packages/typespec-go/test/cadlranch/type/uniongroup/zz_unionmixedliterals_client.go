@@ -57,7 +57,7 @@ func (client *UnionMixedLiteralsClient) getCreateRequest(ctx context.Context, _ 
 // getHandleResponse handles the Get response.
 func (client *UnionMixedLiteralsClient) getHandleResponse(resp *http.Response) (UnionMixedLiteralsClientGetResponse, error) {
 	result := UnionMixedLiteralsClientGetResponse{}
-	if err := runtime.UnmarshalAsJSON(resp, &result.GetResponse1); err != nil {
+	if err := runtime.UnmarshalAsJSON(resp, &result); err != nil {
 		return UnionMixedLiteralsClientGetResponse{}, err
 	}
 	return result, nil
@@ -66,13 +66,13 @@ func (client *UnionMixedLiteralsClient) getHandleResponse(resp *http.Response) (
 // Send -
 // If the operation fails it returns an *azcore.ResponseError type.
 //   - options - UnionMixedLiteralsClientSendOptions contains the optional parameters for the UnionMixedLiteralsClient.Send method.
-func (client *UnionMixedLiteralsClient) Send(ctx context.Context, sendRequest1 SendRequest1, options *UnionMixedLiteralsClientSendOptions) (UnionMixedLiteralsClientSendResponse, error) {
+func (client *UnionMixedLiteralsClient) Send(ctx context.Context, mixedLiteralsCases MixedLiteralsCases, options *UnionMixedLiteralsClientSendOptions) (UnionMixedLiteralsClientSendResponse, error) {
 	var err error
 	const operationName = "UnionMixedLiteralsClient.Send"
 	ctx = context.WithValue(ctx, runtime.CtxAPINameKey{}, operationName)
 	ctx, endSpan := runtime.StartSpan(ctx, operationName, client.internal.Tracer(), nil)
 	defer func() { endSpan(err) }()
-	req, err := client.sendCreateRequest(ctx, sendRequest1, options)
+	req, err := client.sendCreateRequest(ctx, mixedLiteralsCases, options)
 	if err != nil {
 		return UnionMixedLiteralsClientSendResponse{}, err
 	}
@@ -88,14 +88,19 @@ func (client *UnionMixedLiteralsClient) Send(ctx context.Context, sendRequest1 S
 }
 
 // sendCreateRequest creates the Send request.
-func (client *UnionMixedLiteralsClient) sendCreateRequest(ctx context.Context, sendRequest1 SendRequest1, _ *UnionMixedLiteralsClientSendOptions) (*policy.Request, error) {
+func (client *UnionMixedLiteralsClient) sendCreateRequest(ctx context.Context, mixedLiteralsCases MixedLiteralsCases, _ *UnionMixedLiteralsClientSendOptions) (*policy.Request, error) {
 	urlPath := "/type/union/mixed-literals"
 	req, err := runtime.NewRequest(ctx, http.MethodPost, runtime.JoinPaths(host, urlPath))
 	if err != nil {
 		return nil, err
 	}
 	req.Raw().Header["Content-Type"] = []string{"application/json"}
-	if err := runtime.MarshalAsJSON(req, sendRequest1); err != nil {
+	body := struct {
+		Prop MixedLiteralsCases `json:"prop"`
+	}{
+		Prop: mixedLiteralsCases,
+	}
+	if err := runtime.MarshalAsJSON(req, body); err != nil {
 		return nil, err
 	}
 	return req, nil

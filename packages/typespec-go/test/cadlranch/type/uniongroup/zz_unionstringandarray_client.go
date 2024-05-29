@@ -67,7 +67,7 @@ func (client *UnionStringAndArrayClient) getHandleResponse(resp *http.Response) 
 // If the operation fails it returns an *azcore.ResponseError type.
 //   - options - UnionStringAndArrayClientSendOptions contains the optional parameters for the UnionStringAndArrayClient.Send
 //     method.
-func (client *UnionStringAndArrayClient) Send(ctx context.Context, sendRequest2 SendRequest2, options *UnionStringAndArrayClientSendOptions) (UnionStringAndArrayClientSendResponse, error) {
+func (client *UnionStringAndArrayClient) Send(ctx context.Context, sendRequest2 string, options *UnionStringAndArrayClientSendOptions) (UnionStringAndArrayClientSendResponse, error) {
 	var err error
 	const operationName = "UnionStringAndArrayClient.Send"
 	ctx = context.WithValue(ctx, runtime.CtxAPINameKey{}, operationName)
@@ -89,7 +89,7 @@ func (client *UnionStringAndArrayClient) Send(ctx context.Context, sendRequest2 
 }
 
 // sendCreateRequest creates the Send request.
-func (client *UnionStringAndArrayClient) sendCreateRequest(ctx context.Context, sendRequest2 SendRequest2, _ *UnionStringAndArrayClientSendOptions) (*policy.Request, error) {
+func (client *UnionStringAndArrayClient) sendCreateRequest(ctx context.Context, sendRequest2 string, _ *UnionStringAndArrayClientSendOptions) (*policy.Request, error) {
 	urlPath := "/type/union/string-and-array"
 	req, err := runtime.NewRequest(ctx, http.MethodPost, runtime.JoinPaths(host, urlPath))
 	if err != nil {

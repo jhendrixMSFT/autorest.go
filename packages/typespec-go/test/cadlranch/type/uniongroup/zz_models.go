@@ -4,6 +4,14 @@
 
 package uniongroup
 
+type Cat struct {
+	Name *string `json:"name"`
+}
+
+type Dog struct {
+	Bark *string `json:"bark"`
+}
+
 type EnumsOnlyCases struct {
 	// REQUIRED; This should be receive/send the left variant
 	Lr *EnumsOnlyCasesLr
@@ -12,39 +20,14 @@ type EnumsOnlyCases struct {
 	Ud *EnumsOnlyCasesUd
 }
 
-type GetResponse struct {
-	// REQUIRED
-	Prop *MixedTypesCases
-}
-
-type GetResponse1 struct {
-	// REQUIRED
-	Prop *MixedLiteralsCases
-}
-
 type GetResponse2 struct {
 	// REQUIRED
 	Prop *StringAndArrayCases
 }
 
-type GetResponse3 struct {
-	// REQUIRED
-	Prop *EnumsOnlyCases
-}
-
 type GetResponse4 struct {
 	// REQUIRED; The contents of this field are raw JSON.
 	Prop []byte
-}
-
-type GetResponse5 struct {
-	// REQUIRED
-	Prop *GetResponseProp1
-}
-
-type GetResponse6 struct {
-	// REQUIRED
-	Prop *GetResponseProp3
 }
 
 type GetResponse7 struct {
@@ -64,33 +47,44 @@ type GetResponse9 struct {
 
 type MixedLiteralsCases struct {
 	// REQUIRED; This should be receive/send the true variant
-	BooleanLiteral []byte
+	BooleanLiteral *bool
 
 	// REQUIRED; This should be receive/send the 3.3 variant
-	FloatLiteral []byte
+	FloatLiteral *float32
 
 	// REQUIRED; This should be receive/send the 2 variant
-	IntLiteral []byte
+	IntLiteral *int32
 
 	// REQUIRED; This should be receive/send the "a" variant
-	StringLiteral []byte
+	StringLiteral *string
 }
 
 type MixedTypesCases struct {
 	// REQUIRED; This should be receive/send 4 element with Cat, "a", int, and boolean
-	Array [][]byte
+	Array []MixedTypesUnion
 
 	// REQUIRED; This should be receive/send the boolean variant
-	Boolean []byte
+	Boolean *MixedTypesUnion
 
 	// REQUIRED; This should be receive/send the int variant
-	Int []byte
+	Int *MixedTypesUnion
 
 	// REQUIRED; This should be receive/send the "a" variant
-	Literal []byte
+	Literal *MixedTypesUnion
 
 	// REQUIRED; This should be receive/send the Cat variant
-	Model []byte
+	Model *MixedTypesUnion
+}
+
+// This is a union type - only one of the fields will be set
+type MixedTypesUnion struct {
+	Cat *Cat
+
+	Literal *string
+
+	Int *int32
+
+	Boolean *bool
 }
 
 type StringAndArrayCases struct {
