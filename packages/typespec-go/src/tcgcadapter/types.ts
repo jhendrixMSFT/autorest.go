@@ -230,6 +230,17 @@ export class typeAdapter {
           return this.getInterfaceType(type);
         }
         return this.getModel(type);
+      case 'union': {
+        const anyRawJSONKey = 'any-raw-json';
+        let anyRawJSON = this.types.get(anyRawJSONKey);
+        if (anyRawJSON) {
+          return anyRawJSON;
+        }
+        anyRawJSON = new go.SliceType(new go.PrimitiveType('byte'), true);
+        anyRawJSON.rawJSONAsBytes = true;
+        this.types.set(anyRawJSONKey, anyRawJSON);
+        return anyRawJSON;
+      }
       default:
         throw new Error(`unhandled property kind ${type.kind}`);
     }
@@ -954,7 +965,7 @@ function recursiveKeyName(root: string, obj: tcgc.SdkType, substituteDiscriminat
 
 export function isTypePassedByValue(type: tcgc.SdkType): boolean {
   return type.kind === 'any' || type.kind === 'array' ||
-  type.kind === 'bytes' || type.kind === 'dict' ||
+  type.kind === 'bytes' || type.kind === 'dict' || type.kind === 'union' ||
     (type.kind === 'model' && !!type.discriminatedSubtypes);
 }
 

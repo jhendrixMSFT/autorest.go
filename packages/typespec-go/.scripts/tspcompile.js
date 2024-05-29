@@ -75,7 +75,7 @@ const cadlRanch = {
   'optionalitygroup': ['type/property/optionality', 'slice-elements-byval=true'],
   'valuetypesgroup': ['type/property/value-types', 'slice-elements-byval=true'],
   'scalargroup': ['type/scalar', 'slice-elements-byval=true'],
-  //'uniongroup': ['type/union'], // requires union support
+  'uniongroup': ['type/union'], // requires union support
   //'addedgroup': ['versioning/added'], // requires union support
   'madeoptionalgroup': ['versioning/madeOptional'],
   //'removedgroup': ['versioning/removed'], // requires union support
