@@ -221,7 +221,7 @@ func (m *MixedLiteralsCases) UnmarshalJSON(data []byte) error {
 // MarshalJSON implements the json.Marshaller interface for type MixedTypesCases.
 func (m MixedTypesCases) MarshalJSON() ([]byte, error) {
 	objectMap := make(map[string]any)
-	populate(objectMap, "array", m.Array)
+	populate(objectMap, "array", json.RawMessage(m.Array))
 	populate(objectMap, "boolean", json.RawMessage(m.Boolean))
 	populate(objectMap, "int", json.RawMessage(m.Int))
 	populate(objectMap, "literal", json.RawMessage(m.Literal))
@@ -239,7 +239,9 @@ func (m *MixedTypesCases) UnmarshalJSON(data []byte) error {
 		var err error
 		switch key {
 		case "array":
-			err = unpopulate(val, "Array", &m.Array)
+			if string(val) != "null" {
+				m.Array = val
+			}
 			delete(rawMsg, key)
 		case "boolean":
 			if string(val) != "null" {

@@ -61,30 +61,19 @@ type MixedLiteralsCases struct {
 
 type MixedTypesCases struct {
 	// REQUIRED; This should be receive/send 4 element with Cat, "a", int, and boolean
-	Array []MixedTypesUnion
+	Array []byte
 
 	// REQUIRED; This should be receive/send the boolean variant
-	Boolean *MixedTypesUnion
+	Boolean []byte
 
 	// REQUIRED; This should be receive/send the int variant
-	Int *MixedTypesUnion
+	Int []byte
 
 	// REQUIRED; This should be receive/send the "a" variant
-	Literal *MixedTypesUnion
+	Literal []byte
 
 	// REQUIRED; This should be receive/send the Cat variant
-	Model *MixedTypesUnion
-}
-
-// This is a union type - only one of the fields will be set
-type MixedTypesUnion struct {
-	Cat *Cat
-
-	Literal *string
-
-	Int *int32
-
-	Boolean *bool
+	Model []byte
 }
 
 type StringAndArrayCases struct {
