@@ -47,16 +47,16 @@ type GetResponse9 struct {
 
 type MixedLiteralsCases struct {
 	// REQUIRED; This should be receive/send the true variant
-	BooleanLiteral *bool
+	BooleanLiteral []byte
 
 	// REQUIRED; This should be receive/send the 3.3 variant
-	FloatLiteral *float32
+	FloatLiteral []byte
 
 	// REQUIRED; This should be receive/send the 2 variant
-	IntLiteral *int32
+	IntLiteral []byte
 
 	// REQUIRED; This should be receive/send the "a" variant
-	StringLiteral *string
+	StringLiteral []byte
 }
 
 type MixedTypesCases struct {

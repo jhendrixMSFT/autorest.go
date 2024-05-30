@@ -182,10 +182,10 @@ func (g *GetResponse9) UnmarshalJSON(data []byte) error {
 // MarshalJSON implements the json.Marshaller interface for type MixedLiteralsCases.
 func (m MixedLiteralsCases) MarshalJSON() ([]byte, error) {
 	objectMap := make(map[string]any)
-	populate(objectMap, "booleanLiteral", m.BooleanLiteral)
-	populate(objectMap, "floatLiteral", m.FloatLiteral)
-	populate(objectMap, "intLiteral", m.IntLiteral)
-	populate(objectMap, "stringLiteral", m.StringLiteral)
+	populate(objectMap, "booleanLiteral", json.RawMessage(m.BooleanLiteral))
+	populate(objectMap, "floatLiteral", json.RawMessage(m.FloatLiteral))
+	populate(objectMap, "intLiteral", json.RawMessage(m.IntLiteral))
+	populate(objectMap, "stringLiteral", json.RawMessage(m.StringLiteral))
 	return json.Marshal(objectMap)
 }
 
@@ -199,16 +199,24 @@ func (m *MixedLiteralsCases) UnmarshalJSON(data []byte) error {
 		var err error
 		switch key {
 		case "booleanLiteral":
-			err = unpopulate(val, "BooleanLiteral", &m.BooleanLiteral)
+			if string(val) != "null" {
+				m.BooleanLiteral = val
+			}
 			delete(rawMsg, key)
 		case "floatLiteral":
-			err = unpopulate(val, "FloatLiteral", &m.FloatLiteral)
+			if string(val) != "null" {
+				m.FloatLiteral = val
+			}
 			delete(rawMsg, key)
 		case "intLiteral":
-			err = unpopulate(val, "IntLiteral", &m.IntLiteral)
+			if string(val) != "null" {
+				m.IntLiteral = val
+			}
 			delete(rawMsg, key)
 		case "stringLiteral":
-			err = unpopulate(val, "StringLiteral", &m.StringLiteral)
+			if string(val) != "null" {
+				m.StringLiteral = val
+			}
 			delete(rawMsg, key)
 		}
 		if err != nil {
