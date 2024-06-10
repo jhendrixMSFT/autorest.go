@@ -14,7 +14,6 @@ import { generateOperations } from '../../codegen.go/src/operations.js';
 import { generateOptions } from '../../codegen.go/src/options.js';
 import { generatePolymorphicHelpers } from '../../codegen.go/src/polymorphics.js';
 import { generateResponses } from '../../codegen.go/src/responses.js';
-import { generateTimeHelpers } from '../../codegen.go/src/time.js';
 import { generateServers } from '../../codegen.go/src/fake/servers.js';
 import { generateServerFactory } from '../../codegen.go/src/fake/factory.js';
 import { existsSync } from 'fs';
@@ -99,11 +98,6 @@ export async function $onEmit(context: EmitContext<GoEmitterOptions>) {
     writeFile(`${context.emitterOutputDir}/${filePrefix}responses_serde.go`, responses.serDe);
   }
 
-  const timeHelpers = await generateTimeHelpers(codeModel);
-  for (const helper of timeHelpers) {
-    writeFile(`${context.emitterOutputDir}/${filePrefix}${helper.name.toLowerCase()}.go`, helper.content);
-  }
-
   if (context.options['generate-fakes'] === true) {
     const serverContent = await generateServers(codeModel);
     if (serverContent.servers.length > 0) {
@@ -126,11 +120,6 @@ export async function $onEmit(context: EmitContext<GoEmitterOptions>) {
       }
 
       writeFile(`${fakesDir}/${filePrefix}internal.go`, serverContent.internals);
-
-      const timeHelpers = await generateTimeHelpers(codeModel, 'fake');
-      for (const helper of timeHelpers) {
-        writeFile(`${fakesDir}/${filePrefix}${helper.name.toLowerCase()}.go`, helper.content);
-      }
 
       const polymorphics = await generatePolymorphicHelpers(codeModel, 'fake');
       if (polymorphics.length > 0) {

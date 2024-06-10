@@ -394,7 +394,7 @@ export function adaptPossibleType(schema: m4.Schema, elementTypeByValue?: boolea
       if (time) {
         return time;
       }
-      time = new go.TimeType(schema.language.go!.internalTimeType, false);
+      time = new go.TimeType(adaptTimeFormat(schema.language.go!.internalTimeType));
       types.set(schema.language.go!.internalTimeType, time);
       return time;
     }
@@ -544,7 +544,7 @@ function adaptLiteralValue(constSchema: m4.ConstantSchema): go.LiteralValue {
       if (literalTime) {
         return <go.LiteralValue>literalTime;
       }
-      literalTime = new go.LiteralValue(new go.TimeType(constSchema.valueType.language.go!.internalTimeType, false), constSchema.value.value);
+      literalTime = new go.LiteralValue(new go.TimeType(adaptTimeFormat(constSchema.valueType.language.go!.internalTimeType)), constSchema.value.value);
       types.set(keyName, literalTime);
       return literalTime;
     }
@@ -590,6 +590,23 @@ function adaptLiteralValue(constSchema: m4.ConstantSchema): go.LiteralValue {
     }
     default:
       throw new Error(`unsupported scheam type ${constSchema.valueType.type} for LiteralValue`);
+  }
+}
+
+function adaptTimeFormat(format: string): go.DateTimeFormat {
+  switch (format) {
+    case 'dateType':
+      return 'DateOnly';
+    case 'dateTimeRFC1123':
+      return 'RFC1123';
+    case 'dateTimeRFC3339':
+      return 'RFC3339';
+    case 'timeRFC3339':
+      return 'TimeOnly';
+    case 'timeUnix':
+      return 'Unix';
+    default:
+      throw new Error(`unhandled date-time format ${format}`);
   }
 }
 

@@ -10,7 +10,10 @@ import (
 	"fmt"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/runtime"
+	"github.com/Azure/azure-sdk-for-go/sdk/azcore/runtime/datetime"
+	"github.com/Azure/azure-sdk-for-go/sdk/azcore/to"
 	"reflect"
+	"time"
 )
 
 // MarshalJSON implements the json.Marshaller interface for type ArrayWrapper.
@@ -141,7 +144,7 @@ func (b *ByteWrapper) UnmarshalJSON(data []byte) error {
 func (c Cookiecuttershark) MarshalJSON() ([]byte, error) {
 	objectMap := make(map[string]any)
 	populate(objectMap, "age", c.Age)
-	populateDateTimeRFC3339(objectMap, "birthday", c.Birthday)
+	populateDateTime(objectMap, "birthday", c.Birthday, datetime.FormatRFC3339)
 	objectMap["fishtype"] = "cookiecuttershark"
 	populate(objectMap, "length", c.Length)
 	populate(objectMap, "siblings", c.Siblings)
@@ -162,7 +165,7 @@ func (c *Cookiecuttershark) UnmarshalJSON(data []byte) error {
 			err = unpopulate(val, "Age", &c.Age)
 			delete(rawMsg, key)
 		case "birthday":
-			err = unpopulateDateTimeRFC3339(val, "Birthday", &c.Birthday)
+			err = unpopulateDateTime(val, "Birthday", &c.Birthday, datetime.FormatRFC3339)
 			delete(rawMsg, key)
 		case "fishtype":
 			err = unpopulate(val, "Fishtype", &c.Fishtype)
@@ -1144,6 +1147,29 @@ func unpopulate(data json.RawMessage, fn string, v any) error {
 	}
 	if err := json.Unmarshal(data, v); err != nil {
 		return fmt.Errorf("struct field %s: %v", fn, err)
+	}
+	return nil
+}
+
+func populateDateTime(m map[string]any, k string, t *time.Time, f datetime.Format) {
+	if t == nil {
+		return
+	} else if azcore.IsNullValue(t) {
+		m[k] = nil
+	} else {
+		m[k] = datetime.New(f, &datetime.Options{
+			From: *t,
+		})
+	}
+}
+
+func unpopulateDateTime(data json.RawMessage, fn string, t **time.Time, f datetime.Format) error {
+	aux := datetime.New(f, nil)
+	if err := aux.UnmarshalJSON(data); err != nil {
+		return fmt.Errorf("struct field %s: %v", fn, err)
+	}
+	if tt := aux.Time(); !tt.IsZero() {
+		*t = to.Ptr(tt)
 	}
 	return nil
 }

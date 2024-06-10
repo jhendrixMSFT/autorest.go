@@ -345,7 +345,10 @@ function generateServerTransportMethods(codeModel: go.CodeModel, serverTransport
           }
           let responseField = `server.GetResponse(respr)${respField}`;
           if (go.isTimeType(method.responseEnvelope.result.monomorphicType)) {
-            responseField = `(*${method.responseEnvelope.result.monomorphicType.dateTimeFormat})(${responseField})`;
+            requiredHelpers.fromPtr = true;
+            imports.add('github.com/Azure/azure-sdk-for-go/sdk/azcore/runtime/datetime');
+            const format = method.responseEnvelope.result.monomorphicType.dateTimeFormat;
+            responseField = `datetime.New(datetime.Format${format}, &datetime.Options{From: fromPtr(${responseField})})`;
           }
           content += `\tresp, err := server.MarshalResponseAs${method.responseEnvelope.result.format}(respContent, ${responseField}, req)\n`;
         }
@@ -616,11 +619,16 @@ function dispatchForOperationBody(clientPkg: string, receiverName: string, metho
         content += '\tif err != nil {\n\t\treturn nil, err\n\t}\n';
         content += `\tbody, err := unmarshal${bodyParam.type.name}(raw)\n`;
         content += '\tif err != nil {\n\t\treturn nil, err\n\t}\n';
-      } else {
-        let bodyTypeName = go.getTypeDeclaration(bodyParam.type, clientPkg);
-        if (go.isTimeType(bodyParam.type)) {
-          bodyTypeName = bodyParam.type.dateTimeFormat;
+      } else if (go.isTimeType(bodyParam.type)) {
+        if (bodyParam.bodyFormat === 'JSON') {
+          requiredHelpers.unmarshalTimeAsJSON = true;
+        } else {
+          requiredHelpers.unmarshalTimeAsXML = true;
         }
+        content += `\tbody, err := unmarshalTimeAs${bodyParam.bodyFormat}(req, datetime.Format${bodyParam.type.dateTimeFormat})\n`;
+        content += '\tif err != nil {\n\t\treturn nil, err\n\t}\n';
+      } else {
+        const bodyTypeName = go.getTypeDeclaration(bodyParam.type, clientPkg);
         content += `\tbody, err := server.UnmarshalRequestAs${bodyParam.bodyFormat}[${bodyTypeName}](req)\n`;
         content += '\tif err != nil {\n\t\treturn nil, err\n\t}\n';
       }
@@ -916,22 +924,11 @@ function parseHeaderPathQueryParams(clientPkg: string, method: go.Method, import
           fromVar = `parsed${capitalize(elementFormat)}`;
           content += `\t\t${fromVar}, parseErr := base64.${elementFormat}Encoding.DecodeString(${paramValue}[i])\n`;
           content += '\t\tif parseErr != nil {\n\t\t\treturn nil, parseErr\n\t\t}\n';
-        } else if (elementFormat === 'dateTimeRFC1123' || elementFormat === 'dateTimeRFC3339' || elementFormat === 'timeUnix') {
-          imports.add('time');
-          fromVar = `parsed${capitalize(elementFormat)}`;
-          if (elementFormat === 'timeUnix') {
-            imports.add('strconv');
-            content += `\t\tp, parseErr := strconv.ParseInt(${paramValue}[i], 10, 64)\n`;
-            content += '\t\tif parseErr != nil {\n\t\t\treturn nil, parseErr\n\t\t}\n';
-            content += `\t\t${fromVar} := time.Unix(p, 0).UTC()\n`;
-          } else {
-            let format = 'time.RFC3339Nano';
-            if (elementFormat === 'dateTimeRFC1123') {
-              format = 'time.RFC1123';
-            }
-            content += `\t\t${fromVar}, parseErr := time.Parse(${format}, ${paramValue}[i])\n`;
-            content += '\t\tif parseErr != nil {\n\t\t\treturn nil, parseErr\n\t\t}\n';
-          }
+        } else if (elementFormat === 'DateOnly' || elementFormat === 'RFC1123' || elementFormat === 'RFC3339' || elementFormat === 'RFC7231' || elementFormat === 'TimeOnly' || elementFormat === 'Unix') {
+          imports.add('github.com/Azure/azure-sdk-for-go/sdk/azcore/runtime/datetime');
+          fromVar = 'parsedDateTime';
+          content += `\t\t${fromVar}, parseErr := datetime.Parse(datetime.Format${elementFormat}, ${paramValue}[i])\n`;
+          content += '\t\tif parseErr != nil {\n\t\t\treturn nil, parseErr\n\t\t}\n';
         } else {
           throw new Error(`unhandled element format ${elementFormat}`);
         }
@@ -958,48 +955,14 @@ function parseHeaderPathQueryParams(clientPkg: string, method: go.Method, import
       content += `\t${createLocalVariableName(param, 'Param')}, err := base64.${param.type.encoding}Encoding.DecodeString(${paramValue})\n`;
       content += '\tif err != nil {\n\t\treturn nil, err\n\t}\n';
     } else if (go.isTimeType(param.type)) {
-      if (param.type.dateTimeFormat === 'dateType' || param.type.dateTimeFormat === 'timeRFC3339') {
-        imports.add('time');
-        let format = helpers.dateFormat;
-        if (param.type.dateTimeFormat === 'timeRFC3339') {
-          format = helpers.timeRFC3339Format;
-        }
-        let from = `time.Parse("${format}", ${paramValue})`;
-        if (!go.isRequiredParameter(param)) {
-          requiredHelpers.parseOptional = true;
-          from = `parseOptional(${paramValue}, func(v string) (time.Time, error) { return time.Parse("${format}", v) })`;
-        }
-        content += `\t${createLocalVariableName(param, 'Param')}, err := ${from}\n`;
-        content += '\tif err != nil {\n\t\treturn nil, err\n\t}\n';
-      } else if (param.type.dateTimeFormat === 'dateTimeRFC1123' || param.type.dateTimeFormat === 'dateTimeRFC3339') {
-        imports.add('time');
-        let format = 'time.RFC3339Nano';
-        if (param.type.dateTimeFormat === 'dateTimeRFC1123') {
-          format = 'time.RFC1123';
-        }
-        let from = `time.Parse(${format}, ${paramValue})`;
-        if (!go.isRequiredParameter(param)) {
-          requiredHelpers.parseOptional = true;
-          from = `parseOptional(${paramValue}, func(v string) (time.Time, error) { return time.Parse(${format}, v) })`;
-        }
-        content += `\t${createLocalVariableName(param, 'Param')}, err := ${from}\n`;
-        content += '\tif err != nil {\n\t\treturn nil, err\n\t}\n';
-      } else {
-        imports.add('strconv');
-        let parser: string;
-        if (!go.isRequiredParameter(param)) {
-          requiredHelpers.parseOptional = true;
-          parser = 'parseOptional';
-        } else {
-          requiredHelpers.parseWithCast = true;
-          parser = 'parseWithCast';
-        }
-        content += `\t${createLocalVariableName(param, 'Param')}, err := ${parser}(${paramValue}, func (v string) (time.Time, error) {\n`;
-        content += '\t\tp, parseErr := strconv.ParseInt(v, 10, 64)\n';
-        content += '\t\tif parseErr != nil {\n\t\t\treturn time.Time{}, parseErr\n\t\t}\n';
-        content += '\t\treturn time.Unix(p, 0).UTC(), nil\n\t})\n';
-        content += '\tif err != nil {\n\t\treturn nil, err\n\t}\n';
+      imports.add('github.com/Azure/azure-sdk-for-go/sdk/azcore/runtime/datetime');
+      let from = `datetime.Parse(datetime.Format${param.type.dateTimeFormat}, ${paramValue})`;
+      if (!go.isRequiredParameter(param)) {
+        requiredHelpers.parseOptional = true;
+        from = `parseOptional(${paramValue}, func(v string) (time.Time, error) { return ${from} })`;
       }
+      content += `\t${createLocalVariableName(param, 'Param')}, err := ${from}\n`;
+      content += '\tif err != nil {\n\t\treturn nil, err\n\t}\n';
     } else if (go.isPrimitiveType(param.type) && (param.type.typeName === 'float32' || param.type.typeName === 'float64' || param.type.typeName === 'int32' || param.type.typeName === 'int64')) {
       let parser: string;
       if (!go.isRequiredParameter(param)) {
@@ -1204,10 +1167,7 @@ function getFinalParamValue(clientPkg: string, param: go.Parameter, paramValues:
 
   // there are a few corner-cases that require some fix-ups
 
-  if ((go.isBodyParameter(param) || go.isFormBodyParameter(param) || go.isFormBodyCollectionParameter(param) || go.isMultipartFormBodyParameter(param)) && go.isTimeType(param.type)) {
-    // time types in the body have been unmarshalled into our time helpers thus require a cast to time.Time
-    return `time.Time(${paramValue})`;
-  } else if (go.isRequiredParameter(param)) {
+  if (go.isRequiredParameter(param)) {
     // optional params are always in their "final" form
     if (go.isHeaderCollectionParameter(param) || go.isPathCollectionParameter(param) || go.isQueryCollectionParameter(param)) {
       // for required params that are collections of strings, we split them inline.

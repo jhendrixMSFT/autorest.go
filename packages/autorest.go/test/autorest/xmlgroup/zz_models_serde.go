@@ -9,10 +9,13 @@ import (
 	"encoding/json"
 	"encoding/xml"
 	"fmt"
-	"github.com/Azure/azure-sdk-for-go/sdk/azcore"
-	"github.com/Azure/azure-sdk-for-go/sdk/azcore/runtime"
 	"reflect"
 	"time"
+
+	"github.com/Azure/azure-sdk-for-go/sdk/azcore"
+	"github.com/Azure/azure-sdk-for-go/sdk/azcore/runtime"
+	"github.com/Azure/azure-sdk-for-go/sdk/azcore/runtime/datetime"
+	"github.com/Azure/azure-sdk-for-go/sdk/azcore/to"
 )
 
 // MarshalXML implements the xml.Marshaller interface for type AccessPolicy.
@@ -124,14 +127,14 @@ func (b BlobProperties) MarshalXML(enc *xml.Encoder, start xml.StartElement) err
 	type alias BlobProperties
 	aux := &struct {
 		*alias
-		CopyCompletionTime *dateTimeRFC1123 `xml:"CopyCompletionTime"`
-		DeletedTime        *dateTimeRFC1123 `xml:"DeletedTime"`
-		LastModified       *dateTimeRFC1123 `xml:"Last-Modified"`
+		CopyCompletionTime *datetime.DateTime `xml:"CopyCompletionTime"`
+		DeletedTime        *datetime.DateTime `xml:"DeletedTime"`
+		LastModified       *datetime.DateTime `xml:"Last-Modified"`
 	}{
 		alias:              (*alias)(&b),
-		CopyCompletionTime: (*dateTimeRFC1123)(b.CopyCompletionTime),
-		DeletedTime:        (*dateTimeRFC1123)(b.DeletedTime),
-		LastModified:       (*dateTimeRFC1123)(b.LastModified),
+		CopyCompletionTime: populateDateTime(b.CopyCompletionTime, datetime.FormatRFC1123),
+		DeletedTime:        populateDateTime(b.DeletedTime, datetime.FormatRFC1123),
+		LastModified:       populateDateTime(b.LastModified, datetime.FormatRFC1123),
 	}
 	return enc.EncodeElement(aux, start)
 }
@@ -141,24 +144,21 @@ func (b *BlobProperties) UnmarshalXML(dec *xml.Decoder, start xml.StartElement) 
 	type alias BlobProperties
 	aux := &struct {
 		*alias
-		CopyCompletionTime *dateTimeRFC1123 `xml:"CopyCompletionTime"`
-		DeletedTime        *dateTimeRFC1123 `xml:"DeletedTime"`
-		LastModified       *dateTimeRFC1123 `xml:"Last-Modified"`
+		CopyCompletionTime *datetime.DateTime `xml:"CopyCompletionTime"`
+		DeletedTime        *datetime.DateTime `xml:"DeletedTime"`
+		LastModified       *datetime.DateTime `xml:"Last-Modified"`
 	}{
 		alias: (*alias)(b),
+		CopyCompletionTime: to.Ptr(datetime.New(datetime.FormatRFC1123, nil)),
+		DeletedTime: to.Ptr(datetime.New(datetime.FormatRFC1123, nil)),
+		LastModified: to.Ptr(datetime.New(datetime.FormatRFC1123, nil)),
 	}
 	if err := dec.DecodeElement(aux, &start); err != nil {
 		return err
 	}
-	if aux.CopyCompletionTime != nil && !(*time.Time)(aux.CopyCompletionTime).IsZero() {
-		b.CopyCompletionTime = (*time.Time)(aux.CopyCompletionTime)
-	}
-	if aux.DeletedTime != nil && !(*time.Time)(aux.DeletedTime).IsZero() {
-		b.DeletedTime = (*time.Time)(aux.DeletedTime)
-	}
-	if aux.LastModified != nil && !(*time.Time)(aux.LastModified).IsZero() {
-		b.LastModified = (*time.Time)(aux.LastModified)
-	}
+	b.CopyCompletionTime = unpopulateDateTime(aux.CopyCompletionTime)
+	b.DeletedTime = unpopulateDateTime(aux.DeletedTime)
+	b.LastModified = unpopulateDateTime(aux.LastModified)
 	return nil
 }
 
@@ -397,4 +397,20 @@ func unpopulate(data json.RawMessage, fn string, v any) error {
 		return fmt.Errorf("struct field %s: %v", fn, err)
 	}
 	return nil
+}
+
+func populateDateTime(t *time.Time, f datetime.Format) *datetime.DateTime {
+	if t == nil {
+		return nil
+	}
+	return to.Ptr(datetime.New(f, &datetime.Options{
+		From: *t,
+	}))
+}
+
+func unpopulateDateTime(t *datetime.DateTime) *time.Time {
+	if t == nil || t.Time().IsZero() {
+		return nil
+	}
+	return to.Ptr(t.Time())
 }

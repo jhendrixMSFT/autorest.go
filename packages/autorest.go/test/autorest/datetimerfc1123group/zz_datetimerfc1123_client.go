@@ -10,6 +10,8 @@ import (
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/policy"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/runtime"
+	"github.com/Azure/azure-sdk-for-go/sdk/azcore/runtime/datetime"
+	"github.com/Azure/azure-sdk-for-go/sdk/azcore/to"
 	"net/http"
 	"time"
 )
@@ -211,11 +213,11 @@ func (client *Datetimerfc1123Client) getUTCLowercaseMaxDateTimeCreateRequest(ctx
 // getUTCLowercaseMaxDateTimeHandleResponse handles the GetUTCLowercaseMaxDateTime response.
 func (client *Datetimerfc1123Client) getUTCLowercaseMaxDateTimeHandleResponse(resp *http.Response) (Datetimerfc1123ClientGetUTCLowercaseMaxDateTimeResponse, error) {
 	result := Datetimerfc1123ClientGetUTCLowercaseMaxDateTimeResponse{}
-	var aux *dateTimeRFC1123
+	aux := datetime.New(datetime.FormatRFC1123, nil)
 	if err := runtime.UnmarshalAsJSON(resp, &aux); err != nil {
 		return Datetimerfc1123ClientGetUTCLowercaseMaxDateTimeResponse{}, err
 	}
-	result.Value = (*time.Time)(aux)
+	result.Value = to.Ptr(aux.Time())
 	return result, nil
 }
 
@@ -405,7 +407,9 @@ func (client *Datetimerfc1123Client) putUTCMaxDateTimeCreateRequest(ctx context.
 		return nil, err
 	}
 	req.Raw().Header["Accept"] = []string{"application/json"}
-	aux := dateTimeRFC1123(datetimeBody)
+	aux := datetime.New(datetime.FormatRFC1123, &datetime.Options{
+		From: datetimeBody,
+	})
 	if err := runtime.MarshalAsJSON(req, aux); err != nil {
 		return nil, err
 	}

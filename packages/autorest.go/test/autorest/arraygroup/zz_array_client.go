@@ -7,11 +7,14 @@ package arraygroup
 
 import (
 	"context"
+	"net/http"
+	"time"
+
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/policy"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/runtime"
-	"net/http"
-	"time"
+	"github.com/Azure/azure-sdk-for-go/sdk/azcore/runtime/datetime"
+	"github.com/Azure/azure-sdk-for-go/sdk/azcore/to"
 )
 
 // ArrayClient contains the methods for the Array group.
@@ -2689,9 +2692,15 @@ func (client *ArrayClient) putDateTimeRFC1123ValidCreateRequest(ctx context.Cont
 		return nil, err
 	}
 	req.Raw().Header["Accept"] = []string{"application/json"}
-	aux := make([]*dateTimeRFC1123, len(arrayBody))
+	aux := make([]*datetime.DateTime, len(arrayBody))
 	for i := 0; i < len(arrayBody); i++ {
-		aux[i] = (*dateTimeRFC1123)(arrayBody[i])
+		if arrayBody[i] == nil {
+			aux[i] = nil
+			continue
+		}
+		aux[i] = to.Ptr(datetime.New(datetime.FormatRFC1123, &datetime.Options{
+			From: *arrayBody[i],
+		}))
 	}
 	if err := runtime.MarshalAsJSON(req, aux); err != nil {
 		return nil, err

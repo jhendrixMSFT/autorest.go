@@ -11,11 +11,6 @@ import { ImportManager } from './imports.js';
 // variable to be used to determine comment length when calling comment from @azure-tools
 export const commentLength = 120;
 
-export const dateFormat = '2006-01-02';
-export const datetimeRFC3339Format = 'time.RFC3339Nano';
-export const datetimeRFC1123Format = 'time.RFC1123';
-export const timeRFC3339Format = '15:04:05.999999999Z07:00';
-
 // returns the common source-file preamble (license comment, package name etc)
 export function contentPreamble(codeModel: go.CodeModel, packageName?: string): string {
   if (!packageName) {
@@ -235,13 +230,6 @@ export function formatParamValue(param: go.FormBodyParameter | go.HeaderParamete
       imports.add('strings');
       return `strings.Join(strings.Fields(strings.Trim(fmt.Sprint(${paramName}), "[]")), "${separator}")`;
     }
-  } else if (go.isTimeType(param.type) && param.type.dateTimeFormat !== 'timeUnix') {
-    // for most time types we call methods on time.Time which is why we remove the dereference.
-    // however, for unix time, we cast to our unixTime helper first so we must keep the dereference.
-    if (!go.isRequiredParameter(param) && paramName[0] === '*') {
-      // remove the dereference
-      paramName = paramName.substring(1);
-    }
   }
   return formatValue(paramName, param.type, imports);
 }
@@ -294,20 +282,7 @@ export function formatValue(paramName: string, type: go.PossibleType, imports: I
       return `strconv.FormatFloat(${star}${paramName}, 'f', -1, 64)`;
     }
   } else if (go.isTimeType(type)) {
-    if (type.dateTimeFormat === 'dateType') {
-      return `${paramName}.Format("${dateFormat}")`;
-    } else if (type.dateTimeFormat === 'timeUnix') {
-      return `timeUnix(${star}${paramName}).String()`;
-    } else if (type.dateTimeFormat === 'timeRFC3339') {
-      return `timeRFC3339(${star}${paramName}).String()`;
-    } else {
-      imports.add('time');
-      let format = datetimeRFC3339Format;
-      if (type.dateTimeFormat === 'dateTimeRFC1123') {
-        format = datetimeRFC1123Format;
-      }
-      return `${paramName}.Format(${format})`;
-    }
+    return `datetime.String(${type.dateTimeFormat}, ${paramName})`;
   } else if (go.isConstantType(type)) {
     if (type.type === 'string') {
       return `string(${star}${paramName})`;

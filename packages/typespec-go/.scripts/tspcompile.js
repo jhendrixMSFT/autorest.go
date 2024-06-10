@@ -141,6 +141,9 @@ generate('armrandom', armrandom, 'test/armrandom');
 const armcommunitymanagement = pkgRoot + 'test/tsp/Community.Management';
 generate('armcommunitymanagement', armcommunitymanagement, 'test/armcommunitymanagement');
 
+const azkeys = pkgRoot + `test/tsp/KeyVault`;
+generate('azkeys', azkeys, 'test/azkeys');
+
 for (const module in cadlRanch) {
   const values = cadlRanch[module];
   let perTestOptions;

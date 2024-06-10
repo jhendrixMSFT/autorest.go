@@ -4,7 +4,7 @@
  *--------------------------------------------------------------------------------------------*/
 
 import * as go from '../../codemodel.go/src/index.js';
-import { capitalize, comment } from '@azure-tools/codegen';
+import { comment } from '@azure-tools/codegen';
 import { values } from '@azure-tools/linq';
 import { commentLength, contentPreamble, formatLiteralValue, recursiveUnwrapMapSlice, sortAscending } from './helpers.js';
 import { ImportManager } from './imports.js';
@@ -39,6 +39,8 @@ export async function generateModels(codeModel: go.CodeModel): Promise<ModelsSer
   let needsJSONPopulateByteArray = false;
   let needsJSONPopulateAny = false;
   let needsJSONPopulateMultipart = false;
+  let needsJSONDateTimeHelpers = false;
+  let needsXMLDateTimeHelpers = false;
   let serdeTextBody = '';
   for (const modelDef of values(modelDefs)) {
     modelText += modelDef.text();
@@ -128,6 +130,34 @@ export async function generateModels(codeModel: go.CodeModel): Promise<ModelsSer
     serdeTextBody += '\tm[k] = data\n\treturn nil\n';
     serdeTextBody += '}\n\n';
   }
+  // the date-time helpers always come in pairs
+  if (needsJSONDateTimeHelpers) {
+    serdeImports.add('github.com/Azure/azure-sdk-for-go/sdk/azcore/to');
+    serdeTextBody += 'func populateDateTime(m map[string]any, k string, t *time.Time, f datetime.Format) {\n';
+    serdeTextBody += '\tif v == nil {\n';
+    serdeTextBody += '\t\treturn\n';
+    serdeTextBody += '\t} else if azcore.IsNullValue(v) {\n';
+    serdeTextBody += '\t\tm[k] = nil\n';
+    serdeTextBody += '\t} else {\n';
+    serdeTextBody += '\t\tm[k] = m[k] = datetime.New(f, &datetime.Options{\n\t\t\tFrom: *t,\n\t\t})\n';
+    serdeTextBody += '\t}\n';
+    serdeTextBody += '}\n\n';
+
+    serdeTextBody += 'func unpopulateDateTime(data json.RawMessage, fn string, t **time.Time, f datetime.Format) error {\n'
+    serdeTextBody += '\taux := datetime.New(f, nil)\n';
+    serdeTextBody += '\tif err := aux.UnmarshalJSON(data); err != nil {\n\t\treturn fmt.Errorf("struct field %s: %v", fn, err)\n\t}\n';
+    serdeTextBody += '\tif tt := aux.Time(); !tt.IsZero() {\n\t\t*t = to.Ptr(tt)\n\t}\n\treturn nil\n}\n\n';
+  }
+  if (needsXMLDateTimeHelpers) {
+    serdeImports.add('github.com/Azure/azure-sdk-for-go/sdk/azcore/to');
+    serdeTextBody += 'func populateDateTime(t *time.Time, f datetime.Format) *datetime.DateTime {\n';
+    serdeTextBody += '\tif t == nil {\n\t\treturn nil\n\t}\n';
+    serdeTextBody += '\treturn to.Ptr(datetime.New(f, &datetime.Options{\n\t\tFrom: *t,\n\t}))\n}\n\n';
+
+    serdeTextBody += 'func unpopulateDateTime(t *datetime.DateTime) *time.Time {\n';
+    serdeTextBody += '\tif t == nil || t.Time().IsZero() {\n\t\treturn nil\n\t}\n';
+    serdeTextBody += '\treturn to.Ptr(t.Time())\n}\n\n';
+  }
   let serdeText = '';
   if (serdeTextBody.length > 0) {
     serdeText = contentPreamble(codeModel);
@@ -175,24 +205,29 @@ function generateModelDefs(modelImports: ImportManager, serdeImports: ImportMana
     const modelDef = new ModelDef(model.name, model.format, model.fields, model.description);
     for (const field of values(modelDef.Fields)) {
       modelImports.addImportForType(field.type);
+      if (go.isTimeType(field.type)) {
+        serdeImports.add('github.com/Azure/azure-sdk-for-go/sdk/azcore/runtime/datetime');
+        if (model.format === 'json') {
+          modelDef.SerDe.needsJSONDateTimeHelpers = true;
+        } else {
+          modelDef.SerDe.needsXMLDateTimeHelpers = true;
+        }
+      }
     }
 
     if (go.isModelType(model) && model.format === 'xml' && !model.annotations.omitSerDeMethods) {
       serdeImports.add('encoding/xml');
-      let needsDateTimeMarshalling = false;
       let byteArrayFormat = false;
       for (const field of values(model.fields)) {
         serdeImports.addImportForType(field.type);
-        if (go.isTimeType(field.type)) {
-          needsDateTimeMarshalling = true;
-        } else if (go.isBytesType(field.type)) {
+        if (go.isBytesType(field.type)) {
           byteArrayFormat = true;
         }
       }
       // due to differences in XML marshallers/unmarshallers, we use different codegen than for JSON
-      if (needsDateTimeMarshalling || model.xml?.wrapper || needsXMLArrayMarshalling(model) || byteArrayFormat) {
+      if (modelDef.SerDe.needsXMLDateTimeHelpers || model.xml?.wrapper || needsXMLArrayMarshalling(model) || byteArrayFormat) {
         generateXMLMarshaller(model, modelDef, serdeImports);
-        if (needsDateTimeMarshalling || byteArrayFormat) {
+        if (modelDef.SerDe.needsXMLDateTimeHelpers || byteArrayFormat) {
           generateXMLUnmarshaller(model, modelDef, serdeImports);
         }
       } else if (needsXMLDictionaryUnmarshalling(model)) {
@@ -334,9 +369,9 @@ function generateJSONMarshallerBody(modelType: go.ModelType | go.PolymorphicType
       if (field.type.elementTypeByValue) {
         elementPtr = '';
       }
-      marshaller += `\taux := make([]${elementPtr}${field.type.elementType.dateTimeFormat}, len(${source}), len(${source}))\n`;
+      marshaller += `\taux := make([]${elementPtr}datetime.DateTime, len(${source}), len(${source}))\n`;
       marshaller += `\tfor i := 0; i < len(${source}); i++ {\n`;
-      marshaller += `\t\taux[i] = (${elementPtr}${field.type.elementType.dateTimeFormat})(${source}[i])\n`;
+      marshaller += `\t\taux[i] = datetime.New(${field.type.elementType.dateTimeFormat}, &datetime.Options{From: ${source}[i]})\n`;
       marshaller += '\t}\n';
       marshaller += `\tpopulate(objectMap, "${field.serializedName}", aux)\n`;
       modelDef.SerDe.needsJSONPopulate = true;
@@ -356,26 +391,28 @@ function generateJSONMarshallerBody(modelType: go.ModelType | go.PolymorphicType
         marshaller += `\tif ${receiver}.${field.name} == nil {\n\t\t${receiver}.${field.name} = to.Ptr(${formatLiteralValue(field.defaultValue, true)})\n\t}\n`;
       }
       let populate = 'populate';
+      let addlArgs = '';
       if (go.isTimeType(field.type)) {
-        populate += capitalize(field.type.dateTimeFormat);
-        modelDef.SerDe.needsJSONPopulate = true;
+        populate += 'DateTime';
+        addlArgs = `, ${field.type.dateTimeFormat}`;
+        modelDef.SerDe.needsJSONDateTimeHelpers = true;
       } else if (go.isPrimitiveType(field.type) && field.type.typeName === 'any') {
         populate += 'Any';
         modelDef.SerDe.needsJSONPopulateAny = true;
       } else {
         modelDef.SerDe.needsJSONPopulate = true;
       }
-      marshaller += `\t${populate}(objectMap, "${field.serializedName}", ${receiver}.${field.name})\n`;
+      marshaller += `\t${populate}(objectMap, "${field.serializedName}", ${receiver}.${field.name}${addlArgs})\n`;
     }
   }
   if (addlProps) {
     marshaller += `\tif ${receiver}.AdditionalProperties != nil {\n`;
     marshaller += `\t\tfor key, val := range ${receiver}.AdditionalProperties {\n`;
-    let assignment = 'val';
     if (go.isTimeType(addlProps.valueType)) {
-      assignment = `(*${addlProps.valueType.dateTimeFormat})(val)`;
+      marshaller += `\t\t\tpopulateDateTime(objectMap, key, val, ${addlProps.valueType.dateTimeFormat})\n`;
+    } else {
+      marshaller += '\t\t\tobjectMap[key] = val\n';
     }
-    marshaller += `\t\t\tobjectMap[key] = ${assignment}\n`;
     marshaller += '\t\t}\n';
     marshaller += '\t}\n';
   }
@@ -440,7 +477,7 @@ function generateJSONUnmarshallerBody(modelType: go.ModelType | go.PolymorphicTy
     if (hasDiscriminatorInterface(field.type)) {
       unmarshalBody += generateDiscriminatorUnmarshaller(field, receiver);
     } else if (go.isTimeType(field.type)) {
-      unmarshalBody += `\t\t\t\terr = unpopulate${capitalize(field.type.dateTimeFormat)}(val, "${field.name}", &${receiver}.${field.name})\n`;
+      unmarshalBody += `\t\t\t\terr = unpopulateDateTime(val, "${field.name}", &${receiver}.${field.name}, ${field.type.dateTimeFormat})\n`;
       modelDef.SerDe.needsJSONUnpopulate = true;
     } else if (go.isSliceType(field.type) && go.isTimeType(field.type.elementType)) {
       imports.add('time');
@@ -448,10 +485,10 @@ function generateJSONUnmarshallerBody(modelType: go.ModelType | go.PolymorphicTy
       if (field.type.elementTypeByValue) {
         elementPtr = '';
       }
-      unmarshalBody += `\t\t\tvar aux []${elementPtr}${field.type.elementType.dateTimeFormat}\n`;
-      unmarshalBody += `\t\t\terr = unpopulate(val, "${field.name}", &aux)\n`;
+      unmarshalBody += `\t\t\tvar aux []${elementPtr}time.Time\n`;
+      unmarshalBody += `\t\t\terr = unpopulateDateTime(val, "${field.name}", &aux, ${field.type.elementType.dateTimeFormat})\n`;
       unmarshalBody += '\t\t\tfor _, au := range aux {\n';
-      unmarshalBody += `\t\t\t\t${receiver}.${field.name} = append(${receiver}.${field.name}, (${elementPtr}time.Time)(au))\n`;
+      unmarshalBody += `\t\t\t\t${receiver}.${field.name} = append(${receiver}.${field.name}, ${elementPtr}au)\n`;
       unmarshalBody += '\t\t\t}\n';
       modelDef.SerDe.needsJSONUnpopulate = true;
     } else if (go.isBytesType(field.type)) {
@@ -654,8 +691,7 @@ function generateXMLUnmarshaller(modelType: go.ModelType, modelDef: ModelDef, im
   text += '\t}\n';
   for (const field of values(modelDef.Fields)) {
     if (go.isTimeType(field.type)) {
-      text += `\tif aux.${field.name} != nil && !(*time.Time)(aux.${field.name}).IsZero() {\n`;
-      text += `\t\t${receiver}.${field.name} = (*time.Time)(aux.${field.name})\n\t}\n`;
+      text += `\t\t${receiver}.${field.name} = unpopulateDateTime(aux.${field.name})\n`;
     } else if (field.annotations.isAdditionalProperties || go.isMapType(field.type)) {
       text += `\t${receiver}.${field.name} = (map[string]*string)(aux.${field.name})\n`;
     } else if (go.isBytesType(field.type)) {
@@ -680,7 +716,7 @@ function generateAliasType(modelType: go.ModelType, receiver: string, forMarshal
   for (const field of values(modelType.fields)) {
     const sn = getXMLSerialization(field, false);
     if (go.isTimeType(field.type)) {
-      text += `\t\t${field.name} *${field.type.dateTimeFormat} \`${modelType.format}:"${sn}"\`\n`;
+      text += `\t\t${field.name} *datetime.DateTime \`${modelType.format}:"${sn}"\`\n`;
     } else if (field.annotations.isAdditionalProperties || go.isMapType(field.type)) {
       text += `\t\t${field.name} additionalProperties \`${modelType.format}:"${sn}"\`\n`;
     } else if (go.isSliceType(field.type)) {
@@ -695,13 +731,15 @@ function generateAliasType(modelType: go.ModelType, receiver: string, forMarshal
     rec = '&' + rec;
   }
   text += `\t\talias: (*alias)(${rec}),\n`;
-  if (forMarshal) {
-    // emit code to initialize time fields
-    for (const field of modelType.fields) {
-      if (!go.isTimeType(field.type)) {
-        continue;
-      }
-      text += `\t\t${field.name}: (*${field.type.dateTimeFormat})(${receiver}.${field.name}),\n`;
+  // emit code to initialize time fields
+  for (const field of modelType.fields) {
+    if (!go.isTimeType(field.type)) {
+      continue;
+    }
+    if (forMarshal) {
+      text += `\t\t${field.name}: populateDateTime(${receiver}.${field.name}, datetime.${field.type.dateTimeFormat}),\n`;
+    } else {
+      text += `\t\t${field.name}: to.Ptr(datetime.New(datetime.${field.type.dateTimeFormat}, nil)),\n`;
     }
   }
   text += '\t}\n';
@@ -722,6 +760,8 @@ class SerDeInfo {
   needsJSONPopulateByteArray: boolean;
   needsJSONPopulateAny: boolean;
   needsJSONPopulateMultipart: boolean;
+  needsJSONDateTimeHelpers: boolean;
+  needsXMLDateTimeHelpers: boolean;
 
   constructor() {
     this.methods = new Array<ModelMethod>();
@@ -730,6 +770,8 @@ class SerDeInfo {
     this.needsJSONPopulateByteArray = false;
     this.needsJSONPopulateAny = false;
     this.needsJSONPopulateMultipart = false;
+    this.needsJSONDateTimeHelpers = false;
+    this.needsXMLDateTimeHelpers = false;
   }
 }
 

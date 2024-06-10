@@ -198,9 +198,9 @@ export class typeAdapter {
       case 'enumvalue':
         return this.getLiteralValue(type);
       case 'offsetDateTime':
-        return this.getTimeType(type.encode, false);
+        return this.getTimeType(type.encode);
       case 'utcDateTime':
-        return this.getTimeType(type.encode, true);
+        return this.getTimeType(type.encode);
       case 'dict': {
         const valueTypeByValue = isTypePassedByValue(type.valueType);
         const keyName = recursiveKeyName(`dict-${valueTypeByValue}`, type.valueType, substituteDiscriminator);
@@ -235,13 +235,13 @@ export class typeAdapter {
     }
   }
 
-  private getTimeType(encode: tsp.DateTimeKnownEncoding, utc: boolean): go.TimeType {
+  private getTimeType(encode: tsp.DateTimeKnownEncoding): go.TimeType {
     const encoding = getDateTimeEncoding(encode);
     let datetime = this.types.get(encoding);
     if (datetime) {
       return <go.TimeType>datetime;
     }
-    datetime = new go.TimeType(encoding, utc);
+    datetime = new go.TimeType(encoding);
     this.types.set(encoding, datetime);
     return <go.TimeType>datetime;
   }
@@ -315,13 +315,13 @@ export class typeAdapter {
       case 'bytes':
         return this.adaptBytesType(type);
       case 'plainDate': {
-        const dateKey = 'dateType';
-        let date = this.types.get(dateKey);
+        const dateOnlyKey = 'dateOnly';
+        let date = this.types.get(dateOnlyKey);
         if (date) {
           return date;
         }
-        date = new go.TimeType('dateType', false);
-        this.types.set(dateKey, date);
+        date = new go.TimeType('DateOnly');
+        this.types.set(dateOnlyKey, date);
         return date;
       }
       case 'decimal':
@@ -400,16 +400,13 @@ export class typeAdapter {
         return stringType;
       }
       case 'plainTime': {
-        if (type.encode !== 'rfc3339') {
-          throw new Error(`unsupported time encoding ${type.encode}`);
-        }
-        const encoding = 'timeRFC3339';
-        let time = this.types.get(encoding);
+        const timeOnlyKey = 'timeOnly';
+        let time = this.types.get(timeOnlyKey);
         if (time) {
           return time;
         }
-        time = new go.TimeType(encoding, false);
-        this.types.set(encoding, time);
+        time = new go.TimeType('TimeOnly');
+        this.types.set(timeOnlyKey, time);
         return time;
       
       }
@@ -913,11 +910,13 @@ function getPrimitiveType(kind: tcgc.SdkBuiltInKinds): 'bool' | 'float32' | 'flo
 function getDateTimeEncoding(encoding: tsp.DateTimeKnownEncoding): go.DateTimeFormat {
   switch (encoding) {
     case 'rfc3339':
-      return 'dateTimeRFC3339';
+      return 'RFC3339';
     case 'rfc7231':
-      return 'dateTimeRFC1123';
+      return 'RFC7231';
     case 'unixTimestamp':
-      return 'timeUnix';
+      return 'Unix';
+    default:
+      throw new Error(`unhandled date-time encoding ${encoding}`);
   }
 }
 

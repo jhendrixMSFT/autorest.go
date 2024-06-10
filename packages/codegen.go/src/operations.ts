@@ -287,24 +287,8 @@ function formatHeaderResponseValue(headerResp: go.HeaderResponse | go.HeaderMapR
       throw new Error(`unhandled primitive type ${headerResp.type.typeName}`);
     }
   } else if (go.isTimeType(headerResp.type)) {
-    imports.add('time');
-    if (headerResp.type.dateTimeFormat === 'dateType') {
-      text += `\t\t${name}, err := time.Parse("${helpers.dateFormat}", val)\n`;
-    } else if (headerResp.type.dateTimeFormat === 'timeRFC3339') {
-      text += `\t\t${name}, err := time.Parse("${helpers.timeRFC3339Format}", val)\n`;
-    } else if (headerResp.type.dateTimeFormat === 'timeUnix') {
-      imports.add('strconv');
-      imports.add('github.com/Azure/azure-sdk-for-go/sdk/azcore/to');
-      text += '\t\tsec, err := strconv.ParseInt(val, 10, 64)\n';
-      name = 'to.Ptr(time.Unix(sec, 0))';
-      byRef = '';
-    } else {
-      let format = helpers.datetimeRFC3339Format;
-      if (headerResp.type.dateTimeFormat === 'dateTimeRFC1123') {
-        format = helpers.datetimeRFC1123Format;
-      }
-      text += `\t\t${name}, err := time.Parse(${format}, val)\n`;
-    }
+    imports.add('github.com/Azure/azure-sdk-for-go/sdk/azcore/runtime/datetime');
+    text += `\t\t${name}, err := datetime.Parse(datetime.Format${headerResp.type.dateTimeFormat}, val)\n`;
   } else if (go.isBytesType(headerResp.type)) {
     // ByteArray is a base-64 encoded value in string format
     imports.add('encoding/base64');
@@ -810,16 +794,9 @@ function createProtocolRequest(azureARM: boolean, client: go.Client, method: go.
         addr = '';
       }
       body = `wrapper{${fieldName}: ${addr}${body}}`;
-    } else if (go.isTimeType(bodyParam.type) && bodyParam.type.dateTimeFormat === 'dateType') {
-      // wrap the body in the internal dateType
-      body = `dateType(${body})`;
-    } else if (go.isTimeType(bodyParam.type) && bodyParam.type.dateTimeFormat === 'timeRFC3339') {
-      // wrap the body in the internal timeRFC3339 type
-      body = `timeRFC3339(${body})`;
-    } else if (go.isTimeType(bodyParam.type) && (bodyParam.type.dateTimeFormat === 'dateTimeRFC1123' || bodyParam.type.dateTimeFormat === 'timeUnix')) {
-      // wrap the body in the custom time type
-      text += `\taux := ${bodyParam.type.dateTimeFormat}(${body})\n`;
-      body = 'aux';
+    } else if (go.isTimeType(bodyParam.type)) {
+      imports.add('github.com/Azure/azure-sdk-for-go/sdk/azcore/runtime/datetime');
+      body = `datetime.New(datetime.Format${bodyParam.type.dateTimeFormat}, &datetime.Options{From: ${body}})`;
     } else if (isArrayOfDateTimeForMarshalling(bodyParam.type)) {
       const timeInfo = isArrayOfDateTimeForMarshalling(bodyParam.type);
       let elementPtr = '*';
@@ -970,10 +947,11 @@ function isArrayOfDateTimeForMarshalling(paramType: go.PossibleType): { format: 
     return undefined;
   }
   switch (paramType.elementType.dateTimeFormat) {
-    case 'dateType':
-    case 'dateTimeRFC1123':
-    case 'timeRFC3339':
-    case 'timeUnix':
+    case 'DateOnly':
+    case 'RFC1123':
+    case 'RFC7231':
+    case 'TimeOnly':
+    case 'Unix':
       return {
         format: paramType.elementType.dateTimeFormat,
         elemByVal: paramType.elementTypeByValue
@@ -990,16 +968,17 @@ function needsResponseHandler(method: go.Method): boolean {
   return helpers.hasSchemaResponse(method) || method.responseEnvelope.headers.length > 0;
 }
 
-function generateResponseUnmarshaller(method: go.Method, type: go.PossibleType, format: go.ResultFormat, unmarshalTarget: string): string {
+function generateResponseUnmarshaller(method: go.Method, type: go.PossibleType, format: go.ResultFormat, unmarshalTarget: string, imports: ImportManager): string {
   let unmarshallerText = '';
   const zeroValue = getZeroReturnValue(method, 'handler');
   if (go.isTimeType(type)) {
     // use the designated time type for unmarshalling
-    unmarshallerText += `\tvar aux *${type.dateTimeFormat}\n`;
+    imports.add('github.com/Azure/azure-sdk-for-go/sdk/azcore/to');
+    unmarshallerText += `\taux := datetime.New(datetime.Format${type.dateTimeFormat}, nil)\n`;
     unmarshallerText += `\tif err := runtime.UnmarshalAs${format}(resp, &aux); err != nil {\n`;
     unmarshallerText += `\t\treturn ${zeroValue}, err\n`;
     unmarshallerText += '\t}\n';
-    unmarshallerText += `\tresult.${helpers.getResultFieldName(method)} = (*time.Time)(aux)\n`;
+    unmarshallerText += `\tresult.${helpers.getResultFieldName(method)} = to.Ptr(aux.Time())\n`;
     return unmarshallerText;
   } else if (isArrayOfDateTime(type)) {
     // unmarshalling arrays of date/time is a little more involved
@@ -1088,7 +1067,7 @@ function createProtocolResponse(client: go.Client, method: go.Method, imports: I
         continue;
       }
       text += `\tvar val ${go.getTypeDeclaration(resultType)}\n`;
-      text += generateResponseUnmarshaller(method, resultType, result.format, 'val');
+      text += generateResponseUnmarshaller(method, resultType, result.format, 'val', imports);
       text += '\tresult.Value = val\n';
     }
     text += '\tdefault:\n';
@@ -1108,15 +1087,15 @@ function createProtocolResponse(client: go.Client, method: go.Method, imports: I
     if (result.format === 'XML' && go.isSliceType(result.monomorphicType)) {
       target = 'result';
     }
-    text += generateResponseUnmarshaller(method, result.monomorphicType, result.format, target);
+    text += generateResponseUnmarshaller(method, result.monomorphicType, result.format, target, imports);
   } else if (go.isPolymorphicResult(result)) {
     text += `\tresult := ${method.responseEnvelope.name}{}\n`;
     addHeaders(method.responseEnvelope.headers);
-    text += generateResponseUnmarshaller(method, result.interfaceType, result.format, 'result');
+    text += generateResponseUnmarshaller(method, result.interfaceType, result.format, 'result', imports);
   } else if (go.isModelResult(result)) {
     text += `\tresult := ${method.responseEnvelope.name}{}\n`;
     addHeaders(method.responseEnvelope.headers);
-    text += generateResponseUnmarshaller(method, result.modelType, result.format, `result.${helpers.getResultFieldName(method)}`);
+    text += generateResponseUnmarshaller(method, result.modelType, result.format, `result.${helpers.getResultFieldName(method)}`, imports);
   } else {
     throw new Error(`unhandled result type for ${client.name}.${method.name}`);
   }

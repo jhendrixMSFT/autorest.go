@@ -5,6 +5,14 @@
 
 package fake
 
+import (
+	"encoding/json"
+	"github.com/Azure/azure-sdk-for-go/sdk/azcore/runtime/datetime"
+	"io"
+	"net/http"
+	"time"
+)
+
 type nonRetriableError struct {
 	error
 }
@@ -20,4 +28,27 @@ func contains[T comparable](s []T, v T) bool {
 		}
 	}
 	return false
+}
+
+func fromPtr[T any](p *T) T {
+	if p == nil {
+		return *new(T)
+	}
+	return *p
+}
+
+func unmarshalTimeAsJSON(req *http.Request, format datetime.Format) (time.Time, error) {
+	if req.Body == nil {
+		return time.Time{}, nil
+	}
+	body, err := io.ReadAll(req.Body)
+	if err != nil {
+		return time.Time{}, nonRetriableError{err}
+	}
+	req.Body.Close()
+	tt := datetime.New(format, nil)
+	if err = json.Unmarshal(body, &tt); err != nil {
+		err = nonRetriableError{err}
+	}
+	return tt.Time(), err
 }

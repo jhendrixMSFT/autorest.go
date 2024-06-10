@@ -8,6 +8,7 @@ import { contentPreamble } from '../helpers.js';
 import { ImportManager } from '../imports.js';
 
 export class RequiredHelpers {
+  fromPtr: boolean;
   getHeaderValue: boolean;
   getOptional: boolean;
   initServer: boolean;
@@ -16,8 +17,11 @@ export class RequiredHelpers {
   readRequestBody: boolean;
   splitHelper: boolean;
   tracker: boolean;
+  unmarshalTimeAsJSON: boolean;
+  unmarshalTimeAsXML: boolean;
 
   constructor() {
+    this.fromPtr = false;
     this.getHeaderValue = false;
     this.getOptional = false;
     this.initServer = false;
@@ -26,6 +30,8 @@ export class RequiredHelpers {
     this.readRequestBody = false;
     this.splitHelper = false;
     this.tracker = false;
+    this.unmarshalTimeAsJSON = false;
+    this.unmarshalTimeAsXML = false;
   }
 }
 
@@ -37,6 +43,9 @@ export function generateServerInternal(codeModel: go.CodeModel, requiredHelpers:
   const imports = new ImportManager();
   let body = alwaysUsed;
 
+  if (requiredHelpers.fromPtr) {
+    body += emitFromPtr();
+  }
   if (requiredHelpers.getHeaderValue) {
     body += emitGetHeaderValue(imports);
   }
@@ -61,6 +70,12 @@ export function generateServerInternal(codeModel: go.CodeModel, requiredHelpers:
   if (requiredHelpers.tracker) {
     body += emitTracker(imports);
   }
+  if (requiredHelpers.unmarshalTimeAsJSON) {
+    body += emitUnmarshalTime('json', imports);
+  }
+  if (requiredHelpers.unmarshalTimeAsXML) {
+    body += emitUnmarshalTime('xml', imports);
+  }
 
   return text + imports.text() + body;
 }
@@ -84,6 +99,17 @@ func contains[T comparable](s []T, v T) bool {
 	return false
 }
 `;
+
+function emitFromPtr(): string {
+  return `
+func fromPtr[T any](p *T) T {
+	if p == nil {
+		return *new(T)
+	}
+	return *p
+}
+`;
+}
 
 function emitGetOptional(imports: ImportManager): string {
   imports.add('reflect');
@@ -215,6 +241,31 @@ func (p *tracker[T]) remove(req *http.Request) {
 	p.mu.Lock()
 	defer p.mu.Unlock()
 	delete(p.items, server.SanitizePagerPollerPath(req.URL.Path))
+}
+`;
+}
+
+function emitUnmarshalTime(encoding: 'json' | 'xml', imports: ImportManager): string {
+  imports.add(`encoding/${encoding}`);
+  imports.add('github.com/Azure/azure-sdk-for-go/sdk/azcore/runtime/datetime');
+  imports.add('io');
+  imports.add('net/http');
+  imports.add('time');
+  return `
+func unmarshalTimeAs${encoding.toUpperCase()}(req *http.Request, format datetime.Format) (time.Time, error) {
+	if req.Body == nil {
+		return time.Time{}, nil
+	}
+	body, err := io.ReadAll(req.Body)
+	if err != nil {
+		return time.Time{}, nonRetriableError{err}
+	}
+	req.Body.Close()
+	tt := datetime.New(format, nil)
+	if err = ${encoding}.Unmarshal(body, &tt); err != nil {
+		err = nonRetriableError{err}
+	}
+	return tt.Time(), err
 }
 `;
 }

@@ -5,6 +5,7 @@ package datetimerfc1123group
 
 import (
 	"context"
+	"fmt"
 	"generatortests"
 	"testing"
 	"time"
@@ -13,6 +14,17 @@ import (
 	"github.com/google/go-cmp/cmp"
 	"github.com/stretchr/testify/require"
 )
+
+func TestStuff(t *testing.T) {
+	now := dateTimeRFC1123(time.Now())
+	b, err := now.MarshalJSON()
+	require.NoError(t, err)
+	fmt.Println(string(b))
+
+	b, err = now.MarshalText()
+	require.NoError(t, err)
+	fmt.Println(string(b))
+}
 
 func newDatetimerfc1123Client(t *testing.T) *Datetimerfc1123Client {
 	client, err := NewDatetimerfc1123Client(&azcore.ClientOptions{
@@ -50,9 +62,7 @@ func TestGetUTCLowercaseMaxDateTime(t *testing.T) {
 	require.NoError(t, err)
 	expected, err := time.Parse(time.RFC1123, "Fri, 31 Dec 9999 23:59:59 GMT")
 	require.NoError(t, err)
-	if r := cmp.Diff(result.Value, &expected); r != "" {
-		t.Fatal(r)
-	}
+	require.WithinDuration(t, expected, *result.Value, 0)
 }
 
 // GetUTCMinDateTime - Get min datetime value Mon, 1 Jan 0001 00:00:00 GMT

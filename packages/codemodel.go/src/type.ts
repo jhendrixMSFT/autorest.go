@@ -168,7 +168,8 @@ export interface QualifiedType {
   packageName: string;
 }
 
-export type DateTimeFormat = 'dateType' | 'dateTimeRFC1123' | 'dateTimeRFC3339' | 'timeRFC3339' | 'timeUnix';
+// NOTE: the spelling and capitalization must match the types in azcore
+export type DateTimeFormat = 'DateOnly' | 'RFC1123' | 'RFC3339' | 'RFC7231' | 'TimeOnly' | 'Unix';
 
 // TimeType is a time.Time type from the standard library with a format specifier.
 export interface TimeType extends QualifiedType {
@@ -177,8 +178,6 @@ export interface TimeType extends QualifiedType {
   packageName: 'time';
 
   dateTimeFormat: DateTimeFormat;
-
-  utc: boolean;
 }
 
 export type MapValueType = PossibleType;
@@ -464,9 +463,8 @@ export class SliceType implements SliceType {
 }
 
 export class TimeType implements TimeType {
-  constructor(format: DateTimeFormat, utc: boolean) {
+  constructor(format: DateTimeFormat) {
     this.dateTimeFormat = format;
-    this.utc = utc;
   }
 }
 
