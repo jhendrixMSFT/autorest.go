@@ -414,6 +414,20 @@ export class clientAdapter {
           throw new Error(`unexpected type ${go.getTypeDeclaration(type)} for HeaderCollectionParameter ${param.name}`);
         }
         adaptedParam = new go.HeaderCollectionParameter(paramName, param.serializedName, type, param.collectionFormat, paramKind, byVal, location);
+      } else if (param.serializedName === 'Repeatability-First-Sent' || param.serializedName === 'Repeatability-Request-ID') {
+        let adaptedType: go.PrimitiveType | go.TimeType;
+        switch (param.type.kind) {
+          case 'string':
+            adaptedType = <go.PrimitiveType>this.ta.getPossibleType(param.type, true, false);
+            break;
+          case 'offsetDateTime':
+          case 'utcDateTime':
+            adaptedType = <go.TimeType>this.ta.getPossibleType(param.type, true, false);
+            break;
+          default:
+            throw new Error(`unhandled kind ${param.type.kind} for repeatability header ${param.serializedName}`);
+        }
+        adaptedParam = new go.RepeatabilityHeaderParameter(param.serializedName, adaptedType);
       } else {
         adaptedParam = new go.HeaderParameter(paramName, param.serializedName, this.adaptHeaderType(param.type, true), paramKind, byVal, location);
       }

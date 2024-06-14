@@ -55,7 +55,7 @@ const cadlRanch = {
   'unversionedgroup': ['server/versions/not-versioned'],
   'versionedgroup': ['server/versions/versioned'],
   'condreqgroup': ['special-headers/conditional-request'],
-  //'repeatabilitygroup': ['special-headers/repeatability'],   // requires union support
+  'repeatabilitygroup': ['special-headers/repeatability'],
   'specialwordsgroup': ['special-words'],
   'arraygroup': ['type/array', 'slice-elements-byval=true'],
   'dictionarygroup': ['type/dictionary'],

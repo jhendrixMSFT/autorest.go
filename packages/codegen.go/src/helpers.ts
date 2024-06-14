@@ -140,8 +140,8 @@ export function getMethodParameters(method: go.Method | go.NextPageMethod, param
       if (!paramGroups.includes(param.group)) {
         paramGroups.push(param.group);
       }
-    } else if (go.isLiteralValue(param.type)) {
-      // don't generate a parameter for a constant
+    } else if (go.isLiteralValue(param.type) || go.isRepeatabilityHeaderParameter(param)) {
+      // don't generate a parameter for a constant or repeatability params
       // NOTE: this check must come last as non-required optional constants
       // in header/query params get dumped into the optional params group
       continue;

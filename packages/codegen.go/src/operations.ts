@@ -744,7 +744,25 @@ function createProtocolRequest(azureARM: boolean, client: go.Client, method: go.
       // canonicalize content-type as req.SetBody checks for it via its canonicalized name :(
       param.headerName = 'Content-Type';
     }
-    if (go.isRequiredParameter(param) || go.isLiteralParameter(param) || go.isClientSideDefault(param.kind)) {
+
+    // must check for repeatability headers first
+    if (go.isRepeatabilityHeaderParameter(param)) {
+      let setHeaderText: string;
+      switch (param.headerName) {
+        case 'Repeatability-First-Sent':
+          imports.add('time');
+          if (!go.isTimeType(param.type)) {
+            throw new Error();
+          }
+          setHeaderText = `\treq.Raw().Header["${param.headerName}"] = []string{${helpers.formatValue('time.Now().UTC()', param.type, imports)}}\n`;
+          break;
+        case 'Repeatability-Request-ID':
+          setHeaderText = '\tuuid, err := runtime.NewUUID()\n\tif err != nil {\n\t\treturn nil, err\n\t}\n';
+          setHeaderText += `\treq.Raw().Header["${param.headerName}"] = []string{uuid}\n`;
+          break;
+      }
+      text += setHeaderText;
+    } else if (go.isRequiredParameter(param) || go.isLiteralParameter(param) || go.isClientSideDefault(param.kind)) {
       text += emitHeaderSet(param, '\t');
     } else if (param.location === 'client' && !param.group) {
       // global optional param

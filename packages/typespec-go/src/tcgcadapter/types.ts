@@ -800,6 +800,12 @@ export class typeAdapter {
         if (method.response.type) {
           recursiveAddReferencedType(method.response.type);
         }
+
+        for (const response of method.operation.responses.values()) {
+          for (const header of response.headers) {
+            recursiveAddReferencedType(header.type);
+          }
+        }
       }
     }
 

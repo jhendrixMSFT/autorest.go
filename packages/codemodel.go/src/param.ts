@@ -132,6 +132,21 @@ export interface QueryCollectionParameter extends Parameter {
   collectionFormat: ExtendedCollectionFormat;
 }
 
+// the supported OASIS request repeatability headers
+export type RepeatabilityHeader = 'Repeatability-First-Sent' | 'Repeatability-Request-ID';
+
+export interface RepeatabilityHeaderParameter extends Parameter {
+  headerName: RepeatabilityHeader;
+
+  type: type.PrimitiveType | type.TimeType;
+
+  paramType: 'literal';
+
+  byValue: true;
+
+  location: 'method';
+}
+
 export type URIParameterType = type.ConstantType | type.PrimitiveType;
 
 // parameter is a segment in the host
@@ -225,6 +240,10 @@ export function isQueryParameter(param: Parameter): param is QueryParameter {
 
 export function isQueryCollectionParameter(param: Parameter): param is QueryCollectionParameter {
   return (<QueryCollectionParameter>param).queryParameter !== undefined && (<QueryCollectionParameter>param).collectionFormat !== undefined;
+}
+
+export function isRepeatabilityHeaderParameter(param: Parameter): param is RepeatabilityHeaderParameter {
+  return (<RepeatabilityHeaderParameter>param).headerName !== undefined && ((<RepeatabilityHeaderParameter>param).headerName === 'Repeatability-First-Sent' || (<RepeatabilityHeaderParameter>param).headerName === 'Repeatability-Request-ID');
 }
 
 export function isURIParameter(param: Parameter): param is URIParameter {
@@ -359,6 +378,13 @@ export class QueryCollectionParameter extends Parameter implements QueryCollecti
     this.queryParameter = queryParam;
     this.isEncoded = isEncoded;
     this.collectionFormat = collectionFormat;
+  }
+}
+
+export class RepeatabilityHeaderParameter extends Parameter implements RepeatabilityHeaderParameter {
+  constructor(headerName: RepeatabilityHeader, type: type.PrimitiveType | type.TimeType) {
+    super(headerName, type, 'literal', true, 'method');
+    this.headerName = headerName;
   }
 }
 
