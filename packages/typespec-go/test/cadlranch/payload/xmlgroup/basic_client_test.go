@@ -1,24 +1,24 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
-package xmlbasicgroup_test
+package xmlgroup_test
 
 import (
 	"context"
 	"testing"
-	"xmlbasicgroup"
+	"xmlgroup"
 
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/to"
 	"github.com/stretchr/testify/require"
 )
 
 func TestBasicClient_GetModelWithArrayOfModel(t *testing.T) {
-	client, err := xmlbasicgroup.NewBasicClient(nil)
+	client, err := xmlgroup.NewBasicClient(nil)
 	require.NoError(t, err)
 	resp, err := client.GetModelWithArrayOfModel(context.Background(), nil)
 	require.NoError(t, err)
-	require.EqualValues(t, xmlbasicgroup.ModelWithArrayOfModel{
-		Items: []xmlbasicgroup.SimpleModel{
+	require.EqualValues(t, xmlgroup.ModelWithArrayOfModel{
+		Items: []xmlgroup.SimpleModel{
 			{
 				Name: to.Ptr("foo"),
 				Age:  to.Ptr[int32](123),
@@ -32,42 +32,42 @@ func TestBasicClient_GetModelWithArrayOfModel(t *testing.T) {
 }
 
 func TestBasicClient_GetModelWithOptionalField(t *testing.T) {
-	client, err := xmlbasicgroup.NewBasicClient(nil)
+	client, err := xmlgroup.NewBasicClient(nil)
 	require.NoError(t, err)
 	resp, err := client.GetModelWithOptionalField(context.Background(), nil)
 	require.NoError(t, err)
-	require.EqualValues(t, xmlbasicgroup.ModelWithOptionalField{
+	require.EqualValues(t, xmlgroup.ModelWithOptionalField{
 		Item: to.Ptr("widget"),
 	}, resp.ModelWithOptionalField)
 }
 
 func TestBasicClient_GetModelWithSimpleArrays(t *testing.T) {
-	client, err := xmlbasicgroup.NewBasicClient(nil)
+	client, err := xmlgroup.NewBasicClient(nil)
 	require.NoError(t, err)
 	resp, err := client.GetModelWithSimpleArrays(context.Background(), nil)
 	require.NoError(t, err)
-	require.EqualValues(t, xmlbasicgroup.ModelWithSimpleArrays{
+	require.EqualValues(t, xmlgroup.ModelWithSimpleArrays{
 		Colors: []string{"red", "green", "blue"},
 		Counts: []int32{1, 2},
 	}, resp.ModelWithSimpleArrays)
 }
 
 func TestBasicClient_GetSimpleModel(t *testing.T) {
-	client, err := xmlbasicgroup.NewBasicClient(nil)
+	client, err := xmlgroup.NewBasicClient(nil)
 	require.NoError(t, err)
 	resp, err := client.GetSimpleModel(context.Background(), nil)
 	require.NoError(t, err)
-	require.EqualValues(t, xmlbasicgroup.SimpleModel{
+	require.EqualValues(t, xmlgroup.SimpleModel{
 		Age:  to.Ptr[int32](123),
 		Name: to.Ptr("foo"),
 	}, resp.SimpleModel)
 }
 
 func TestBasicClient_PutModelWithArrayOfModel(t *testing.T) {
-	client, err := xmlbasicgroup.NewBasicClient(nil)
+	client, err := xmlgroup.NewBasicClient(nil)
 	require.NoError(t, err)
-	resp, err := client.PutModelWithArrayOfModel(context.Background(), xmlbasicgroup.ModelWithArrayOfModel{
-		Items: []xmlbasicgroup.SimpleModel{
+	resp, err := client.PutModelWithArrayOfModel(context.Background(), xmlgroup.ModelWithArrayOfModel{
+		Items: []xmlgroup.SimpleModel{
 			{
 				Name: to.Ptr("foo"),
 				Age:  to.Ptr[int32](123),
@@ -83,9 +83,9 @@ func TestBasicClient_PutModelWithArrayOfModel(t *testing.T) {
 }
 
 func TestBasicClient_PutModelWithOptionalField(t *testing.T) {
-	client, err := xmlbasicgroup.NewBasicClient(nil)
+	client, err := xmlgroup.NewBasicClient(nil)
 	require.NoError(t, err)
-	resp, err := client.PutModelWithOptionalField(context.Background(), xmlbasicgroup.ModelWithOptionalField{
+	resp, err := client.PutModelWithOptionalField(context.Background(), xmlgroup.ModelWithOptionalField{
 		Item: to.Ptr("widget"),
 	}, nil)
 	require.NoError(t, err)
@@ -93,9 +93,9 @@ func TestBasicClient_PutModelWithOptionalField(t *testing.T) {
 }
 
 func TestBasicClient_PutModelWithSimpleArrays(t *testing.T) {
-	client, err := xmlbasicgroup.NewBasicClient(nil)
+	client, err := xmlgroup.NewBasicClient(nil)
 	require.NoError(t, err)
-	resp, err := client.PutSimpleModel(context.Background(), xmlbasicgroup.SimpleModel{
+	resp, err := client.PutSimpleModel(context.Background(), xmlgroup.SimpleModel{
 		Age:  to.Ptr[int32](123),
 		Name: to.Ptr("foo"),
 	}, nil)
@@ -104,9 +104,9 @@ func TestBasicClient_PutModelWithSimpleArrays(t *testing.T) {
 }
 
 func TestBasicClient_PutSimpleModel(t *testing.T) {
-	client, err := xmlbasicgroup.NewBasicClient(nil)
+	client, err := xmlgroup.NewBasicClient(nil)
 	require.NoError(t, err)
-	resp, err := client.PutSimpleModel(context.Background(), xmlbasicgroup.SimpleModel{
+	resp, err := client.PutSimpleModel(context.Background(), xmlgroup.SimpleModel{
 		Age:  to.Ptr[int32](123),
 		Name: to.Ptr("foo"),
 	}, nil)

@@ -1,4 +1,4 @@
-module xmlbasicgroup
+module xmlgroup
 
 go 1.18
 
