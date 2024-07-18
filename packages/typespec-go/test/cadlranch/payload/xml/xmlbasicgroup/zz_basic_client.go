@@ -51,7 +51,7 @@ func (client *BasicClient) getModelWithArrayOfModelCreateRequest(ctx context.Con
 	if err != nil {
 		return nil, err
 	}
-	req.Raw().Header["Accept"] = []string{"application/json"}
+	req.Raw().Header["Accept"] = []string{"application/xml"}
 	return req, nil
 }
 
@@ -97,7 +97,7 @@ func (client *BasicClient) getModelWithOptionalFieldCreateRequest(ctx context.Co
 	if err != nil {
 		return nil, err
 	}
-	req.Raw().Header["Accept"] = []string{"application/json"}
+	req.Raw().Header["Accept"] = []string{"application/xml"}
 	return req, nil
 }
 
@@ -143,7 +143,7 @@ func (client *BasicClient) getModelWithSimpleArraysCreateRequest(ctx context.Con
 	if err != nil {
 		return nil, err
 	}
-	req.Raw().Header["Accept"] = []string{"application/json"}
+	req.Raw().Header["Accept"] = []string{"application/xml"}
 	return req, nil
 }
 
@@ -188,7 +188,7 @@ func (client *BasicClient) getSimpleModelCreateRequest(ctx context.Context, _ *B
 	if err != nil {
 		return nil, err
 	}
-	req.Raw().Header["Accept"] = []string{"application/json"}
+	req.Raw().Header["Accept"] = []string{"application/xml"}
 	return req, nil
 }
 
@@ -233,7 +233,7 @@ func (client *BasicClient) putModelWithArrayOfModelCreateRequest(ctx context.Con
 	if err != nil {
 		return nil, err
 	}
-	req.Raw().Header["Content-Type"] = []string{"application/json"}
+	req.Raw().Header["Content-Type"] = []string{"application/xml"}
 	if err := runtime.MarshalAsXML(req, input); err != nil {
 		return nil, err
 	}
@@ -272,7 +272,7 @@ func (client *BasicClient) putModelWithOptionalFieldCreateRequest(ctx context.Co
 	if err != nil {
 		return nil, err
 	}
-	req.Raw().Header["Content-Type"] = []string{"application/json"}
+	req.Raw().Header["Content-Type"] = []string{"application/xml"}
 	if err := runtime.MarshalAsXML(req, input); err != nil {
 		return nil, err
 	}
@@ -311,8 +311,8 @@ func (client *BasicClient) putModelWithSimpleArraysCreateRequest(ctx context.Con
 	if err != nil {
 		return nil, err
 	}
-	req.Raw().Header["Content-Type"] = []string{"application/json"}
-	if err := runtime.MarshalAsJSON(req, input); err != nil {
+	req.Raw().Header["Content-Type"] = []string{"application/xml"}
+	if err := runtime.MarshalAsXML(req, input); err != nil {
 		return nil, err
 	}
 	return req, nil

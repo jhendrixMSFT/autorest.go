@@ -7,7 +7,7 @@ package xmlbasicgroup
 // ModelWithArrayOfModel - Contains an array of models.
 type ModelWithArrayOfModel struct {
 	// REQUIRED
-	Items []SimpleModel `xml:"SimpleModel"`
+	Items []SimpleModel
 }
 
 // ModelWithOptionalField - Contains an optional field.
