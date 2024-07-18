@@ -12,52 +12,52 @@ import (
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/fake/server"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/runtime"
 	"net/http"
-	"xmlbasicgroup"
+	"xmlgroup"
 )
 
-// BasicServer is a fake server for instances of the xmlbasicgroup.BasicClient type.
+// BasicServer is a fake server for instances of the xmlgroup.BasicClient type.
 type BasicServer struct {
 	// GetModelWithArrayOfModel is the fake for method BasicClient.GetModelWithArrayOfModel
 	// HTTP status codes to indicate success: http.StatusOK
-	GetModelWithArrayOfModel func(ctx context.Context, options *xmlbasicgroup.BasicClientGetModelWithArrayOfModelOptions) (resp azfake.Responder[xmlbasicgroup.BasicClientGetModelWithArrayOfModelResponse], errResp azfake.ErrorResponder)
+	GetModelWithArrayOfModel func(ctx context.Context, options *xmlgroup.BasicClientGetModelWithArrayOfModelOptions) (resp azfake.Responder[xmlgroup.BasicClientGetModelWithArrayOfModelResponse], errResp azfake.ErrorResponder)
 
 	// GetModelWithOptionalField is the fake for method BasicClient.GetModelWithOptionalField
 	// HTTP status codes to indicate success: http.StatusOK
-	GetModelWithOptionalField func(ctx context.Context, options *xmlbasicgroup.BasicClientGetModelWithOptionalFieldOptions) (resp azfake.Responder[xmlbasicgroup.BasicClientGetModelWithOptionalFieldResponse], errResp azfake.ErrorResponder)
+	GetModelWithOptionalField func(ctx context.Context, options *xmlgroup.BasicClientGetModelWithOptionalFieldOptions) (resp azfake.Responder[xmlgroup.BasicClientGetModelWithOptionalFieldResponse], errResp azfake.ErrorResponder)
 
 	// GetModelWithSimpleArrays is the fake for method BasicClient.GetModelWithSimpleArrays
 	// HTTP status codes to indicate success: http.StatusOK
-	GetModelWithSimpleArrays func(ctx context.Context, options *xmlbasicgroup.BasicClientGetModelWithSimpleArraysOptions) (resp azfake.Responder[xmlbasicgroup.BasicClientGetModelWithSimpleArraysResponse], errResp azfake.ErrorResponder)
+	GetModelWithSimpleArrays func(ctx context.Context, options *xmlgroup.BasicClientGetModelWithSimpleArraysOptions) (resp azfake.Responder[xmlgroup.BasicClientGetModelWithSimpleArraysResponse], errResp azfake.ErrorResponder)
 
 	// GetSimpleModel is the fake for method BasicClient.GetSimpleModel
 	// HTTP status codes to indicate success: http.StatusOK
-	GetSimpleModel func(ctx context.Context, options *xmlbasicgroup.BasicClientGetSimpleModelOptions) (resp azfake.Responder[xmlbasicgroup.BasicClientGetSimpleModelResponse], errResp azfake.ErrorResponder)
+	GetSimpleModel func(ctx context.Context, options *xmlgroup.BasicClientGetSimpleModelOptions) (resp azfake.Responder[xmlgroup.BasicClientGetSimpleModelResponse], errResp azfake.ErrorResponder)
 
 	// PutModelWithArrayOfModel is the fake for method BasicClient.PutModelWithArrayOfModel
 	// HTTP status codes to indicate success: http.StatusNoContent
-	PutModelWithArrayOfModel func(ctx context.Context, input xmlbasicgroup.ModelWithArrayOfModel, options *xmlbasicgroup.BasicClientPutModelWithArrayOfModelOptions) (resp azfake.Responder[xmlbasicgroup.BasicClientPutModelWithArrayOfModelResponse], errResp azfake.ErrorResponder)
+	PutModelWithArrayOfModel func(ctx context.Context, input xmlgroup.ModelWithArrayOfModel, options *xmlgroup.BasicClientPutModelWithArrayOfModelOptions) (resp azfake.Responder[xmlgroup.BasicClientPutModelWithArrayOfModelResponse], errResp azfake.ErrorResponder)
 
 	// PutModelWithOptionalField is the fake for method BasicClient.PutModelWithOptionalField
 	// HTTP status codes to indicate success: http.StatusNoContent
-	PutModelWithOptionalField func(ctx context.Context, input xmlbasicgroup.ModelWithOptionalField, options *xmlbasicgroup.BasicClientPutModelWithOptionalFieldOptions) (resp azfake.Responder[xmlbasicgroup.BasicClientPutModelWithOptionalFieldResponse], errResp azfake.ErrorResponder)
+	PutModelWithOptionalField func(ctx context.Context, input xmlgroup.ModelWithOptionalField, options *xmlgroup.BasicClientPutModelWithOptionalFieldOptions) (resp azfake.Responder[xmlgroup.BasicClientPutModelWithOptionalFieldResponse], errResp azfake.ErrorResponder)
 
 	// PutModelWithSimpleArrays is the fake for method BasicClient.PutModelWithSimpleArrays
 	// HTTP status codes to indicate success: http.StatusNoContent
-	PutModelWithSimpleArrays func(ctx context.Context, input xmlbasicgroup.ModelWithSimpleArrays, options *xmlbasicgroup.BasicClientPutModelWithSimpleArraysOptions) (resp azfake.Responder[xmlbasicgroup.BasicClientPutModelWithSimpleArraysResponse], errResp azfake.ErrorResponder)
+	PutModelWithSimpleArrays func(ctx context.Context, input xmlgroup.ModelWithSimpleArrays, options *xmlgroup.BasicClientPutModelWithSimpleArraysOptions) (resp azfake.Responder[xmlgroup.BasicClientPutModelWithSimpleArraysResponse], errResp azfake.ErrorResponder)
 
 	// PutSimpleModel is the fake for method BasicClient.PutSimpleModel
 	// HTTP status codes to indicate success: http.StatusNoContent
-	PutSimpleModel func(ctx context.Context, input xmlbasicgroup.SimpleModel, options *xmlbasicgroup.BasicClientPutSimpleModelOptions) (resp azfake.Responder[xmlbasicgroup.BasicClientPutSimpleModelResponse], errResp azfake.ErrorResponder)
+	PutSimpleModel func(ctx context.Context, input xmlgroup.SimpleModel, options *xmlgroup.BasicClientPutSimpleModelOptions) (resp azfake.Responder[xmlgroup.BasicClientPutSimpleModelResponse], errResp azfake.ErrorResponder)
 }
 
 // NewBasicServerTransport creates a new instance of BasicServerTransport with the provided implementation.
-// The returned BasicServerTransport instance is connected to an instance of xmlbasicgroup.BasicClient via the
+// The returned BasicServerTransport instance is connected to an instance of xmlgroup.BasicClient via the
 // azcore.ClientOptions.Transporter field in the client's constructor parameters.
 func NewBasicServerTransport(srv *BasicServer) *BasicServerTransport {
 	return &BasicServerTransport{srv: srv}
 }
 
-// BasicServerTransport connects instances of xmlbasicgroup.BasicClient to instances of BasicServer.
+// BasicServerTransport connects instances of xmlgroup.BasicClient to instances of BasicServer.
 // Don't use this type directly, use NewBasicServerTransport instead.
 type BasicServerTransport struct {
 	srv *BasicServer
@@ -182,7 +182,7 @@ func (b *BasicServerTransport) dispatchPutModelWithArrayOfModel(req *http.Reques
 	if b.srv.PutModelWithArrayOfModel == nil {
 		return nil, &nonRetriableError{errors.New("fake for method PutModelWithArrayOfModel not implemented")}
 	}
-	body, err := server.UnmarshalRequestAsXML[xmlbasicgroup.ModelWithArrayOfModel](req)
+	body, err := server.UnmarshalRequestAsXML[xmlgroup.ModelWithArrayOfModel](req)
 	if err != nil {
 		return nil, err
 	}
@@ -205,7 +205,7 @@ func (b *BasicServerTransport) dispatchPutModelWithOptionalField(req *http.Reque
 	if b.srv.PutModelWithOptionalField == nil {
 		return nil, &nonRetriableError{errors.New("fake for method PutModelWithOptionalField not implemented")}
 	}
-	body, err := server.UnmarshalRequestAsXML[xmlbasicgroup.ModelWithOptionalField](req)
+	body, err := server.UnmarshalRequestAsXML[xmlgroup.ModelWithOptionalField](req)
 	if err != nil {
 		return nil, err
 	}
@@ -228,7 +228,7 @@ func (b *BasicServerTransport) dispatchPutModelWithSimpleArrays(req *http.Reques
 	if b.srv.PutModelWithSimpleArrays == nil {
 		return nil, &nonRetriableError{errors.New("fake for method PutModelWithSimpleArrays not implemented")}
 	}
-	body, err := server.UnmarshalRequestAsXML[xmlbasicgroup.ModelWithSimpleArrays](req)
+	body, err := server.UnmarshalRequestAsXML[xmlgroup.ModelWithSimpleArrays](req)
 	if err != nil {
 		return nil, err
 	}
@@ -251,7 +251,7 @@ func (b *BasicServerTransport) dispatchPutSimpleModel(req *http.Request) (*http.
 	if b.srv.PutSimpleModel == nil {
 		return nil, &nonRetriableError{errors.New("fake for method PutSimpleModel not implemented")}
 	}
-	body, err := server.UnmarshalRequestAsXML[xmlbasicgroup.SimpleModel](req)
+	body, err := server.UnmarshalRequestAsXML[xmlgroup.SimpleModel](req)
 	if err != nil {
 		return nil, err
 	}
