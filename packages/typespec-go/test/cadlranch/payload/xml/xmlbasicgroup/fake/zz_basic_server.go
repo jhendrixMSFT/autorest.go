@@ -114,7 +114,7 @@ func (b *BasicServerTransport) dispatchGetModelWithArrayOfModel(req *http.Reques
 	if !contains([]int{http.StatusOK}, respContent.HTTPStatus) {
 		return nil, &nonRetriableError{fmt.Errorf("unexpected status code %d. acceptable values are http.StatusOK", respContent.HTTPStatus)}
 	}
-	resp, err := server.MarshalResponseAsJSON(respContent, server.GetResponse(respr).ModelWithArrayOfModel, req)
+	resp, err := server.MarshalResponseAsXML(respContent, server.GetResponse(respr).ModelWithArrayOfModel, req)
 	if err != nil {
 		return nil, err
 	}
@@ -133,7 +133,7 @@ func (b *BasicServerTransport) dispatchGetModelWithOptionalField(req *http.Reque
 	if !contains([]int{http.StatusOK}, respContent.HTTPStatus) {
 		return nil, &nonRetriableError{fmt.Errorf("unexpected status code %d. acceptable values are http.StatusOK", respContent.HTTPStatus)}
 	}
-	resp, err := server.MarshalResponseAsJSON(respContent, server.GetResponse(respr).ModelWithOptionalField, req)
+	resp, err := server.MarshalResponseAsXML(respContent, server.GetResponse(respr).ModelWithOptionalField, req)
 	if err != nil {
 		return nil, err
 	}
@@ -152,7 +152,7 @@ func (b *BasicServerTransport) dispatchGetModelWithSimpleArrays(req *http.Reques
 	if !contains([]int{http.StatusOK}, respContent.HTTPStatus) {
 		return nil, &nonRetriableError{fmt.Errorf("unexpected status code %d. acceptable values are http.StatusOK", respContent.HTTPStatus)}
 	}
-	resp, err := server.MarshalResponseAsJSON(respContent, server.GetResponse(respr).ModelWithSimpleArrays, req)
+	resp, err := server.MarshalResponseAsXML(respContent, server.GetResponse(respr).ModelWithSimpleArrays, req)
 	if err != nil {
 		return nil, err
 	}
@@ -171,7 +171,7 @@ func (b *BasicServerTransport) dispatchGetSimpleModel(req *http.Request) (*http.
 	if !contains([]int{http.StatusOK}, respContent.HTTPStatus) {
 		return nil, &nonRetriableError{fmt.Errorf("unexpected status code %d. acceptable values are http.StatusOK", respContent.HTTPStatus)}
 	}
-	resp, err := server.MarshalResponseAsJSON(respContent, server.GetResponse(respr).SimpleModel, req)
+	resp, err := server.MarshalResponseAsXML(respContent, server.GetResponse(respr).SimpleModel, req)
 	if err != nil {
 		return nil, err
 	}
@@ -182,7 +182,7 @@ func (b *BasicServerTransport) dispatchPutModelWithArrayOfModel(req *http.Reques
 	if b.srv.PutModelWithArrayOfModel == nil {
 		return nil, &nonRetriableError{errors.New("fake for method PutModelWithArrayOfModel not implemented")}
 	}
-	body, err := server.UnmarshalRequestAsJSON[xmlbasicgroup.ModelWithArrayOfModel](req)
+	body, err := server.UnmarshalRequestAsXML[xmlbasicgroup.ModelWithArrayOfModel](req)
 	if err != nil {
 		return nil, err
 	}
@@ -205,7 +205,7 @@ func (b *BasicServerTransport) dispatchPutModelWithOptionalField(req *http.Reque
 	if b.srv.PutModelWithOptionalField == nil {
 		return nil, &nonRetriableError{errors.New("fake for method PutModelWithOptionalField not implemented")}
 	}
-	body, err := server.UnmarshalRequestAsJSON[xmlbasicgroup.ModelWithOptionalField](req)
+	body, err := server.UnmarshalRequestAsXML[xmlbasicgroup.ModelWithOptionalField](req)
 	if err != nil {
 		return nil, err
 	}
@@ -228,7 +228,7 @@ func (b *BasicServerTransport) dispatchPutModelWithSimpleArrays(req *http.Reques
 	if b.srv.PutModelWithSimpleArrays == nil {
 		return nil, &nonRetriableError{errors.New("fake for method PutModelWithSimpleArrays not implemented")}
 	}
-	body, err := server.UnmarshalRequestAsJSON[xmlbasicgroup.ModelWithSimpleArrays](req)
+	body, err := server.UnmarshalRequestAsXML[xmlbasicgroup.ModelWithSimpleArrays](req)
 	if err != nil {
 		return nil, err
 	}
@@ -251,7 +251,7 @@ func (b *BasicServerTransport) dispatchPutSimpleModel(req *http.Request) (*http.
 	if b.srv.PutSimpleModel == nil {
 		return nil, &nonRetriableError{errors.New("fake for method PutSimpleModel not implemented")}
 	}
-	body, err := server.UnmarshalRequestAsJSON[xmlbasicgroup.SimpleModel](req)
+	body, err := server.UnmarshalRequestAsXML[xmlbasicgroup.SimpleModel](req)
 	if err != nil {
 		return nil, err
 	}
