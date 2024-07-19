@@ -7,30 +7,30 @@ package xmlgroup
 // ModelWithArrayOfModel - Contains an array of models.
 type ModelWithArrayOfModel struct {
 	// REQUIRED
-	Items []SimpleModel
+	Items []SimpleModel `xml:"items>SimpleModel"`
 }
 
 // ModelWithOptionalField - Contains an optional field.
 type ModelWithOptionalField struct {
 	// REQUIRED
-	Item   *string
-	Counts *int32
+	Item   *string `xml:"item"`
+	Counts *int32 `xml:"counts"`
 }
 
 // ModelWithSimpleArrays - Contains fields of arrays of primitive types.
 type ModelWithSimpleArrays struct {
 	// REQUIRED
-	Colors []string
+	Colors []string `xml:"colors>string"`
 
 	// REQUIRED
-	Counts []int32
+	Counts []int32 `xml:"counts>int32"`
 }
 
 // SimpleModel - Contains fields of primitive types.
 type SimpleModel struct {
 	// REQUIRED
-	Age *int32
+	Age *int32 `xml:"age"`
 
 	// REQUIRED
-	Name *string
+	Name *string `xml:"name"`
 }

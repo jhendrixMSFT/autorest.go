@@ -4,46 +4,46 @@
 
 package xmlgroup
 
-// BasicClientGetModelWithArrayOfModelResponse contains the response from method BasicClient.GetModelWithArrayOfModel.
-type BasicClientGetModelWithArrayOfModelResponse struct {
+// XMLModelWithArrayOfModelValueClientGetResponse contains the response from method XMLModelWithArrayOfModelValueClient.Get.
+type XMLModelWithArrayOfModelValueClientGetResponse struct {
 	// Contains an array of models.
 	ModelWithArrayOfModel
 }
 
-// BasicClientGetModelWithOptionalFieldResponse contains the response from method BasicClient.GetModelWithOptionalField.
-type BasicClientGetModelWithOptionalFieldResponse struct {
+// XMLModelWithArrayOfModelValueClientPutResponse contains the response from method XMLModelWithArrayOfModelValueClient.Put.
+type XMLModelWithArrayOfModelValueClientPutResponse struct {
+	// placeholder for future response values
+}
+
+// XMLModelWithOptionalFieldValueClientGetResponse contains the response from method XMLModelWithOptionalFieldValueClient.Get.
+type XMLModelWithOptionalFieldValueClientGetResponse struct {
 	// Contains an optional field.
 	ModelWithOptionalField
 }
 
-// BasicClientGetModelWithSimpleArraysResponse contains the response from method BasicClient.GetModelWithSimpleArrays.
-type BasicClientGetModelWithSimpleArraysResponse struct {
+// XMLModelWithOptionalFieldValueClientPutResponse contains the response from method XMLModelWithOptionalFieldValueClient.Put.
+type XMLModelWithOptionalFieldValueClientPutResponse struct {
+	// placeholder for future response values
+}
+
+// XMLModelWithSimpleArraysValueClientGetResponse contains the response from method XMLModelWithSimpleArraysValueClient.Get.
+type XMLModelWithSimpleArraysValueClientGetResponse struct {
 	// Contains fields of arrays of primitive types.
 	ModelWithSimpleArrays
 }
 
-// BasicClientGetSimpleModelResponse contains the response from method BasicClient.GetSimpleModel.
-type BasicClientGetSimpleModelResponse struct {
+// XMLModelWithSimpleArraysValueClientPutResponse contains the response from method XMLModelWithSimpleArraysValueClient.Put.
+type XMLModelWithSimpleArraysValueClientPutResponse struct {
+	// placeholder for future response values
+}
+
+// XMLSimpleModelValueClientGetResponse contains the response from method XMLSimpleModelValueClient.Get.
+type XMLSimpleModelValueClientGetResponse struct {
 	// Contains fields of primitive types.
 	SimpleModel
 }
 
-// BasicClientPutModelWithArrayOfModelResponse contains the response from method BasicClient.PutModelWithArrayOfModel.
-type BasicClientPutModelWithArrayOfModelResponse struct {
-	// placeholder for future response values
-}
-
-// BasicClientPutModelWithOptionalFieldResponse contains the response from method BasicClient.PutModelWithOptionalField.
-type BasicClientPutModelWithOptionalFieldResponse struct {
-	// placeholder for future response values
-}
-
-// BasicClientPutModelWithSimpleArraysResponse contains the response from method BasicClient.PutModelWithSimpleArrays.
-type BasicClientPutModelWithSimpleArraysResponse struct {
-	// placeholder for future response values
-}
-
-// BasicClientPutSimpleModelResponse contains the response from method BasicClient.PutSimpleModel.
-type BasicClientPutSimpleModelResponse struct {
+// XMLSimpleModelValueClientPutResponse contains the response from method XMLSimpleModelValueClient.Put.
+type XMLSimpleModelValueClientPutResponse struct {
 	// placeholder for future response values
 }

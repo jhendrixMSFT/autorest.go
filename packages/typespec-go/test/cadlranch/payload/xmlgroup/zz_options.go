@@ -4,48 +4,48 @@
 
 package xmlgroup
 
-// BasicClientGetModelWithArrayOfModelOptions contains the optional parameters for the BasicClient.GetModelWithArrayOfModel
+// XMLModelWithArrayOfModelValueClientGetOptions contains the optional parameters for the XMLModelWithArrayOfModelValueClient.Get
 // method.
-type BasicClientGetModelWithArrayOfModelOptions struct {
+type XMLModelWithArrayOfModelValueClientGetOptions struct {
 	// placeholder for future optional parameters
 }
 
-// BasicClientGetModelWithOptionalFieldOptions contains the optional parameters for the BasicClient.GetModelWithOptionalField
+// XMLModelWithArrayOfModelValueClientPutOptions contains the optional parameters for the XMLModelWithArrayOfModelValueClient.Put
 // method.
-type BasicClientGetModelWithOptionalFieldOptions struct {
+type XMLModelWithArrayOfModelValueClientPutOptions struct {
 	// placeholder for future optional parameters
 }
 
-// BasicClientGetModelWithSimpleArraysOptions contains the optional parameters for the BasicClient.GetModelWithSimpleArrays
+// XMLModelWithOptionalFieldValueClientGetOptions contains the optional parameters for the XMLModelWithOptionalFieldValueClient.Get
 // method.
-type BasicClientGetModelWithSimpleArraysOptions struct {
+type XMLModelWithOptionalFieldValueClientGetOptions struct {
 	// placeholder for future optional parameters
 }
 
-// BasicClientGetSimpleModelOptions contains the optional parameters for the BasicClient.GetSimpleModel method.
-type BasicClientGetSimpleModelOptions struct {
-	// placeholder for future optional parameters
-}
-
-// BasicClientPutModelWithArrayOfModelOptions contains the optional parameters for the BasicClient.PutModelWithArrayOfModel
+// XMLModelWithOptionalFieldValueClientPutOptions contains the optional parameters for the XMLModelWithOptionalFieldValueClient.Put
 // method.
-type BasicClientPutModelWithArrayOfModelOptions struct {
+type XMLModelWithOptionalFieldValueClientPutOptions struct {
 	// placeholder for future optional parameters
 }
 
-// BasicClientPutModelWithOptionalFieldOptions contains the optional parameters for the BasicClient.PutModelWithOptionalField
+// XMLModelWithSimpleArraysValueClientGetOptions contains the optional parameters for the XMLModelWithSimpleArraysValueClient.Get
 // method.
-type BasicClientPutModelWithOptionalFieldOptions struct {
+type XMLModelWithSimpleArraysValueClientGetOptions struct {
 	// placeholder for future optional parameters
 }
 
-// BasicClientPutModelWithSimpleArraysOptions contains the optional parameters for the BasicClient.PutModelWithSimpleArrays
+// XMLModelWithSimpleArraysValueClientPutOptions contains the optional parameters for the XMLModelWithSimpleArraysValueClient.Put
 // method.
-type BasicClientPutModelWithSimpleArraysOptions struct {
+type XMLModelWithSimpleArraysValueClientPutOptions struct {
 	// placeholder for future optional parameters
 }
 
-// BasicClientPutSimpleModelOptions contains the optional parameters for the BasicClient.PutSimpleModel method.
-type BasicClientPutSimpleModelOptions struct {
+// XMLSimpleModelValueClientGetOptions contains the optional parameters for the XMLSimpleModelValueClient.Get method.
+type XMLSimpleModelValueClientGetOptions struct {
+	// placeholder for future optional parameters
+}
+
+// XMLSimpleModelValueClientPutOptions contains the optional parameters for the XMLSimpleModelValueClient.Put method.
+type XMLSimpleModelValueClientPutOptions struct {
 	// placeholder for future optional parameters
 }
