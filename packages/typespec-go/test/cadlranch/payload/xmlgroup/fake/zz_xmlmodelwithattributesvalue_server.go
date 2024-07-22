@@ -15,32 +15,32 @@ import (
 	"xmlgroup"
 )
 
-// XMLModelWithSimpleArraysValueServer is a fake server for instances of the xmlgroup.XMLModelWithSimpleArraysValueClient type.
-type XMLModelWithSimpleArraysValueServer struct {
-	// Get is the fake for method XMLModelWithSimpleArraysValueClient.Get
+// XMLModelWithAttributesValueServer is a fake server for instances of the xmlgroup.XMLModelWithAttributesValueClient type.
+type XMLModelWithAttributesValueServer struct {
+	// Get is the fake for method XMLModelWithAttributesValueClient.Get
 	// HTTP status codes to indicate success: http.StatusOK
-	Get func(ctx context.Context, options *xmlgroup.XMLModelWithSimpleArraysValueClientGetOptions) (resp azfake.Responder[xmlgroup.XMLModelWithSimpleArraysValueClientGetResponse], errResp azfake.ErrorResponder)
+	Get func(ctx context.Context, options *xmlgroup.XMLModelWithAttributesValueClientGetOptions) (resp azfake.Responder[xmlgroup.XMLModelWithAttributesValueClientGetResponse], errResp azfake.ErrorResponder)
 
-	// Put is the fake for method XMLModelWithSimpleArraysValueClient.Put
+	// Put is the fake for method XMLModelWithAttributesValueClient.Put
 	// HTTP status codes to indicate success: http.StatusNoContent
-	Put func(ctx context.Context, input xmlgroup.ModelWithSimpleArrays, options *xmlgroup.XMLModelWithSimpleArraysValueClientPutOptions) (resp azfake.Responder[xmlgroup.XMLModelWithSimpleArraysValueClientPutResponse], errResp azfake.ErrorResponder)
+	Put func(ctx context.Context, input xmlgroup.ModelWithAttributes, options *xmlgroup.XMLModelWithAttributesValueClientPutOptions) (resp azfake.Responder[xmlgroup.XMLModelWithAttributesValueClientPutResponse], errResp azfake.ErrorResponder)
 }
 
-// NewXMLModelWithSimpleArraysValueServerTransport creates a new instance of XMLModelWithSimpleArraysValueServerTransport with the provided implementation.
-// The returned XMLModelWithSimpleArraysValueServerTransport instance is connected to an instance of xmlgroup.XMLModelWithSimpleArraysValueClient via the
+// NewXMLModelWithAttributesValueServerTransport creates a new instance of XMLModelWithAttributesValueServerTransport with the provided implementation.
+// The returned XMLModelWithAttributesValueServerTransport instance is connected to an instance of xmlgroup.XMLModelWithAttributesValueClient via the
 // azcore.ClientOptions.Transporter field in the client's constructor parameters.
-func NewXMLModelWithSimpleArraysValueServerTransport(srv *XMLModelWithSimpleArraysValueServer) *XMLModelWithSimpleArraysValueServerTransport {
-	return &XMLModelWithSimpleArraysValueServerTransport{srv: srv}
+func NewXMLModelWithAttributesValueServerTransport(srv *XMLModelWithAttributesValueServer) *XMLModelWithAttributesValueServerTransport {
+	return &XMLModelWithAttributesValueServerTransport{srv: srv}
 }
 
-// XMLModelWithSimpleArraysValueServerTransport connects instances of xmlgroup.XMLModelWithSimpleArraysValueClient to instances of XMLModelWithSimpleArraysValueServer.
-// Don't use this type directly, use NewXMLModelWithSimpleArraysValueServerTransport instead.
-type XMLModelWithSimpleArraysValueServerTransport struct {
-	srv *XMLModelWithSimpleArraysValueServer
+// XMLModelWithAttributesValueServerTransport connects instances of xmlgroup.XMLModelWithAttributesValueClient to instances of XMLModelWithAttributesValueServer.
+// Don't use this type directly, use NewXMLModelWithAttributesValueServerTransport instead.
+type XMLModelWithAttributesValueServerTransport struct {
+	srv *XMLModelWithAttributesValueServer
 }
 
-// Do implements the policy.Transporter interface for XMLModelWithSimpleArraysValueServerTransport.
-func (x *XMLModelWithSimpleArraysValueServerTransport) Do(req *http.Request) (*http.Response, error) {
+// Do implements the policy.Transporter interface for XMLModelWithAttributesValueServerTransport.
+func (x *XMLModelWithAttributesValueServerTransport) Do(req *http.Request) (*http.Response, error) {
 	rawMethod := req.Context().Value(runtime.CtxAPINameKey{})
 	method, ok := rawMethod.(string)
 	if !ok {
@@ -50,14 +50,14 @@ func (x *XMLModelWithSimpleArraysValueServerTransport) Do(req *http.Request) (*h
 	return x.dispatchToMethodFake(req, method)
 }
 
-func (x *XMLModelWithSimpleArraysValueServerTransport) dispatchToMethodFake(req *http.Request, method string) (*http.Response, error) {
+func (x *XMLModelWithAttributesValueServerTransport) dispatchToMethodFake(req *http.Request, method string) (*http.Response, error) {
 	var resp *http.Response
 	var err error
 
 	switch method {
-	case "XMLModelWithSimpleArraysValueClient.Get":
+	case "XMLModelWithAttributesValueClient.Get":
 		resp, err = x.dispatchGet(req)
-	case "XMLModelWithSimpleArraysValueClient.Put":
+	case "XMLModelWithAttributesValueClient.Put":
 		resp, err = x.dispatchPut(req)
 	default:
 		err = fmt.Errorf("unhandled API %s", method)
@@ -66,7 +66,7 @@ func (x *XMLModelWithSimpleArraysValueServerTransport) dispatchToMethodFake(req 
 	return resp, err
 }
 
-func (x *XMLModelWithSimpleArraysValueServerTransport) dispatchGet(req *http.Request) (*http.Response, error) {
+func (x *XMLModelWithAttributesValueServerTransport) dispatchGet(req *http.Request) (*http.Response, error) {
 	if x.srv.Get == nil {
 		return nil, &nonRetriableError{errors.New("fake for method Get not implemented")}
 	}
@@ -78,7 +78,7 @@ func (x *XMLModelWithSimpleArraysValueServerTransport) dispatchGet(req *http.Req
 	if !contains([]int{http.StatusOK}, respContent.HTTPStatus) {
 		return nil, &nonRetriableError{fmt.Errorf("unexpected status code %d. acceptable values are http.StatusOK", respContent.HTTPStatus)}
 	}
-	resp, err := server.MarshalResponseAsXML(respContent, server.GetResponse(respr).ModelWithSimpleArrays, req)
+	resp, err := server.MarshalResponseAsXML(respContent, server.GetResponse(respr).ModelWithAttributes, req)
 	if err != nil {
 		return nil, err
 	}
@@ -88,11 +88,11 @@ func (x *XMLModelWithSimpleArraysValueServerTransport) dispatchGet(req *http.Req
 	return resp, nil
 }
 
-func (x *XMLModelWithSimpleArraysValueServerTransport) dispatchPut(req *http.Request) (*http.Response, error) {
+func (x *XMLModelWithAttributesValueServerTransport) dispatchPut(req *http.Request) (*http.Response, error) {
 	if x.srv.Put == nil {
 		return nil, &nonRetriableError{errors.New("fake for method Put not implemented")}
 	}
-	body, err := server.UnmarshalRequestAsXML[xmlgroup.ModelWithSimpleArrays](req)
+	body, err := server.UnmarshalRequestAsXML[xmlgroup.ModelWithAttributes](req)
 	if err != nil {
 		return nil, err
 	}

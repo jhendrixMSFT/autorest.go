@@ -12,41 +12,41 @@ import (
 	"net/http"
 )
 
-// XMLModelWithSimpleArraysValueClient - Operations for the ModelWithSimpleArrays type.
-// Don't use this type directly, use [XMLClient.NewXMLModelWithSimpleArraysValueClient] instead.
-type XMLModelWithSimpleArraysValueClient struct {
+// XMLModelWithAttributesValueClient - Operations for the ModelWithAttributes type.
+// Don't use this type directly, use [XMLClient.NewXMLModelWithAttributesValueClient] instead.
+type XMLModelWithAttributesValueClient struct {
 	internal *azcore.Client
 }
 
 // Get -
 // If the operation fails it returns an *azcore.ResponseError type.
-//   - options - XMLModelWithSimpleArraysValueClientGetOptions contains the optional parameters for the XMLModelWithSimpleArraysValueClient.Get
+//   - options - XMLModelWithAttributesValueClientGetOptions contains the optional parameters for the XMLModelWithAttributesValueClient.Get
 //     method.
-func (client *XMLModelWithSimpleArraysValueClient) Get(ctx context.Context, options *XMLModelWithSimpleArraysValueClientGetOptions) (XMLModelWithSimpleArraysValueClientGetResponse, error) {
+func (client *XMLModelWithAttributesValueClient) Get(ctx context.Context, options *XMLModelWithAttributesValueClientGetOptions) (XMLModelWithAttributesValueClientGetResponse, error) {
 	var err error
-	const operationName = "XMLModelWithSimpleArraysValueClient.Get"
+	const operationName = "XMLModelWithAttributesValueClient.Get"
 	ctx = context.WithValue(ctx, runtime.CtxAPINameKey{}, operationName)
 	ctx, endSpan := runtime.StartSpan(ctx, operationName, client.internal.Tracer(), nil)
 	defer func() { endSpan(err) }()
 	req, err := client.getCreateRequest(ctx, options)
 	if err != nil {
-		return XMLModelWithSimpleArraysValueClientGetResponse{}, err
+		return XMLModelWithAttributesValueClientGetResponse{}, err
 	}
 	httpResp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return XMLModelWithSimpleArraysValueClientGetResponse{}, err
+		return XMLModelWithAttributesValueClientGetResponse{}, err
 	}
 	if !runtime.HasStatusCode(httpResp, http.StatusOK) {
 		err = runtime.NewResponseError(httpResp)
-		return XMLModelWithSimpleArraysValueClientGetResponse{}, err
+		return XMLModelWithAttributesValueClientGetResponse{}, err
 	}
 	resp, err := client.getHandleResponse(httpResp)
 	return resp, err
 }
 
 // getCreateRequest creates the Get request.
-func (client *XMLModelWithSimpleArraysValueClient) getCreateRequest(ctx context.Context, _ *XMLModelWithSimpleArraysValueClientGetOptions) (*policy.Request, error) {
-	urlPath := "/payload/xml/modelWithSimpleArrays"
+func (client *XMLModelWithAttributesValueClient) getCreateRequest(ctx context.Context, _ *XMLModelWithAttributesValueClientGetOptions) (*policy.Request, error) {
+	urlPath := "/payload/xml/modelWithAttributes"
 	req, err := runtime.NewRequest(ctx, http.MethodGet, runtime.JoinPaths(host, urlPath))
 	if err != nil {
 		return nil, err
@@ -56,45 +56,45 @@ func (client *XMLModelWithSimpleArraysValueClient) getCreateRequest(ctx context.
 }
 
 // getHandleResponse handles the Get response.
-func (client *XMLModelWithSimpleArraysValueClient) getHandleResponse(resp *http.Response) (XMLModelWithSimpleArraysValueClientGetResponse, error) {
-	result := XMLModelWithSimpleArraysValueClientGetResponse{}
+func (client *XMLModelWithAttributesValueClient) getHandleResponse(resp *http.Response) (XMLModelWithAttributesValueClientGetResponse, error) {
+	result := XMLModelWithAttributesValueClientGetResponse{}
 	if val := resp.Header.Get("content-type"); val != "" {
 		result.ContentType = &val
 	}
-	if err := runtime.UnmarshalAsXML(resp, &result.ModelWithSimpleArrays); err != nil {
-		return XMLModelWithSimpleArraysValueClientGetResponse{}, err
+	if err := runtime.UnmarshalAsXML(resp, &result.ModelWithAttributes); err != nil {
+		return XMLModelWithAttributesValueClientGetResponse{}, err
 	}
 	return result, nil
 }
 
 // Put -
 // If the operation fails it returns an *azcore.ResponseError type.
-//   - options - XMLModelWithSimpleArraysValueClientPutOptions contains the optional parameters for the XMLModelWithSimpleArraysValueClient.Put
+//   - options - XMLModelWithAttributesValueClientPutOptions contains the optional parameters for the XMLModelWithAttributesValueClient.Put
 //     method.
-func (client *XMLModelWithSimpleArraysValueClient) Put(ctx context.Context, input ModelWithSimpleArrays, options *XMLModelWithSimpleArraysValueClientPutOptions) (XMLModelWithSimpleArraysValueClientPutResponse, error) {
+func (client *XMLModelWithAttributesValueClient) Put(ctx context.Context, input ModelWithAttributes, options *XMLModelWithAttributesValueClientPutOptions) (XMLModelWithAttributesValueClientPutResponse, error) {
 	var err error
-	const operationName = "XMLModelWithSimpleArraysValueClient.Put"
+	const operationName = "XMLModelWithAttributesValueClient.Put"
 	ctx = context.WithValue(ctx, runtime.CtxAPINameKey{}, operationName)
 	ctx, endSpan := runtime.StartSpan(ctx, operationName, client.internal.Tracer(), nil)
 	defer func() { endSpan(err) }()
 	req, err := client.putCreateRequest(ctx, input, options)
 	if err != nil {
-		return XMLModelWithSimpleArraysValueClientPutResponse{}, err
+		return XMLModelWithAttributesValueClientPutResponse{}, err
 	}
 	httpResp, err := client.internal.Pipeline().Do(req)
 	if err != nil {
-		return XMLModelWithSimpleArraysValueClientPutResponse{}, err
+		return XMLModelWithAttributesValueClientPutResponse{}, err
 	}
 	if !runtime.HasStatusCode(httpResp, http.StatusNoContent) {
 		err = runtime.NewResponseError(httpResp)
-		return XMLModelWithSimpleArraysValueClientPutResponse{}, err
+		return XMLModelWithAttributesValueClientPutResponse{}, err
 	}
-	return XMLModelWithSimpleArraysValueClientPutResponse{}, nil
+	return XMLModelWithAttributesValueClientPutResponse{}, nil
 }
 
 // putCreateRequest creates the Put request.
-func (client *XMLModelWithSimpleArraysValueClient) putCreateRequest(ctx context.Context, input ModelWithSimpleArrays, _ *XMLModelWithSimpleArraysValueClientPutOptions) (*policy.Request, error) {
-	urlPath := "/payload/xml/modelWithSimpleArrays"
+func (client *XMLModelWithAttributesValueClient) putCreateRequest(ctx context.Context, input ModelWithAttributes, _ *XMLModelWithAttributesValueClientPutOptions) (*policy.Request, error) {
+	urlPath := "/payload/xml/modelWithAttributes"
 	req, err := runtime.NewRequest(ctx, http.MethodPut, runtime.JoinPaths(host, urlPath))
 	if err != nil {
 		return nil, err

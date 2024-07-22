@@ -19,6 +19,13 @@ func (client *XMLClient) NewXMLModelWithArrayOfModelValueClient() *XMLModelWithA
 	}
 }
 
+// NewXMLModelWithAttributesValueClient creates a new instance of [XMLModelWithAttributesValueClient].
+func (client *XMLClient) NewXMLModelWithAttributesValueClient() *XMLModelWithAttributesValueClient {
+	return &XMLModelWithAttributesValueClient{
+		internal: client.internal,
+	}
+}
+
 // NewXMLModelWithOptionalFieldValueClient creates a new instance of [XMLModelWithOptionalFieldValueClient].
 func (client *XMLClient) NewXMLModelWithOptionalFieldValueClient() *XMLModelWithOptionalFieldValueClient {
 	return &XMLModelWithOptionalFieldValueClient{
@@ -26,9 +33,23 @@ func (client *XMLClient) NewXMLModelWithOptionalFieldValueClient() *XMLModelWith
 	}
 }
 
+// NewXMLModelWithRenamedFieldsValueClient creates a new instance of [XMLModelWithRenamedFieldsValueClient].
+func (client *XMLClient) NewXMLModelWithRenamedFieldsValueClient() *XMLModelWithRenamedFieldsValueClient {
+	return &XMLModelWithRenamedFieldsValueClient{
+		internal: client.internal,
+	}
+}
+
 // NewXMLModelWithSimpleArraysValueClient creates a new instance of [XMLModelWithSimpleArraysValueClient].
 func (client *XMLClient) NewXMLModelWithSimpleArraysValueClient() *XMLModelWithSimpleArraysValueClient {
 	return &XMLModelWithSimpleArraysValueClient{
+		internal: client.internal,
+	}
+}
+
+// NewXMLModelWithUnwrappedArrayValueClient creates a new instance of [XMLModelWithUnwrappedArrayValueClient].
+func (client *XMLClient) NewXMLModelWithUnwrappedArrayValueClient() *XMLModelWithUnwrappedArrayValueClient {
+	return &XMLModelWithUnwrappedArrayValueClient{
 		internal: client.internal,
 	}
 }

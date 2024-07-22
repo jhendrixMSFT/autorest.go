@@ -10,11 +10,32 @@ type ModelWithArrayOfModel struct {
 	Items []SimpleModel `xml:"items>SimpleModel"`
 }
 
+// ModelWithAttributes - Contains fields that are XML attributes.
+type ModelWithAttributes struct {
+	// REQUIRED
+	Enabled *bool `xml:"Enabled"`
+
+	// REQUIRED
+	Id1 *int32 `xml:"id1,attr"`
+
+	// REQUIRED
+	Id2 *string `xml:"id2,attr"`
+}
+
 // ModelWithOptionalField - Contains an optional field.
 type ModelWithOptionalField struct {
 	// REQUIRED
-	Item   *string `xml:"item"`
-	Counts *int32 `xml:"counts"`
+	Item  *string `xml:"item"`
+	Value *int32 `xml:"value"`
+}
+
+// ModelWithRenamedFields - Contains fields of the same type that have different XML representation.
+type ModelWithRenamedFields struct {
+	// REQUIRED
+	InputData *SimpleModel `xml:"InputData"`
+
+	// REQUIRED
+	OutputData *SimpleModel `xml:"OutputData"`
 }
 
 // ModelWithSimpleArrays - Contains fields of arrays of primitive types.
@@ -24,6 +45,15 @@ type ModelWithSimpleArrays struct {
 
 	// REQUIRED
 	Counts []int32 `xml:"counts>int32"`
+}
+
+// ModelWithUnwrappedArray - Contains fields of wrapped and unwrapped arrays of primitive types.
+type ModelWithUnwrappedArray struct {
+	// REQUIRED
+	Colors []string `xml:"Colors"`
+
+	// REQUIRED
+	Counts []int32 `xml:"Counts>int32"`
 }
 
 // SimpleModel - Contains fields of primitive types.
