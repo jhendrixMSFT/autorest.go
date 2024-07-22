@@ -73,6 +73,33 @@ func (m *ModelWithAttributes) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
+// MarshalJSON implements the json.Marshaller interface for type ModelWithEmptyArray.
+func (m ModelWithEmptyArray) MarshalJSON() ([]byte, error) {
+	objectMap := make(map[string]any)
+	populate(objectMap, "items", m.Items)
+	return json.Marshal(objectMap)
+}
+
+// UnmarshalJSON implements the json.Unmarshaller interface for type ModelWithEmptyArray.
+func (m *ModelWithEmptyArray) UnmarshalJSON(data []byte) error {
+	var rawMsg map[string]json.RawMessage
+	if err := json.Unmarshal(data, &rawMsg); err != nil {
+		return fmt.Errorf("unmarshalling type %T: %v", m, err)
+	}
+	for key, val := range rawMsg {
+		var err error
+		switch key {
+		case "items":
+			err = unpopulate(val, "Items", &m.Items)
+			delete(rawMsg, key)
+		}
+		if err != nil {
+			return fmt.Errorf("unmarshalling type %T: %v", m, err)
+		}
+	}
+	return nil
+}
+
 // MarshalJSON implements the json.Marshaller interface for type ModelWithOptionalField.
 func (m ModelWithOptionalField) MarshalJSON() ([]byte, error) {
 	objectMap := make(map[string]any)
