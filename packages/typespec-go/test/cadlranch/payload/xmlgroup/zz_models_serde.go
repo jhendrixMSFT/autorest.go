@@ -38,11 +38,46 @@ func (m *ModelWithArrayOfModel) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
+// MarshalJSON implements the json.Marshaller interface for type ModelWithAttributes.
+func (m ModelWithAttributes) MarshalJSON() ([]byte, error) {
+	objectMap := make(map[string]any)
+	populate(objectMap, "enabled", m.Enabled)
+	populate(objectMap, "id1", m.Id1)
+	populate(objectMap, "id2", m.Id2)
+	return json.Marshal(objectMap)
+}
+
+// UnmarshalJSON implements the json.Unmarshaller interface for type ModelWithAttributes.
+func (m *ModelWithAttributes) UnmarshalJSON(data []byte) error {
+	var rawMsg map[string]json.RawMessage
+	if err := json.Unmarshal(data, &rawMsg); err != nil {
+		return fmt.Errorf("unmarshalling type %T: %v", m, err)
+	}
+	for key, val := range rawMsg {
+		var err error
+		switch key {
+		case "enabled":
+			err = unpopulate(val, "Enabled", &m.Enabled)
+			delete(rawMsg, key)
+		case "id1":
+			err = unpopulate(val, "Id1", &m.Id1)
+			delete(rawMsg, key)
+		case "id2":
+			err = unpopulate(val, "Id2", &m.Id2)
+			delete(rawMsg, key)
+		}
+		if err != nil {
+			return fmt.Errorf("unmarshalling type %T: %v", m, err)
+		}
+	}
+	return nil
+}
+
 // MarshalJSON implements the json.Marshaller interface for type ModelWithOptionalField.
 func (m ModelWithOptionalField) MarshalJSON() ([]byte, error) {
 	objectMap := make(map[string]any)
-	populate(objectMap, "counts", m.Counts)
 	populate(objectMap, "item", m.Item)
+	populate(objectMap, "value", m.Value)
 	return json.Marshal(objectMap)
 }
 
@@ -55,11 +90,42 @@ func (m *ModelWithOptionalField) UnmarshalJSON(data []byte) error {
 	for key, val := range rawMsg {
 		var err error
 		switch key {
-		case "counts":
-			err = unpopulate(val, "Counts", &m.Counts)
-			delete(rawMsg, key)
 		case "item":
 			err = unpopulate(val, "Item", &m.Item)
+			delete(rawMsg, key)
+		case "value":
+			err = unpopulate(val, "Value", &m.Value)
+			delete(rawMsg, key)
+		}
+		if err != nil {
+			return fmt.Errorf("unmarshalling type %T: %v", m, err)
+		}
+	}
+	return nil
+}
+
+// MarshalJSON implements the json.Marshaller interface for type ModelWithRenamedFields.
+func (m ModelWithRenamedFields) MarshalJSON() ([]byte, error) {
+	objectMap := make(map[string]any)
+	populate(objectMap, "inputData", m.InputData)
+	populate(objectMap, "outputData", m.OutputData)
+	return json.Marshal(objectMap)
+}
+
+// UnmarshalJSON implements the json.Unmarshaller interface for type ModelWithRenamedFields.
+func (m *ModelWithRenamedFields) UnmarshalJSON(data []byte) error {
+	var rawMsg map[string]json.RawMessage
+	if err := json.Unmarshal(data, &rawMsg); err != nil {
+		return fmt.Errorf("unmarshalling type %T: %v", m, err)
+	}
+	for key, val := range rawMsg {
+		var err error
+		switch key {
+		case "inputData":
+			err = unpopulate(val, "InputData", &m.InputData)
+			delete(rawMsg, key)
+		case "outputData":
+			err = unpopulate(val, "OutputData", &m.OutputData)
 			delete(rawMsg, key)
 		}
 		if err != nil {
@@ -79,6 +145,37 @@ func (m ModelWithSimpleArrays) MarshalJSON() ([]byte, error) {
 
 // UnmarshalJSON implements the json.Unmarshaller interface for type ModelWithSimpleArrays.
 func (m *ModelWithSimpleArrays) UnmarshalJSON(data []byte) error {
+	var rawMsg map[string]json.RawMessage
+	if err := json.Unmarshal(data, &rawMsg); err != nil {
+		return fmt.Errorf("unmarshalling type %T: %v", m, err)
+	}
+	for key, val := range rawMsg {
+		var err error
+		switch key {
+		case "colors":
+			err = unpopulate(val, "Colors", &m.Colors)
+			delete(rawMsg, key)
+		case "counts":
+			err = unpopulate(val, "Counts", &m.Counts)
+			delete(rawMsg, key)
+		}
+		if err != nil {
+			return fmt.Errorf("unmarshalling type %T: %v", m, err)
+		}
+	}
+	return nil
+}
+
+// MarshalJSON implements the json.Marshaller interface for type ModelWithUnwrappedArray.
+func (m ModelWithUnwrappedArray) MarshalJSON() ([]byte, error) {
+	objectMap := make(map[string]any)
+	populate(objectMap, "colors", m.Colors)
+	populate(objectMap, "counts", m.Counts)
+	return json.Marshal(objectMap)
+}
+
+// UnmarshalJSON implements the json.Unmarshaller interface for type ModelWithUnwrappedArray.
+func (m *ModelWithUnwrappedArray) UnmarshalJSON(data []byte) error {
 	var rawMsg map[string]json.RawMessage
 	if err := json.Unmarshal(data, &rawMsg); err != nil {
 		return fmt.Errorf("unmarshalling type %T: %v", m, err)

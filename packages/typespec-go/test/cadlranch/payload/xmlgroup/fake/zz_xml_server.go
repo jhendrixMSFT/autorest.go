@@ -18,11 +18,20 @@ type XMLServer struct {
 	// XMLModelWithArrayOfModelValueServer contains the fakes for client XMLModelWithArrayOfModelValueClient
 	XMLModelWithArrayOfModelValueServer XMLModelWithArrayOfModelValueServer
 
+	// XMLModelWithAttributesValueServer contains the fakes for client XMLModelWithAttributesValueClient
+	XMLModelWithAttributesValueServer XMLModelWithAttributesValueServer
+
 	// XMLModelWithOptionalFieldValueServer contains the fakes for client XMLModelWithOptionalFieldValueClient
 	XMLModelWithOptionalFieldValueServer XMLModelWithOptionalFieldValueServer
 
+	// XMLModelWithRenamedFieldsValueServer contains the fakes for client XMLModelWithRenamedFieldsValueClient
+	XMLModelWithRenamedFieldsValueServer XMLModelWithRenamedFieldsValueServer
+
 	// XMLModelWithSimpleArraysValueServer contains the fakes for client XMLModelWithSimpleArraysValueClient
 	XMLModelWithSimpleArraysValueServer XMLModelWithSimpleArraysValueServer
+
+	// XMLModelWithUnwrappedArrayValueServer contains the fakes for client XMLModelWithUnwrappedArrayValueClient
+	XMLModelWithUnwrappedArrayValueServer XMLModelWithUnwrappedArrayValueServer
 
 	// XMLSimpleModelValueServer contains the fakes for client XMLSimpleModelValueClient
 	XMLSimpleModelValueServer XMLSimpleModelValueServer
@@ -38,12 +47,15 @@ func NewXMLServerTransport(srv *XMLServer) *XMLServerTransport {
 // XMLServerTransport connects instances of xmlgroup.XMLClient to instances of XMLServer.
 // Don't use this type directly, use NewXMLServerTransport instead.
 type XMLServerTransport struct {
-	srv                                    *XMLServer
-	trMu                                   sync.Mutex
-	trXMLModelWithArrayOfModelValueServer  *XMLModelWithArrayOfModelValueServerTransport
-	trXMLModelWithOptionalFieldValueServer *XMLModelWithOptionalFieldValueServerTransport
-	trXMLModelWithSimpleArraysValueServer  *XMLModelWithSimpleArraysValueServerTransport
-	trXMLSimpleModelValueServer            *XMLSimpleModelValueServerTransport
+	srv                                     *XMLServer
+	trMu                                    sync.Mutex
+	trXMLModelWithArrayOfModelValueServer   *XMLModelWithArrayOfModelValueServerTransport
+	trXMLModelWithAttributesValueServer     *XMLModelWithAttributesValueServerTransport
+	trXMLModelWithOptionalFieldValueServer  *XMLModelWithOptionalFieldValueServerTransport
+	trXMLModelWithRenamedFieldsValueServer  *XMLModelWithRenamedFieldsValueServerTransport
+	trXMLModelWithSimpleArraysValueServer   *XMLModelWithSimpleArraysValueServerTransport
+	trXMLModelWithUnwrappedArrayValueServer *XMLModelWithUnwrappedArrayValueServerTransport
+	trXMLSimpleModelValueServer             *XMLSimpleModelValueServerTransport
 }
 
 // Do implements the policy.Transporter interface for XMLServerTransport.
@@ -67,16 +79,31 @@ func (x *XMLServerTransport) dispatchToClientFake(req *http.Request, client stri
 			return NewXMLModelWithArrayOfModelValueServerTransport(&x.srv.XMLModelWithArrayOfModelValueServer)
 		})
 		resp, err = x.trXMLModelWithArrayOfModelValueServer.Do(req)
+	case "XMLModelWithAttributesValueClient":
+		initServer(&x.trMu, &x.trXMLModelWithAttributesValueServer, func() *XMLModelWithAttributesValueServerTransport {
+			return NewXMLModelWithAttributesValueServerTransport(&x.srv.XMLModelWithAttributesValueServer)
+		})
+		resp, err = x.trXMLModelWithAttributesValueServer.Do(req)
 	case "XMLModelWithOptionalFieldValueClient":
 		initServer(&x.trMu, &x.trXMLModelWithOptionalFieldValueServer, func() *XMLModelWithOptionalFieldValueServerTransport {
 			return NewXMLModelWithOptionalFieldValueServerTransport(&x.srv.XMLModelWithOptionalFieldValueServer)
 		})
 		resp, err = x.trXMLModelWithOptionalFieldValueServer.Do(req)
+	case "XMLModelWithRenamedFieldsValueClient":
+		initServer(&x.trMu, &x.trXMLModelWithRenamedFieldsValueServer, func() *XMLModelWithRenamedFieldsValueServerTransport {
+			return NewXMLModelWithRenamedFieldsValueServerTransport(&x.srv.XMLModelWithRenamedFieldsValueServer)
+		})
+		resp, err = x.trXMLModelWithRenamedFieldsValueServer.Do(req)
 	case "XMLModelWithSimpleArraysValueClient":
 		initServer(&x.trMu, &x.trXMLModelWithSimpleArraysValueServer, func() *XMLModelWithSimpleArraysValueServerTransport {
 			return NewXMLModelWithSimpleArraysValueServerTransport(&x.srv.XMLModelWithSimpleArraysValueServer)
 		})
 		resp, err = x.trXMLModelWithSimpleArraysValueServer.Do(req)
+	case "XMLModelWithUnwrappedArrayValueClient":
+		initServer(&x.trMu, &x.trXMLModelWithUnwrappedArrayValueServer, func() *XMLModelWithUnwrappedArrayValueServerTransport {
+			return NewXMLModelWithUnwrappedArrayValueServerTransport(&x.srv.XMLModelWithUnwrappedArrayValueServer)
+		})
+		resp, err = x.trXMLModelWithUnwrappedArrayValueServer.Do(req)
 	case "XMLSimpleModelValueClient":
 		initServer(&x.trMu, &x.trXMLSimpleModelValueServer, func() *XMLSimpleModelValueServerTransport {
 			return NewXMLSimpleModelValueServerTransport(&x.srv.XMLSimpleModelValueServer)
