@@ -21,6 +21,9 @@ type XMLServer struct {
 	// XMLModelWithAttributesValueServer contains the fakes for client XMLModelWithAttributesValueClient
 	XMLModelWithAttributesValueServer XMLModelWithAttributesValueServer
 
+	// XMLModelWithEmptyArrayValueServer contains the fakes for client XMLModelWithEmptyArrayValueClient
+	XMLModelWithEmptyArrayValueServer XMLModelWithEmptyArrayValueServer
+
 	// XMLModelWithOptionalFieldValueServer contains the fakes for client XMLModelWithOptionalFieldValueClient
 	XMLModelWithOptionalFieldValueServer XMLModelWithOptionalFieldValueServer
 
@@ -51,6 +54,7 @@ type XMLServerTransport struct {
 	trMu                                    sync.Mutex
 	trXMLModelWithArrayOfModelValueServer   *XMLModelWithArrayOfModelValueServerTransport
 	trXMLModelWithAttributesValueServer     *XMLModelWithAttributesValueServerTransport
+	trXMLModelWithEmptyArrayValueServer     *XMLModelWithEmptyArrayValueServerTransport
 	trXMLModelWithOptionalFieldValueServer  *XMLModelWithOptionalFieldValueServerTransport
 	trXMLModelWithRenamedFieldsValueServer  *XMLModelWithRenamedFieldsValueServerTransport
 	trXMLModelWithSimpleArraysValueServer   *XMLModelWithSimpleArraysValueServerTransport
@@ -84,6 +88,11 @@ func (x *XMLServerTransport) dispatchToClientFake(req *http.Request, client stri
 			return NewXMLModelWithAttributesValueServerTransport(&x.srv.XMLModelWithAttributesValueServer)
 		})
 		resp, err = x.trXMLModelWithAttributesValueServer.Do(req)
+	case "XMLModelWithEmptyArrayValueClient":
+		initServer(&x.trMu, &x.trXMLModelWithEmptyArrayValueServer, func() *XMLModelWithEmptyArrayValueServerTransport {
+			return NewXMLModelWithEmptyArrayValueServerTransport(&x.srv.XMLModelWithEmptyArrayValueServer)
+		})
+		resp, err = x.trXMLModelWithEmptyArrayValueServer.Do(req)
 	case "XMLModelWithOptionalFieldValueClient":
 		initServer(&x.trMu, &x.trXMLModelWithOptionalFieldValueServer, func() *XMLModelWithOptionalFieldValueServerTransport {
 			return NewXMLModelWithOptionalFieldValueServerTransport(&x.srv.XMLModelWithOptionalFieldValueServer)

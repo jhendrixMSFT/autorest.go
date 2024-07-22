@@ -22,6 +22,12 @@ type ModelWithAttributes struct {
 	Id2 *string `xml:"id2,attr"`
 }
 
+// ModelWithEmptyArray - Contains an array of models that's supposed to be sent/received as an empty XML element.
+type ModelWithEmptyArray struct {
+	// REQUIRED
+	Items []SimpleModel `xml:"items>SimpleModel"`
+}
+
 // ModelWithOptionalField - Contains an optional field.
 type ModelWithOptionalField struct {
 	// REQUIRED

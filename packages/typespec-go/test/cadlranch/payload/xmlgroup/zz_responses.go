@@ -28,6 +28,18 @@ type XMLModelWithAttributesValueClientPutResponse struct {
 	// placeholder for future response values
 }
 
+// XMLModelWithEmptyArrayValueClientGetResponse contains the response from method XMLModelWithEmptyArrayValueClient.Get.
+type XMLModelWithEmptyArrayValueClientGetResponse struct {
+	// Contains an array of models that's supposed to be sent/received as an empty XML element.
+	ModelWithEmptyArray
+	ContentType *string
+}
+
+// XMLModelWithEmptyArrayValueClientPutResponse contains the response from method XMLModelWithEmptyArrayValueClient.Put.
+type XMLModelWithEmptyArrayValueClientPutResponse struct {
+	// placeholder for future response values
+}
+
 // XMLModelWithOptionalFieldValueClientGetResponse contains the response from method XMLModelWithOptionalFieldValueClient.Get.
 type XMLModelWithOptionalFieldValueClientGetResponse struct {
 	// Contains an optional field.

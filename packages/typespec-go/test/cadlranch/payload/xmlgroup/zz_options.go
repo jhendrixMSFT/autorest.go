@@ -28,6 +28,18 @@ type XMLModelWithAttributesValueClientPutOptions struct {
 	// placeholder for future optional parameters
 }
 
+// XMLModelWithEmptyArrayValueClientGetOptions contains the optional parameters for the XMLModelWithEmptyArrayValueClient.Get
+// method.
+type XMLModelWithEmptyArrayValueClientGetOptions struct {
+	// placeholder for future optional parameters
+}
+
+// XMLModelWithEmptyArrayValueClientPutOptions contains the optional parameters for the XMLModelWithEmptyArrayValueClient.Put
+// method.
+type XMLModelWithEmptyArrayValueClientPutOptions struct {
+	// placeholder for future optional parameters
+}
+
 // XMLModelWithOptionalFieldValueClientGetOptions contains the optional parameters for the XMLModelWithOptionalFieldValueClient.Get
 // method.
 type XMLModelWithOptionalFieldValueClientGetOptions struct {

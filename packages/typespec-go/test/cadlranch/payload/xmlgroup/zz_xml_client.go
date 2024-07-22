@@ -26,6 +26,13 @@ func (client *XMLClient) NewXMLModelWithAttributesValueClient() *XMLModelWithAtt
 	}
 }
 
+// NewXMLModelWithEmptyArrayValueClient creates a new instance of [XMLModelWithEmptyArrayValueClient].
+func (client *XMLClient) NewXMLModelWithEmptyArrayValueClient() *XMLModelWithEmptyArrayValueClient {
+	return &XMLModelWithEmptyArrayValueClient{
+		internal: client.internal,
+	}
+}
+
 // NewXMLModelWithOptionalFieldValueClient creates a new instance of [XMLModelWithOptionalFieldValueClient].
 func (client *XMLClient) NewXMLModelWithOptionalFieldValueClient() *XMLModelWithOptionalFieldValueClient {
 	return &XMLModelWithOptionalFieldValueClient{
