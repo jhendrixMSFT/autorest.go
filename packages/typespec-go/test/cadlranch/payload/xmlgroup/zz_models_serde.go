@@ -86,6 +86,18 @@ func (m ModelWithRenamedArrays) MarshalXML(enc *xml.Encoder, start xml.StartElem
 	return enc.EncodeElement(aux, start)
 }
 
+// MarshalXML implements the xml.Marshaller interface for type ModelWithRenamedFields.
+func (m ModelWithRenamedFields) MarshalXML(enc *xml.Encoder, start xml.StartElement) error {
+	start.Name.Local = "ModelWithRenamedFieldsSrc"
+	type alias ModelWithRenamedFields
+	aux := &struct {
+		*alias
+	}{
+		alias: (*alias)(&m),
+	}
+	return enc.EncodeElement(aux, start)
+}
+
 // MarshalXML implements the xml.Marshaller interface for type ModelWithSimpleArrays.
 func (m ModelWithSimpleArrays) MarshalXML(enc *xml.Encoder, start xml.StartElement) error {
 	type alias ModelWithSimpleArrays
@@ -110,7 +122,7 @@ func (m ModelWithUnwrappedArray) MarshalXML(enc *xml.Encoder, start xml.StartEle
 	type alias ModelWithUnwrappedArray
 	aux := &struct {
 		*alias
-		Colors *[]string `xml:"string"`
+		Colors *[]string `xml:"colors"`
 		Counts *[]int32  `xml:"counts>int32"`
 	}{
 		alias: (*alias)(&m),
