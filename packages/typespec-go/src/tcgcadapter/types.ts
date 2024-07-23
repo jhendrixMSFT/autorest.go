@@ -542,7 +542,7 @@ export class typeAdapter {
     } else {
       modelType = new go.ModelType(modelName, annotations, usage);
       // polymorphic types don't have XMLInfo
-      // TODO: XMLInfo
+      modelType.xml = adaptXMLInfo(model.decorators);
     }
     if (model.description) {
       modelType.description = model.description;
@@ -604,8 +604,7 @@ export class typeAdapter {
       field.defaultValue = this.getDiscriminatorLiteral(prop);
     }
   
-    // TODO: XMLInfo
-    //field.xml = adaptXMLInfo(prop.schema);
+    field.xml = adaptXMLInfo(prop.decorators, field);
   
     return field;
   }
@@ -1042,4 +1041,36 @@ function aggregateProperties(model: tcgc.SdkModelType): {props: Array<tcgc.SdkMo
     parent = parent.baseModel;
   }
   return {props: allProps, addlProps: addlProps};
+}
+
+export function adaptXMLInfo(decorators: Array<tcgc.DecoratorInfo>, field?: go.ModelField): go.XMLInfo | undefined {
+  if (decorators.length === 0 && (!field || (!go.isSliceType(field.type)))) {
+    return undefined;
+  }
+
+  const xmlInfo = new go.XMLInfo();
+  if (field && go.isSliceType(field.type)) {
+    xmlInfo.wraps = go.getTypeDeclaration(field.type.elementType);
+  }
+
+  for (const decorator of decorators) {
+    switch (decorator.name) {
+      case 'TypeSpec.Xml.@attribute':
+        xmlInfo.attribute = true;
+        break;
+      case 'TypeSpec.Xml.@name':
+        if (field) {
+          xmlInfo.name = decorator.arguments['name'];
+        } else {
+          xmlInfo.wrapper = decorator.arguments['name'];
+        }
+        break;
+      case 'TypeSpec.Xml.@unwrapped':
+        // for tsp, arrays are wrapped by default
+        xmlInfo.wraps = undefined;
+        break;
+    }
+  }
+
+  return xmlInfo;
 }
