@@ -11,7 +11,7 @@ func (m ModelWithArrayOfModel) MarshalXML(enc *xml.Encoder, start xml.StartEleme
 	type alias ModelWithArrayOfModel
 	aux := &struct {
 		*alias
-		Items *[]SimpleModel `xml:"SimpleModel"`
+		Items *[]SimpleModel `xml:"items>SimpleModel"`
 	}{
 		alias: (*alias)(&m),
 	}
@@ -42,7 +42,7 @@ func (m ModelWithEmptyArray) MarshalXML(enc *xml.Encoder, start xml.StartElement
 	type alias ModelWithEmptyArray
 	aux := &struct {
 		*alias
-		Items *[]SimpleModel `xml:"SimpleModel"`
+		Items *[]SimpleModel `xml:"items>SimpleModel"`
 	}{
 		alias: (*alias)(&m),
 	}
@@ -57,7 +57,7 @@ func (m ModelWithEncodedNames) MarshalXML(enc *xml.Encoder, start xml.StartEleme
 	type alias ModelWithEncodedNames
 	aux := &struct {
 		*alias
-		Colors *[]string `xml:"string"`
+		Colors *[]string `xml:"colors>string"`
 	}{
 		alias: (*alias)(&m),
 	}
@@ -72,8 +72,8 @@ func (m ModelWithRenamedArrays) MarshalXML(enc *xml.Encoder, start xml.StartElem
 	type alias ModelWithRenamedArrays
 	aux := &struct {
 		*alias
-		Colors *[]string `xml:"string"`
-		Counts *[]int32  `xml:"int32"`
+		Colors *[]string `xml:"Colors"`
+		Counts *[]int32  `xml:"Counts>int32"`
 	}{
 		alias: (*alias)(&m),
 	}
@@ -91,8 +91,8 @@ func (m ModelWithSimpleArrays) MarshalXML(enc *xml.Encoder, start xml.StartEleme
 	type alias ModelWithSimpleArrays
 	aux := &struct {
 		*alias
-		Colors *[]string `xml:"string"`
-		Counts *[]int32  `xml:"int32"`
+		Colors *[]string `xml:"colors>string"`
+		Counts *[]int32  `xml:"counts>int32"`
 	}{
 		alias: (*alias)(&m),
 	}
@@ -111,7 +111,7 @@ func (m ModelWithUnwrappedArray) MarshalXML(enc *xml.Encoder, start xml.StartEle
 	aux := &struct {
 		*alias
 		Colors *[]string `xml:"string"`
-		Counts *[]int32  `xml:"int32"`
+		Counts *[]int32  `xml:"counts>int32"`
 	}{
 		alias: (*alias)(&m),
 	}
