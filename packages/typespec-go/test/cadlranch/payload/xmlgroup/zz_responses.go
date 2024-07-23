@@ -28,6 +28,18 @@ type XMLModelWithAttributesValueClientPutResponse struct {
 	// placeholder for future response values
 }
 
+// XMLModelWithDictionaryValueClientGetResponse contains the response from method XMLModelWithDictionaryValueClient.Get.
+type XMLModelWithDictionaryValueClientGetResponse struct {
+	// Contains a dictionary of key value pairs.
+	ModelWithDictionary
+	ContentType *string
+}
+
+// XMLModelWithDictionaryValueClientPutResponse contains the response from method XMLModelWithDictionaryValueClient.Put.
+type XMLModelWithDictionaryValueClientPutResponse struct {
+	// placeholder for future response values
+}
+
 // XMLModelWithEmptyArrayValueClientGetResponse contains the response from method XMLModelWithEmptyArrayValueClient.Get.
 type XMLModelWithEmptyArrayValueClientGetResponse struct {
 	// Contains an array of models that's supposed to be sent/received as an empty XML element.
@@ -73,6 +85,18 @@ type XMLModelWithSimpleArraysValueClientGetResponse struct {
 
 // XMLModelWithSimpleArraysValueClientPutResponse contains the response from method XMLModelWithSimpleArraysValueClient.Put.
 type XMLModelWithSimpleArraysValueClientPutResponse struct {
+	// placeholder for future response values
+}
+
+// XMLModelWithTextValueClientGetResponse contains the response from method XMLModelWithTextValueClient.Get.
+type XMLModelWithTextValueClientGetResponse struct {
+	// Contains an attribute and text.
+	ModelWithText
+	ContentType *string
+}
+
+// XMLModelWithTextValueClientPutResponse contains the response from method XMLModelWithTextValueClient.Put.
+type XMLModelWithTextValueClientPutResponse struct {
 	// placeholder for future response values
 }
 

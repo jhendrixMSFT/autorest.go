@@ -28,6 +28,18 @@ type XMLModelWithAttributesValueClientPutOptions struct {
 	// placeholder for future optional parameters
 }
 
+// XMLModelWithDictionaryValueClientGetOptions contains the optional parameters for the XMLModelWithDictionaryValueClient.Get
+// method.
+type XMLModelWithDictionaryValueClientGetOptions struct {
+	// placeholder for future optional parameters
+}
+
+// XMLModelWithDictionaryValueClientPutOptions contains the optional parameters for the XMLModelWithDictionaryValueClient.Put
+// method.
+type XMLModelWithDictionaryValueClientPutOptions struct {
+	// placeholder for future optional parameters
+}
+
 // XMLModelWithEmptyArrayValueClientGetOptions contains the optional parameters for the XMLModelWithEmptyArrayValueClient.Get
 // method.
 type XMLModelWithEmptyArrayValueClientGetOptions struct {
@@ -73,6 +85,16 @@ type XMLModelWithSimpleArraysValueClientGetOptions struct {
 // XMLModelWithSimpleArraysValueClientPutOptions contains the optional parameters for the XMLModelWithSimpleArraysValueClient.Put
 // method.
 type XMLModelWithSimpleArraysValueClientPutOptions struct {
+	// placeholder for future optional parameters
+}
+
+// XMLModelWithTextValueClientGetOptions contains the optional parameters for the XMLModelWithTextValueClient.Get method.
+type XMLModelWithTextValueClientGetOptions struct {
+	// placeholder for future optional parameters
+}
+
+// XMLModelWithTextValueClientPutOptions contains the optional parameters for the XMLModelWithTextValueClient.Put method.
+type XMLModelWithTextValueClientPutOptions struct {
 	// placeholder for future optional parameters
 }
 
