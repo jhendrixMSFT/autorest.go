@@ -22,7 +22,9 @@ func TestXMLModelWithEmptyArrayValueClient_Get(t *testing.T) {
 func TestXMLModelWithEmptyArrayValueClient_Put(t *testing.T) {
 	client, err := xmlgroup.NewXMLClient(nil)
 	require.NoError(t, err)
-	resp, err := client.NewXMLModelWithEmptyArrayValueClient().Put(context.Background(), xmlgroup.ModelWithEmptyArray{}, nil)
+	resp, err := client.NewXMLModelWithEmptyArrayValueClient().Put(context.Background(), xmlgroup.ModelWithEmptyArray{
+		Items: []xmlgroup.SimpleModel{},
+	}, nil)
 	require.NoError(t, err)
 	require.Zero(t, resp)
 }
