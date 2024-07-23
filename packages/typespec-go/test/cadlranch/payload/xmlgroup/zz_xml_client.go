@@ -40,9 +40,23 @@ func (client *XMLClient) NewXMLModelWithEmptyArrayValueClient() *XMLModelWithEmp
 	}
 }
 
+// NewXMLModelWithEncodedNamesValueClient creates a new instance of [XMLModelWithEncodedNamesValueClient].
+func (client *XMLClient) NewXMLModelWithEncodedNamesValueClient() *XMLModelWithEncodedNamesValueClient {
+	return &XMLModelWithEncodedNamesValueClient{
+		internal: client.internal,
+	}
+}
+
 // NewXMLModelWithOptionalFieldValueClient creates a new instance of [XMLModelWithOptionalFieldValueClient].
 func (client *XMLClient) NewXMLModelWithOptionalFieldValueClient() *XMLModelWithOptionalFieldValueClient {
 	return &XMLModelWithOptionalFieldValueClient{
+		internal: client.internal,
+	}
+}
+
+// NewXMLModelWithRenamedArraysValueClient creates a new instance of [XMLModelWithRenamedArraysValueClient].
+func (client *XMLClient) NewXMLModelWithRenamedArraysValueClient() *XMLModelWithRenamedArraysValueClient {
+	return &XMLModelWithRenamedArraysValueClient{
 		internal: client.internal,
 	}
 }

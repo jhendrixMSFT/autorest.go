@@ -4,88 +4,29 @@
 
 package xmlgroup
 
-import (
-	"encoding/json"
-	"encoding/xml"
-	"fmt"
-	"github.com/Azure/azure-sdk-for-go/sdk/azcore"
-	"reflect"
-)
+import "encoding/xml"
 
-// MarshalJSON implements the json.Marshaller interface for type ModelWithArrayOfModel.
-func (m ModelWithArrayOfModel) MarshalJSON() ([]byte, error) {
-	objectMap := make(map[string]any)
-	populate(objectMap, "items", m.Items)
-	return json.Marshal(objectMap)
-}
-
-// UnmarshalJSON implements the json.Unmarshaller interface for type ModelWithArrayOfModel.
-func (m *ModelWithArrayOfModel) UnmarshalJSON(data []byte) error {
-	var rawMsg map[string]json.RawMessage
-	if err := json.Unmarshal(data, &rawMsg); err != nil {
-		return fmt.Errorf("unmarshalling type %T: %v", m, err)
+// MarshalXML implements the xml.Marshaller interface for type ModelWithArrayOfModel.
+func (m ModelWithArrayOfModel) MarshalXML(enc *xml.Encoder, start xml.StartElement) error {
+	type alias ModelWithArrayOfModel
+	aux := &struct {
+		*alias
+		Items *[]SimpleModel `xml:"SimpleModel"`
+	}{
+		alias: (*alias)(&m),
 	}
-	for key, val := range rawMsg {
-		var err error
-		switch key {
-		case "items":
-			err = unpopulate(val, "Items", &m.Items)
-			delete(rawMsg, key)
-		}
-		if err != nil {
-			return fmt.Errorf("unmarshalling type %T: %v", m, err)
-		}
+	if m.Items != nil {
+		aux.Items = &m.Items
 	}
-	return nil
+	return enc.EncodeElement(aux, start)
 }
 
-// MarshalJSON implements the json.Marshaller interface for type ModelWithAttributes.
-func (m ModelWithAttributes) MarshalJSON() ([]byte, error) {
-	objectMap := make(map[string]any)
-	populate(objectMap, "enabled", m.Enabled)
-	populate(objectMap, "id1", m.Id1)
-	populate(objectMap, "id2", m.Id2)
-	return json.Marshal(objectMap)
-}
-
-// UnmarshalJSON implements the json.Unmarshaller interface for type ModelWithAttributes.
-func (m *ModelWithAttributes) UnmarshalJSON(data []byte) error {
-	var rawMsg map[string]json.RawMessage
-	if err := json.Unmarshal(data, &rawMsg); err != nil {
-		return fmt.Errorf("unmarshalling type %T: %v", m, err)
-	}
-	for key, val := range rawMsg {
-		var err error
-		switch key {
-		case "enabled":
-			err = unpopulate(val, "Enabled", &m.Enabled)
-			delete(rawMsg, key)
-		case "id1":
-			err = unpopulate(val, "Id1", &m.Id1)
-			delete(rawMsg, key)
-		case "id2":
-			err = unpopulate(val, "Id2", &m.Id2)
-			delete(rawMsg, key)
-		}
-		if err != nil {
-			return fmt.Errorf("unmarshalling type %T: %v", m, err)
-		}
-	}
-	return nil
-}
-
-// MarshalJSON implements the json.Marshaller interface for type ModelWithDictionary.
-func (m ModelWithDictionary) MarshalJSON() ([]byte, error) {
-	objectMap := make(map[string]any)
-	populate(objectMap, "metadata", m.Metadata)
-	return json.Marshal(objectMap)
-}
-
+// UnmarshalXML implements the xml.Unmarshaller interface for type ModelWithDictionary.
 func (m *ModelWithDictionary) UnmarshalXML(dec *xml.Decoder, start xml.StartElement) error {
 	type alias ModelWithDictionary
 	aux := &struct {
 		*alias
-		Metadata additionalProperties `xml:"Metadata"`
+		Metadata additionalProperties `xml:"metadata"`
 	}{
 		alias: (*alias)(m),
 	}
@@ -96,238 +37,89 @@ func (m *ModelWithDictionary) UnmarshalXML(dec *xml.Decoder, start xml.StartElem
 	return nil
 }
 
-// MarshalJSON implements the json.Marshaller interface for type ModelWithEmptyArray.
-func (m ModelWithEmptyArray) MarshalJSON() ([]byte, error) {
-	objectMap := make(map[string]any)
-	populate(objectMap, "items", m.Items)
-	return json.Marshal(objectMap)
-}
-
-// UnmarshalJSON implements the json.Unmarshaller interface for type ModelWithEmptyArray.
-func (m *ModelWithEmptyArray) UnmarshalJSON(data []byte) error {
-	var rawMsg map[string]json.RawMessage
-	if err := json.Unmarshal(data, &rawMsg); err != nil {
-		return fmt.Errorf("unmarshalling type %T: %v", m, err)
-	}
-	for key, val := range rawMsg {
-		var err error
-		switch key {
-		case "items":
-			err = unpopulate(val, "Items", &m.Items)
-			delete(rawMsg, key)
-		}
-		if err != nil {
-			return fmt.Errorf("unmarshalling type %T: %v", m, err)
-		}
-	}
-	return nil
-}
-
-// MarshalJSON implements the json.Marshaller interface for type ModelWithOptionalField.
-func (m ModelWithOptionalField) MarshalJSON() ([]byte, error) {
-	objectMap := make(map[string]any)
-	populate(objectMap, "item", m.Item)
-	populate(objectMap, "value", m.Value)
-	return json.Marshal(objectMap)
-}
-
-// UnmarshalJSON implements the json.Unmarshaller interface for type ModelWithOptionalField.
-func (m *ModelWithOptionalField) UnmarshalJSON(data []byte) error {
-	var rawMsg map[string]json.RawMessage
-	if err := json.Unmarshal(data, &rawMsg); err != nil {
-		return fmt.Errorf("unmarshalling type %T: %v", m, err)
-	}
-	for key, val := range rawMsg {
-		var err error
-		switch key {
-		case "item":
-			err = unpopulate(val, "Item", &m.Item)
-			delete(rawMsg, key)
-		case "value":
-			err = unpopulate(val, "Value", &m.Value)
-			delete(rawMsg, key)
-		}
-		if err != nil {
-			return fmt.Errorf("unmarshalling type %T: %v", m, err)
-		}
-	}
-	return nil
-}
-
-func (m ModelWithRenamedFields) MarshalXML(enc *xml.Encoder, start xml.StartElement) error {
-	start.Name.Local = "ModelWithRenamedFieldsSrc"
-	type alias ModelWithRenamedFields
+// MarshalXML implements the xml.Marshaller interface for type ModelWithEmptyArray.
+func (m ModelWithEmptyArray) MarshalXML(enc *xml.Encoder, start xml.StartElement) error {
+	type alias ModelWithEmptyArray
 	aux := &struct {
 		*alias
-	} {
+		Items *[]SimpleModel `xml:"SimpleModel"`
+	}{
 		alias: (*alias)(&m),
+	}
+	if m.Items != nil {
+		aux.Items = &m.Items
 	}
 	return enc.EncodeElement(aux, start)
 }
 
-// UnmarshalJSON implements the json.Unmarshaller interface for type ModelWithRenamedFields.
-func (m *ModelWithRenamedFields) UnmarshalJSON(data []byte) error {
-	var rawMsg map[string]json.RawMessage
-	if err := json.Unmarshal(data, &rawMsg); err != nil {
-		return fmt.Errorf("unmarshalling type %T: %v", m, err)
+// MarshalXML implements the xml.Marshaller interface for type ModelWithEncodedNames.
+func (m ModelWithEncodedNames) MarshalXML(enc *xml.Encoder, start xml.StartElement) error {
+	type alias ModelWithEncodedNames
+	aux := &struct {
+		*alias
+		Colors *[]string `xml:"string"`
+	}{
+		alias: (*alias)(&m),
 	}
-	for key, val := range rawMsg {
-		var err error
-		switch key {
-		case "inputData":
-			err = unpopulate(val, "InputData", &m.InputData)
-			delete(rawMsg, key)
-		case "outputData":
-			err = unpopulate(val, "OutputData", &m.OutputData)
-			delete(rawMsg, key)
-		}
-		if err != nil {
-			return fmt.Errorf("unmarshalling type %T: %v", m, err)
-		}
+	if m.Colors != nil {
+		aux.Colors = &m.Colors
 	}
-	return nil
+	return enc.EncodeElement(aux, start)
 }
 
-// MarshalJSON implements the json.Marshaller interface for type ModelWithSimpleArrays.
-func (m ModelWithSimpleArrays) MarshalJSON() ([]byte, error) {
-	objectMap := make(map[string]any)
-	populate(objectMap, "colors", m.Colors)
-	populate(objectMap, "counts", m.Counts)
-	return json.Marshal(objectMap)
+// MarshalXML implements the xml.Marshaller interface for type ModelWithRenamedArrays.
+func (m ModelWithRenamedArrays) MarshalXML(enc *xml.Encoder, start xml.StartElement) error {
+	type alias ModelWithRenamedArrays
+	aux := &struct {
+		*alias
+		Colors *[]string `xml:"string"`
+		Counts *[]int32  `xml:"int32"`
+	}{
+		alias: (*alias)(&m),
+	}
+	if m.Colors != nil {
+		aux.Colors = &m.Colors
+	}
+	if m.Counts != nil {
+		aux.Counts = &m.Counts
+	}
+	return enc.EncodeElement(aux, start)
 }
 
-// UnmarshalJSON implements the json.Unmarshaller interface for type ModelWithSimpleArrays.
-func (m *ModelWithSimpleArrays) UnmarshalJSON(data []byte) error {
-	var rawMsg map[string]json.RawMessage
-	if err := json.Unmarshal(data, &rawMsg); err != nil {
-		return fmt.Errorf("unmarshalling type %T: %v", m, err)
+// MarshalXML implements the xml.Marshaller interface for type ModelWithSimpleArrays.
+func (m ModelWithSimpleArrays) MarshalXML(enc *xml.Encoder, start xml.StartElement) error {
+	type alias ModelWithSimpleArrays
+	aux := &struct {
+		*alias
+		Colors *[]string `xml:"string"`
+		Counts *[]int32  `xml:"int32"`
+	}{
+		alias: (*alias)(&m),
 	}
-	for key, val := range rawMsg {
-		var err error
-		switch key {
-		case "colors":
-			err = unpopulate(val, "Colors", &m.Colors)
-			delete(rawMsg, key)
-		case "counts":
-			err = unpopulate(val, "Counts", &m.Counts)
-			delete(rawMsg, key)
-		}
-		if err != nil {
-			return fmt.Errorf("unmarshalling type %T: %v", m, err)
-		}
+	if m.Colors != nil {
+		aux.Colors = &m.Colors
 	}
-	return nil
+	if m.Counts != nil {
+		aux.Counts = &m.Counts
+	}
+	return enc.EncodeElement(aux, start)
 }
 
-// MarshalJSON implements the json.Marshaller interface for type ModelWithText.
-func (m ModelWithText) MarshalJSON() ([]byte, error) {
-	objectMap := make(map[string]any)
-	populate(objectMap, "content", m.Content)
-	populate(objectMap, "language", m.Language)
-	return json.Marshal(objectMap)
-}
-
-// UnmarshalJSON implements the json.Unmarshaller interface for type ModelWithText.
-func (m *ModelWithText) UnmarshalJSON(data []byte) error {
-	var rawMsg map[string]json.RawMessage
-	if err := json.Unmarshal(data, &rawMsg); err != nil {
-		return fmt.Errorf("unmarshalling type %T: %v", m, err)
+// MarshalXML implements the xml.Marshaller interface for type ModelWithUnwrappedArray.
+func (m ModelWithUnwrappedArray) MarshalXML(enc *xml.Encoder, start xml.StartElement) error {
+	type alias ModelWithUnwrappedArray
+	aux := &struct {
+		*alias
+		Colors *[]string `xml:"string"`
+		Counts *[]int32  `xml:"int32"`
+	}{
+		alias: (*alias)(&m),
 	}
-	for key, val := range rawMsg {
-		var err error
-		switch key {
-		case "content":
-			err = unpopulate(val, "Content", &m.Content)
-			delete(rawMsg, key)
-		case "language":
-			err = unpopulate(val, "Language", &m.Language)
-			delete(rawMsg, key)
-		}
-		if err != nil {
-			return fmt.Errorf("unmarshalling type %T: %v", m, err)
-		}
+	if m.Colors != nil {
+		aux.Colors = &m.Colors
 	}
-	return nil
-}
-
-// MarshalJSON implements the json.Marshaller interface for type ModelWithUnwrappedArray.
-func (m ModelWithUnwrappedArray) MarshalJSON() ([]byte, error) {
-	objectMap := make(map[string]any)
-	populate(objectMap, "colors", m.Colors)
-	populate(objectMap, "counts", m.Counts)
-	return json.Marshal(objectMap)
-}
-
-// UnmarshalJSON implements the json.Unmarshaller interface for type ModelWithUnwrappedArray.
-func (m *ModelWithUnwrappedArray) UnmarshalJSON(data []byte) error {
-	var rawMsg map[string]json.RawMessage
-	if err := json.Unmarshal(data, &rawMsg); err != nil {
-		return fmt.Errorf("unmarshalling type %T: %v", m, err)
+	if m.Counts != nil {
+		aux.Counts = &m.Counts
 	}
-	for key, val := range rawMsg {
-		var err error
-		switch key {
-		case "colors":
-			err = unpopulate(val, "Colors", &m.Colors)
-			delete(rawMsg, key)
-		case "counts":
-			err = unpopulate(val, "Counts", &m.Counts)
-			delete(rawMsg, key)
-		}
-		if err != nil {
-			return fmt.Errorf("unmarshalling type %T: %v", m, err)
-		}
-	}
-	return nil
-}
-
-// MarshalJSON implements the json.Marshaller interface for type SimpleModel.
-func (s SimpleModel) MarshalJSON() ([]byte, error) {
-	objectMap := make(map[string]any)
-	populate(objectMap, "age", s.Age)
-	populate(objectMap, "name", s.Name)
-	return json.Marshal(objectMap)
-}
-
-// UnmarshalJSON implements the json.Unmarshaller interface for type SimpleModel.
-func (s *SimpleModel) UnmarshalJSON(data []byte) error {
-	var rawMsg map[string]json.RawMessage
-	if err := json.Unmarshal(data, &rawMsg); err != nil {
-		return fmt.Errorf("unmarshalling type %T: %v", s, err)
-	}
-	for key, val := range rawMsg {
-		var err error
-		switch key {
-		case "age":
-			err = unpopulate(val, "Age", &s.Age)
-			delete(rawMsg, key)
-		case "name":
-			err = unpopulate(val, "Name", &s.Name)
-			delete(rawMsg, key)
-		}
-		if err != nil {
-			return fmt.Errorf("unmarshalling type %T: %v", s, err)
-		}
-	}
-	return nil
-}
-
-func populate(m map[string]any, k string, v any) {
-	if v == nil {
-		return
-	} else if azcore.IsNullValue(v) {
-		m[k] = nil
-	} else if !reflect.ValueOf(v).IsNil() {
-		m[k] = v
-	}
-}
-
-func unpopulate(data json.RawMessage, fn string, v any) error {
-	if data == nil || string(data) == "null" {
-		return nil
-	}
-	if err := json.Unmarshal(data, v); err != nil {
-		return fmt.Errorf("struct field %s: %v", fn, err)
-	}
-	return nil
+	return enc.EncodeElement(aux, start)
 }

@@ -52,6 +52,18 @@ type XMLModelWithEmptyArrayValueClientPutOptions struct {
 	// placeholder for future optional parameters
 }
 
+// XMLModelWithEncodedNamesValueClientGetOptions contains the optional parameters for the XMLModelWithEncodedNamesValueClient.Get
+// method.
+type XMLModelWithEncodedNamesValueClientGetOptions struct {
+	// placeholder for future optional parameters
+}
+
+// XMLModelWithEncodedNamesValueClientPutOptions contains the optional parameters for the XMLModelWithEncodedNamesValueClient.Put
+// method.
+type XMLModelWithEncodedNamesValueClientPutOptions struct {
+	// placeholder for future optional parameters
+}
+
 // XMLModelWithOptionalFieldValueClientGetOptions contains the optional parameters for the XMLModelWithOptionalFieldValueClient.Get
 // method.
 type XMLModelWithOptionalFieldValueClientGetOptions struct {
@@ -61,6 +73,18 @@ type XMLModelWithOptionalFieldValueClientGetOptions struct {
 // XMLModelWithOptionalFieldValueClientPutOptions contains the optional parameters for the XMLModelWithOptionalFieldValueClient.Put
 // method.
 type XMLModelWithOptionalFieldValueClientPutOptions struct {
+	// placeholder for future optional parameters
+}
+
+// XMLModelWithRenamedArraysValueClientGetOptions contains the optional parameters for the XMLModelWithRenamedArraysValueClient.Get
+// method.
+type XMLModelWithRenamedArraysValueClientGetOptions struct {
+	// placeholder for future optional parameters
+}
+
+// XMLModelWithRenamedArraysValueClientPutOptions contains the optional parameters for the XMLModelWithRenamedArraysValueClient.Put
+// method.
+type XMLModelWithRenamedArraysValueClientPutOptions struct {
 	// placeholder for future optional parameters
 }
 

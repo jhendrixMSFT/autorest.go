@@ -27,8 +27,14 @@ type XMLServer struct {
 	// XMLModelWithEmptyArrayValueServer contains the fakes for client XMLModelWithEmptyArrayValueClient
 	XMLModelWithEmptyArrayValueServer XMLModelWithEmptyArrayValueServer
 
+	// XMLModelWithEncodedNamesValueServer contains the fakes for client XMLModelWithEncodedNamesValueClient
+	XMLModelWithEncodedNamesValueServer XMLModelWithEncodedNamesValueServer
+
 	// XMLModelWithOptionalFieldValueServer contains the fakes for client XMLModelWithOptionalFieldValueClient
 	XMLModelWithOptionalFieldValueServer XMLModelWithOptionalFieldValueServer
+
+	// XMLModelWithRenamedArraysValueServer contains the fakes for client XMLModelWithRenamedArraysValueClient
+	XMLModelWithRenamedArraysValueServer XMLModelWithRenamedArraysValueServer
 
 	// XMLModelWithRenamedFieldsValueServer contains the fakes for client XMLModelWithRenamedFieldsValueClient
 	XMLModelWithRenamedFieldsValueServer XMLModelWithRenamedFieldsValueServer
@@ -62,7 +68,9 @@ type XMLServerTransport struct {
 	trXMLModelWithAttributesValueServer     *XMLModelWithAttributesValueServerTransport
 	trXMLModelWithDictionaryValueServer     *XMLModelWithDictionaryValueServerTransport
 	trXMLModelWithEmptyArrayValueServer     *XMLModelWithEmptyArrayValueServerTransport
+	trXMLModelWithEncodedNamesValueServer   *XMLModelWithEncodedNamesValueServerTransport
 	trXMLModelWithOptionalFieldValueServer  *XMLModelWithOptionalFieldValueServerTransport
+	trXMLModelWithRenamedArraysValueServer  *XMLModelWithRenamedArraysValueServerTransport
 	trXMLModelWithRenamedFieldsValueServer  *XMLModelWithRenamedFieldsValueServerTransport
 	trXMLModelWithSimpleArraysValueServer   *XMLModelWithSimpleArraysValueServerTransport
 	trXMLModelWithTextValueServer           *XMLModelWithTextValueServerTransport
@@ -106,11 +114,21 @@ func (x *XMLServerTransport) dispatchToClientFake(req *http.Request, client stri
 			return NewXMLModelWithEmptyArrayValueServerTransport(&x.srv.XMLModelWithEmptyArrayValueServer)
 		})
 		resp, err = x.trXMLModelWithEmptyArrayValueServer.Do(req)
+	case "XMLModelWithEncodedNamesValueClient":
+		initServer(&x.trMu, &x.trXMLModelWithEncodedNamesValueServer, func() *XMLModelWithEncodedNamesValueServerTransport {
+			return NewXMLModelWithEncodedNamesValueServerTransport(&x.srv.XMLModelWithEncodedNamesValueServer)
+		})
+		resp, err = x.trXMLModelWithEncodedNamesValueServer.Do(req)
 	case "XMLModelWithOptionalFieldValueClient":
 		initServer(&x.trMu, &x.trXMLModelWithOptionalFieldValueServer, func() *XMLModelWithOptionalFieldValueServerTransport {
 			return NewXMLModelWithOptionalFieldValueServerTransport(&x.srv.XMLModelWithOptionalFieldValueServer)
 		})
 		resp, err = x.trXMLModelWithOptionalFieldValueServer.Do(req)
+	case "XMLModelWithRenamedArraysValueClient":
+		initServer(&x.trMu, &x.trXMLModelWithRenamedArraysValueServer, func() *XMLModelWithRenamedArraysValueServerTransport {
+			return NewXMLModelWithRenamedArraysValueServerTransport(&x.srv.XMLModelWithRenamedArraysValueServer)
+		})
+		resp, err = x.trXMLModelWithRenamedArraysValueServer.Do(req)
 	case "XMLModelWithRenamedFieldsValueClient":
 		initServer(&x.trMu, &x.trXMLModelWithRenamedFieldsValueServer, func() *XMLModelWithRenamedFieldsValueServerTransport {
 			return NewXMLModelWithRenamedFieldsValueServerTransport(&x.srv.XMLModelWithRenamedFieldsValueServer)

@@ -52,6 +52,18 @@ type XMLModelWithEmptyArrayValueClientPutResponse struct {
 	// placeholder for future response values
 }
 
+// XMLModelWithEncodedNamesValueClientGetResponse contains the response from method XMLModelWithEncodedNamesValueClient.Get.
+type XMLModelWithEncodedNamesValueClientGetResponse struct {
+	// Uses encodedName instead of Xml.Name which is functionally equivalent.
+	ModelWithEncodedNames
+	ContentType *string
+}
+
+// XMLModelWithEncodedNamesValueClientPutResponse contains the response from method XMLModelWithEncodedNamesValueClient.Put.
+type XMLModelWithEncodedNamesValueClientPutResponse struct {
+	// placeholder for future response values
+}
+
 // XMLModelWithOptionalFieldValueClientGetResponse contains the response from method XMLModelWithOptionalFieldValueClient.Get.
 type XMLModelWithOptionalFieldValueClientGetResponse struct {
 	// Contains an optional field.
@@ -61,6 +73,18 @@ type XMLModelWithOptionalFieldValueClientGetResponse struct {
 
 // XMLModelWithOptionalFieldValueClientPutResponse contains the response from method XMLModelWithOptionalFieldValueClient.Put.
 type XMLModelWithOptionalFieldValueClientPutResponse struct {
+	// placeholder for future response values
+}
+
+// XMLModelWithRenamedArraysValueClientGetResponse contains the response from method XMLModelWithRenamedArraysValueClient.Get.
+type XMLModelWithRenamedArraysValueClientGetResponse struct {
+	// Contains fields of wrapped and unwrapped arrays of primitive types that have different XML representations.
+	ModelWithRenamedArrays
+	ContentType *string
+}
+
+// XMLModelWithRenamedArraysValueClientPutResponse contains the response from method XMLModelWithRenamedArraysValueClient.Put.
+type XMLModelWithRenamedArraysValueClientPutResponse struct {
 	// placeholder for future response values
 }
 

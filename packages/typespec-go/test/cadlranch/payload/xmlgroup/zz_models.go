@@ -7,74 +7,92 @@ package xmlgroup
 // ModelWithArrayOfModel - Contains an array of models.
 type ModelWithArrayOfModel struct {
 	// REQUIRED
-	Items []SimpleModel `xml:"items>SimpleModel"`
+	Items []SimpleModel `xml:"SimpleModel"`
 }
 
 // ModelWithAttributes - Contains fields that are XML attributes.
 type ModelWithAttributes struct {
 	// REQUIRED
-	Enabled *bool `xml:"Enabled"`
+	Enabled *bool `xml:"enabled"`
 
 	// REQUIRED
-	Id1 *int32 `xml:"id1,attr"`
+	Id1 *int32 `xml:"id1"`
 
 	// REQUIRED
-	Id2 *string `xml:"id2,attr"`
+	Id2 *string `xml:"id2"`
 }
 
 // ModelWithDictionary - Contains a dictionary of key value pairs.
 type ModelWithDictionary struct {
 	// REQUIRED
-	Metadata map[string]*string `xml:"Metadata"`
+	Metadata map[string]*string `xml:"metadata"`
 }
 
 // ModelWithEmptyArray - Contains an array of models that's supposed to be sent/received as an empty XML element.
 type ModelWithEmptyArray struct {
 	// REQUIRED
-	Items []SimpleModel `xml:"items>SimpleModel"`
+	Items []SimpleModel `xml:"SimpleModel"`
+}
+
+// ModelWithEncodedNames - Uses encodedName instead of Xml.Name which is functionally equivalent.
+type ModelWithEncodedNames struct {
+	// REQUIRED
+	Colors []string `xml:"string"`
+
+	// REQUIRED
+	ModelData *SimpleModel `xml:"modelData"`
 }
 
 // ModelWithOptionalField - Contains an optional field.
 type ModelWithOptionalField struct {
 	// REQUIRED
 	Item  *string `xml:"item"`
-	Value *int32 `xml:"value"`
+	Value *int32  `xml:"value"`
+}
+
+// ModelWithRenamedArrays - Contains fields of wrapped and unwrapped arrays of primitive types that have different XML representations.
+type ModelWithRenamedArrays struct {
+	// REQUIRED
+	Colors []string `xml:"string"`
+
+	// REQUIRED
+	Counts []int32 `xml:"int32"`
 }
 
 // ModelWithRenamedFields - Contains fields of the same type that have different XML representation.
 type ModelWithRenamedFields struct {
 	// REQUIRED
-	InputData *SimpleModel `xml:"InputData"`
+	InputData *SimpleModel `xml:"inputData"`
 
 	// REQUIRED
-	OutputData *SimpleModel `xml:"OutputData"`
+	OutputData *SimpleModel `xml:"outputData"`
 }
 
 // ModelWithSimpleArrays - Contains fields of arrays of primitive types.
 type ModelWithSimpleArrays struct {
 	// REQUIRED
-	Colors []string `xml:"colors>string"`
+	Colors []string `xml:"string"`
 
 	// REQUIRED
-	Counts []int32 `xml:"counts>int32"`
+	Counts []int32 `xml:"int32"`
 }
 
 // ModelWithText - Contains an attribute and text.
 type ModelWithText struct {
 	// REQUIRED
-	Content *string `xml:",chardata"`
+	Content *string `xml:"content"`
 
 	// REQUIRED
-	Language *string `xml:"language,attr"`
+	Language *string `xml:"language"`
 }
 
 // ModelWithUnwrappedArray - Contains fields of wrapped and unwrapped arrays of primitive types.
 type ModelWithUnwrappedArray struct {
 	// REQUIRED
-	Colors []string `xml:"Colors"`
+	Colors []string `xml:"string"`
 
 	// REQUIRED
-	Counts []int32 `xml:"Counts>int32"`
+	Counts []int32 `xml:"int32"`
 }
 
 // SimpleModel - Contains fields of primitive types.
