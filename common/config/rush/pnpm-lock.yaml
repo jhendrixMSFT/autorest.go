@@ -260,6 +260,9 @@ importers:
       '@typespec/openapi':
         specifier: ~0.57.0
         version: 0.57.0(@typespec/compiler@0.58.0)(@typespec/http@0.58.0)
+      '@typespec/xml':
+        specifier: ~0.58.0
+        version: 0.58.0(@typespec/compiler@0.58.0)
       eslint:
         specifier: ~6.6.0
         version: 6.6.0
@@ -2082,6 +2085,15 @@ packages:
       '@typespec/compiler': ~0.58.0
     dependencies:
       '@typespec/compiler': 0.58.0
+
+  /@typespec/xml@0.58.0(@typespec/compiler@0.58.0):
+    resolution: {integrity: sha512-2OG2JXypMZR90nVoIVwxc+6Sc4lsggLPuh1yhw1BKiv2NBAuSdfcK4MuiIooqR206QJw9xM8qtNxlUeDb00DDw==}
+    engines: {node: '>=18.0.0'}
+    peerDependencies:
+      '@typespec/compiler': ~0.58.0
+    dependencies:
+      '@typespec/compiler': 0.58.0
+    dev: true
 
   /a-sync-waterfall@1.0.1:
     resolution: {integrity: sha512-RYTOHHdWipFUliRFMCS4X2Yn2X8M87V/OpSqWzKKOGhzqyUxzyVmhHDH9sAvG+ZuQf/TAOFsLCpMw09I1ufUnA==}

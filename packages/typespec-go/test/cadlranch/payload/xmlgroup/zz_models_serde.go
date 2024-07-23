@@ -6,6 +6,7 @@ package xmlgroup
 
 import (
 	"encoding/json"
+	"encoding/xml"
 	"fmt"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore"
 	"reflect"
@@ -73,6 +74,28 @@ func (m *ModelWithAttributes) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
+// MarshalJSON implements the json.Marshaller interface for type ModelWithDictionary.
+func (m ModelWithDictionary) MarshalJSON() ([]byte, error) {
+	objectMap := make(map[string]any)
+	populate(objectMap, "metadata", m.Metadata)
+	return json.Marshal(objectMap)
+}
+
+func (m *ModelWithDictionary) UnmarshalXML(dec *xml.Decoder, start xml.StartElement) error {
+	type alias ModelWithDictionary
+	aux := &struct {
+		*alias
+		Metadata additionalProperties `xml:"Metadata"`
+	}{
+		alias: (*alias)(m),
+	}
+	if err := dec.DecodeElement(aux, &start); err != nil {
+		return err
+	}
+	m.Metadata = (map[string]*string)(aux.Metadata)
+	return nil
+}
+
 // MarshalJSON implements the json.Marshaller interface for type ModelWithEmptyArray.
 func (m ModelWithEmptyArray) MarshalJSON() ([]byte, error) {
 	objectMap := make(map[string]any)
@@ -131,12 +154,15 @@ func (m *ModelWithOptionalField) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
-// MarshalJSON implements the json.Marshaller interface for type ModelWithRenamedFields.
-func (m ModelWithRenamedFields) MarshalJSON() ([]byte, error) {
-	objectMap := make(map[string]any)
-	populate(objectMap, "inputData", m.InputData)
-	populate(objectMap, "outputData", m.OutputData)
-	return json.Marshal(objectMap)
+func (m ModelWithRenamedFields) MarshalXML(enc *xml.Encoder, start xml.StartElement) error {
+	start.Name.Local = "ModelWithRenamedFieldsSrc"
+	type alias ModelWithRenamedFields
+	aux := &struct {
+		*alias
+	} {
+		alias: (*alias)(&m),
+	}
+	return enc.EncodeElement(aux, start)
 }
 
 // UnmarshalJSON implements the json.Unmarshaller interface for type ModelWithRenamedFields.
@@ -184,6 +210,37 @@ func (m *ModelWithSimpleArrays) UnmarshalJSON(data []byte) error {
 			delete(rawMsg, key)
 		case "counts":
 			err = unpopulate(val, "Counts", &m.Counts)
+			delete(rawMsg, key)
+		}
+		if err != nil {
+			return fmt.Errorf("unmarshalling type %T: %v", m, err)
+		}
+	}
+	return nil
+}
+
+// MarshalJSON implements the json.Marshaller interface for type ModelWithText.
+func (m ModelWithText) MarshalJSON() ([]byte, error) {
+	objectMap := make(map[string]any)
+	populate(objectMap, "content", m.Content)
+	populate(objectMap, "language", m.Language)
+	return json.Marshal(objectMap)
+}
+
+// UnmarshalJSON implements the json.Unmarshaller interface for type ModelWithText.
+func (m *ModelWithText) UnmarshalJSON(data []byte) error {
+	var rawMsg map[string]json.RawMessage
+	if err := json.Unmarshal(data, &rawMsg); err != nil {
+		return fmt.Errorf("unmarshalling type %T: %v", m, err)
+	}
+	for key, val := range rawMsg {
+		var err error
+		switch key {
+		case "content":
+			err = unpopulate(val, "Content", &m.Content)
+			delete(rawMsg, key)
+		case "language":
+			err = unpopulate(val, "Language", &m.Language)
 			delete(rawMsg, key)
 		}
 		if err != nil {

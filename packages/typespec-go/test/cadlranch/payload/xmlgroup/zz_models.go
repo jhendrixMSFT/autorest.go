@@ -22,6 +22,12 @@ type ModelWithAttributes struct {
 	Id2 *string `xml:"id2,attr"`
 }
 
+// ModelWithDictionary - Contains a dictionary of key value pairs.
+type ModelWithDictionary struct {
+	// REQUIRED
+	Metadata map[string]*string `xml:"Metadata"`
+}
+
 // ModelWithEmptyArray - Contains an array of models that's supposed to be sent/received as an empty XML element.
 type ModelWithEmptyArray struct {
 	// REQUIRED
@@ -51,6 +57,15 @@ type ModelWithSimpleArrays struct {
 
 	// REQUIRED
 	Counts []int32 `xml:"counts>int32"`
+}
+
+// ModelWithText - Contains an attribute and text.
+type ModelWithText struct {
+	// REQUIRED
+	Content *string `xml:",chardata"`
+
+	// REQUIRED
+	Language *string `xml:"language,attr"`
 }
 
 // ModelWithUnwrappedArray - Contains fields of wrapped and unwrapped arrays of primitive types.

@@ -21,6 +21,9 @@ type XMLServer struct {
 	// XMLModelWithAttributesValueServer contains the fakes for client XMLModelWithAttributesValueClient
 	XMLModelWithAttributesValueServer XMLModelWithAttributesValueServer
 
+	// XMLModelWithDictionaryValueServer contains the fakes for client XMLModelWithDictionaryValueClient
+	XMLModelWithDictionaryValueServer XMLModelWithDictionaryValueServer
+
 	// XMLModelWithEmptyArrayValueServer contains the fakes for client XMLModelWithEmptyArrayValueClient
 	XMLModelWithEmptyArrayValueServer XMLModelWithEmptyArrayValueServer
 
@@ -32,6 +35,9 @@ type XMLServer struct {
 
 	// XMLModelWithSimpleArraysValueServer contains the fakes for client XMLModelWithSimpleArraysValueClient
 	XMLModelWithSimpleArraysValueServer XMLModelWithSimpleArraysValueServer
+
+	// XMLModelWithTextValueServer contains the fakes for client XMLModelWithTextValueClient
+	XMLModelWithTextValueServer XMLModelWithTextValueServer
 
 	// XMLModelWithUnwrappedArrayValueServer contains the fakes for client XMLModelWithUnwrappedArrayValueClient
 	XMLModelWithUnwrappedArrayValueServer XMLModelWithUnwrappedArrayValueServer
@@ -54,10 +60,12 @@ type XMLServerTransport struct {
 	trMu                                    sync.Mutex
 	trXMLModelWithArrayOfModelValueServer   *XMLModelWithArrayOfModelValueServerTransport
 	trXMLModelWithAttributesValueServer     *XMLModelWithAttributesValueServerTransport
+	trXMLModelWithDictionaryValueServer     *XMLModelWithDictionaryValueServerTransport
 	trXMLModelWithEmptyArrayValueServer     *XMLModelWithEmptyArrayValueServerTransport
 	trXMLModelWithOptionalFieldValueServer  *XMLModelWithOptionalFieldValueServerTransport
 	trXMLModelWithRenamedFieldsValueServer  *XMLModelWithRenamedFieldsValueServerTransport
 	trXMLModelWithSimpleArraysValueServer   *XMLModelWithSimpleArraysValueServerTransport
+	trXMLModelWithTextValueServer           *XMLModelWithTextValueServerTransport
 	trXMLModelWithUnwrappedArrayValueServer *XMLModelWithUnwrappedArrayValueServerTransport
 	trXMLSimpleModelValueServer             *XMLSimpleModelValueServerTransport
 }
@@ -88,6 +96,11 @@ func (x *XMLServerTransport) dispatchToClientFake(req *http.Request, client stri
 			return NewXMLModelWithAttributesValueServerTransport(&x.srv.XMLModelWithAttributesValueServer)
 		})
 		resp, err = x.trXMLModelWithAttributesValueServer.Do(req)
+	case "XMLModelWithDictionaryValueClient":
+		initServer(&x.trMu, &x.trXMLModelWithDictionaryValueServer, func() *XMLModelWithDictionaryValueServerTransport {
+			return NewXMLModelWithDictionaryValueServerTransport(&x.srv.XMLModelWithDictionaryValueServer)
+		})
+		resp, err = x.trXMLModelWithDictionaryValueServer.Do(req)
 	case "XMLModelWithEmptyArrayValueClient":
 		initServer(&x.trMu, &x.trXMLModelWithEmptyArrayValueServer, func() *XMLModelWithEmptyArrayValueServerTransport {
 			return NewXMLModelWithEmptyArrayValueServerTransport(&x.srv.XMLModelWithEmptyArrayValueServer)
@@ -108,6 +121,11 @@ func (x *XMLServerTransport) dispatchToClientFake(req *http.Request, client stri
 			return NewXMLModelWithSimpleArraysValueServerTransport(&x.srv.XMLModelWithSimpleArraysValueServer)
 		})
 		resp, err = x.trXMLModelWithSimpleArraysValueServer.Do(req)
+	case "XMLModelWithTextValueClient":
+		initServer(&x.trMu, &x.trXMLModelWithTextValueServer, func() *XMLModelWithTextValueServerTransport {
+			return NewXMLModelWithTextValueServerTransport(&x.srv.XMLModelWithTextValueServer)
+		})
+		resp, err = x.trXMLModelWithTextValueServer.Do(req)
 	case "XMLModelWithUnwrappedArrayValueClient":
 		initServer(&x.trMu, &x.trXMLModelWithUnwrappedArrayValueServer, func() *XMLModelWithUnwrappedArrayValueServerTransport {
 			return NewXMLModelWithUnwrappedArrayValueServerTransport(&x.srv.XMLModelWithUnwrappedArrayValueServer)
