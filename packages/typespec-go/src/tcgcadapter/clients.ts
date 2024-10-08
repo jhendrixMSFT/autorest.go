@@ -174,13 +174,13 @@ export class clientAdapter {
 
     const getStatusCodes = function (httpOp: tcgc.SdkHttpOperation): Array<number> {
       const statusCodes = new Array<number>();
-      for (const statusCode of httpOp.responses.keys()) {
-        if (isHttpStatusCodeRange(statusCode)) {
-          for (let code = statusCode.start; code <= statusCode.end; ++code) {
+      for (const response of httpOp.responses) {
+        if (isHttpStatusCodeRange(response.statusCodes)) {
+          for (let code = response.statusCodes.start; code <= response.statusCodes.end; ++code) {
             statusCodes.push(code);
           }
         } else {
-          statusCodes.push(statusCode);
+          statusCodes.push(response.statusCodes);
         }
       }
       return statusCodes;
@@ -682,7 +682,7 @@ export class clientAdapter {
           if (goParams.length > 1) {
             // spread case
             for (const goParam of goParams) {
-              const propertyValue = (<tcgc.SdkModelExample>param.value).value[(<go.PartialBodyParameter>goParam).serializedName];
+              const propertyValue = (<tcgc.SdkModelExampleValue>param.value).value[(<go.PartialBodyParameter>goParam).serializedName];
               const paramExample = new go.ParameterExample(goParam, this.adaptExampleType(propertyValue, goParam?.type));
               if (goParam?.group) {
                 goExample.optionalParamsGroup.push(paramExample);
@@ -700,7 +700,7 @@ export class clientAdapter {
           }
         }
         // only handle 200 response
-        const response = example.responses.get(200);
+        const response = example.responses.find(v => v.statusCode === 200);
         if (response) {
           goExample.responseEnvelope = new go.ResponseEnvelopeExample(method.responseEnvelope);
           for (const header of response.headers) {
@@ -729,7 +729,7 @@ export class clientAdapter {
     }
   }
 
-  private adaptExampleType(exampleType: tcgc.SdkTypeExample, goType: go.PossibleType): go.ExampleType {
+  private adaptExampleType(exampleType: tcgc.SdkExampleValue, goType: go.PossibleType): go.ExampleType {
     switch (exampleType.kind) {
       case 'string':
         if (go.isConstantType(goType) || go.isBytesType(goType) || go.isLiteralValue(goType) || go.isTimeType(goType) || go.isPrimitiveType(goType)) {
@@ -748,7 +748,7 @@ export class clientAdapter {
         break;
       case 'null':
         return new go.NullExample(goType);
-      case 'any':
+      case 'unknown':
         if (go.isPrimitiveType(goType) && goType.typeName === 'any') {
           return new go.AnyExample(exampleType.value);
         }

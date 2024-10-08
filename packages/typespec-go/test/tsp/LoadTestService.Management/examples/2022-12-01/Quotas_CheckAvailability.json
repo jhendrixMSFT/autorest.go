@@ -6,7 +6,7 @@
     "subscriptionId": "00000000-0000-0000-0000-000000000000",
     "location": "westus",
     "quotaBucketName": "testQuotaBucket",
-    "body": {
+    "QuotaBucketRequest": {
       "properties": {
         "currentUsage": 20,
         "currentQuota": 40,
