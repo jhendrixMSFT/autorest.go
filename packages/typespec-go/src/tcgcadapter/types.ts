@@ -445,7 +445,8 @@ export class typeAdapter {
     }
     constType = new go.ConstantType(constTypeName, getPrimitiveType(enumType.valueType.kind), `Possible${constTypeName}Values`);
     constType.values = this.getConstantValues(constType, enumType.values);
-    constType.description = enumType.description;
+    constType.docs.summary = enumType.summary;
+    constType.docs.description = enumType.doc;
     this.types.set(constTypeName, constType);
     return constType;
   }
@@ -592,7 +593,8 @@ export class typeAdapter {
       }
     }
     const field = new go.ModelField(naming.capitalize(naming.ensureNameCase(prop.name)), type, fieldByValue, prop.serializedName, annotations);
-    field.description = prop.description;
+    field.docs.summary = prop.summary;
+    field.docs.description = prop.doc;
     if (prop.kind === 'path') {
       // for ARM resources, a property of kind path is usually the model
       // key and will be exposed as a discrete method parameter. this also
@@ -621,7 +623,8 @@ export class typeAdapter {
       let value = this.constValues.get(valueTypeName);
       if (!value) {
         value = new go.ConstantValue(valueTypeName, type, valueType.value);
-        value.description = valueType.description;
+        value.docs.summary = valueType.summary;
+        value.docs.description = valueType.doc;
         this.constValues.set(valueTypeName, value);
       }
       values.push(value);

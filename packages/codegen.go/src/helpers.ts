@@ -547,20 +547,56 @@ export function formatCommentAsBulletItem(description: string): string {
 }
 
 // conditionally returns a doc comment on an entity that requires a prefix.
-// e.g.: // {Prefix} - {docs}
-export function formatDocCommentWithPrefix(prefix: string, docs?: string): string {
-  if (!docs) {
+// e.g.:
+// {Prefix} - {docs.summary}
+//
+// {docs.description}
+export function formatDocCommentWithPrefix(prefix: string, docs: go.Docs): string {
+  if (!docs.summary && !docs.description) {
     return '';
   }
-  return `${comment(`${prefix} - ${docs}`, '// ', undefined, commentLength)}\n`;
+
+  let docComment = '';
+  if (docs.summary) {
+    docComment = `\t${comment(`${prefix} - ${docs.summary}`, '//', undefined, commentLength)}\n`;
+  }
+
+  if (docs.description) {
+    let description = docs.description;
+    if (docs.summary) {
+      docComment += '//\n';
+    } else {
+      // only apply the prefix to the description if there was no summary
+      description = `${prefix} - ${description}`;
+    }
+    docComment += `\t${comment(`${description}`, '//', undefined, commentLength)}\n`;
+  }
+
+  return docComment;
 }
 
 // conditionally returns a doc comment
-export function formatDocComment(docs?: string): string {
-  if (!docs) {
+// {docs.summary}
+//
+// {docs.description}
+export function formatDocComment(docs: go.Docs): string {
+  if (!docs.summary && !docs.description) {
     return '';
   }
-  return `${comment(docs, '// ', undefined, commentLength)}\n`;
+
+  let docComment = '';
+  if (docs.summary) {
+    docComment = `\t${comment(docs.summary, '//', undefined, commentLength)}\n`;
+  }
+
+  if (docs.description) {
+    if (docs.summary) {
+      docComment += '//\n';
+    }
+    docComment += `\t${comment(docs.description, '//', undefined, commentLength)}\n`;
+  }
+
+  return docComment;
 }
 
 export function getParentImport(codeModel: go.CodeModel): string {
