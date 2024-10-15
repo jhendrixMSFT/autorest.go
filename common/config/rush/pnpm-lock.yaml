@@ -228,7 +228,7 @@ importers:
         specifier: '>=0.47.0 <1.0.0'
         version: 0.47.0(@azure-tools/typespec-azure-core@0.47.0)(@typespec/compiler@0.61.0)(@typespec/http@0.61.0)(@typespec/openapi@0.61.0)(@typespec/rest@0.61.0)(@typespec/versioning@0.61.0)
       '@azure-tools/typespec-client-generator-core':
-        specifier: '>=0.47.0 <1.0.0'
+        specifier: '>=0.47.1 <1.0.0'
         version: 0.47.1(@azure-tools/typespec-azure-core@0.47.0)(@typespec/compiler@0.61.0)(@typespec/http@0.61.0)(@typespec/openapi@0.61.0)(@typespec/rest@0.61.0)(@typespec/versioning@0.61.0)
       '@types/jest':
         specifier: ~26.0.24

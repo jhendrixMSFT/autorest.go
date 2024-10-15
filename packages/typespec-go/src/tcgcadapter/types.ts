@@ -546,12 +546,19 @@ export class typeAdapter {
       // polymorphic types don't have XMLInfo
       // TODO: XMLInfo
     }
-    if (model.description) {
-      modelType.description = model.description;
-      if (!modelType.description.startsWith(modelName)) {
-        modelType.description = `${modelName} - ${modelType.description}`;
+
+    modelType.docs.summary = model.summary;
+    modelType.docs.description = model.doc;
+    if (modelType.docs.summary) {
+      if (!modelType.docs.summary.startsWith(modelName)) {
+        modelType.docs.summary = `${modelName} - ${modelType.docs.summary}`;
+      }
+    } else if (modelType.docs.description) {
+      if (!modelType.docs.description.startsWith(modelName)) {
+        modelType.docs.description = `${modelName} - ${modelType.docs.description}`;
       }
     }
+
     this.types.set(modelName, modelType);
     return modelType;
   }
@@ -951,7 +958,7 @@ export function getEndpointType(param: tcgc.SdkEndpointParameter) {
   }
   // for endpoint with only a template argument with default value, we fall back to constant endpoint
   if (endpointType.templateArguments.length === 1 && endpointType.templateArguments[0].clientDefaultValue) {
-    endpointType.serverUrl = endpointType.templateArguments[0].clientDefaultValue;
+    endpointType.serverUrl = <string>endpointType.templateArguments[0].clientDefaultValue;
     endpointType.templateArguments = [];
   }
   return endpointType;

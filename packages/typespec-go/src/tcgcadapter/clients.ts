@@ -72,16 +72,22 @@ export class clientAdapter {
       clientName += 'Client';
     }
 
-    let description: string;
-    if (sdkClient.description) {
-      description = `${clientName} - ${sdkClient.description}`;
+    const docs: go.Docs = {
+      summary: sdkClient.summary,
+      description: sdkClient.doc,
+    };
+
+    if (docs.summary) {
+      docs.summary = `${clientName} - ${docs.summary}`;
+    } else if (docs.description) {
+      docs.description = `${clientName} - ${docs.description}`;
     } else {
       // strip clientName's "Client" suffix
       const groupName = clientName.substring(0, clientName.length - 6);
-      description = `${clientName} contains the methods for the ${groupName} group.`;
+      docs.summary = `${clientName} contains the methods for the ${groupName} group.`;
     }
 
-    const goClient = new go.Client(clientName, description, go.newClientOptions(this.ta.codeModel.type, clientName));
+    const goClient = new go.Client(clientName, docs, go.newClientOptions(this.ta.codeModel.type, clientName));
     goClient.parent = parent;
 
     // anything other than public means non-instantiable client
@@ -249,7 +255,7 @@ export class clientAdapter {
         }
       }
       method.optionalParamsGroup = new go.ParameterGroup(optsGroupName, optionalParamsGroupName, false, 'method');
-      method.optionalParamsGroup.description = createOptionsTypeDescription(optionalParamsGroupName, this.getMethodNameForDocComment(method));
+      method.optionalParamsGroup.docs.summary = createOptionsTypeDescription(optionalParamsGroupName, this.getMethodNameForDocComment(method));
       method.responseEnvelope = this.adaptResponseEnvelope(sdkMethod, method);
     } else {
       throw new Error('NYI');
@@ -260,7 +266,7 @@ export class clientAdapter {
     // of the api versions supported by the service.
     for (const opParam of sdkMethod.operation.parameters) {
       if (opParam.isApiVersionParam && opParam.clientDefaultValue) {
-        method.apiVersions.push(opParam.clientDefaultValue);
+        method.apiVersions.push(<string>opParam.clientDefaultValue);
         break;
       }
     }
@@ -522,7 +528,7 @@ export class clientAdapter {
     if (sdkMethod.access === 'internal') {
       respEnvName = uncapitalize(respEnvName);
     }
-    const respEnv = new go.ResponseEnvelope(respEnvName, createResponseEnvelopeDescription(respEnvName, this.getMethodNameForDocComment(method)), method);
+    const respEnv = new go.ResponseEnvelope(respEnvName, {summary: createResponseEnvelopeDescription(respEnvName, this.getMethodNameForDocComment(method))}, method);
     this.ta.codeModel.responseEnvelopes.push(respEnv);
 
     // add any headers
