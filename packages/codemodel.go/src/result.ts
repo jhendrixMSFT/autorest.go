@@ -210,6 +210,7 @@ export class HeaderResponse implements HeaderResponse {
     this.type = type;
     this.byValue = byValue;
     this.headerName = headerName;
+    this.docs = {};
   }
 }
 
@@ -220,6 +221,7 @@ export class HeaderMapResponse implements HeaderMapResponse {
     this.collectionPrefix = collectionPrefix;
     this.byValue = byValue;
     this.headerName = headerName;
+    this.docs = {};
   }
 }
 
@@ -229,6 +231,7 @@ export class AnyResult implements AnyResult {
     this.format = format;
     this.httpStatusCodeType = resultTypes;
     this.byValue = true;
+    this.docs = {};
   }
 }
 
@@ -237,6 +240,7 @@ export class BinaryResult implements BinaryResult {
     this.fieldName = fieldName;
     this.binaryFormat = format;
     this.byValue = true;
+    this.docs = {};
   }
 }
 
@@ -245,6 +249,7 @@ export class HeadAsBooleanResult implements HeadAsBooleanResult {
     this.fieldName = fieldName;
     this.headAsBoolean = true;
     this.byValue = true;
+    this.docs = {};
   }
 }
 
@@ -254,6 +259,7 @@ export class MonomorphicResult implements MonomorphicResult {
     this.format = format;
     this.monomorphicType = type;
     this.byValue = byValue;
+    this.docs = {};
   }
 }
 
@@ -261,6 +267,7 @@ export class PolymorphicResult implements PolymorphicResult {
   constructor(type: type.InterfaceType) {
     this.interfaceType = type;
     this.format = 'JSON';
+    this.docs = {};
   }
 }
 
@@ -268,5 +275,6 @@ export class ModelResult implements ModelResult {
   constructor(type: type.ModelType, format: ModelResultFormat) {
     this.modelType = type;
     this.format = format;
+    this.docs = {};
   }
 }

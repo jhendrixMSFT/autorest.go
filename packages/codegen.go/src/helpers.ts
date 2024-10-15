@@ -524,12 +524,15 @@ export function formatStatusCode(statusCode: number): string {
   }
 }
 
-export function formatCommentAsBulletItem(description: string): string {
+export function formatCommentAsBulletItem(prefix: string, docs: go.Docs): string {
   // first create the comment block. note that it can be multi-line depending on length:
   //
   // some comment first line
   // and it finishes here.
-  description = comment(description, '//', undefined, commentLength);
+  let description = formatDocCommentWithPrefix(prefix, docs);
+  if (description.length === 0) {
+    return '';
+  }
 
   // transform the above to look like this:
   //
