@@ -304,9 +304,9 @@ export class clientAdapter {
         }
       }
     }
+
     for (const sdkMethod of sdkClient.methods) {
-      const goMethod = this.adaptMethod(sdkMethod, goClient);
-      goMethod.parameters.push(...ctorParams);
+      this.adaptMethod(sdkMethod, goClient);
     }
 
     if (this.ta.codeModel.type === 'azure-arm' && goClient.clientAccessors.length > 0 && goClient.methods.length === 0) {
@@ -366,7 +366,7 @@ export class clientAdapter {
     throw new AdapterError('UnsupportedTsp', `unsupported URI parameter type ${paramType.kind}`, sdkParam.__raw?.node ?? NoTarget);
   }
 
-  private adaptMethod(sdkMethod: tcgc.SdkServiceMethod<tcgc.SdkHttpOperation>, goClient: go.Client): go.MethodType {
+  private adaptMethod(sdkMethod: tcgc.SdkServiceMethod<tcgc.SdkHttpOperation>, goClient: go.Client): void {
     let method: go.MethodType;
     const naming = new go.MethodNaming(getEscapedReservedName(uncapitalize(ensureNameCase(sdkMethod.name)), 'Operation'), ensureNameCase(`${sdkMethod.name}CreateRequest`, true),
       ensureNameCase(`${sdkMethod.name}HandleResponse`, true));
@@ -435,7 +435,6 @@ export class clientAdapter {
     method.docs.description = sdkMethod.doc;
     goClient.methods.push(method);
     this.populateMethod(sdkMethod, method);
-    return method;
   }
 
   /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
@@ -652,11 +651,7 @@ export class clientAdapter {
         }
         paramMapping.get(opParam)?.push(adaptedParam);
 
-        // if the adapted client param is a literal then don't add it to
-        // the array of client params as it's not a formal parameter.
-        // the only exception is any api version parameter as we need this
-        // for generating client constructors.
-        if (go.isLiteralParameter(adaptedParam.style) && !go.isAPIVersionParameter(adaptedParam)) {
+        if (!go.isAPIVersionParameter(adaptedParam)) {
           continue;
         }
 
