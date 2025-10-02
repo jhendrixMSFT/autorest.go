@@ -42,9 +42,9 @@ export interface MethodExample {
 
   filePath: string;
 
-  parameters: Array<ParameterExample>;
+  parameters: Array<ParameterExample<param.MethodParameter>>;
 
-  optionalParamsGroup: Array<ParameterExample>;
+  optionalParamsGroup: Array<ParameterExample<param.MethodParameter>>;
 
   responseEnvelope?: ResponseEnvelopeExample;
 }
@@ -61,8 +61,8 @@ export interface NumberExample {
   type: type.Constant | type.Literal | type.Scalar | type.Time;
 }
 
-export interface ParameterExample {
-  parameter: client.ClientParameter;
+export interface ParameterExample<T extends client.ClientParameter = client.ClientParameter> {
+  parameter: T;
   value: ExampleType;
 }
 
@@ -150,8 +150,8 @@ export class NumberExample implements NumberExample {
   }
 }
 
-export class ParameterExample implements ParameterExample {
-  constructor(parameter: param.MethodParameter, value: ExampleType) {
+export class ParameterExample<T> implements ParameterExample<T> {
+  constructor(parameter: T, value: ExampleType) {
     this.parameter = parameter;
     this.value = value;
   }

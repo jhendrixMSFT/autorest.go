@@ -420,7 +420,7 @@ function jsonToGo(value: any, indent: string): string {
   return '';
 }
 
-function generateFakeExample(goType: go.WireType, name?: string): go.ExampleType {
+function generateFakeExample(goType: go.Type, name?: string): go.ExampleType {
   switch (goType.kind) {
     case 'any':
       return new go.NullExample(goType);

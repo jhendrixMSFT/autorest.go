@@ -60,9 +60,12 @@ export function sortAscending(a: string, b: string): number {
  * @param pkgName optional package name in which the type resides
  * @returns the parameter type definition text
  */
-export function formatParameterTypeName(param: go.ClientOptionsParameter | go.ClientParameter | go.ParameterGroup, pkgName?: string): string {
+export function formatParameterTypeName(param: go.ClientOptionsType | go.ClientParameter | go.ParameterGroup, pkgName?: string): string {
   let typeName: string;
   switch (param.kind) {
+    case 'armClientOptions':
+      typeName = go.getTypeDeclaration(param, pkgName);
+      break;
     case 'clientOptions':
       typeName = param.name;
       break;
@@ -90,6 +93,10 @@ export function sortParametersByRequired(a: go.ClientParameter | go.ParameterGro
   let bRequired = false;
 
   switch (a.kind) {
+    case 'credentialParam':
+    case 'endpointParam':
+      aRequired = true;
+      break;
     case 'paramGroup':
       aRequired = a.required;
       break;
@@ -99,6 +106,10 @@ export function sortParametersByRequired(a: go.ClientParameter | go.ParameterGro
   }
 
   switch (b.kind) {
+    case 'credentialParam':
+    case 'endpointParam':
+      bRequired = true;
+      break;
     case 'paramGroup':
       bRequired = b.required;
       break;
@@ -700,7 +711,7 @@ export function star(byValue: boolean): string {
  * @param param the param for which to create a zero value
  * @returns the zero-value expression
  */
-export function zeroValue(param: go.ClientParameter | go.MethodParameter): string {
+export function zeroValue(param: go.MethodParameter): string {
   // even though API version params typically have a client-side default which makes
   // them optional, the azcore.ClientOptions.APIVersion field isn't pointer-to-type.
   if (go.isRequiredParameter(param.style) || go.isAPIVersionParameter(param)) {
@@ -811,15 +822,14 @@ export function getSerDeFormat(model: go.Model | go.PolymorphicModel, codeModel:
 // return combined client parameters for all the clients
 export function getAllClientParameters(codeModel: go.CodeModel): Array<go.ClientParameter> {
   const allClientParams = new Array<go.ClientParameter>();
-  for (const clients of codeModel.clients) {
-    for (const clientParam of values(clients.parameters)) {
-      if (go.isLiteralParameter(clientParam.style)) {
-        continue;
+  for (const client of codeModel.clients) {
+    for (const ctor of client.constructors) {
+      for (const ctorParam of ctor.parameters) {
+        if (values(allClientParams).where(param => param.name === ctorParam.name).any()) {
+          continue;
+        }
+        allClientParams.push(ctorParam);
       }
-      if (values(allClientParams).where(param => param.name === clientParam.name).any()) {
-        continue;
-      }
-      allClientParams.push(clientParam);
     }
   }
   allClientParams.sort(sortParametersByRequired);
@@ -830,24 +840,23 @@ export function getAllClientParameters(codeModel: go.CodeModel): Array<go.Client
 export function getCommonClientParameters(codeModel: go.CodeModel): Array<go.ClientParameter> {
   const paramCount = new Map<string, { uses: number, param: go.ClientParameter }>();
   let numClients = 0; // track client count since we might skip some
-  for (const clients of codeModel.clients) {
+  for (const client of codeModel.clients) {
     // special cases: some ARM clients always don't contain any parameters (OperationsClient will be depracated in the future)
-    if (codeModel.type === 'azure-arm' && clients.name.match(/^OperationsClient$/)) {
+    if (codeModel.type === 'azure-arm' && client.name.match(/^OperationsClient$/)) {
       continue; 
     }
 
     ++numClients;
-    for (const clientParam of values(clients.parameters)) {
-      if (go.isLiteralParameter(clientParam.style)) {
-        continue;
-      }
-      let entry = paramCount.get(clientParam.name);
-      if (!entry) {
-        entry = { uses: 0, param: clientParam };
-        paramCount.set(clientParam.name, entry);
-      }
+    for (const ctor of client.constructors) {
+      for (const ctorParam of ctor.parameters) {
+        let entry = paramCount.get(ctorParam.name);
+        if (!entry) {
+          entry = { uses: 0, param: ctorParam };
+          paramCount.set(ctorParam.name, entry);
+        }
 
-      ++entry.uses;
+        ++entry.uses;
+      }
     }
   }
 

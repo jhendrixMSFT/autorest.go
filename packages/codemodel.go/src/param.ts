@@ -140,11 +140,6 @@ export type ParameterStyle = 'required' | 'optional' | 'literal' | 'flag' | Clie
 /** indicates where the value of a parameter originates */
 export type ParameterLocation = 'client' | 'method';
 
-/** a parameter that's not used for creating HTTP requests (e.g. a credential parameter) */
-export interface Parameter extends HttpParameterBase {
-  kind: 'parameter';
-}
-
 /** a struct that contains a grouping of parameters */
 export interface ParameterGroup {
   kind: 'paramGroup';
@@ -299,7 +294,7 @@ export type URIParameterType = type.Constant | type.Scalar | type.String;
  * @param param the parameter to inspect
  * @returns true if the parameter is for the API version
  */
-export function isAPIVersionParameter(param: MethodParameter | Parameter): boolean {
+export function isAPIVersionParameter(param: MethodParameter): boolean {
   switch (param.kind) {
     case 'headerScalarParam':
     case 'pathScalarParam':
@@ -505,13 +500,6 @@ export class MultipartFormBodyParameter extends HttpParameterBase implements Mul
   constructor(name: string, type: type.WireType, style: ParameterStyle, byValue: boolean) {
     super(name, type, style, byValue, 'method');
     this.kind = 'multipartFormBodyParam';
-  }
-}
-
-export class Parameter extends HttpParameterBase implements Parameter {
-  constructor(name: string, type: type.WireType, style: ParameterStyle, byValue: boolean, location: ParameterLocation) {
-    super(name, type, style, byValue, location);
-    this.kind = 'parameter';
   }
 }
 

@@ -70,46 +70,17 @@ export async function generateOperations(codeModel: go.CodeModel): Promise<Array
     clientText += `type ${client.name} struct {\n`;
     clientText += `\tinternal *${azureARM ? 'arm' : 'azcore'}.Client\n`;
 
-    // check for any optional host params
-    const optionalParams = new Array<go.ClientParameter>();
-
-    const isParamPointer = function(param: go.ClientParameter): boolean {
-      // for client params, only optional and flag types are passed by pointer
-      return param.style === 'flag' || param.style === 'optional';
-    };
-
-    // now emit any client params (non parameterized host params case)
-    if (client.parameters.length > 0) {
-      const addedGroups = new Set<string>();
-      for (const clientParam of values(client.parameters)) {
-        if (go.isLiteralParameter(clientParam.style)) {
-          continue;
-        }
-        if (clientParam.group) {
-          if (!addedGroups.has(clientParam.group.groupName)) {
-            clientText += `\t${uncapitalize(clientParam.group.groupName)} ${!isParamPointer(clientParam) ? '' : '*'}${clientParam.group.groupName}\n`;
-            addedGroups.add(clientParam.group.groupName);
-          }
-          continue;
-        }
-        clientText += `\t${clientParam.name} `;
-        if (!isParamPointer(clientParam)) {
-          clientText += `${go.getTypeDeclaration(clientParam.type)}\n`;
-        } else {
-          clientText += `${helpers.formatParameterTypeName(clientParam)}\n`;
-        }
-        if (!go.isRequiredParameter(clientParam.style)) {
-          optionalParams.push(clientParam);
-        }
-      }
+    // now emit client fields
+    for (const field of client.fields) {
+      clientText += `\t${field.name} ${helpers.star(field.byValue)}${go.getTypeDeclaration(field.type)}\n`;
     }
 
     // end of client definition
     clientText += '}\n\n';
 
-    if (azureARM && optionalParams.length > 0) {
+    /*if (azureARM && optionalParams.length > 0) {
       throw new CodegenError('UnsupportedTsp', 'optional client parameters for ARM is not supported');
-    }
+    }*/
 
     clientText += generateConstructors(client, imports);
 
@@ -121,11 +92,8 @@ export async function generateOperations(codeModel: go.CodeModel): Promise<Array
       opText += `\treturn &${clientAccessor.subClient.name}{\n`;
       opText += '\t\tinternal: client.internal,\n';
       // propagate all client params
-      for (const param of client.parameters) {
-        if (go.isLiteralParameter(param.style)) {
-          continue;
-        }
-        opText += `\t\t${param.name}: client.${param.name},\n`;
+      for (const field of client.fields) {
+        opText += `\t\t${field.name}: client.${field.name},\n`;
       }
       opText += '\t}\n}\n\n';
     }
@@ -183,7 +151,7 @@ function generateConstructors(client: go.Client, imports: ImportManager): string
     // for non-ARM, the options type will always be a parameter group
     ctorText += `// ${client.options.name} contains the optional values for creating a [${client.name}].\n`;
     ctorText += `type ${client.options.name} struct {\n\tazcore.ClientOptions\n`;
-    for (const param of client.options.params) {
+    for (const param of client.options.parameters) {
       if (go.isAPIVersionParameter(param)) {
         // we use azcore.ClientOptions.APIVersion
         continue;
@@ -206,10 +174,6 @@ function generateConstructors(client: go.Client, imports: ImportManager): string
 
     constructor.parameters.sort(helpers.sortParametersByRequired);
     for (const ctorParam of constructor.parameters) {
-      if (!go.isRequiredParameter(ctorParam.style)) {
-        // param is part of the options group
-        continue;
-      }
       imports.addImportForType(ctorParam.type);
       ctorParams.push(`${ctorParam.name} ${helpers.formatParameterTypeName(ctorParam)}`);
       if (ctorParam.docs.summary || ctorParam.docs.description) {
@@ -221,19 +185,6 @@ function generateConstructors(client: go.Client, imports: ImportManager): string
       imports.add('github.com/Azure/azure-sdk-for-go/sdk/azcore/runtime');
       let bodyText = `\tif options == nil {\n\t\toptions = &${optionsTypeName}{}\n\t}\n`;
       let apiVersionConfig = '';
-      // check if there's an api version parameter
-      let apiVersionParam: go.HeaderScalarParameter | go.PathScalarParameter | go.QueryScalarParameter | go.URIParameter | undefined;
-      for (const param of client.parameters) {
-        switch (param.kind) {
-          case 'headerScalarParam':
-          case 'pathScalarParam':
-          case 'queryScalarParam':
-          case 'uriParam':
-            if (param.isApiVersion) {
-              apiVersionParam = param;
-            }
-        }
-      }
 
       if (tokenAuth) {
         imports.add('github.com/Azure/azure-sdk-for-go/sdk/azcore/cloud');
@@ -248,13 +199,13 @@ function generateConstructors(client: go.Client, imports: ImportManager): string
         bodyText += '\t\treturn nil, fmt.Errorf("provided Cloud field is missing Audience for %s", ServiceName)\n\t}\n';
       }
 
-      if (apiVersionParam) {
+      if (client.apiVersion) {
         let location: string;
         let name: string | undefined;
-        switch (apiVersionParam.kind) {
+        switch (client.apiVersion.kind) {
           case 'headerScalarParam':
             location = 'Header';
-            name = apiVersionParam.headerName;
+            name = client.apiVersion.headerName;
             break;
           case 'pathScalarParam':
           case 'uriParam':
@@ -263,7 +214,7 @@ function generateConstructors(client: go.Client, imports: ImportManager): string
             break;
           case 'queryScalarParam':
             location = 'QueryParam';
-            name = apiVersionParam.queryParameter;
+            name = client.apiVersion.queryParameter;
             break;
         }
 
@@ -282,39 +233,48 @@ function generateConstructors(client: go.Client, imports: ImportManager): string
       return bodyText;
     };
 
+    // check if there's a credential parameter
+    let credentialParam: go.ClientCredentialParameter | undefined;
+    for (const param of constructor.parameters) {
+      if (param.kind === 'credentialParam') {
+        credentialParam = param;
+        break;
+      }
+    }
+
     let prolog: string;
-    switch (constructor.authentication.kind) {
-      case 'none':
-        if (client.options.kind !== 'clientOptions') {
-          throw new CodegenError('InternalError', `unexpected client options kind ${client.options.kind}`);
-        }
-        prolog = emitProlog(client.options.name, false);
-        break;
-      case 'token':
-        imports.add('github.com/Azure/azure-sdk-for-go/sdk/azcore');
-        ctorParams.push('credential azcore.TokenCredential');
-        paramDocs.push(helpers.formatCommentAsBulletItem('credential', { summary: 'used to authorize requests. Usually a credential from azidentity.' }));
-        switch (client.options.kind) {
-          case 'clientOptions': {
-            imports.add('github.com/Azure/azure-sdk-for-go/sdk/azcore/policy');
-            const tokenPolicyOpts = '&policy.BearerTokenOptions{\n\t\t\tInsecureAllowCredentialWithHTTP: options.InsecureAllowCredentialWithHTTP,\n\t\t}';
-            // we assume a single scope. this is enforced when adapting the data from tcgc
-            const tokenPolicy = `\n\t\tPerCall: []policy.Policy{\n\t\truntime.NewBearerTokenPolicy(credential, []string{c.Audience + "${helpers.splitScope(constructor.authentication.scopes[0]).scope}"}, ${tokenPolicyOpts}),\n\t\t},\n`;
-            prolog = emitProlog(client.options.name, true, tokenPolicy);
-            break;
+    if (!credentialParam) {
+      if (client.options.kind !== 'clientOptions') {
+        throw new CodegenError('InternalError', `unexpected client options kind ${client.options.kind}`);
+      }
+      prolog = emitProlog(client.options.name, false);
+    } else {
+      switch (credentialParam.type.kind) {
+        case 'tokenCredential':
+          imports.add('github.com/Azure/azure-sdk-for-go/sdk/azcore');
+          paramDocs.push(helpers.formatCommentAsBulletItem('credential', { summary: 'used to authorize requests. Usually a credential from azidentity.' }));
+          switch (client.options.kind) {
+            case 'clientOptions': {
+              imports.add('github.com/Azure/azure-sdk-for-go/sdk/azcore/policy');
+              const tokenPolicyOpts = '&policy.BearerTokenOptions{\n\t\t\tInsecureAllowCredentialWithHTTP: options.InsecureAllowCredentialWithHTTP,\n\t\t}';
+              // we assume a single scope. this is enforced when adapting the data from tcgc
+              const tokenPolicy = `\n\t\tPerCall: []policy.Policy{\n\t\truntime.NewBearerTokenPolicy(credential, []string{c.Audience + "${helpers.splitScope(credentialParam.type.scopes[0]).scope}"}, ${tokenPolicyOpts}),\n\t\t},\n`;
+              prolog = emitProlog(client.options.name, true, tokenPolicy);
+              break;
+            }
+            case 'armClientOptions':
+              // this is the ARM case
+              imports.add('github.com/Azure/azure-sdk-for-go/sdk/azcore/arm');
+              prolog = '\tcl, err := arm.NewClient(moduleName, moduleVersion, credential, options)\n';
+              break;
           }
-          case 'parameter':
-            // this is the ARM case
-            imports.add('github.com/Azure/azure-sdk-for-go/sdk/azcore/arm');
-            prolog = '\tcl, err := arm.NewClient(moduleName, moduleVersion, credential, options)\n';
-            break;
-        }
-        break;
+          break;
+      }
     }
 
     // add client options last
     ctorParams.push(`options ${helpers.formatParameterTypeName(client.options)}`);
-    paramDocs.push(helpers.formatCommentAsBulletItem('options', client.options.docs));
+    paramDocs.push(helpers.formatCommentAsBulletItem('options', { summary: 'pass nil to accept the default values.' }));
 
     ctorText += `// ${constructor.name} creates a new instance of ${client.name} with the specified values.\n`;
     for (const doc of paramDocs) {
@@ -329,7 +289,7 @@ function generateConstructors(client: go.Client, imports: ImportManager): string
 
     // handle any client-side defaults
     if (client.options.kind === 'clientOptions') {
-      for (const param of client.options.params) {
+      for (const param of client.options.parameters) {
         if (go.isClientSideDefault(param.style)) {
           let name: string;
           if (go.isAPIVersionParameter(param)) {
@@ -346,7 +306,7 @@ function generateConstructors(client: go.Client, imports: ImportManager): string
     // construct client literal
     let clientVar = 'client';
     // ensure clientVar doesn't collide with any params
-    for (const param of client.parameters) {
+    for (const param of constructor.parameters) {
       if (param.name === clientVar) {
         clientVar = ensureNameCase(client.name, true);
         break;
@@ -354,12 +314,9 @@ function generateConstructors(client: go.Client, imports: ImportManager): string
     }
 
     ctorText += `\t${clientVar} := &${client.name}{\n`;
-    for (const parameter of values(client.parameters)) {
-      if (go.isLiteralParameter(parameter.style)) {
-        continue;
-      }
+    for (const field of values(client.fields)) {
       // each client field will have a matching parameter with the same name
-      ctorText += `\t\t${parameter.name}: ${parameter.name},\n`;
+      ctorText += `\t\t${field.name}: ${field.name},\n`;
     }
     ctorText += '\tinternal: cl,\n';
     ctorText += '\t}\n';
@@ -691,8 +648,8 @@ function createProtocolRequest(azureARM: boolean, method: go.MethodType | go.Nex
   text += `func ${getClientReceiverDefinition(method.receiver)} ${name}(${helpers.getCreateRequestParametersSig(method)}) (${returns.join(', ')}) {\n`;
 
   const hostParams = new Array<go.URIParameter>();
-  for (const parameter of method.receiver.type.parameters) {
-    if (parameter.kind === 'uriParam') {
+  for (const parameter of method.parameters) {
+    if (parameter.location === 'client' && parameter.kind === 'uriParam') {
       hostParams.push(parameter);
     }
   }

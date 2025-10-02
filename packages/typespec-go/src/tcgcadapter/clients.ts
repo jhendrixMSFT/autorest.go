@@ -156,6 +156,8 @@ export class clientAdapter {
       sdkClient.clientInitialization.initializedBy |= tcgc.InitializedByFlags.Individually;
     }
 
+    const ctorParams = new Array<go.ClientEndpointParameter | go.URIParameter>();
+
     // anything other than public means non-instantiable client
     if (sdkClient.clientInitialization.initializedBy & tcgc.InitializedByFlags.Individually) {
       for (const param of sdkClient.clientInitialization.parameters) {
@@ -214,10 +216,11 @@ export class clientAdapter {
                 // the first template arg is always the endpoint parameter.
                 // NOTE: we force the endpoint param to be required, omitting
                 // any potential for client-side default.
-                const adaptedParam = this.adaptURIParam(templateArg, true);
+                const adaptedParam = new go.ClientEndpointParameter(templateArg.name);
                 adaptedParam.docs.summary = param.summary;
                 adaptedParam.docs.description = param.doc;
-                goClient.parameters.push(adaptedParam);
+                ctorParams.push(adaptedParam);
+                goClient.fields.push(new go.StructField(adaptedParam.name, adaptedParam.type, adaptedParam.byValue));
 
                 // if the server's URL is *only* the endpoint parameter then we're done.
                 // this is the param.type.kind === 'endpoint' case.
@@ -233,7 +236,15 @@ export class clientAdapter {
               adaptedParam.docs.summary = templateArg.summary;
               adaptedParam.docs.description = templateArg.doc;
               adaptedParam.isApiVersion = templateArg.isApiVersionParam;
-              goClient.parameters.push(adaptedParam);
+              if (go.isRequiredParameter(adaptedParam.style)) {
+                ctorParams.push(adaptedParam);
+              } else if (goClient.options.kind === 'clientOptions') {
+                goClient.options.parameters.push(adaptedParam);
+              } else {
+                throw new Error('optional params not supported FIX ME');
+              }
+
+              goClient.fields.push(new go.StructField(adaptedParam.name, adaptedParam.type, adaptedParam.byValue));
             }
             break;
           }
@@ -257,7 +268,19 @@ export class clientAdapter {
       // if no authentication type was specified, or the noAuth scheme was
       // explicitly specified, then include the WithNoCredential constructor
       if (authType === AuthTypes.Default || <AuthTypes>(authType & AuthTypes.NoAuth) === AuthTypes.NoAuth) {
-        goClient.constructors.push(new go.Constructor(`New${clientName}WithNoCredential`, new go.NoAuthentication()));
+        goClient.constructors.push(new go.Constructor(`New${clientName}WithNoCredential`));
+      }
+
+      // propagate ctor params to all client ctors
+      for (const constructor of goClient.constructors) {
+        constructor.parameters.push(...ctorParams);
+        constructor.parameters.sort((a: go.ClientParameter, b: go.ClientParameter): number => {
+          if (a.kind === 'endpointParam' || (a.kind === 'credentialParam' && b.kind !== 'endpointParam')) {
+            // endpoint always comes first, followed by credential (if applicable)
+            return -1;
+          }
+          return 0;
+        });
       }
     } else if (parent) {
       // this is a sub-client. it will share the client/host params of the parent.
@@ -268,21 +291,9 @@ export class clientAdapter {
       // make a copy of the client params. this is to prevent
       // client method params from being shared across clients
       // as not all client method params might be uniform.
-      goClient.parameters = new Array<go.ClientParameter>(...parent.parameters);
+      goClient.fields = new Array<go.StructField>(...parent.fields);
     } else {
       throw new AdapterError('InternalError', `uninstantiable client ${sdkClient.name} has no parent`, NoTarget);
-    }
-
-    // propagate optional params to the optional params group
-    for (const param of goClient.parameters) {
-      if (!go.isRequiredParameter(param.style) && !go.isLiteralParameter(param.style) && goClient.options.kind === 'clientOptions') {
-        goClient.options.params.push(param);
-      }
-    }
-
-    // if we created constructors, propagate the persisted client params to them
-    for (const constructor of goClient.constructors) {
-      constructor.parameters = goClient.parameters;
     }
 
     if (sdkClient.children && sdkClient.children.length > 0) {
@@ -294,7 +305,8 @@ export class clientAdapter {
       }
     }
     for (const sdkMethod of sdkClient.methods) {
-      this.adaptMethod(sdkMethod, goClient);
+      const goMethod = this.adaptMethod(sdkMethod, goClient);
+      goMethod.parameters.push(...ctorParams);
     }
 
     if (this.ta.codeModel.type === 'azure-arm' && goClient.clientAccessors.length > 0 && goClient.methods.length === 0) {
@@ -322,7 +334,9 @@ export class clientAdapter {
     } else if (cred.flows[0].scopes.length > 1) {
       throw new AdapterError('InternalError', `too many scopes defined for credential type ${cred.type}`, cred.model);
     }
-    return new go.Constructor(`New${goClient.name}`, new go.TokenAuthentication(cred.flows[0].scopes.map(each => each.value)));
+    const ctor = new go.Constructor(`New${goClient.name}`);
+    ctor.parameters.push(new go.ClientCredentialParameter('credential', new go.TokenCredential(cred.flows[0].scopes.map(each => each.value))));
+    return ctor;
   }
 
   /**
@@ -342,17 +356,17 @@ export class clientAdapter {
 
     if (go.isURIParameterType(paramType)) {
       const style = forceRequired ? 'required' : this.adaptParameterStyle(sdkParam);
-      // TODO: follow up with tcgc if serializedName should actually be optional
-      const uriParam = new go.URIParameter(sdkParam.name, sdkParam.serializedName ? sdkParam.serializedName : sdkParam.name, paramType,
+      const uriParam = new go.URIParameter(sdkParam.name, sdkParam.serializedName, paramType,
         style, isTypePassedByValue(sdkParam.type) || !sdkParam.optional, 'client');
       uriParam.docs.summary = sdkParam.summary;
       uriParam.docs.description = sdkParam.doc;
+      uriParam.isApiVersion = sdkParam.isApiVersionParam;
       return uriParam;
     }
     throw new AdapterError('UnsupportedTsp', `unsupported URI parameter type ${paramType.kind}`, sdkParam.__raw?.node ?? NoTarget);
   }
 
-  private adaptMethod(sdkMethod: tcgc.SdkServiceMethod<tcgc.SdkHttpOperation>, goClient: go.Client) {
+  private adaptMethod(sdkMethod: tcgc.SdkServiceMethod<tcgc.SdkHttpOperation>, goClient: go.Client): go.MethodType {
     let method: go.MethodType;
     const naming = new go.MethodNaming(getEscapedReservedName(uncapitalize(ensureNameCase(sdkMethod.name)), 'Operation'), ensureNameCase(`${sdkMethod.name}CreateRequest`, true),
       ensureNameCase(`${sdkMethod.name}HandleResponse`, true));
@@ -421,6 +435,7 @@ export class clientAdapter {
     method.docs.description = sdkMethod.doc;
     goClient.methods.push(method);
     this.populateMethod(sdkMethod, method);
+    return method;
   }
 
   /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
@@ -645,13 +660,19 @@ export class clientAdapter {
           continue;
         }
 
-        // we must check via param name and not reference equality. this is because a client param
-        // can be used in multiple ways. e.g. a client param "apiVersion" that's used as a path param
-        // in one method and a query param in another.
-        if (!method.receiver.type.parameters.find((v: go.ClientParameter) => {
-          return v.name === adaptedParam.name;
-        })) {
-          method.receiver.type.parameters.push(adaptedParam);
+        if (method.receiver.type.apiVersion && method.receiver.type.apiVersion.kind !== adaptedParam.kind) {
+          throw new Error('mismatch FIX ME');
+        }
+
+        switch (adaptedParam.kind) {
+          case 'headerScalarParam':
+          case 'pathScalarParam':
+          case 'queryScalarParam':
+          case 'uriParam':
+            method.receiver.type.apiVersion = adaptedParam;
+            break;
+          default:
+            throw new Error('boom');
         }
       }
     }
