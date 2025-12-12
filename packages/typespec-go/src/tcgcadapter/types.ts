@@ -32,98 +32,111 @@ export class TypeAdapter {
   }
 
   /**
-   * returns the package for the adapted tcgc code model.
-   * 
-   * NOTE: this is temporary and will go away with namespaces.
-   * @returns the module or package to contain the adapted tcgc model
+   * converts all model/enum SDK types to Go code model types
    */
-  private getPkg(): go.PackageContent {
-    return this.codeModel.root.kind === 'containingModule' ? this.codeModel.root.package : this.codeModel.root;
+  adaptTypes() {
+    const recursiveAdaptTypesForPkg = (pkg: go.PackageContent, ns: tcgc.SdkNamespace<tcgc.SdkHttpOperation>): void => {
+      for (const enumType of ns.enums) {
+        if (<tcgc.UsageFlags>(enumType.usage & tcgc.UsageFlags.ApiVersionEnum) === tcgc.UsageFlags.ApiVersionEnum) {
+          // skip enums that are used for API version
+          continue;
+        } else if ((enumType.usage & tcgc.UsageFlags.Input) === 0 && (enumType.usage & tcgc.UsageFlags.Output) === 0) {
+          // skip types without input and output usage
+          continue;
+        }
+        const constType = this.getConstantType(enumType, pkg);
+        pkg.constants.push(constType);
+      }
+
+      // we must adapt all interface/model types first. this is because models can contain cyclic references
+      const modelTypes = new Array<ModelTypeSdkModelType>();
+      const ifaceTypes = new Array<InterfaceTypeSdkModelType>();
+      for (const modelType of ns.models) {
+        if (modelType.name.length === 0) {
+          // tcgc creates some unnamed models for spread params.
+          // we don't use these so just skip them.
+          continue;
+        } else if (modelType.access === 'internal' && <tcgc.UsageFlags>(modelType.usage & tcgc.UsageFlags.Spread) === tcgc.UsageFlags.Spread) {
+          // we don't use the internal models for spread params
+          continue;
+        } else if ((modelType.usage & tcgc.UsageFlags.Input) === 0 && (modelType.usage & tcgc.UsageFlags.Output) === 0) {
+          // skip types without input and output usage
+          continue;
+        }
+
+        if (modelType.discriminatedSubtypes) {
+          // this is a root discriminated type
+          const iface = this.getInterfaceType(modelType, pkg);
+          pkg.interfaces.push(iface);
+          ifaceTypes.push({go: iface, tcgc: modelType});
+        }
+        // TODO: what's the equivalent of x-ms-external?
+        const model = this.getModel(modelType, pkg);
+        modelTypes.push({go: model, tcgc: modelType});
+      }
+
+      // add the synthesized models from TCGC for paged results
+      const pagedResponses = this.getPagedResponses(ns);
+      for (const pagedResponse of pagedResponses) {
+        // tsp allows custom paged responses, so we must check both the synthesized list and the models list
+        if (values(modelTypes).any(each => { return each.tcgc.name === pagedResponse.name; })) {
+          continue;
+        }
+        const model = this.getModel(pagedResponse, pkg);
+        modelTypes.push({go: model, tcgc: pagedResponse});
+      }
+
+      // now that the interface/model types have been generated, we can populate the rootType and possibleTypes
+      for (const ifaceType of ifaceTypes) {
+        ifaceType.go.rootType = <go.PolymorphicModel>this.getModel(ifaceType.tcgc, pkg);
+        for (const subType of values(ifaceType.tcgc.discriminatedSubtypes)) {
+          const possibleType = <go.PolymorphicModel>this.getModel(subType, pkg);
+          ifaceType.go.possibleTypes.push(possibleType);
+        }
+      }
+
+      // now adapt model fields
+      for (const modelType of modelTypes) {
+        const content = aggregateProperties(this.ctx, modelType.tcgc);
+        for (const prop of values(content.props)) {
+          const field = this.getModelField(prop, modelType.tcgc, pkg);
+          modelType.go.fields.push(field);
+        }
+        if (content.addlProps) {
+          const annotations = new go.ModelFieldAnnotations(false, false, true, false);
+          const addlPropsType = new go.Map(this.getWireType(content.addlProps, pkg, false, false), isTypePassedByValue(content.addlProps));
+          const addlProps = new go.ModelField('AdditionalProperties', addlPropsType, true, '', annotations);
+          modelType.go.fields.push(addlProps);
+        }
+        pkg.models.push(modelType.go);
+      }
+
+      // recurse to child namespaces
+      for (const childNs of ns.namespaces) {
+        const pkgName = childNs.name.toLowerCase();
+        let childPkg = pkg.packages.find((each: go.Package) => each.name === pkgName);
+        if (!childPkg) {
+          childPkg = new go.Package(pkgName, pkg);
+          pkg.packages.push(childPkg);
+        }
+        recursiveAdaptTypesForPkg(childPkg, childNs);
+      }
+    }
+
+    const root = this.codeModel.root.kind === 'containingModule' ? this.codeModel.root.package : this.codeModel.root;
+    for (const ns of this.ctx.sdkPackage.namespaces) {
+      recursiveAdaptTypesForPkg(root, ns);
+    }
   }
 
   /**
-   * converts all tcgc model/enum types to Go code model types
+   * returns the synthesized paged response types
+   * for all clients in the provided namespace
+   * 
+   * @param ns the namespace for which to retrieve the paged response types
+   * @returns an array of paged response types for this namespace
    */
-  adaptTypes() {
-    for (const enumType of this.ctx.sdkPackage.enums) {
-      if (<tcgc.UsageFlags>(enumType.usage & tcgc.UsageFlags.ApiVersionEnum) === tcgc.UsageFlags.ApiVersionEnum) {
-        // skip enums that are used for API version
-        continue;
-      } else if ((enumType.usage & tcgc.UsageFlags.Input) === 0 && (enumType.usage & tcgc.UsageFlags.Output) === 0) {
-        // skip types without input and output usage
-        continue;
-      }
-      const constType = this.getConstantType(enumType);
-      this.getPkg().constants.push(constType);
-    }
-
-    // we must adapt all interface/model types first. this is because models can contain cyclic references
-    const modelTypes = new Array<ModelTypeSdkModelType>();
-    const ifaceTypes = new Array<InterfaceTypeSdkModelType>();
-    for (const modelType of this.ctx.sdkPackage.models) {
-      if (modelType.name.length === 0) {
-        // tcgc creates some unnamed models for spread params.
-        // we don't use these so just skip them.
-        continue;
-      } else if (modelType.access === 'internal' && <tcgc.UsageFlags>(modelType.usage & tcgc.UsageFlags.Spread) === tcgc.UsageFlags.Spread) {
-        // we don't use the internal models for spread params
-        continue;
-      } else if ((modelType.usage & tcgc.UsageFlags.Input) === 0 && (modelType.usage & tcgc.UsageFlags.Output) === 0) {
-        // skip types without input and output usage
-        continue;
-      }
-
-      if (modelType.discriminatedSubtypes) {
-        // this is a root discriminated type
-        const iface = this.getInterfaceType(modelType);
-        this.getPkg().interfaces.push(iface);
-        ifaceTypes.push({go: iface, tcgc: modelType});
-      }
-      // TODO: what's the equivalent of x-ms-external?
-      const model = this.getModel(modelType);
-      modelTypes.push({go: model, tcgc: modelType});
-    }
-  
-    // add the synthesized models from TCGC for paged results
-    const pagedResponses = this.getPagedResponses();
-    for (const pagedResponse of pagedResponses) {
-      // tsp allows custom paged responses, so we must check both the synthesized list and the models list
-      if (values(modelTypes).any(each => { return each.tcgc.name === pagedResponse.name; })) {
-        continue;
-      }
-      const model = this.getModel(pagedResponse);
-      modelTypes.push({go: model, tcgc: pagedResponse});
-    }
-
-
-    // now that the interface/model types have been generated, we can populate the rootType and possibleTypes
-    for (const ifaceType of ifaceTypes) {
-      ifaceType.go.rootType = <go.PolymorphicModel>this.getModel(ifaceType.tcgc);
-      for (const subType of values(ifaceType.tcgc.discriminatedSubtypes)) {
-        const possibleType = <go.PolymorphicModel>this.getModel(subType);
-        ifaceType.go.possibleTypes.push(possibleType);
-      }
-    }
-
-    // now adapt model fields
-    for (const modelType of modelTypes) {
-      const content = aggregateProperties(this.ctx, modelType.tcgc);
-      for (const prop of values(content.props)) {
-        const field = this.getModelField(prop, modelType.tcgc);
-        modelType.go.fields.push(field);
-      }
-      if (content.addlProps) {
-        const annotations = new go.ModelFieldAnnotations(false, false, true, false);
-        const addlPropsType = new go.Map(this.getWireType(content.addlProps, false, false), isTypePassedByValue(content.addlProps));
-        const addlProps = new go.ModelField('AdditionalProperties', addlPropsType, true, '', annotations);
-        modelType.go.fields.push(addlProps);
-      }
-      this.getPkg().models.push(modelType.go);
-    }
-  }
-
-  // returns the synthesized paged response types
-  private getPagedResponses(): Array<tcgc.SdkModelType> {
+  private getPagedResponses(ns: tcgc.SdkNamespace<tcgc.SdkHttpOperation>): Array<tcgc.SdkModelType> {
     const pagedResponses = new Array<tcgc.SdkModelType>();
     const recursiveWalkClients = function(client: tcgc.SdkClientType<tcgc.SdkHttpOperation>): void {
       if (client.children && client.children.length > 0) {
@@ -148,7 +161,7 @@ export class TypeAdapter {
       }
     };
 
-    for (const sdkClient of this.ctx.sdkPackage.clients) {
+    for (const sdkClient of ns.clients) {
       recursiveWalkClients(sdkClient);
     }
     return pagedResponses;
@@ -157,7 +170,7 @@ export class TypeAdapter {
   // returns the Go code model type for the specified SDK type.
   // the operation is idempotent, so getting the same type multiple times
   // returns the same instance of the converted type.
-  getWireType(type: tcgc.SdkType, elementTypeByValue: boolean, substituteDiscriminator: boolean): go.WireType {
+  getWireType(type: tcgc.SdkType, pkg: go.PackageContent, elementTypeByValue: boolean, substituteDiscriminator: boolean): go.WireType {
     switch (type.kind) {
       case 'boolean':
       case 'bytes':
@@ -196,7 +209,7 @@ export class TypeAdapter {
         if (arrayType) {
           return arrayType;
         }
-        arrayType = new go.Slice(this.getWireType(elementType, elementTypeByValue, substituteDiscriminator), myElementTypeByValue);
+        arrayType = new go.Slice(this.getWireType(elementType, pkg, elementTypeByValue, substituteDiscriminator), myElementTypeByValue);
         this.types.set(keyName, arrayType);
         return arrayType;
       }
@@ -211,10 +224,10 @@ export class TypeAdapter {
         return stringType;
       }
       case 'enum':
-        return this.getConstantType(type);
+        return this.getConstantType(type, pkg);
       case 'constant':
       case 'enumvalue':
-        return this.getLiteralValue(type);
+        return this.getLiteralValue(type, pkg);
       case 'offsetDateTime':
         return this.getTimeType(type.encode, false);
       case 'utcDateTime':
@@ -226,7 +239,7 @@ export class TypeAdapter {
         if (mapType) {
           return mapType;
         }
-        mapType = new go.Map(this.getWireType(type.valueType, elementTypeByValue, substituteDiscriminator), valueTypeByValue);
+        mapType = new go.Map(this.getWireType(type.valueType, pkg, elementTypeByValue, substituteDiscriminator), valueTypeByValue);
         this.types.set(keyName, mapType);
         return mapType;
       }
@@ -245,11 +258,11 @@ export class TypeAdapter {
       }
       case 'model':
         if (type.discriminatedSubtypes && substituteDiscriminator) {
-          return this.getInterfaceType(type);
+          return this.getInterfaceType(type, pkg);
         }
-        return this.getModel(type);
+        return this.getModel(type, pkg);
       case 'nullable':
-        return this.getWireType(type.type, elementTypeByValue, substituteDiscriminator);
+        return this.getWireType(type.type, pkg, elementTypeByValue, substituteDiscriminator);
       default:
         throw new AdapterError('UnsupportedTsp', `unsupported type kind ${type.kind}`, type.__raw?.node);
     }
@@ -441,7 +454,7 @@ export class TypeAdapter {
   }
 
   // converts an SdkEnumType to a go.ConstantType
-  private getConstantType(enumType: tcgc.SdkEnumType): go.Constant {
+  private getConstantType(enumType: tcgc.SdkEnumType, pkg: go.PackageContent): go.Constant {
     let constTypeName = naming.ensureNameCase(enumType.name);
     if (enumType.access === 'internal') {
       constTypeName = naming.getEscapedReservedName(uncapitalize(constTypeName), 'Type');
@@ -451,7 +464,7 @@ export class TypeAdapter {
       return <go.Constant>constType;
     }
     const accessPrefix = enumType.access === 'internal' ? 'p' : 'P';
-    constType = new go.Constant(this.getPkg(), constTypeName, getPrimitiveType(enumType.valueType), `${accessPrefix}ossible${constTypeName}Values`);
+    constType = new go.Constant(pkg, constTypeName, getPrimitiveType(enumType.valueType), `${accessPrefix}ossible${constTypeName}Values`);
     constType.values = this.getConstantValues(constType, enumType.values);
     constType.docs.summary = enumType.summary;
     constType.docs.description = enumType.doc;
@@ -459,7 +472,7 @@ export class TypeAdapter {
     return constType;
   }
 
-  private getInterfaceType(model: tcgc.SdkModelType): go.Interface {
+  private getInterfaceType(model: tcgc.SdkModelType, pkg: go.PackageContent): go.Interface {
     if (model.name.length === 0) {
       throw new AdapterError('InternalError', 'unnamed model');
     }
@@ -486,16 +499,16 @@ export class TypeAdapter {
     if (!discriminatorField) {
       throw new AdapterError('InternalError', `failed to find discriminator field for type ${model.name}`);
     }
-    iface = new go.Interface(this.getPkg(), ifaceName, discriminatorField);
+    iface = new go.Interface(pkg, ifaceName, discriminatorField);
     if (model.baseModel && model.baseModel.discriminatedSubtypes) {
-      iface.parent = this.getInterfaceType(model.baseModel);
+      iface.parent = this.getInterfaceType(model.baseModel, pkg);
     }
     this.types.set(ifaceName, iface);
     return iface;
   }
 
   // converts an SdkModelType to a go.ModelType or go.PolymorphicType if the model is polymorphic
-  private getModel(model: tcgc.SdkModelType): go.Model | go.PolymorphicModel {
+  private getModel(model: tcgc.SdkModelType, pkg: go.PackageContent): go.Model | go.PolymorphicModel {
     let modelName = naming.ensureNameCase(model.name);
     if (model.access === 'internal') {
       modelName = naming.getEscapedReservedName(uncapitalize(modelName), 'Model');
@@ -520,13 +533,13 @@ export class TypeAdapter {
 
       if (model.discriminatedSubtypes) {
         // root type, we can get the InterfaceType directly from it
-        iface = this.getInterfaceType(model);
+        iface = this.getInterfaceType(model, pkg);
       } else {
         // walk the parents until we find the first root type
         let parent = model.baseModel;
         while (parent) {
           if (parent.discriminatedSubtypes) {
-            iface = this.getInterfaceType(parent);
+            iface = this.getInterfaceType(parent, pkg);
             break;
           }
           parent = parent.baseModel;
@@ -540,18 +553,18 @@ export class TypeAdapter {
         // find the discriminator property and create the discriminator literal based on it
         for (const prop of model.properties) {
           if (prop.kind === 'property' && prop.discriminator) {
-            discriminatorLiteral = this.getDiscriminatorLiteral(prop);
+            discriminatorLiteral = this.getDiscriminatorLiteral(prop, pkg);
             break;
           }
         }
       }
 
-      modelType = new go.PolymorphicModel(this.getPkg(), modelName, iface, annotations, usage);
+      modelType = new go.PolymorphicModel(pkg, modelName, iface, annotations, usage);
       modelType.discriminatorValue = discriminatorLiteral;
     } else {
-      modelType = new go.Model(this.getPkg(), modelName, annotations, usage);
+      modelType = new go.Model(pkg, modelName, annotations, usage);
       // polymorphic types don't have XMLInfo
-      modelType.xml = adaptXMLInfo(this.getPkg(), model.decorators);
+      modelType.xml = adaptXMLInfo(pkg, model.decorators);
     }
 
     modelType.docs.summary = model.summary;
@@ -570,17 +583,17 @@ export class TypeAdapter {
     return modelType;
   }
 
-  private getDiscriminatorLiteral(sdkProp: tcgc.SdkModelPropertyType): go.Literal {
+  private getDiscriminatorLiteral(sdkProp: tcgc.SdkModelPropertyType, pkg: go.PackageContent): go.Literal {
     switch (sdkProp.type.kind) {
       case 'constant':
       case 'enumvalue':
-        return this.getLiteralValue(sdkProp.type);
+        return this.getLiteralValue(sdkProp.type, pkg);
       default:
         throw new AdapterError('UnsupportedTsp', `unsupported type kind ${sdkProp.type.kind} for discriminator property ${sdkProp.name}`, sdkProp.__raw?.node);
     }
   }
 
-  private getModelField(prop: tcgc.SdkModelPropertyType, modelType: tcgc.SdkModelType): go.ModelField {
+  private getModelField(prop: tcgc.SdkModelPropertyType, modelType: tcgc.SdkModelType, pkg: go.PackageContent): go.ModelField {
     const annotations = new go.ModelFieldAnnotations(prop.optional === false, false, false, false);
     // for multipart/form data containing models, default to fields not being pointer-to-type as we
     // don't have to deal with JSON patch shenanigans. only the optional fields will be pointer-to-type.
@@ -589,7 +602,7 @@ export class TypeAdapter {
     if (isMultipartFormData && prop.kind === 'property' && prop.optional) {
       fieldByValue = false;
     }
-    let type = this.getWireType(prop.type, isMultipartFormData, true);
+    let type = this.getWireType(prop.type, pkg, isMultipartFormData, true);
     if (prop.kind === 'property') {
       if (prop.isMultipartFileInput) {
         type = this.getMultipartContent(prop.type.kind === 'array');
@@ -611,7 +624,7 @@ export class TypeAdapter {
       // the presence of modelType.discriminatorValue tells us that this
       // property is on a model that's not the root discriminator
       annotations.isDiscriminator = true;
-      field.defaultValue = this.getDiscriminatorLiteral(prop);
+      field.defaultValue = this.getDiscriminatorLiteral(prop, pkg);
     }
   
     field.xml = adaptXMLInfo(this.getPkg(), prop.decorators, field);
@@ -667,7 +680,7 @@ export class TypeAdapter {
     return bytesType;
   }
 
-  private getLiteralValue(constType: tcgc.SdkConstantType | tcgc.SdkEnumValueType): go.Literal {
+  private getLiteralValue(constType: tcgc.SdkConstantType | tcgc.SdkEnumValueType, pkg: go.PackageContent): go.Literal {
     if (constType.kind === 'enumvalue') {
       const valueName = `${naming.ensureNameCase(constType.enumType.name)}${naming.ensureNameCase(constType.name)}`;
       const keyName = `literal-${valueName}`;
@@ -679,7 +692,7 @@ export class TypeAdapter {
       if (!constValue) {
         throw new AdapterError('InternalError', `failed to find const value for ${constType.name} in enum ${constType.enumType.name}`, constType.__raw?.node);
       }
-      literalConst = new go.Literal(this.getConstantType(constType.enumType), constValue);
+      literalConst = new go.Literal(this.getConstantType(constType.enumType, pkg), constValue);
       this.types.set(keyName, literalConst);
       return literalConst;
     }
@@ -897,7 +910,7 @@ function aggregateProperties(sdkContext: tcgc.SdkContext, model: tcgc.SdkModelTy
 }
 
 // called for models and model fields. for the former, the field param will be undefined
-export function adaptXMLInfo(pkg: go.PackageContent, decorators: Array<tcgc.DecoratorInfo>, field?: go.ModelField): go.XMLInfo | undefined {
+function adaptXMLInfo(pkg: go.PackageContent, decorators: Array<tcgc.DecoratorInfo>, field?: go.ModelField): go.XMLInfo | undefined {
   // if there are no decorators and this isn't a slice
   // type in a model field then do nothing
   if (decorators.length === 0 && (!field || (field.type.kind !== 'slice'))) {

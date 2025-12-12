@@ -5,7 +5,7 @@
 package fake
 
 import (
-	"clientnamespacegroup"
+	"clientnamespacegroup/clientnamespace"
 	"context"
 	"errors"
 	"fmt"
@@ -15,21 +15,21 @@ import (
 	"net/http"
 )
 
-// ClientNamespaceFirstServer is a fake server for instances of the clientnamespacegroup.ClientNamespaceFirstClient type.
+// ClientNamespaceFirstServer is a fake server for instances of the clientnamespace.ClientNamespaceFirstClient type.
 type ClientNamespaceFirstServer struct {
 	// GetFirst is the fake for method ClientNamespaceFirstClient.GetFirst
 	// HTTP status codes to indicate success: http.StatusOK
-	GetFirst func(ctx context.Context, options *clientnamespacegroup.ClientNamespaceFirstClientGetFirstOptions) (resp azfake.Responder[clientnamespacegroup.ClientNamespaceFirstClientGetFirstResponse], errResp azfake.ErrorResponder)
+	GetFirst func(ctx context.Context, options *clientnamespace.ClientNamespaceFirstClientGetFirstOptions) (resp azfake.Responder[clientnamespace.ClientNamespaceFirstClientGetFirstResponse], errResp azfake.ErrorResponder)
 }
 
 // NewClientNamespaceFirstServerTransport creates a new instance of ClientNamespaceFirstServerTransport with the provided implementation.
-// The returned ClientNamespaceFirstServerTransport instance is connected to an instance of clientnamespacegroup.ClientNamespaceFirstClient via the
+// The returned ClientNamespaceFirstServerTransport instance is connected to an instance of clientnamespace.ClientNamespaceFirstClient via the
 // azcore.ClientOptions.Transporter field in the client's constructor parameters.
 func NewClientNamespaceFirstServerTransport(srv *ClientNamespaceFirstServer) *ClientNamespaceFirstServerTransport {
 	return &ClientNamespaceFirstServerTransport{srv: srv}
 }
 
-// ClientNamespaceFirstServerTransport connects instances of clientnamespacegroup.ClientNamespaceFirstClient to instances of ClientNamespaceFirstServer.
+// ClientNamespaceFirstServerTransport connects instances of clientnamespace.ClientNamespaceFirstClient to instances of ClientNamespaceFirstServer.
 // Don't use this type directly, use NewClientNamespaceFirstServerTransport instead.
 type ClientNamespaceFirstServerTransport struct {
 	srv *ClientNamespaceFirstServer

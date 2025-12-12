@@ -154,6 +154,7 @@ function emit(respEnv: go.ResponseEnvelope, imports: ImportManager): string {
 
     if (respEnv.result) {
       if (respEnv.result.kind === 'modelResult' || respEnv.result.kind === 'polymorphicResult') {
+        // TODO: add import for type
         // anonymously embedded type always goes first
         text += helpers.formatDocComment(respEnv.result.docs);
         text += `\t${go.getTypeDeclaration(go.getResultType(respEnv.result), respEnv.method.receiver.type.pkg)}\n`;

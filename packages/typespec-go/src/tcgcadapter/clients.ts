@@ -3,6 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
+import * as path from 'path';
 import { values } from '@azure-tools/linq';
 import * as tcgc from '@azure-tools/typespec-client-generator-core';
 import { ModelProperty, NoTarget } from '@typespec/compiler';
@@ -16,12 +17,17 @@ import { isTypePassedByValue, TypeAdapter } from './types.js';
  * used to convert tcgc clients and their methods to Go code model types
  */
 export class ClientAdapter {
-  private ta: TypeAdapter;
+  private readonly ta: TypeAdapter;
 
   // track all of the client and parameter group params across all operations
   // as not every option might contain them, and parameter groups can be shared
   // across multiple operations
-  private clientParams: Map<string, go.MethodParameter>;
+  private readonly clientParams: Map<string, go.MethodParameter>;
+
+  // contains the current target package.
+  // note that this is set outside of the
+  // constructor per namespace
+  private pkg!: go.PackageContent;
 
   constructor(ta: TypeAdapter) {
     this.ta = ta;
@@ -33,25 +39,37 @@ export class ClientAdapter {
    * this includes parameter groups/options types and response envelopes.
    */
   adaptClients() {
+    // TODO
     if (this.ta.ctx.emitContext.options['single-client'] && this.ta.ctx.sdkPackage.clients.length > 1) {
       throw new AdapterError('InvalidArgument', 'single-client cannot be enabled when there are multiple clients');
     }
-    for (const sdkClient of this.ta.ctx.sdkPackage.clients) {
-      // start with instantiable clients and recursively work down
-      if (sdkClient.clientInitialization.initializedBy & tcgc.InitializedByFlags.Individually) {
-        this.recursiveAdaptClient(sdkClient);
-      }
-    }
-  }
 
-  /**
-   * returns the package for the adapted tcgc code model.
-   * 
-   * NOTE: this is temporary and will go away with namespaces.
-   * @returns the module or package to contain the adapted tcgc model
-   */
-  private getPkg(): go.PackageContent {
-    return this.ta.codeModel.root.kind === 'containingModule' ? this.ta.codeModel.root.package : this.ta.codeModel.root;
+    const recursiveAdaptClientsForPkg = (pkg: go.PackageContent, ns: tcgc.SdkNamespace<tcgc.SdkHttpOperation>): void => {
+      this.pkg = pkg;
+
+      for (const sdkClient of ns.clients) {
+        // start with instantiable clients and recursively work down
+        if (sdkClient.clientInitialization.initializedBy & tcgc.InitializedByFlags.Individually) {
+          this.recursiveAdaptClient(sdkClient);
+        }
+      }
+
+      // recurse to child namespaces
+      for (const childNs of ns.namespaces) {
+        const pkgName = childNs.name.toLowerCase();
+        let childPkg = this.pkg.packages.find((each: go.Package) => each.name === pkgName);
+        if (!childPkg) {
+          childPkg = new go.Package(pkgName, this.pkg);
+          this.pkg.packages.push(childPkg);
+        }
+        recursiveAdaptClientsForPkg(childPkg, childNs);
+      }
+    };
+
+    const root = this.ta.codeModel.root.kind === 'containingModule' ? this.ta.codeModel.root.package : this.ta.codeModel.root;
+    for (const ns of this.ta.ctx.sdkPackage.namespaces) {
+      recursiveAdaptClientsForPkg(root, ns);
+    }
   }
 
   private recursiveAdaptClient(sdkClient: tcgc.SdkClientType<tcgc.SdkHttpOperation>, parent?: go.Client): go.Client | undefined {
@@ -100,7 +118,7 @@ export class ClientAdapter {
       docs.summary = `${clientName} contains the methods for the service.`;
     }
 
-    const goClient = new go.Client(this.getPkg(), clientName, docs);
+    const goClient = new go.Client(this.pkg, clientName, docs);
     goClient.parent = parent;
 
     // NOTE: per tcgc convention, if there is no param of kind credential
@@ -342,7 +360,7 @@ export class ClientAdapter {
       // ARM SDKs we skip adding it to the code model in favor of
       // the synthesized client factory.
     } else {
-      this.getPkg().clients.push(goClient);
+      this.pkg.clients.push(goClient);
     }
     return goClient;
   }
@@ -379,7 +397,7 @@ export class ClientAdapter {
     if (sdkParam.isApiVersionParam) {
       paramType = new go.String();
     } else {
-      paramType = this.ta.getWireType(sdkParam.type, true, false);
+      paramType = this.ta.getWireType(sdkParam.type, this.pkg, true, false);
     }
 
     if (go.isURIParameterType(paramType)) {
@@ -540,7 +558,7 @@ export class ClientAdapter {
     const paramMapping = this.adaptMethodParameters(sdkMethod, method);
 
     // we must do this after adapting method params as it can add optional params
-    this.getPkg().paramGroups.push(this.adaptParameterGroup(method.optionalParamsGroup));
+    method.receiver.type.pkg.paramGroups.push(this.adaptParameterGroup(method.optionalParamsGroup));
 
     if (this.ta.codeModel.options.generateExamples) {
       this.adaptHttpOperationExamples(sdkMethod, method, paramMapping);
@@ -654,7 +672,8 @@ export class ClientAdapter {
             if (!serializedName) {
               throw new AdapterError('InternalError', `didn't find body model property for spread parameter ${param.name}`, param.__raw?.node);
             }
-            adaptedParam = new go.PartialBodyParameter(paramName, serializedName, contentType, this.ta.getWireType(param.type, true, true), paramStyle, byVal);
+            const pkg = method.receiver.type.pkg;
+            adaptedParam = new go.PartialBodyParameter(paramName, serializedName, contentType, this.ta.getWireType(param.type, pkg, true, true), paramStyle, byVal);
             break;
           }
           case 'binary':
@@ -699,10 +718,10 @@ export class ClientAdapter {
           const paramGroupName = ensureNameCase(param.type.name);
           const paramName = getEscapedReservedName(ensureNameCase(param.name, isRequired), 'Param');
           
-          // Remove the model from codeModel.models if it is a parameter group
-          const modelIndex = this.getPkg().models.findIndex(m => m.name === paramGroupName);
+          // Remove the model from pkg.models if it is a parameter group
+          const modelIndex = method.receiver.type.pkg.models.findIndex(m => m.name === paramGroupName);
           if (modelIndex >= 0) {
-            this.getPkg().models.splice(modelIndex, 1);
+            method.receiver.type.pkg.models.splice(modelIndex, 1);
           }
           
           // Check if parameter group already exists
@@ -801,7 +820,7 @@ export class ClientAdapter {
 
     // Add all parameter groups to the code model
     for (const paramGroup of parameterGroups.values()) {
-      this.getPkg().paramGroups.push(this.adaptParameterGroup(paramGroup));
+      method.receiver.type.pkg.paramGroups.push(this.adaptParameterGroup(paramGroup));
     }
 
     return paramMapping;
@@ -897,10 +916,10 @@ export class ClientAdapter {
       case 'body':
         // TODO: form data? (non-multipart)
         if (opParam.defaultContentType.match(/multipart/i)) {
-          adaptedParam = new go.MultipartFormBodyParameter(paramName, this.ta.getWireType(methodParam.type, false, true), paramStyle, byVal);
+          adaptedParam = new go.MultipartFormBodyParameter(paramName, this.ta.getWireType(methodParam.type, this.pkg, false, true), paramStyle, byVal);
         } else {
           const contentType = this.adaptContentType(opParam.defaultContentType);
-          let bodyType = this.ta.getWireType(methodParam.type, false, true);
+          let bodyType = this.ta.getWireType(methodParam.type, this.pkg, false, true);
           if (contentType === 'binary') {
             // tcgc models binary params as 'bytes' but we want an io.ReadSeekCloser
             bodyType = this.ta.getReadSeekCloser(methodParam.type.kind === 'array');
@@ -917,7 +936,7 @@ export class ClientAdapter {
             throw new AdapterError('InternalError', `unexpected collection format ${opParam.collectionFormat} for HeaderCollectionParameter`, opParam.__raw?.node);
           }
           // TODO: is hard-coded false for element type by value correct?
-          const type = this.ta.getWireType(methodParam.type, true, false);
+          const type = this.ta.getWireType(methodParam.type, this.pkg, true, false);
           if (type.kind !== 'slice') {
             throw new AdapterError('InternalError', `unexpected kind ${type.kind} for HeaderCollectionParameter ${methodParam.name}`, opParam.__raw?.node);
           }
@@ -931,7 +950,7 @@ export class ClientAdapter {
         break;
       case 'query':
         if (opParam.collectionFormat) {
-          const type = this.ta.getWireType(methodParam.type, true, false);
+          const type = this.ta.getWireType(methodParam.type, this.pkg, true, false);
           if (type.kind !== 'slice') {
             throw new AdapterError('InternalError', `unexpected kind ${type.kind} for QueryCollectionParameter ${methodParam.name}`, opParam.__raw?.node);
           }
@@ -980,7 +999,7 @@ export class ClientAdapter {
       respEnvName = uncapitalize(respEnvName);
     }
     const respEnv = new go.ResponseEnvelope(respEnvName, {summary: createResponseEnvelopeDescription(respEnvName, this.getMethodNameForDocComment(method))}, method);
-    this.getPkg().responseEnvelopes.push(respEnv);
+    method.receiver.type.pkg.responseEnvelopes.push(respEnv);
 
     // add any headers
     const addedHeaders = new Set<string>();
@@ -1062,8 +1081,21 @@ export class ClientAdapter {
       return respEnv;
     } else if (sdkResponseType.kind === 'model') {
       let modelType: go.Model | go.PolymorphicModel | undefined;
+      // get the package name for the response type.
+      // slice off any parent namespaces (e.g. foo.bar.baz, we want baz)
+      const responseTypePkgName = sdkResponseType.namespace.substring(sdkResponseType.namespace.lastIndexOf('.') + 1).toLowerCase();
+      // default to our current package
+      let pkg = method.receiver.type.pkg;
+      if (getPackageName(pkg) !== responseTypePkgName) {
+        // type is in a different package, find it
+        const found = recursiveFindPackage(this.ta.codeModel.root.kind === 'module' ? this.ta.codeModel.root : this.ta.codeModel.root.package, responseTypePkgName);
+        if (!found) {
+          throw new AdapterError('InternalError', `didn't find package ${responseTypePkgName} when searching for response type`, sdkResponseType.__raw?.node);
+        }
+        pkg = found;
+      }
       const modelName = ensureNameCase(sdkResponseType.name).toUpperCase();
-      for (const model of this.getPkg().models) {
+      for (const model of pkg.models) {
         if (model.name.toUpperCase() === modelName) {
           modelType = model;
           break;
@@ -1090,7 +1122,7 @@ export class ClientAdapter {
       respEnv.result.docs.summary = sdkResponseType.summary;
       respEnv.result.docs.description = sdkResponseType.doc;
     } else {
-      const resultType = this.ta.getWireType(sdkResponseType, false, false);
+      const resultType = this.ta.getWireType(sdkResponseType, method.receiver.type.pkg, false, false);
       if (go.isMonomorphicResultType(resultType)) {
         respEnv.result = new go.MonomorphicResult(this.recursiveTypeName(sdkResponseType, false), contentType, resultType, isTypePassedByValue(sdkResponseType));
       } else {
@@ -1165,7 +1197,7 @@ export class ClientAdapter {
   }
 
   private adaptParameterGroup(paramGroup: go.ParameterGroup): go.Struct {
-    const structType = new go.Struct(this.getPkg(), paramGroup.groupName);
+    const structType = new go.Struct(this.pkg, paramGroup.groupName);
     structType.docs = paramGroup.docs;
     for (const param of paramGroup.params) {
       if (param.style === 'literal') {
@@ -1186,7 +1218,7 @@ export class ClientAdapter {
 
   private adaptHeaderScalarType(sdkType: tcgc.SdkType, forParam: boolean): go.HeaderScalarType {
     // for header params, we never pass the element type by pointer
-    const type = this.ta.getWireType(sdkType, forParam, false);
+    const type = this.ta.getWireType(sdkType, this.pkg, forParam, false);
     if (go.isHeaderScalarType(type)) {
       return type;
     }
@@ -1194,7 +1226,7 @@ export class ClientAdapter {
   }
 
   private adaptPathScalarParameterType(sdkType: tcgc.SdkType): go.PathScalarParameterType {
-    const type = this.ta.getWireType(sdkType, false, false);
+    const type = this.ta.getWireType(sdkType, this.pkg, false, false);
     if (go.isPathScalarParameterType(type)) {
       return type;
     }
@@ -1202,7 +1234,7 @@ export class ClientAdapter {
   }
 
   private adaptQueryScalarParameterType(sdkType: tcgc.SdkType): go.QueryScalarParameterType {
-    const type = this.ta.getWireType(sdkType, false, false);
+    const type = this.ta.getWireType(sdkType, this.pkg, false, false);
     if (go.isQueryScalarParameterType(type)) {
       return type;
     }
@@ -1223,7 +1255,7 @@ export class ClientAdapter {
         // so it matches the ClientOptions.APIVersion type
         adaptedType = new go.String();
       } else {
-        const adaptedWireType = this.ta.getWireType(param.type, false, false);
+        const adaptedWireType = this.ta.getWireType(param.type, this.pkg, false, false);
         if (!go.isLiteralValueType(adaptedWireType)) {
           throw new AdapterError('InternalError', `unexpected client side default kind ${adaptedWireType.kind} for parameter ${param.name}`, param.__raw?.node);
         }
@@ -1465,3 +1497,31 @@ interface ParameterStyleInfo {
   optional: boolean;
   type: tcgc.SdkType;
 };
+
+/**
+ * returns the package name for the specified input.
+ * for module github.com/contoso/module, 'module' is returned.
+ * any major version suffix on the module is removed.
+ * 
+ * @param pkg is the package source
+ * @returns the package name for pkg
+ */
+function getPackageName(pkg: go.PackageContent): string {
+  switch (pkg.kind) {
+    case 'module':
+      return path.basename(pkg.identity.replace(/\/v\d+$/, ''));
+    case 'package':
+      return pkg.name;
+  }
+}
+
+function recursiveFindPackage(pkg: go.PackageContent, name: string): go.PackageContent | undefined {
+  if (getPackageName(pkg) === name) {
+    return pkg;
+  }
+  let found: go.PackageContent | undefined;
+  for (const subPkg of pkg.packages) {
+    found = recursiveFindPackage(subPkg, name);
+  }
+  return found;
+}
