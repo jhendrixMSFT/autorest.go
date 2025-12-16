@@ -626,9 +626,9 @@ export class TypeAdapter {
       annotations.isDiscriminator = true;
       field.defaultValue = this.getDiscriminatorLiteral(prop, pkg);
     }
-  
-    field.xml = adaptXMLInfo(this.getPkg(), prop.decorators, field);
-  
+
+    field.xml = adaptXMLInfo(pkg, prop.decorators, field);
+
     return field;
   }
 
