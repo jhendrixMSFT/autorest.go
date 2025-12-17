@@ -71,7 +71,7 @@ export function sortAscending(a: string, b: string): number {
  * @param param the parameter for which to emit the type definition
  * @returns the parameter type definition text
  */
-export function formatParameterTypeName(scope: go.PackageType, param: go.ClientOptionsType | go.ClientParameter | go.ParameterGroup): string {
+export function formatParameterTypeName(scope: go.PackageType, param: go.ClientOptionsType | go.MethodParameter | go.ParameterGroup): string {
   let typeName: string;
   let required: boolean;
   switch (param.kind) {
@@ -95,7 +95,7 @@ export function formatParameterTypeName(scope: go.PackageType, param: go.ClientO
 }
 
 // sorts parameters by their required state, ordering required before optional
-export function sortParametersByRequired(a: go.ClientParameter | go.ParameterGroup, b: go.ClientParameter | go.ParameterGroup): number {
+export function sortParametersByRequired(a: go.MethodParameter | go.ParameterGroup, b: go.MethodParameter | go.ParameterGroup): number {
   let aRequired = false;
   let bRequired = false;
 
@@ -136,7 +136,7 @@ export function sortParametersByRequired(a: go.ClientParameter | go.ParameterGro
 export function sortClientParameters(params: Array<go.ClientParameter>, type: go.CodeModelType): Array<go.ClientParameter> {
   // ARM will never have uriParams but it will likely have a scalar path
   // param for the subscription ID, so we sort by that instead.
-  const sortBy = type === 'azure-arm' ? 'pathScalarParam' : 'uriParam';
+  const sortBy = type === 'azure-arm' ? 'methodParam' : 'endpointParam';
   params.sort((a: go.ClientParameter, b: go.ClientParameter): number => {
     if (a.kind === sortBy || (a.kind === 'credentialParam' && b.kind !== sortBy)) {
       // sortBy always comes first, followed by credential (if applicable)
@@ -724,7 +724,7 @@ export function star(byValue: boolean): string {
 export function zeroValue(param: go.MethodParameter): string {
   // even though API version params typically have a client-side default which makes
   // them optional, the azcore.ClientOptions.APIVersion field isn't pointer-to-type.
-  if (go.isRequiredParameter(param.style) || go.isAPIVersionParameter(param)) {
+  if (go.isRequiredParameter(param.style)) {
     switch (param.type.kind) {
       case 'string':
         return `""`;
@@ -836,9 +836,7 @@ export function getAllClientParameters(pkg: go.PackageContent, target: go.CodeMo
     if (client.instance?.kind === 'constructable') {
       for (const ctor of client.instance.constructors) {
         for (const ctorParam of ctor.parameters) {
-          if (go.isAPIVersionParameter(ctorParam)) {
-            continue;
-          } else if (values(allClientParams).where(param => param.name === ctorParam.name).any()) {
+          if (values(allClientParams).where(param => param.name === ctorParam.name).any()) {
             continue;
           }
           allClientParams.push(ctorParam);
@@ -864,9 +862,6 @@ export function getCommonClientParameters(pkg: go.PackageContent, target: go.Cod
     if (client.instance?.kind === 'constructable') {
       for (const ctor of client.instance.constructors) {
         for (const ctorParam of ctor.parameters) {
-          if (go.isAPIVersionParameter(ctorParam)) {
-            continue;
-          }
           let entry = paramCount.get(ctorParam.name);
           if (!entry) {
             entry = { uses: 0, param: ctorParam };

@@ -77,6 +77,10 @@ const httpSpecsGroup = {
 
 const azureHttpSpecsGroup = {
   'accessgroup': ['azure/client-generator-core/access'],
+  'mvmethodparamgroup': ['azure/client-generator-core/client-location/move-method-parameter-to-client'],
+  'mvtosubclientgroup': ['azure/client-generator-core/client-location/move-to-existing-sub-client'],
+  'mvtonewclientgroup': ['azure/client-generator-core/client-location/move-to-new-sub-client'],
+  'mvtorootclientgroup': ['azure/client-generator-core/client-location/move-to-root-client'],
   'flattengroup': ['azure/client-generator-core/flatten-property'],
   'nextlinkverbgroup': ['azure/client-generator-core/next-link-verb', 'slice-elements-byval=true'],
   'coreusagegroup': ['azure/client-generator-core/usage'],

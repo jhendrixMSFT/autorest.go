@@ -3,7 +3,7 @@
 *  Licensed under the MIT License. See License.txt in the project root for license information.
 *--------------------------------------------------------------------------------------------*/
 
-import * as client from './client.js';
+//import * as client from './client.js';
 import * as param from './param.js';
 import * as result from './result.js';
 import * as type from './type.js';
@@ -61,7 +61,7 @@ export interface NumberExample {
   type: type.Constant | type.Literal | type.Scalar | type.Time;
 }
 
-export interface ParameterExample<T extends client.ClientParameter = client.ClientParameter> {
+export interface ParameterExample<T extends param.MethodParameter = param.MethodParameter> {
   parameter: T;
   value: ExampleType;
 }

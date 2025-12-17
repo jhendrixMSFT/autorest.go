@@ -87,9 +87,7 @@ export function generateClientFactory(pkg: go.PackageContent, target: go.CodeMod
     if (client.instance?.kind === 'constructable') {
       for (const ctor of client.instance.constructors) {
         for (const param of ctor.parameters) {
-          if (go.isAPIVersionParameter(param)) {
-            continue;
-          } else if (clientFactoryParamsMap.has(param.name)) {
+          if (clientFactoryParamsMap.has(param.name)) {
             clientCommonParams.push(param);
           } else {
             clientPrivateParams.push(param);

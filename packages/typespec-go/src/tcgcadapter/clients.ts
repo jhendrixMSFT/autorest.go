@@ -267,20 +267,18 @@ export class ClientAdapter {
             }
             break;
           }
-          case 'method':
-            // some client params, notably api-version, can be explicitly
-            // defined in the operation signature:
-            // e.g. op withQueryApiVersion(@query("api-version") apiVersion: string)
-            // these get propagated to sdkMethod.operation.parameters thus they
-            // will be adapted in adaptMethodParameters()
-
-            // for path-based API version params, we need to emit the field on the client
-            // and handle it like a regular client parameter.
-            //
-            // for header/query API version params, we need to emit the correct values
-            // for the APIVersionOptions{} struct so the policy can work. in this case,
-            // no field should be emitted on the client.
-            continue;
+          case 'method': {
+            if (param.isApiVersionParam) {
+              // api-version is modeled as a constant in sdkMethod.operation.parameters
+              // thus they will be adapted in adaptMethodParameters()
+              // TODO: https://github.com/Azure/autorest.go/issues/1743
+              continue;
+            }
+            const clientParam = this.adaptClientParameter(param, constructable);
+            goClient.parameters.push(new rust.StructField(clientParam.name, 'pubCrate', clientParam.type));
+            ctorParams.push(clientParam);
+            break;
+          }
         }
       }
 
@@ -355,6 +353,48 @@ export class ClientAdapter {
     const ctor = new go.Constructor(this.ta.getPkg(), `New${goClient.name}`);
     ctor.parameters.push(new go.ClientCredentialParameter('credential', new go.TokenCredential(cred.flows[0].scopes.map(each => each.value))));
     return ctor;
+  }
+
+  /**
+   * converts a tcgc client parameter to a Rust client parameter
+   * 
+   * @param param the tcgc client parameter to convert
+   * @param constructable contains client construction info. if the param is optional, it will go in the options type
+   * @returns the Rust client parameter
+   */
+  private adaptClientParameter(param: tcgc.SdkMethodParameter | tcgc.SdkPathParameter, constructable: go.Constructable): go.ClientParameter {
+    const paramName = getEscapedReservedName(uncapitalize(ensureNameCase(param.name)), 'Param');
+
+    let paramType = this.ta.getWireType(param.type, true, false);
+    let optional = false;
+    // client-side default value makes the param optional
+    if (param.optional || param.clientDefaultValue) {
+      optional = true;
+      if (!param.clientDefaultValue) {
+        paramType = this.getOptionType(this.typeToWireType(paramType));
+      }
+      const paramField = new rust.StructField(paramName, 'pub', paramType);
+      paramField.docs = this.adaptDocs(param.summary, param.doc);
+      constructable.options.type.fields.push(paramField);
+      if (param.clientDefaultValue) {
+        paramField.defaultValue = `String::from("${<string>param.clientDefaultValue}")`;
+      }
+    }
+
+    let adaptedParam: go.ClientParameter;
+    switch (param.kind) {
+      case 'method':
+        adaptedParam = new rust.ClientMethodParameter(paramName, paramType, optional);
+        break;
+      case 'path':
+        adaptedParam = new rust.ClientSupplementalEndpointParameter(paramName, paramType, optional, param.serializedName);
+        break;
+    }
+
+    adaptedParam.docs.summary = param.summary;
+    adaptedParam.docs.description = param.doc;
+
+    return adaptedParam;
   }
 
   /**
@@ -792,33 +832,6 @@ export class ClientAdapter {
           paramMapping.set(opParam, new Array<go.MethodParameter>());
         }
         paramMapping.get(opParam)?.push(adaptedParam);
-
-        // if the adapted client param is a literal then don't add it to
-        // the array of client params as it's not a formal parameter.
-        // the only exception is any api version parameter as we need this
-        // for generating client constructors.
-        if (go.isLiteralParameter(adaptedParam.style) && !go.isAPIVersionParameter(adaptedParam)) {
-          continue;
-        }
-
-        // we must check via param name and not reference equality. this is because a client param
-        // can be used in multiple ways. e.g. a client param "apiVersion" that's used as a path param
-        // in one method and a query param in another.
-        if (!method.receiver.type.parameters.find((v: go.ClientParameter) => {
-          return v.name === adaptedParam.name;
-        })) {
-          if (this.ta.codeModel.type === 'azure-arm' && adaptedParam.style !== 'literal' && adaptedParam.style !== 'required') {
-            throw new AdapterError('UnsupportedTsp', 'optional client parameters for ARM is not supported', opParam.__raw?.node);
-          }
-          method.receiver.type.parameters.push(adaptedParam);
-          if (method.receiver.type.instance?.kind === 'constructable') {
-            // if this is an instantiable client then also add
-            // the client parameter to all constructors
-            for (const ctor of method.receiver.type.instance.constructors) {
-              ctor.parameters.push(adaptedParam);
-            }
-          }
-        }
       }
     }
 

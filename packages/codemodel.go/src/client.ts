@@ -25,8 +25,16 @@ export interface Client {
   /** contains info for client instances */
   instance?: Constructable | TemplatedHost;
 
-  /** constructor params that are persisted as fields on the client, can be empty */
-  parameters: Array<ClientParameter>;
+  /**
+   * fields contains the ctor parameters that are
+   * persisted as fields on the client type and might
+   * also contain other fields that don't originate
+   * from ctor params (e.g. the pipeline).
+   * by convention, all fields that have their values
+   * populated from ctor params (required or optional)
+   * will have the same name as their originating param.
+   */
+  fields: Array<type.StructField>;
 
   /** contains client methods. can be empty */
   methods: Array<MethodType>;
@@ -71,7 +79,7 @@ export interface Constructable {
 export type ClientOptionsType = type.ArmClientOptions | ClientOptions;
 
 /** the possible client parameter types */
-export type ClientParameter = ClientCredentialParameter | param.MethodParameter;
+export type ClientParameter = ClientCredentialParameter | ClientEndpointParameter | ClientMethodParameter | ClientSupplementalEndpointParameter;
 
 /** a client method that returns a sub-client instance */
 export interface ClientAccessor extends method.Method<Client, Client> {
@@ -85,15 +93,30 @@ export interface ClientAccessor extends method.Method<Client, Client> {
 }
 
 /** a credential constructor parameter */
-export interface ClientCredentialParameter extends method.Parameter {
+export interface ClientCredentialParameter extends ClientParameterBase {
   kind: 'credentialParam';
 
   /** the parameter's type */
   type: type.TokenCredential;
 
-  style: 'required';
+  /** never optional */
+  required: true;
+}
 
-  group: never;
+/** the client's host parameter */
+export interface ClientEndpointParameter extends ClientParameterBase {
+  kind: 'endpointParam';
+
+  /** the endpoint param is always a &str */
+  type: type.String;
+
+  /** never optional */
+  required: true;
+}
+
+/** a client parameter that's used in method bodies */
+export interface ClientMethodParameter extends ClientParameterBase {
+  kind: 'methodParam';
 }
 
 /** the client options parameter type */
@@ -111,6 +134,14 @@ export interface ClientOptions {
 
   /** the package to which this type belongs */
   pkg: module.PackageContent;
+}
+
+/** used when constructing the endpoint's supplemental path */
+export interface ClientSupplementalEndpointParameter extends ClientParameterBase {
+  kind: 'supplementalEndpointParam';
+
+  /** the segment name to be replaced with the param's value */
+  segment: string;
 }
 
 /** a client constructor function */
@@ -131,7 +162,7 @@ export interface SupplementalEndpoint {
   path: string;
 
   /** the parameters used to replace segments in the path */
-  parameters: Array<param.URIParameter>;
+  parameters: Array<ClientSupplementalEndpointParameter>;
 }
 
 /**
@@ -153,7 +184,7 @@ export interface TemplatedHost {
  * @param param the parameter to inspect
  * @returns true if the parameter is for the API version
  */
-export function isAPIVersionParameter(param: ClientParameter): boolean {
+/*export function isAPIVersionParameter(param: ClientParameter): boolean {
   switch (param.kind) {
     case 'headerScalarParam':
     case 'pathScalarParam':
@@ -163,7 +194,7 @@ export function isAPIVersionParameter(param: ClientParameter): boolean {
     default:
       return false;
   }
-}
+}*/
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // methods
@@ -265,6 +296,23 @@ export function newClientOptions(pkg: module.PackageContent, modelType: pkg.Code
 // base types
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
+interface ClientParameterBase {
+  /** the name of the parameter */
+  name: string;
+
+  /** the type of the client parameter */
+  type: type.Type;
+
+  /**
+   * indicates if the parameter is optional.
+   * optional params will be surfaced in the client options type.
+   */
+  required: boolean;
+
+  /** any docs for the parameter */
+  docs: type.Docs;
+}
+
 interface LROMethodBase extends HttpMethodBase {
   finalStateVia?: FinalStateVia;
 
@@ -312,6 +360,15 @@ interface PageableMethodBase extends HttpMethodBase {
   nextPageMethod?: NextPageMethod;
 }
 
+class ClientParameterBase implements ClientParameterBase {
+  constructor(name: string, type: type.Type, required: boolean) {
+    this.name = name;
+    this.type = type;
+    this.required = required;
+    this.docs = {};
+  }
+}
+
 class HttpMethodBase extends method.Method<Client, result.ResponseEnvelope> implements HttpMethodBase {
   constructor(name: string, client: Client, httpPath: string, httpMethod: HTTPMethod, statusCodes: Array<number>, naming: MethodNaming) {
     if (statusCodes.length === 0) {
@@ -340,7 +397,7 @@ export class Client implements Client {
     this.docs = docs;
     this.methods = new Array<MethodType>();
     this.clientAccessors = new Array<ClientAccessor>();
-    this.parameters = new Array<ClientParameter>();
+    this.fields = new Array<type.StructField>();
     this.pkg = pkg;
   }
 }
@@ -367,11 +424,24 @@ export class Constructable implements Constructable {
   }
 }
 
-export class ClientCredentialParameter extends method.Parameter implements ClientCredentialParameter {
+export class ClientCredentialParameter extends ClientParameterBase implements ClientCredentialParameter {
   constructor(name: string, type: type.TokenCredential) {
     super(name, type, true);
     this.kind = 'credentialParam';
-    this.style = 'required';
+  }
+}
+
+export class ClientEndpointParameter extends ClientParameterBase implements ClientEndpointParameter {
+  constructor(name: string) {
+    super(name, new type.String(), true);
+    this.kind = 'endpointParam';
+  }
+}
+
+export class ClientMethodParameter extends ClientParameterBase implements ClientMethodParameter {
+  constructor(name: string, type: type.WireType, required: boolean) {
+    super(name, type, required);
+    this.kind = 'methodParam';
   }
 }
 
@@ -382,6 +452,14 @@ export class ClientOptions implements ClientOptions {
     this.docs = {};
     this.parameters = new Array<param.MethodParameter>();
     this.pkg = pkg;
+  }
+}
+
+export class ClientSupplementalEndpointParameter extends ClientParameterBase implements ClientSupplementalEndpointParameter {
+  constructor(name: string, type: type.WireType, required: boolean, segment: string) {
+    super(name, type, required);
+    this.kind = 'supplementalEndpointParam';
+    this.segment = segment;
   }
 }
 
@@ -450,7 +528,7 @@ export class PageableMethod extends HttpMethodBase implements PageableMethod {
 export class SupplementalEndpoint implements SupplementalEndpoint {
   constructor(path: string) {
     this.path = path;
-    this.parameters = new Array<param.URIParameter>();
+    this.parameters = new Array<ClientSupplementalEndpointParameter>();
   }
 }
 
