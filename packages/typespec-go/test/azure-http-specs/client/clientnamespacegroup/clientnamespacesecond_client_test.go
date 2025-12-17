@@ -4,7 +4,8 @@
 package clientnamespacegroup_test
 
 import (
-	"clientnamespacegroup"
+	"clientnamespacegroup/second"
+	"clientnamespacegroup/second/sub"
 	"context"
 	"testing"
 
@@ -12,10 +13,10 @@ import (
 )
 
 func TestClientNamespaceSecondClient_GetSecond(t *testing.T) {
-	client, err := clientnamespacegroup.NewClientNamespaceSecondClientWithNoCredential("http://localhost:3000", nil)
+	client, err := second.NewClientNamespaceSecondClientWithNoCredential("http://localhost:3000", nil)
 	require.NoError(t, err)
 	resp, err := client.GetSecond(context.Background(), nil)
 	require.NoError(t, err)
 	require.NotNil(t, resp.Type)
-	require.Equal(t, clientnamespacegroup.SecondClientEnumTypeSecond, *resp.Type)
+	require.Equal(t, sub.SecondClientEnumTypeSecond, *resp.Type)
 }

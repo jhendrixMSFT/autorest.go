@@ -5,6 +5,7 @@
 package clientnamespacegroup
 
 import (
+	"clientnamespacegroup/internal"
 	"context"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/policy"
@@ -31,7 +32,7 @@ func NewClientNamespaceFirstClientWithNoCredential(endpoint string, options *Cli
 	if options == nil {
 		options = &ClientNamespaceFirstClientOptions{}
 	}
-	cl, err := azcore.NewClient(moduleName, moduleVersion, runtime.PipelineOptions{}, &options.ClientOptions)
+	cl, err := azcore.NewClient(internal.ModuleName, internal.ModuleVersion, runtime.PipelineOptions{}, &options.ClientOptions)
 	if err != nil {
 		return nil, err
 	}

@@ -173,7 +173,7 @@ function should_generate(name) {
 }
 
 const armcodesigning = pkgRoot + 'test/tsp/CodeSigning.Management';
-generate('armcodesigning', armcodesigning, 'test/local/armcodesigning', [`examples-directory=${armcodesigning}/examples`, 'generate-samples=true']);
+generate('armcodesigning', armcodesigning, 'test/local/armcodesigning', [`examples-directory=${armcodesigning}/examples`, 'generate-samples=true', 'namespace=armcodesigning']);
 
 const armapicenter = pkgRoot +  'test/tsp/ApiCenter.Management';
 generate('armapicenter', armapicenter, 'test/local/armapicenter', [`examples-directory=${armapicenter}/examples`, 'generate-samples=true']);

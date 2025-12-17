@@ -1148,6 +1148,61 @@ export function buildNextLinkPath(strategy: go.PageableStrategyNextLink): string
   return strategy.nextLinkPath.map((segment) => segment.name).join('.');
 }
 
+/**
+ * returns the name of the module constants to use in client constructors
+ * including any package prefix. the dependent package is also imported.
+ * 
+ * @param pkg the package where the constants are being referenced
+ * @param imports the import manager associated with pkg
+ * @returns the names of the constants
+ */
+export function getModuleConstants(pkg: go.PackageContent, imports: ImportManager): { moduleName: string, moduleVersion: string} {
+  const hasPkgClients = recursiveFindClients(pkg);
+  if (!hasPkgClients) {
+    // emitting into a module so our constants will be in the same package
+    return { moduleName: 'moduleName', moduleVersion: 'moduleVersion' };
+  }
+
+  // find the root module for the package.
+  // by convention the constants are in <root>/internal
+  let cur = pkg.kind === 'module' ? pkg : pkg.parent;
+  while (cur.kind === 'package') {
+    cur = cur.parent;
+  }
+
+  if (cur.kind !== 'module') {
+    // this should never be hit as we only call this function when
+    // emitting client constructors which is skipped for containing module
+    throw new CodegenError('InternalError', `didn't find module for package ${go.getPackageName(pkg)}`);
+  }
+
+  imports.add(`${cur.identity}/internal`);
+  return { moduleName: 'internal.ModuleName', moduleVersion: 'internal.ModuleVersion' };
+}
+
+/**
+ * recursively searches through the provided package to find
+ * any instantiable clients in any package under the root module.
+ * 
+ * @param pkg the module or package to search
+ * @returns true for the first found instance or false if none exist
+ */
+export function recursiveFindClients(pkg: go.PackageContent): boolean {
+  for (const client of pkg.clients) {
+    if (client.instance?.kind === 'constructable' && pkg.kind === 'package') {
+      return true;
+    }
+  }
+
+  for (const subPkg of pkg.packages) {
+    if (recursiveFindClients(subPkg)) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
 // the following was copied from @azure-tools/codegen as it's being deprecated
 const ones = [
   '',

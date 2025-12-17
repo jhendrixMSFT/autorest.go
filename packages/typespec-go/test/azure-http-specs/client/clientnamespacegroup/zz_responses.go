@@ -4,12 +4,9 @@
 
 package clientnamespacegroup
 
+import "clientnamespacegroup/first"
+
 // ClientNamespaceFirstClientGetFirstResponse contains the response from method ClientNamespaceFirstClient.GetFirst.
 type ClientNamespaceFirstClientGetFirstResponse struct {
-	FirstClientResult
-}
-
-// ClientNamespaceSecondClientGetSecondResponse contains the response from method ClientNamespaceSecondClient.GetSecond.
-type ClientNamespaceSecondClientGetSecondResponse struct {
-	SecondClientResult
+	first.FirstClientResult
 }

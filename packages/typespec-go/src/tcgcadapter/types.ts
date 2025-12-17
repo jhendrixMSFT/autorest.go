@@ -35,13 +35,39 @@ export class TypeAdapter {
   }
 
   /**
-   * returns the package for the adapted tcgc code model.
-   *
-   * NOTE: this is temporary and will go away with namespaces.
-   * @returns the module or package to contain the adapted tcgc model
+   * adapts the specified namespace to a hierarchy of Go code model packages
+   * 
+   * @param namespace the namespace for which to return the package
+   * @returns the leaf package in the namespace
    */
-  getPkg(): go.PackageContent {
-    return this.codeModel.root.kind === 'containingModule' ? this.codeModel.root.package : this.codeModel.root;
+  adaptNamespace(namespace: string): go.PackageContent {
+    // some example namespaces
+    //   foo
+    //   foo.bar
+    //   foo.bar.baz
+    //
+    // crossLanguagePackageId contains the root namespace which is always the root module/package
+    // so remove it from the provided namespace. if namespace is the same as crossLanguagePackageId
+    // we'll be left with an empty entry so it needs to be filtered out.
+    if (namespace.toLowerCase().startsWith(this.ctx.sdkPackage.crossLanguagePackageId.toLowerCase())) {
+      namespace = namespace.substring(this.ctx.sdkPackage.crossLanguagePackageId.length + 1);
+    }
+    const namespaces = namespace.split('.').filter(Boolean);
+
+    // TODO: broken for namespace switch
+
+    let cur = this.codeModel.root.kind === 'containingModule' ? this.codeModel.root.package : this.codeModel.root;
+    for (const namespace of namespaces) {
+      const pkgName = namespace.toLowerCase();
+      let childPkg = cur.packages.find((each: go.Package) => each.name === pkgName);
+      if (!childPkg) {
+        childPkg = new go.Package(pkgName, cur);
+        cur.packages.push(childPkg);
+      }
+      cur = childPkg;
+    }
+
+    return cur;
   }
 
   /**
@@ -57,7 +83,7 @@ export class TypeAdapter {
         continue;
       }
       const constType = this.getConstantType(enumType);
-      this.getPkg().constants.push(constType);
+      this.adaptNamespace(enumType.namespace).constants.push(constType);
     }
 
     // we must adapt all interface/model types first. this is because models can contain cyclic references
@@ -85,8 +111,8 @@ export class TypeAdapter {
       if (helpers.isPolymorphicRoot(modelType)) {
         // this is a root discriminated type
         const iface = this.getInterfaceType(modelType);
-        this.getPkg().interfaces.push(iface);
-        ifaceTypes.push({ go: iface, tcgc: modelType });
+        this.adaptNamespace(modelType.namespace).interfaces.push(iface);
+        ifaceTypes.push({go: iface, tcgc: modelType});
       }
       // TODO: what's the equivalent of x-ms-external?
       const model = this.getModel(modelType);
@@ -126,7 +152,7 @@ export class TypeAdapter {
         const addlProps = new go.ModelField('AdditionalProperties', addlPropsType, true, '', annotations);
         modelType.go.fields.push(addlProps);
       }
-      this.getPkg().models.push(modelType.go);
+      this.adaptNamespace(modelType.tcgc.namespace).models.push(modelType.go);
     }
   }
 
@@ -451,7 +477,7 @@ export class TypeAdapter {
       return <go.Constant>constType;
     }
     const accessPrefix = enumType.access === 'internal' ? 'p' : 'P';
-    constType = new go.Constant(this.getPkg(), constTypeName, getPrimitiveType(enumType.valueType), `${accessPrefix}ossible${constTypeName}Values`);
+    constType = new go.Constant(this.adaptNamespace(enumType.namespace), constTypeName, getPrimitiveType(enumType.valueType), `${accessPrefix}ossible${constTypeName}Values`);
     constType.values = this.getConstantValues(constType, enumType.values);
     constType.docs.summary = enumType.summary;
     constType.docs.description = enumType.doc;
@@ -551,7 +577,7 @@ export class TypeAdapter {
     if (!discriminatorField) {
       throw new AdapterError('InternalError', `failed to find discriminator field for type ${model.name}`);
     }
-    iface = new go.Interface(this.getPkg(), ifaceName, discriminatorField);
+    iface = new go.Interface(this.adaptNamespace(model.namespace), ifaceName, discriminatorField);
     if (model.baseModel && helpers.isPolymorphicRoot(model.baseModel)) {
       iface.parent = this.getInterfaceType(model.baseModel);
     }
@@ -628,10 +654,10 @@ export class TypeAdapter {
         }
       }
 
-      modelType = new go.PolymorphicModel(this.getPkg(), modelName, iface, annotations, usage);
+      modelType = new go.PolymorphicModel(this.adaptNamespace(model.namespace), modelName, iface, annotations, usage);
       modelType.discriminatorValue = discriminatorLiteral;
     } else {
-      modelType = new go.Model(this.getPkg(), modelName, annotations, usage);
+      modelType = new go.Model(this.adaptNamespace(model.namespace), modelName, annotations, usage);
       // polymorphic types don't have XMLInfo
       modelType.xml = helpers.adaptXMLInfo({
         goTypeName: modelType.name,

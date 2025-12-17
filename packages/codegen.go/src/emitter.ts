@@ -9,7 +9,7 @@ import { generateCloudConfig } from './core/cloudConfig.js';
 import { generateConstants } from './core/constants.js';
 import { generateExamples } from './core/example.js';
 import { generateGoModFile } from './core/gomod.js';
-import { setCustomHeaderText } from './core/helpers.js';
+import { recursiveFindClients, setCustomHeaderText } from './core/helpers.js';
 import { generateInterfaces } from './core/interfaces.js';
 import { generateLicenseTxt } from './core/license.js';
 import { generateMetadataFile } from './core/metadata.js';
@@ -164,9 +164,12 @@ export class Emitter {
 
     // only one version.go file per module
     if (this.codeModel.root.kind === 'module') {
+      // check if there are any clients in sub-packages. if so then
+      // we need to export the module constants from the internal package.
+      const forExport = recursiveFindClients(this.codeModel.root);
+      const versionGo = generateVersionInfo(this.codeModel.root, forExport);
+      const versionGoFileName = `${forExport ? 'internal/' : ''}${this.filePrefix}version.go`;
       // don't overwrite an existing version.go file
-      const versionGo = generateVersionInfo(this.codeModel.root);
-      const versionGoFileName = `${this.filePrefix}version.go`;
       if (versionGo.length > 0 && !(await this.fs.exists(versionGoFileName))) {
         await this.fs.write(versionGoFileName, versionGo);
       }

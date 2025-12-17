@@ -5,7 +5,7 @@
 package fake
 
 import (
-	"clientnamespacegroup"
+	"clientnamespacegroup/second"
 	"context"
 	"errors"
 	"fmt"
@@ -16,21 +16,21 @@ import (
 	"slices"
 )
 
-// ClientNamespaceSecondServer is a fake server for instances of the clientnamespacegroup.ClientNamespaceSecondClient type.
+// ClientNamespaceSecondServer is a fake server for instances of the second.ClientNamespaceSecondClient type.
 type ClientNamespaceSecondServer struct {
 	// GetSecond is the fake for method ClientNamespaceSecondClient.GetSecond
 	// HTTP status codes to indicate success: http.StatusOK
-	GetSecond func(ctx context.Context, options *clientnamespacegroup.ClientNamespaceSecondClientGetSecondOptions) (resp azfake.Responder[clientnamespacegroup.ClientNamespaceSecondClientGetSecondResponse], errResp azfake.ErrorResponder)
+	GetSecond func(ctx context.Context, options *second.ClientNamespaceSecondClientGetSecondOptions) (resp azfake.Responder[second.ClientNamespaceSecondClientGetSecondResponse], errResp azfake.ErrorResponder)
 }
 
 // NewClientNamespaceSecondServerTransport creates a new instance of ClientNamespaceSecondServerTransport with the provided implementation.
-// The returned ClientNamespaceSecondServerTransport instance is connected to an instance of clientnamespacegroup.ClientNamespaceSecondClient via the
+// The returned ClientNamespaceSecondServerTransport instance is connected to an instance of second.ClientNamespaceSecondClient via the
 // azcore.ClientOptions.Transporter field in the client's constructor parameters.
 func NewClientNamespaceSecondServerTransport(srv *ClientNamespaceSecondServer) *ClientNamespaceSecondServerTransport {
 	return &ClientNamespaceSecondServerTransport{srv: srv}
 }
 
-// ClientNamespaceSecondServerTransport connects instances of clientnamespacegroup.ClientNamespaceSecondClient to instances of ClientNamespaceSecondServer.
+// ClientNamespaceSecondServerTransport connects instances of second.ClientNamespaceSecondClient to instances of ClientNamespaceSecondServer.
 // Don't use this type directly, use NewClientNamespaceSecondServerTransport instead.
 type ClientNamespaceSecondServerTransport struct {
 	srv *ClientNamespaceSecondServer

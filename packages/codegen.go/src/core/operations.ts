@@ -265,6 +265,8 @@ function generateConstructors(client: go.Client, type: go.CodeModelType, imports
       }
     }
 
+    const moduleInfo = helpers.getModuleConstants(client.pkg, imports);
+
     const emitProlog = function (optionsTypeName: string, tokenAuth: boolean, plOpts?: string): string {
       imports.add('github.com/Azure/azure-sdk-for-go/sdk/azcore/runtime');
       let bodyText = `${indent.get()}if options == nil {\n`;
@@ -335,7 +337,7 @@ function generateConstructors(client: go.Client, type: go.CodeModelType, imports
           apiVersionConfig += '\n';
         }
       }
-      bodyText += `${indent.get()}cl, err := azcore.NewClient(moduleName, moduleVersion, runtime.PipelineOptions{${apiVersionConfig}${plOpts ?? ''}}, &options.ClientOptions)\n`;
+      bodyText += `${indent.get()}cl, err := azcore.NewClient(${moduleInfo.moduleName}, ${moduleInfo.moduleVersion}, runtime.PipelineOptions{${apiVersionConfig}${plOpts ?? ''}}, &options.ClientOptions)\n`;
       return bodyText;
     };
 
@@ -369,7 +371,7 @@ function generateConstructors(client: go.Client, type: go.CodeModelType, imports
             case 'armClientOptions':
               // this is the ARM case
               imports.add('github.com/Azure/azure-sdk-for-go/sdk/azcore/arm');
-              prolog = `${indent.get()}cl, err := arm.NewClient(moduleName, moduleVersion, credential, options)\n`;
+              prolog = `${indent.get()}cl, err := arm.NewClient(${moduleInfo.moduleName}, ${moduleInfo.moduleVersion}, credential, options)\n`;
               break;
           }
           break;

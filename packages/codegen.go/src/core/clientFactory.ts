@@ -65,12 +65,13 @@ export function generateClientFactory(pkg: go.PackageContent, target: go.CodeMod
   result += helpers.formatCommentAsBulletItem('credential', { summary: 'used to authorize requests. Usually a credential from azidentity.' });
   result += helpers.formatCommentAsBulletItem('options', { summary: 'pass nil to accept the default values.' });
 
+  const moduleInfo = helpers.getModuleConstants(pkg, imports);
   result += `func NewClientFactory(${clientFactoryParams
     .map((param) => {
       return `${param.name} ${helpers.formatParameterTypeName(pkg, param)}`;
     })
     .join(', ')}${clientFactoryParams.length > 0 ? ',' : ''} options *arm.ClientOptions) (*ClientFactory, error) {\n`;
-  result += `${indent.get()}internal, err := arm.NewClient(moduleName, moduleVersion, credential, options)\n`;
+  result += `${indent.get()}internal, err := arm.NewClient(${moduleInfo.moduleName}, ${moduleInfo.moduleVersion}, credential, options)\n`;
   result += `${indent.get()}if err != nil {\n`;
   result += `${indent.push().get()}return nil, err\n`;
   result += `${indent.pop().get()}}\n`;
