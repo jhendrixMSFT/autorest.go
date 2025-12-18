@@ -228,10 +228,12 @@ export class ClientAdapter {
                 // the first template arg is always the endpoint parameter.
                 // NOTE: we force the endpoint param to be required, omitting
                 // any potential for client-side default.
-                const adaptedParam = this.adaptURIParam(templateArg, true);
+                const adaptedParam = new go.ClientEndpointParameter(templateArg.name);
                 adaptedParam.docs.summary = param.summary;
                 adaptedParam.docs.description = param.doc;
-                goClient.parameters.push(adaptedParam);
+                const endpointField = new go.StructField(templateArg.name, new go.String(), true);
+                goClient.endpoint = endpointField;
+                goClient.fields.push(endpointField);
                 if (constructable) {
                   constructable.endpoint = new go.ClientEndpoint(adaptedParam);
 
@@ -300,14 +302,26 @@ export class ClientAdapter {
       // this is a sub-client. it will share the client/host params of the parent.
       // NOTE: we must propagate parent params before a potential recursive call
       // to create a child client that will need to inherit our client params.
+      goClient.endpoint = parent.endpoint;
       if (parent.instance?.kind === 'templatedHost') {
         goClient.instance = parent.instance;
       }
 
-      // make a copy of the client params. this is to prevent
-      // client method params from being shared across clients
-      // as not all client method params might be uniform.
-      goClient.parameters = new Array<go.ClientParameter>(...parent.parameters);
+      for (const prop of sdkClient.clientInitialization.parameters) {
+        const name = getEscapedReservedName(uncapitalize(ensureNameCase(prop.name)), 'Field');
+        const parentField = parent.fields.find((v) => v.name === name);
+        if (parentField) {
+          goClient.fields.push(parentField);
+          continue;
+        } else if (prop.kind !== 'method') {
+          // we don't need to care about non-method properties (e.g. credential)
+          // as these are handled in the parent client.
+          continue;
+        }
+
+        // unique field for this client
+        goClient.fields.push(new go.StructField(name, this.ta.getWireType(prop.type, true, false), true));
+      }
     } else {
       throw new AdapterError('InternalError', `uninstantiable client ${sdkClient.name} has no parent`);
     }

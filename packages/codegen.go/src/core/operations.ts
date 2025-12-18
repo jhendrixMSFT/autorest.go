@@ -132,11 +132,8 @@ export function generateOperations(pkg: go.PackageContent, target: go.CodeModelT
 
       // accessor params and client fields are mutually exclusive
       // so we don't need to worry about potentials for duplication.
-      for (const param of client.parameters) {
-        if (go.isLiteralParameter(param.style)) {
-          continue;
-        }
-        initFields.push(`${param.name}: client.${param.name}`);
+      for (const field of client.fields) {
+        initFields.push(`${field.name}: client.${field.name}`);
       }
 
       initFields.sort();
@@ -750,13 +747,6 @@ function createProtocolRequest(azureARM: boolean, method: go.MethodType | go.Nex
   let text = `${comment(name, '// ')} creates the ${method.name} request.\n`;
   text += `func ${getClientReceiverDefinition(method.receiver)} ${name}(${helpers.getCreateRequestParametersSig(method)}) (${returns.join(', ')}) {\n`;
 
-  const hostParams = new Array<go.URIParameter>();
-  for (const parameter of method.receiver.type.parameters) {
-    if (parameter.kind === 'uriParam') {
-      hostParams.push(parameter);
-    }
-  }
-
   let hostParam: string;
   if (azureARM) {
     hostParam = 'client.internal.Endpoint()';
@@ -764,22 +754,15 @@ function createProtocolRequest(azureARM: boolean, method: go.MethodType | go.Nex
     imports.add('strings');
     // we have a templated host
     text += `\thost := "${method.receiver.type.instance.path}"\n`;
-    // get all the host params on the client
-    for (const hostParam of hostParams) {
-      text += `\thost = strings.ReplaceAll(host, "{${hostParam.uriPathSegment}}", ${helpers.formatValue(`client.${hostParam.name}`, hostParam.type, imports)})\n`;
-    }
-    // check for any method local host params
-    for (const param of values(method.parameters)) {
-      if (param.location === 'method' && param.kind === 'uriParam') {
+    for (const param of method.parameters) {
+      if (param.kind === 'uriParam') {
         text += `\thost = strings.ReplaceAll(host, "{${param.uriPathSegment}}", ${helpers.formatValue(helpers.getParamName(param), param.type, imports)})\n`;
       }
     }
     hostParam = 'host';
-  } else if (hostParams.length === 1) {
-    // simple parameterized host case
-    hostParam = 'client.' + hostParams[0].name;
   } else {
-    throw new CodegenError('InternalError', `no host or endpoint defined for method ${method.receiver.type.name}.${method.name}`);
+    // simple parameterized host case
+    hostParam = 'client.' + method.receiver.type.endpoint;
   }
 
   const methodParamGroups = helpers.getMethodParamGroups(method);
