@@ -376,7 +376,7 @@ function generateConstructors(client: go.Client, type: go.CodeModelType, imports
             name = ensureNameCase(param.name);
           }
           ctorText += `\t${param.name} := ${helpers.formatLiteralValue(param.style.defaultValue, false)}\n`;
-          ctorText += `\tif options.${name} != ${helpers.zeroValue(param)} {\n\t\t${param.name} = ${helpers.star(param.byValue)}options.${name}\n\t}\n`;
+          ctorText += `\tif options.${name} != ${helpers.zeroValue(param)} {\n\t\t${param.name} = ${helpers.star(param.type)}options.${name}\n\t}\n`;
         }
       }
     }
@@ -565,7 +565,7 @@ function emitPagerDefinition(method: go.LROPageableMethod | go.PageableMethod, i
   text += `\t\tFetcher: func(ctx context.Context, page *${method.returns.name}) (${method.returns.name}, error) {\n`;
   const reqParams = helpers.getCreateRequestParameters(method);
   if (options.generateFakes) {
-    text += `\t\tctx = context.WithValue(ctx, runtime.CtxAPINameKey{}, "${method.receiver.type.name}.${fixUpMethodName(method)}")\n`;
+    text += `\t\tctx = context.WithValue(ctx, runtime.CtxAPINameKey{}, "${method.receiver.type.type.name}.${fixUpMethodName(method)}")\n`;
   }
   if (method.nextLinkName) {
     let nextLinkVar: string;
@@ -648,8 +648,8 @@ function genRespErrorDoc(method: go.MethodType): string {
  * @param receiver the receiver for which to emit the definition
  * @returns the receiver definition
  */
-function getClientReceiverDefinition(receiver: go.Receiver<go.Client>): string {
-  return `(${receiver.name} ${receiver.byValue ? '' : '*'}${receiver.type.name})`;
+function getClientReceiverDefinition(receiver: go.Receiver<go.ClientMethodReceiverType>): string {
+  return `(${receiver.name} ${go.getTypeDeclaration(receiver.type, receiver.type.type.pkg)})`;
 }
 
 function generateOperation(method: go.MethodType, imports: ImportManager, options: go.Options): string {
@@ -688,7 +688,7 @@ function generateOperation(method: go.MethodType, imports: ImportManager, option
     return text;
   }
   text += '\tvar err error\n';
-  let operationName = `"${method.receiver.type.name}.${fixUpMethodName(method)}"`;
+  let operationName = `"${method.receiver.type.type.name}.${fixUpMethodName(method)}"`;
   if (options.generateFakes && options.injectSpans) {
     text += `\tconst operationName = ${operationName}\n`;
     operationName = 'operationName';
@@ -751,7 +751,7 @@ function createProtocolRequest(azureARM: boolean, method: go.MethodType | go.Nex
   text += `func ${getClientReceiverDefinition(method.receiver)} ${name}(${helpers.getCreateRequestParametersSig(method)}) (${returns.join(', ')}) {\n`;
 
   const hostParams = new Array<go.URIParameter>();
-  for (const parameter of method.receiver.type.parameters) {
+  for (const parameter of method.receiver.type.type.parameters) {
     if (parameter.kind === 'uriParam') {
       hostParams.push(parameter);
     }
@@ -760,10 +760,10 @@ function createProtocolRequest(azureARM: boolean, method: go.MethodType | go.Nex
   let hostParam: string;
   if (azureARM) {
     hostParam = 'client.internal.Endpoint()';
-  } else if (method.receiver.type.instance?.kind === 'templatedHost') {
+  } else if (method.receiver.type.type.instance?.kind === 'templatedHost') {
     imports.add('strings');
     // we have a templated host
-    text += `\thost := "${method.receiver.type.instance.path}"\n`;
+    text += `\thost := "${method.receiver.type.type.instance.path}"\n`;
     // get all the host params on the client
     for (const hostParam of hostParams) {
       text += `\thost = strings.ReplaceAll(host, "{${hostParam.uriPathSegment}}", ${helpers.formatValue(`client.${hostParam.name}`, hostParam.type, imports)})\n`;
@@ -779,7 +779,7 @@ function createProtocolRequest(azureARM: boolean, method: go.MethodType | go.Nex
     // simple parameterized host case
     hostParam = 'client.' + hostParams[0].name;
   } else {
-    throw new CodegenError('InternalError', `no host or endpoint defined for method ${method.receiver.type.name}.${method.name}`);
+    throw new CodegenError('InternalError', `no host or endpoint defined for method ${method.receiver.type.type.name}.${method.name}`);
   }
 
   const methodParamGroups = helpers.getMethodParamGroups(method);
@@ -1057,29 +1057,29 @@ function createProtocolRequest(azureARM: boolean, method: go.MethodType | go.Nex
         // for XML payloads, create a wrapper type if the payload is an array
         imports.add('encoding/xml');
         text += '\ttype wrapper struct {\n';
-        let tagName = go.getTypeDeclaration(bodyParam.type, method.receiver.type.pkg);
+        let tagName = go.getTypeDeclaration(bodyParam.type, method.receiver.type.type.pkg);
         if (bodyParam.xml?.name) {
           tagName = bodyParam.xml.name;
         }
         text += `\t\tXMLName xml.Name \`xml:"${tagName}"\`\n`;
         const fieldName = capitalize(bodyParam.name);
-        let tag = go.getTypeDeclaration(bodyParam.type.elementType, method.receiver.type.pkg);
+        let tag = go.getTypeDeclaration(bodyParam.type.elementType, method.receiver.type.type.pkg);
         if (bodyParam.type.elementType.kind === 'model' && bodyParam.type.elementType.xml?.name) {
           tag = bodyParam.type.elementType.xml.name;
         }
-        text += `\t\t${fieldName} *${go.getTypeDeclaration(bodyParam.type, method.receiver.type.pkg)} \`xml:"${tag}"\`\n`;
+        text += `\t\t${fieldName} *${go.getTypeDeclaration(bodyParam.type, method.receiver.type.type.pkg)} \`xml:"${tag}"\`\n`;
         text += '\t}\n';
         let addr = '&';
-        if (!go.isRequiredParameter(bodyParam.style) && !bodyParam.byValue) {
+        /*if (!go.isRequiredParameter(bodyParam.style) && !bodyParam.byValue) {
           addr = '';
-        }
+        }*/
         body = `wrapper{${fieldName}: ${addr}${body}}`;
       } else if (bodyParam.type.kind === 'time' && bodyParam.type.format !== 'dateTimeRFC3339') {
         // wrap the body in the internal time type
         // no need for dateTimeRFC3339 as the JSON marshaler defaults to that.
         body = `${bodyParam.type.format}(${body})`;
-      } else if (isArrayOfDateTimeForMarshalling(bodyParam.type)) {
-        const timeInfo = isArrayOfDateTimeForMarshalling(bodyParam.type);
+      } else if (isSliceOfDateTimeForMarshalling(bodyParam.type)) {
+        const timeInfo = isSliceOfDateTimeForMarshalling(bodyParam.type);
         let elementPtr = '*';
         if (timeInfo?.elemByVal) {
           elementPtr = '';
@@ -1145,7 +1145,7 @@ function createProtocolRequest(azureARM: boolean, method: go.MethodType | go.Nex
     // define and instantiate an instance of the wire type, using the values from each param.
     text += '\tbody := struct {\n';
     for (const partialBodyParam of partialBodyParams) {
-      text += `\t\t${capitalize(partialBodyParam.serializedName)} ${helpers.star(partialBodyParam.byValue)}${go.getTypeDeclaration(partialBodyParam.type, method.receiver.type.pkg)} \`${partialBodyParam.format.toLowerCase()}:"${partialBodyParam.serializedName}"\`\n`;
+      text += `\t\t${capitalize(partialBodyParam.serializedName)} ${go.getTypeDeclaration(partialBodyParam.type, method.receiver.type.type.pkg)} \`${partialBodyParam.format.toLowerCase()}:"${partialBodyParam.serializedName}"\`\n`;
     }
     text += '\t}{\n';
     // required params are emitted as initializers in the struct literal
@@ -1248,26 +1248,13 @@ function getMediaFormat(type: go.WireType, mediaType: 'JSON' | 'XML', param: str
   return `${marshaller}(${param}${format})`;
 }
 
-function isArrayOfDateTimeForMarshalling(paramType: go.WireType): { format: go.TimeFormat, elemByVal: boolean } | undefined {
-  if (paramType.kind !== 'slice') {
+function isSliceOfDateTimeForMarshalling(paramType: go.WireType): { format: go.TimeFormat, elemByVal: boolean } | undefined {
+  const timeInfo = helpers.isSliceOfDateTime(paramType);
+  if (timeInfo && timeInfo.format === 'dateTimeRFC3339') {
+    // dateTimeRFC3339 uses the default marshaller
     return undefined;
   }
-  if (paramType.elementType.kind !== 'time') {
-    return undefined;
-  }
-  switch (paramType.elementType.format) {
-    case 'dateType':
-    case 'dateTimeRFC1123':
-    case 'timeRFC3339':
-    case 'timeUnix':
-      return {
-        format: paramType.elementType.format,
-        elemByVal: paramType.elementTypeByValue
-      };
-    default:
-      // dateTimeRFC3339 uses the default marshaller
-      return undefined;
-  }
+  return timeInfo;
 }
 
 // returns true if the method requires a response handler.
@@ -1287,9 +1274,9 @@ function generateResponseUnmarshaller(method: go.MethodType, type: go.WireType, 
     unmarshallerText += '\t}\n';
     unmarshallerText += `\tresult.${helpers.getResultFieldName(method)} = (*time.Time)(aux)\n`;
     return unmarshallerText;
-  } else if (isArrayOfDateTime(type)) {
+  } else if (helpers.isSliceOfDateTime(type)) {
     // unmarshalling arrays of date/time is a little more involved
-    const timeInfo = isArrayOfDateTime(type);
+    const timeInfo = helpers.isSliceOfDateTime(type);
     let elementPtr = '*';
     if (timeInfo?.elemByVal) {
       elementPtr = '';
@@ -1337,7 +1324,7 @@ function generateResponseUnmarshaller(method: go.MethodType, type: go.WireType, 
     unmarshallerText += `\t${unmarshalTarget} = &txt\n`;
   } else {
     // the remaining formats should have been handled elsewhere
-    throw new CodegenError('InternalError', `unhandled format ${format} for operation ${method.receiver.type.name}.${method.name}`);
+    throw new CodegenError('InternalError', `unhandled format ${format} for operation ${method.receiver.type.type.name}.${method.name}`);
   }
   return unmarshallerText;
 }
@@ -1375,7 +1362,7 @@ function createProtocolResponse(method: go.SyncMethod | go.LROPageableMethod | g
             // the operation contains a mix of schemas and non-schema responses
             continue;
           }
-          text += `\tvar val ${go.getTypeDeclaration(resultType, method.receiver.type.pkg)}\n`;
+          text += `\tvar val ${go.getTypeDeclaration(resultType, method.receiver.type.type.pkg)}\n`;
           text += generateResponseUnmarshaller(method, resultType, result.format, 'val');
           text += '\tresult.Value = val\n';
         }
@@ -1421,19 +1408,6 @@ function createProtocolResponse(method: go.SyncMethod | go.LROPageableMethod | g
   return text;
 }
 
-function isArrayOfDateTime(paramType: go.WireType): { format: go.TimeFormat, elemByVal: boolean } | undefined {
-  if (paramType.kind !== 'slice') {
-    return undefined;
-  }
-  if (paramType.elementType.kind !== 'time') {
-    return undefined;
-  }
-  return {
-    format: paramType.elementType.format,
-    elemByVal: paramType.elementTypeByValue
-  };
-}
-
 function isMapOfDateTime(paramType: go.WireType): string | undefined {
   if (paramType.kind !== 'map') {
     return undefined;
@@ -1459,7 +1433,7 @@ function getAPIParametersSig(method: go.ClientAccessor | go.MethodType, imports:
     // of optionality nor do they contain literals
     for (const param of method.parameters) {
       imports.addForType(param.type);
-      params.push(`${param.name} ${go.getTypeDeclaration(param.type, method.receiver.type.pkg)}`);
+      params.push(`${param.name} ${go.getTypeDeclaration(param.type, method.receiver.type.type.pkg)}`);
     }
   } else {
     const methodParams = helpers.getMethodParameters(method);
@@ -1471,7 +1445,7 @@ function getAPIParametersSig(method: go.ClientAccessor | go.MethodType, imports:
       if (methodParam.kind !== 'paramGroup') {
         imports.addForType(methodParam.type);
       }
-      params.push(`${uncapitalize(methodParam.name)} ${helpers.formatParameterTypeName(method.receiver.type.pkg, methodParam)}`);
+      params.push(`${uncapitalize(methodParam.name)} ${helpers.formatParameterTypeName(method.receiver.type.type.pkg, methodParam)}`);
     }
   }
   return params.join(', ');

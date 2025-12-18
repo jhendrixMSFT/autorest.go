@@ -11,7 +11,7 @@ import { values } from '@azure-tools/linq';
 import { AutorestExtensionHost, startSession } from '@autorest/extension-base';
 import * as go from '../../../codemodel.go/src/index.js';
 import { adaptClients } from './clients.js';
-import { adaptConstantType, adaptInterfaceType, adaptModel, adaptModelField } from './types.js';
+import { adaptConstantType, adaptInterfaceType, adaptModel, adaptModelField, getPtrType } from './types.js';
 import { aggregateProperties } from '../transform/helpers.js';
 import { fileURLToPath } from 'url';
 
@@ -132,13 +132,14 @@ function adaptParameterGroup(pkg: go.PackageContent, paramGroup: go.ParameterGro
       if (param.style === 'literal') {
         continue;
       }
-      let byValue = param.style === 'required' || (param.location === 'client' && go.isClientSideDefault(param.style));
+      const byValue = param.style === 'required' || (param.location === 'client' && go.isClientSideDefault(param.style));
       // if the param isn't required, check if it should be passed by value or not.
       // optional params that are implicitly nil-able shouldn't be pointer-to-type.
-      if (!byValue) {
-        byValue = param.byValue;
+      let fieldType = param.type;
+      if (!byValue && go.isPtrType(fieldType)) {
+        fieldType = getPtrType(fieldType)
       }
-      const field = new go.StructField(param.name, param.type, byValue);
+      const field = new go.StructField(param.name, fieldType);
       field.docs = param.docs;
       structType.fields.push(field);
     }

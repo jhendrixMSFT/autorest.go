@@ -48,7 +48,8 @@ export function generateClientFactory(pkg: go.PackageContent, target: go.CodeMod
       // credentials aren't persisted on the client
       continue;
     }
-    result += `\t${clientParam.name} ${helpers.formatParameterTypeName(pkg, clientParam)}\n`;
+    //result += `\t${clientParam.name} ${helpers.formatParameterTypeName(pkg, clientParam)}\n`;
+    result += `\t${clientParam.name} ${go.getTypeDeclaration(clientParam.type, pkg)}\n`;
   }
   result += '\tinternal *arm.Client\n';
   result += '}\n\n';

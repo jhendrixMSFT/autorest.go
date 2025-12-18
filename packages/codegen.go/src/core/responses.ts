@@ -78,7 +78,7 @@ function generateMarshaller(respEnv: go.ResponseEnvelope, imports: ImportManager
     text += `${comment(`MarshalJSON implements the json.Marshaller interface for type ${respEnv.name}.`, '// ', undefined, helpers.commentLength)}\n`;
     text += `func (${receiver} ${respEnv.name}) MarshalJSON() ([]byte, error) {\n`;
     // TODO: this doesn't include any headers. however, LROs with header responses are currently broken :(
-    text += `\treturn json.Marshal(${receiver}.${go.getTypeDeclaration(respEnv.result.interface, respEnv.method.receiver.type.pkg)})\n}\n\n`;
+    text += `\treturn json.Marshal(${receiver}.${go.getTypeDeclaration(respEnv.result.interface, respEnv.method.receiver.type.type.pkg)})\n}\n\n`;
   }
   return text;
 }
@@ -158,7 +158,7 @@ function emit(respEnv: go.ResponseEnvelope, imports: ImportManager): string {
       if (respEnv.result.kind === 'modelResult' || respEnv.result.kind === 'polymorphicResult') {
         // anonymously embedded type always goes first
         text += helpers.formatDocComment(respEnv.result.docs);
-        text += `\t${go.getTypeDeclaration(respType, respEnv.method.receiver.type.pkg)}\n`;
+        text += `\t${go.getTypeDeclaration(respType, respEnv.method.receiver.type.type.pkg)}\n`;
         first = false;
       } else {
         let tag = '';
@@ -171,22 +171,13 @@ function emit(respEnv: go.ResponseEnvelope, imports: ImportManager): string {
           }
         }
 
-        let byValue = true;
-        if (respEnv.result.kind === 'monomorphicResult') {
-          byValue = respEnv.result.byValue;
-        }
-
-        fields.push({docs: respEnv.result.docs, field: `\t${respEnv.result.fieldName} ${helpers.star(byValue)}${go.getTypeDeclaration(respType, respEnv.method.receiver.type.pkg)}${tag}\n`});
+        fields.push({docs: respEnv.result.docs, field: `\t${respEnv.result.fieldName} ${go.getTypeDeclaration(respType, respEnv.method.receiver.type.type.pkg)}${tag}\n`});
       }
     }
 
     for (const header of values(respEnv.headers)) {
       imports.addForType(header.type);
-      let byValue = true;
-      if (header.kind === 'headerScalarResponse') {
-        byValue = header.byValue;
-      }
-      fields.push({docs: header.docs, field: `\t${header.fieldName} ${helpers.star(byValue)}${go.getTypeDeclaration(header.type, respEnv.method.receiver.type.pkg)}\n`});
+      fields.push({docs: header.docs, field: `\t${header.fieldName} ${go.getTypeDeclaration(header.type, respEnv.method.receiver.type.type.pkg)}\n`});
     }
 
     fields.sort((a: {desc?: string, field: string}, b: {desc?: string, field: string}) => { return helpers.sortAscending(a.field, b.field); });

@@ -121,12 +121,12 @@ function populateMethod(op: m4.Operation, m4CodeModel: m4.CodeModel, method: go.
 
     let optionalParamsGroup = paramGroups.get(op.language.go!.optionalParamGroup.schema.language.go!.name);
     if (!optionalParamsGroup) {
-      optionalParamsGroup = adaptParameterGroup(op.language.go!.optionalParamGroup, method.receiver.type.pkg, 'method');
+      optionalParamsGroup = adaptParameterGroup(op.language.go!.optionalParamGroup, method.receiver.type.type.pkg, 'method');
       paramGroups.set(op.language.go!.optionalParamGroup.schema.language.go!.name, optionalParamsGroup);
     }
 
     method.optionalParamsGroup = optionalParamsGroup;
-    method.returns = adaptResponseEnvelope(m4CodeModel, op, method.receiver.type.pkg, method);
+    method.returns = adaptResponseEnvelope(m4CodeModel, op, method.receiver.type.type.pkg, method);
   }
 
   adaptMethodParameters(op, method);
@@ -220,7 +220,7 @@ function adaptMethodParameters(op: m4.Operation, method: go.MethodType | go.Next
   }
 
   for (const param of values(helpers.aggregateParameters(op))) {
-    const methodParam = adaptMethodParameter(op, param, method.receiver.type.pkg);
+    const methodParam = adaptMethodParameter(op, param, method.receiver.type.type.pkg);
     method.parameters.push(methodParam);
   }
 }
@@ -234,7 +234,7 @@ function adaptResponseEnvelope(m4CodeModel: m4.CodeModel, op: m4.Operation, pkg:
     if (prop.language.go!.fromHeader) {
       let headerResp: go.HeaderScalarResponse | go.HeaderMapResponse;
       if (prop.schema.language.go!.headerCollectionPrefix) {
-        const headerType = adaptWireType(prop.schema, forMethod.receiver.type.pkg, false);
+        const headerType = adaptWireType(prop.schema, forMethod.receiver.type.type.pkg, false);
         if (headerType.kind !== 'map') {
           throw new Error(`unexpected type ${headerType.kind} for HeaderMapResponse ${prop.language.go!.name}`);
         }
@@ -262,7 +262,7 @@ function adaptResponseEnvelope(m4CodeModel: m4.CodeModel, op: m4.Operation, pkg:
   } else if (m4CodeModel.language.go!.headAsBoolean && op.requests![0].protocol.http!.method === 'head') {
     respEnv.result = new go.HeadAsBooleanResult(resultProp.language.go!.name);
   } else if (!resultProp.language.go!.embeddedType) {
-    const resultType = adaptWireType(resultProp.schema, forMethod.receiver.type.pkg);
+    const resultType = adaptWireType(resultProp.schema, forMethod.receiver.type.type.pkg);
     if (go.isMonomorphicResultType(resultType)) {
       respEnv.result = new go.MonomorphicResult(resultProp.language.go!.name, adaptResultFormat(helpers.getSchemaResponse(op)!.protocol), resultType, resultProp.language.go!.byValue);
       respEnv.result.xml = adaptXMLInfo(resultProp.schema);
@@ -271,7 +271,7 @@ function adaptResponseEnvelope(m4CodeModel: m4.CodeModel, op: m4.Operation, pkg:
     }
   } else if (resultProp.isDiscriminator) {
     let ifaceResult: go.Interface | undefined;
-    for (const iface of values(forMethod.receiver.type.pkg.interfaces)) {
+    for (const iface of values(forMethod.receiver.type.type.pkg.interfaces)) {
       if (iface.name === resultProp.schema.language.go!.name) {
         ifaceResult = iface;
         break;
@@ -287,7 +287,7 @@ function adaptResponseEnvelope(m4CodeModel: m4.CodeModel, op: m4.Operation, pkg:
    * is a concrete type from a polymorphic hierarchy
    */
     let modelType: go.Model | go.PolymorphicModel | undefined;
-    for (const model of forMethod.receiver.type.pkg.models) {
+    for (const model of forMethod.receiver.type.type.pkg.models) {
       if ((model.kind === 'model' || model.kind === 'polymorphicModel') && model.name === resultProp.schema.language.go!.name) {
         modelType = model;
         break;

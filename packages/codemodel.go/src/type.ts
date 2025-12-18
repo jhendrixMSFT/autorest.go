@@ -19,10 +19,10 @@ export interface Docs {
 }
 
 /** defines types used in generated code but do not go across the wire */
-export type SdkType = ArmClientOptions | ClientOptions | ParameterGroup | ResponseEnvelope | TokenCredential;
+export type SdkType = ArmClientOptions | Client | ClientOptions | ParameterGroup | ResponseEnvelope | TokenCredential;
 
 /** defines types that go across the wire */
-export type WireType = Any | Constant | ConstantValue | EncodedBytes | ETag | Interface | Literal | Map | Model | MultipartContent | PolymorphicModel | RawJSON | ReadCloser | ReadSeekCloser | Scalar | Slice | String | Time;
+export type WireType = Any | Constant | ConstantValue | EncodedBytes | ETag | Interface | Literal | Map | Model | MultipartContent | PolymorphicModel | Ptr | RawJSON | ReadCloser | ReadSeekCloser | Scalar | Slice | String | Time;
 
 /** defines a type within the Go type system */
 export type Type = SdkType | WireType;
@@ -146,9 +146,6 @@ export interface Map {
 
   /** the type of values in the map */
   valueType: MapValueType;
-
-  /** indicates if the map's value type is pointer-to-type or not */
-  valueTypeByValue: boolean;
 }
 
 /** the set of map value types */
@@ -221,6 +218,17 @@ export interface PolymorphicModel extends ModelBase {
   discriminatorValue?: Literal;
 }
 
+/** the default set of possible types wrapped by Ptr */
+export type PtrType = ArmClientOptions | Client | ClientOptions | Constant | ETag | Model | ParameterGroup | PolymorphicModel | Scalar | String | Time;
+
+/** a pointer to type */
+export interface Ptr<T extends PtrType = PtrType> {
+  kind: 'ptr';
+
+  /** the type pointed to */
+  type: T;
+}
+
 /** a byte slice containing raw JSON */
 export interface RawJSON {
   kind: 'rawJSON';
@@ -256,9 +264,6 @@ export interface Slice {
 
   /** the element type for this slice */
   elementType: SliceElementType;
-
-  /** indicates if the slice's element type is pointer-to-type or not */
-  elementTypeByValue: boolean;
 }
 
 /** the set of slice element types */
@@ -284,9 +289,6 @@ export interface StructField {
 
   /** the field's underlying type */
   type: Type;
-
-  /** indicates if the field is pointer-to-type or not */
-  byValue: boolean;
 }
 
 /** a time.Time type from the standard library with a format specifier */
@@ -397,7 +399,7 @@ export function getTypeDeclaration(type: Client | Type, scope: PackageType): str
           pkg = type.type.pkg;
           break;
         case 'responseEnvelope':
-          pkg = type.method.receiver.type.pkg;
+          pkg = type.method.receiver.type.type.pkg;
           break;
         default:
           pkg = type.pkg;
@@ -415,11 +417,13 @@ export function getTypeDeclaration(type: Client | Type, scope: PackageType): str
     case 'literal':
       return getTypeDeclaration(type.type, scope);
     case 'map':
-      return `map[string]${type.valueTypeByValue ? '' : '*'}` + getTypeDeclaration(type.valueType, scope);
+      return `map[string]${getTypeDeclaration(type.valueType, scope)}`;
+    case 'ptr':
+      return `*${getTypeDeclaration(type.type, scope)}`;
     case 'scalar':
       return type.type;
     case 'slice':
-      return `[]${type.elementTypeByValue ? '' : '*'}` + getTypeDeclaration(type.elementType, scope);
+      return `[]${getTypeDeclaration(type.elementType, scope)}`;
     case 'time':
       return 'time.Time';
     case 'armClientOptions':
@@ -430,6 +434,26 @@ export function getTypeDeclaration(type: Client | Type, scope: PackageType): str
     case 'tokenCredential':
       // strip module to just the leaf package as required
       return `${path.basename(type.module)}.${type.name}`;
+  }
+}
+
+/** narrows type to a PtrType within the conditional block */
+export function isPtrType<T extends PtrType = PtrType>(type: Client | Type): type is T {
+  switch (type.kind) {
+    case 'armClientOptions':
+    case 'client':
+    case 'clientOptions':
+    case 'constant':
+    case 'etag':
+    case 'model':
+    case 'paramGroup':
+    case 'polymorphicModel':
+    case 'scalar':
+    case 'string':
+    case 'time':
+      return true;
+    default:
+      return false;
   }
 }
 
@@ -447,15 +471,66 @@ export function isLiteralValueType(type: WireType): type is LiteralType {
   }
 }
 
+/**
+ * recursively creates a map key from the specified type.
+ * this is idempotent so providing the same type will create
+ * the same key.
+ * 
+ * type is recursively unwrapped, and each layer is used to construct
+ * the key. e.g. if type is a map[string][]*SomeModel this would
+ * unwrap to map-slice-ptr-package-SomeModel
+ * 
+ * @param root the starting value for the key
+ * @param type the type for which to create the key
+ * @returns a string containing the complete map key
+ */
+export function recursiveTypeKey(root: string, type: Client | Type): string {
+  switch (type.kind) {
+    case 'armClientOptions':
+    case 'etag':
+    case 'multipartContent':
+    case 'readCloser':
+    case 'readSeekCloser':
+    case 'time':
+    case 'tokenCredential':
+      return `${root}-${path.basename(type.module)}-${type.name}`;
+    case 'client':
+    case 'clientOptions':
+    case 'constant':
+    case 'interface':
+    case 'model':
+    case 'paramGroup':
+    case 'polymorphicModel':
+      return `${root}-${getPackageName(type.pkg)}-${type.name}`;
+    case 'constantValue':
+      return `${root}-${getPackageName(type.type.pkg)}-${type.type.name}-${type.name}`;
+    case 'encodedBytes':
+      return `${root}-${type.kind}-${type.encoding}`;
+    case 'literal':
+      return `${recursiveTypeKey(`${root}-${type.kind}`, type.type)}-${type.literal}`;
+    case 'map':
+      return recursiveTypeKey(`${root}-${type.kind}`, type.valueType);
+    case 'ptr':
+      return recursiveTypeKey(`${root}-${type.kind}`, type.type);
+    case 'scalar':
+      return `${root}-${type.kind}-${type.type}${type.encodeAsString ? '-string' : ''}`;
+    case 'slice':
+      return recursiveTypeKey(`${root}-${type.kind}`, type.elementType);
+    case 'responseEnvelope':
+      return `${root}-${getPackageName(type.method.receiver.type.type.pkg)}-${type.name}`;
+    default:
+      return `${root}-${type.kind}`;
+  }
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // exported base types
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 export class StructField implements StructField {
-  constructor(name: string, type: Type, byValue: boolean) {
+  constructor(name: string, type: Type) {
     this.name = name;
     this.type = type;
-    this.byValue = byValue;
     this.docs = {};
   }
 }
@@ -603,10 +678,9 @@ export class Literal implements Literal {
 }
 
 export class Map implements Map {
-  constructor(valueType: MapValueType, valueTypeByValue: boolean) {
+  constructor(valueType: MapValueType) {
     this.kind = 'map';
     this.valueType = valueType;
-    this.valueTypeByValue = valueTypeByValue;
   }
 }
 
@@ -618,8 +692,8 @@ export class ModelAnnotations implements ModelAnnotations {
 }
 
 export class ModelField extends StructField implements ModelField {
-  constructor(name: string, type: WireType, byValue: boolean, serializedName: string, annotations: ModelFieldAnnotations) {
-    super(name, type, byValue);
+  constructor(name: string, type: WireType, serializedName: string, annotations: ModelFieldAnnotations) {
+    super(name, type);
     this.serializedName = serializedName;
     this.annotations = annotations;
   }
@@ -657,6 +731,13 @@ export class PolymorphicModel extends ModelBase implements PolymorphicModel {
   }
 }
 
+export class Ptr<T> implements Ptr<T> {
+  constructor(type: T) {
+    this.kind = 'ptr';
+    this.type = type;
+  }
+}
+
 export class RawJSON implements RawJSON {
   constructor() {
     this.kind = 'rawJSON';
@@ -686,10 +767,9 @@ export class Scalar implements Scalar {
 }
 
 export class Slice implements Slice {
-  constructor(elementType: SliceElementType, elementTypeByValue: boolean) {
+  constructor(elementType: SliceElementType) {
     this.kind = 'slice';
     this.elementType = elementType;
-    this.elementTypeByValue = elementTypeByValue;
   }
 }
 

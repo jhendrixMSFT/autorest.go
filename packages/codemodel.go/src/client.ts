@@ -74,7 +74,7 @@ export type ClientOptionsType = type.ArmClientOptions | ClientOptions;
 export type ClientParameter = ClientCredentialParameter | param.MethodParameter;
 
 /** a client method that returns a sub-client instance */
-export interface ClientAccessor extends method.Method<Client, Client> {
+export interface ClientAccessor extends method.Method<ClientMethodReceiverType, Client> {
   kind: 'clientAccessor';
 
   /** the name of the client accessor method */
@@ -95,6 +95,9 @@ export interface ClientCredentialParameter extends method.Parameter {
 
   group: never;
 }
+
+/** the type for the receiver on client methods */
+export type ClientMethodReceiverType = type.Ptr<Client>;
 
 /** the client options parameter type */
 export interface ClientOptions {
@@ -229,7 +232,7 @@ export interface NextPageMethod {
   httpStatusCodes: Array<number>;
 
   /** the method's receiver parameter */
-  receiver: method.Receiver<Client>;
+  receiver: method.Receiver<ClientMethodReceiverType>;
 
   apiVersions: Array<string>;
 }
@@ -271,7 +274,7 @@ interface LROMethodBase extends HttpMethodBase {
   operationLocationResultPath?: string;
 }
 
-interface HttpMethodBase extends method.Method<Client, result.ResponseEnvelope> {
+interface HttpMethodBase extends method.Method<ClientMethodReceiverType, result.ResponseEnvelope> {
   /** the HTTP path used when creating the request */
   httpPath: string;
 
@@ -312,12 +315,12 @@ interface PageableMethodBase extends HttpMethodBase {
   nextPageMethod?: NextPageMethod;
 }
 
-class HttpMethodBase extends method.Method<Client, result.ResponseEnvelope> implements HttpMethodBase {
+class HttpMethodBase extends method.Method<ClientMethodReceiverType, result.ResponseEnvelope> implements HttpMethodBase {
   constructor(name: string, client: Client, httpPath: string, httpMethod: HTTPMethod, statusCodes: Array<number>, naming: MethodNaming) {
     if (statusCodes.length === 0) {
       throw new CodeModelError('statusCodes cannot be empty');
     }
-    super(name, new method.Receiver('client', client, false));
+    super(name, new method.Receiver('client', new type.Ptr(client)));
     this.apiVersions = new Array<string>();
     this.httpMethod = httpMethod;
     this.httpPath = httpPath;
@@ -351,9 +354,9 @@ export class ClientEndpoint implements ClientEndpoint {
   }
 }
 
-export class ClientAccessor extends method.Method<Client, Client> implements ClientAccessor {
+export class ClientAccessor extends method.Method<ClientMethodReceiverType, Client> implements ClientAccessor {
   constructor(name: string, client: Client, returns: Client) {
-    super(name, new method.Receiver('client', client, false));
+    super(name, new method.Receiver('client', new type.Ptr(client)));
     this.kind = 'clientAccessor';
     this.returns = returns;
   }
@@ -369,7 +372,7 @@ export class Constructable implements Constructable {
 
 export class ClientCredentialParameter extends method.Parameter implements ClientCredentialParameter {
   constructor(name: string, type: type.TokenCredential) {
-    super(name, type, true);
+    super(name, type);
     this.kind = 'credentialParam';
     this.style = 'required';
   }
@@ -430,7 +433,7 @@ export class NextPageMethod implements NextPageMethod {
     }
     this.kind = 'nextPageMethod';
     this.apiVersions = new Array<string>();
-    this.receiver = new method.Receiver('client', client, false);
+    this.receiver = new method.Receiver('client', new type.Ptr(client));
     this.httpMethod = httpMethod;
     this.httpPath = httpPath;
     this.httpStatusCodes = statusCodes;

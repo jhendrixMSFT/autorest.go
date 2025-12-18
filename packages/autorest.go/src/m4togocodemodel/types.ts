@@ -172,14 +172,17 @@ function getDiscriminatorLiteral(pkg: go.PackageContent, discriminatorValue: str
 }
 
 export function adaptModelField(prop: m4.Property, obj: m4.ObjectSchema, pkg: go.PackageContent): go.ModelField {
-  const fieldType = adaptWireType(prop.schema, pkg);
+  let fieldType = adaptWireType(prop.schema, pkg);
+  if (go.isPtrType(fieldType)) {
+    fieldType = getPtrType(fieldType);
+  }
   let required = prop.required === true;
   if (fieldType.kind === 'literal') {
     // for OpenAPI, literal values are always considered required
     required = true;
   }
   const annotations = new go.ModelFieldAnnotations(required, prop.readOnly === true, prop.language.go!.isAdditionalProperties === true, prop.isDiscriminator === true);
-  const field = new go.ModelField(prop.language.go!.name, fieldType, prop.language.go!.byValue === true, prop.serializedName, annotations);
+  const field = new go.ModelField(prop.language.go!.name, fieldType, prop.serializedName, annotations);
   if (hasDescription(prop.language.go!)) {
     field.docs.description = prop.language.go!.description;
   }
@@ -307,7 +310,7 @@ export function adaptWireType(schema: m4.Schema, pkg: go.PackageContent, element
       if (anyObject) {
         return anyObject;
       }
-      anyObject = new go.Map(new go.Any(), true);
+      anyObject = new go.Map(new go.Any());
       types.set(m4.SchemaType.AnyObject, anyObject);
       return anyObject;
     }
@@ -330,7 +333,11 @@ export function adaptWireType(schema: m4.Schema, pkg: go.PackageContent, element
       if (arrayType) {
         return arrayType;
       }
-      arrayType = new go.Slice(adaptWireType((<m4.ArraySchema>schema).elementType, pkg, elementTypeByValue), myElementTypeByValue);
+      let elementType = adaptWireType((<m4.ArraySchema>schema).elementType, pkg, elementTypeByValue);
+      if (!myElementTypeByValue && go.isPtrType(elementType)) {
+        elementType = getPtrType(elementType);
+      }
+      arrayType = new go.Slice(elementType);
       types.set(keyName, arrayType);
       return arrayType;
     }
@@ -395,7 +402,11 @@ export function adaptWireType(schema: m4.Schema, pkg: go.PackageContent, element
       if (mapType) {
         return mapType;
       }
-      mapType = new go.Map(adaptWireType((<m4.DictionarySchema>schema).elementType, pkg, elementTypeByValue), valueTypeByValue);
+      let valueType = adaptWireType((<m4.DictionarySchema>schema).elementType, pkg, elementTypeByValue);
+      if (go.isPtrType(valueType)) {
+        valueType = getPtrType(valueType);
+      }
+      mapType = new go.Map(valueType);
       types.set(keyName, mapType);
       return mapType;
     }
@@ -596,6 +607,16 @@ function adaptBytesType(schema: m4.ByteArraySchema): go.EncodedBytes {
   bytesType = new go.EncodedBytes(format);
   types.set(keyName, bytesType);
   return bytesType;
+}
+
+export function getPtrType(type: go.PtrType): go.Ptr {
+  const keyName = go.recursiveTypeKey('ptr', type);
+  let ptrType = types.get(keyName);
+  if (!ptrType) {
+    ptrType = new go.Ptr(type);
+    types.set(keyName, ptrType);
+  }
+  return <go.Ptr>ptrType;
 }
 
 function recursiveKeyName(root: string, obj: m4.Schema): string {

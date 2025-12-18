@@ -706,7 +706,7 @@ function dispatchForOperationBody(pkg: go.FakePackage, receiverName: string, met
     // construct the partial body params type and unmarshal it
     content += '\ttype partialBodyParams struct {\n';
     for (const partialBodyParam of partialBodyParams) {
-      content += `\t\t${capitalize(partialBodyParam.name)} ${helpers.star(partialBodyParam.byValue)}${go.getTypeDeclaration(partialBodyParam.type, pkg)} \`json:"${partialBodyParam.serializedName}"\`\n`;
+      content += `\t\t${capitalize(partialBodyParam.name)} ${go.getTypeDeclaration(partialBodyParam.type, pkg)} \`json:"${partialBodyParam.serializedName}"\`\n`;
     }
     content += '\t}\n';
     content += `\tbody, err := server.UnmarshalRequestAs${partialBodyParams[0].format}[partialBodyParams](req)\n`;
@@ -718,7 +718,7 @@ function dispatchForOperationBody(pkg: go.FakePackage, receiverName: string, met
 
   // translate each partial body param to its field within the unmarshalled body
   for (const partialBodyParam of partialBodyParams) {
-    result.params.set(partialBodyParam.name, `${helpers.star(partialBodyParam.byValue)}body.${capitalize(partialBodyParam.name)}`);
+    result.params.set(partialBodyParam.name, `${helpers.star(partialBodyParam.type)}body.${capitalize(partialBodyParam.name)}`);
   }
 
   const apiCall = `:= ${receiverName}.srv.${fixUpMethodName(method)}(${populateApiParams(pkg, method, result.params, imports)})`;
@@ -1224,7 +1224,7 @@ function parseHeaderPathQueryParams(pkg: go.FakePackage, method: go.MethodType, 
       content += `\t\t${uncapitalize(paramGroup.name)} = &${go.getTypeDeclaration(paramGroup, pkg)}{\n`;
       for (const param of values(params)) {
         let byRef = '&';
-        if (param.byValue || (!go.isRequiredParameter(param.style) && param.kind !== 'bodyParam' && !go.isFormBodyParameter(param) && param.kind !== 'multipartFormBodyParam')) {
+        if (param.type.kind !== 'ptr' || (!go.isRequiredParameter(param.style) && param.kind !== 'bodyParam' && !go.isFormBodyParameter(param) && param.kind !== 'multipartFormBodyParam')) {
           byRef = '';
         }
         content += `\t\t\t${capitalize(param.name)}: ${byRef}${getFinalParamValue(pkg, param, paramValues)},\n`;

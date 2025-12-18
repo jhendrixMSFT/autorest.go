@@ -64,36 +64,6 @@ export function sortAscending(a: string, b: string): number {
   return a < b ? -1 : a > b ? 1 : 0;
 }
 
-/**
- * returns the parameter's type definition with a possible '*' prefix
- * 
- * @param scope the package into which the type definition is being emitted
- * @param param the parameter for which to emit the type definition
- * @returns the parameter type definition text
- */
-export function formatParameterTypeName(scope: go.PackageType, param: go.ClientOptionsType | go.ClientParameter | go.ParameterGroup): string {
-  let typeName: string;
-  let required: boolean;
-  switch (param.kind) {
-    case 'armClientOptions':
-      typeName = go.getTypeDeclaration(param, scope);
-      required = false;
-      break;
-    case 'clientOptions':
-      typeName = go.getTypeDeclaration(param, scope);
-      required = false;
-      break;
-    case 'paramGroup':
-      typeName = go.getTypeDeclaration(param, scope);
-      required = param.required;
-      break;
-    default:
-      typeName = go.getTypeDeclaration(param.type, scope);
-      required = param.byValue;
-  }
-  return required ? typeName : `*${typeName}`;
-}
-
 // sorts parameters by their required state, ordering required before optional
 export function sortParametersByRequired(a: go.ClientParameter | go.ParameterGroup, b: go.ClientParameter | go.ParameterGroup): number {
   let aRequired = false;
@@ -160,7 +130,7 @@ export function getCreateRequestParametersSig(method: go.MethodType | go.NextPag
     if (methodParam.kind === 'paramGroup' && (methodParam.params.length === 0 || (methodParam.params.length === 1 && methodParam.params[0].kind === 'resumeTokenParam'))) {
       paramName = '_';
     }
-    params.push(`${paramName} ${formatParameterTypeName(method.receiver.type.pkg, methodParam)}`);
+    params.push(`${paramName} ${go.getTypeDeclaration(methodParam, method.receiver.type.type.pkg)}`);
   }
   return params.join(', ');
 }
@@ -244,8 +214,7 @@ export function getParamName(param: go.MethodParameter): string {
   if (param.location === 'client') {
     paramName = `client.${paramName}`;
   }
-  // client parameters with default values aren't emitted as pointer-to-type
-  if (!go.isRequiredParameter(param.style) && !(param.location === 'client' && go.isClientSideDefault(param.style)) && !param.byValue) {
+  if (param.type.kind === 'ptr') {
     paramName = `*${paramName}`;
   }
   return paramName;
@@ -711,8 +680,8 @@ export function recursiveUnwrapMapSlice(item: go.WireType): go.WireType {
  * @param byValue indicates if the type is passed by value
  * @returns a * or the empty string
  */
-export function star(byValue: boolean): string {
-  return byValue ? '' : '*';
+export function star(type: go.Type): string {
+  return type.kind === 'ptr' ? '*' : '';
 }
 
 /**
@@ -1103,4 +1072,29 @@ export function splitScope(scope: string): { audience: string, scope: string } {
 /** returns true if the specified method is internal */
 export function isMethodInternal(method: go.MethodType): boolean {
   return !!method.name.match(/^[a-z]{1}/);
+}
+
+export function isSliceOfDateTime(paramType: go.WireType): { format: go.TimeFormat, elemByVal: boolean } | undefined {
+  let type: go.Type = paramType;
+  if (type.kind !== 'slice') {
+    return undefined;
+  }
+
+  let elemByVal = true;
+  let format: go.TimeFormat;
+
+  if (type.elementType.kind === 'ptr') {
+    elemByVal = false;
+    type = type.elementType.type;
+  }
+
+  if (type.kind !== 'time') {
+    return undefined;
+  }
+  format = type.format;
+
+  return {
+    format: format,
+    elemByVal: elemByVal,
+  };
 }

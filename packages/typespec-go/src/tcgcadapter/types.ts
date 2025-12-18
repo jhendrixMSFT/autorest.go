@@ -114,8 +114,12 @@ export class TypeAdapter {
       }
       if (content.addlProps) {
         const annotations = new go.ModelFieldAnnotations(false, false, true, false);
-        const addlPropsType = new go.Map(this.getWireType(content.addlProps, false, false), isTypePassedByValue(content.addlProps));
-        const addlProps = new go.ModelField('AdditionalProperties', addlPropsType, true, '', annotations);
+        let valueType = this.getWireType(content.addlProps, false, false);
+        if (go.isPtrType(valueType)) {
+          valueType = this.getPtrType(valueType);
+        }
+        const addlPropsType = new go.Map(valueType);
+        const addlProps = new go.ModelField('AdditionalProperties', addlPropsType, '', annotations);
         modelType.go.fields.push(addlProps);
       }
       this.getPkg().models.push(modelType.go);
@@ -182,21 +186,25 @@ export class TypeAdapter {
       case 'url':
         return this.getBuiltInType(type);
       case 'array': {
-        let elementType = type.valueType;
+        let valueType = type.valueType;
         let nullable = false;
-        if (elementType.kind === 'nullable') {
+        if (valueType.kind === 'nullable') {
           // unwrap the nullable type
-          elementType = elementType.type;
+          valueType = valueType.type;
           nullable = true;
         }
-        // prefer elementTypeByValue. if false, then if the array elements have been explicitly marked as nullable then prefer that, else fall back to our usual algorithm
-        const myElementTypeByValue = elementTypeByValue ? true : nullable ? false : this.codeModel.options.sliceElementsByval || isTypePassedByValue(elementType);
-        const keyName = recursiveKeyName(`array-${myElementTypeByValue}`, elementType, substituteDiscriminator);
+        // prefer elementTypeByValue. if false, then if the array elements have been explicitly marked as nullable then prefer that, else fall back to emitter options
+        const myElementTypeByValue = elementTypeByValue ? true : nullable ? false : this.codeModel.options.sliceElementsByval;
+        const keyName = recursiveKeyName(`array-${myElementTypeByValue}`, valueType, substituteDiscriminator);
         let arrayType = this.types.get(keyName);
         if (arrayType) {
           return arrayType;
         }
-        arrayType = new go.Slice(this.getWireType(elementType, elementTypeByValue, substituteDiscriminator), myElementTypeByValue);
+        let elementType = this.getWireType(valueType, elementTypeByValue, substituteDiscriminator);
+        if (!myElementTypeByValue && go.isPtrType(elementType)) {
+          elementType = this.getPtrType(elementType);
+        }
+        arrayType = new go.Slice(elementType);
         this.types.set(keyName, arrayType);
         return arrayType;
       }
@@ -220,13 +228,16 @@ export class TypeAdapter {
       case 'utcDateTime':
         return this.getTimeType(type.encode, true);
       case 'dict': {
-        const valueTypeByValue = isTypePassedByValue(type.valueType);
-        const keyName = recursiveKeyName(`dict-${valueTypeByValue}`, type.valueType, substituteDiscriminator);
+        const keyName = recursiveKeyName('dict', type.valueType, substituteDiscriminator);
         let mapType = this.types.get(keyName);
         if (mapType) {
           return mapType;
         }
-        mapType = new go.Map(this.getWireType(type.valueType, elementTypeByValue, substituteDiscriminator), valueTypeByValue);
+        let valueType = this.getWireType(type.valueType, elementTypeByValue, substituteDiscriminator);
+        if (go.isPtrType(valueType)) {
+          valueType = this.getPtrType(valueType);
+        }
+        mapType = new go.Map(valueType);
         this.types.set(keyName, mapType);
         return mapType;
       }
@@ -266,6 +277,16 @@ export class TypeAdapter {
     return datetime;
   }
 
+  getPtrType<T extends go.PtrType = go.PtrType>(type: T): go.Ptr<T> {
+    const keyName = go.recursiveTypeKey('ptr', type);
+    let ptrType = this.types.get(keyName);
+    if (!ptrType) {
+      ptrType = new go.Ptr<T>(type);
+      this.types.set(keyName, ptrType);
+    }
+    return <go.Ptr<T>>ptrType;
+  }
+
   // returns the Go code model type for an io.ReadSeekCloser
   getReadSeekCloser(sliceOf: boolean): go.WireType {
     let keyName = 'io-readseekcloser';
@@ -276,7 +297,7 @@ export class TypeAdapter {
     if (!rsc) {
       rsc = new go.ReadSeekCloser();
       if (sliceOf) {
-        rsc = new go.Slice(rsc, true);
+        rsc = new go.Slice(rsc);
       }
       this.types.set(keyName, rsc);
     }
@@ -293,7 +314,7 @@ export class TypeAdapter {
     if (!mpc) {
       mpc = new go.MultipartContent();
       if (sliceOf) {
-        mpc = new go.Slice(mpc, true);
+        mpc = new go.Slice(mpc);
       }
       this.types.set(keyName, mpc);
     }
@@ -585,10 +606,6 @@ export class TypeAdapter {
     // for multipart/form data containing models, default to fields not being pointer-to-type as we
     // don't have to deal with JSON patch shenanigans. only the optional fields will be pointer-to-type.
     const isMultipartFormData = <tcgc.UsageFlags>(modelType.usage & tcgc.UsageFlags.MultipartFormData) === tcgc.UsageFlags.MultipartFormData;
-    let fieldByValue = isMultipartFormData ? true : isTypePassedByValue(prop.type);
-    if (isMultipartFormData && prop.kind === 'property' && prop.optional) {
-      fieldByValue = false;
-    }
     let type = this.getWireType(prop.type, isMultipartFormData, true);
     if (prop.kind === 'property') {
       if (prop.isMultipartFileInput) {
@@ -603,7 +620,12 @@ export class TypeAdapter {
         }
       }
     }
-    const field = new go.ModelField(naming.capitalize(naming.ensureNameCase(prop.name)), type, fieldByValue, prop.serializedName, annotations);
+    if (go.isPtrType(type)) {
+      // model fields are always pointer-to-type if
+      // the underlying type isn't implicitly nil-able
+      type = this.getPtrType(type);
+    }
+    const field = new go.ModelField(naming.capitalize(naming.ensureNameCase(prop.name)), type, prop.serializedName, annotations);
     field.docs.summary = prop.summary;
     field.docs.description = prop.doc;
 
@@ -833,22 +855,6 @@ function recursiveKeyName(root: string, obj: tcgc.SdkType, substituteDiscriminat
     default:
       return `${root}-${obj.kind}`;
   }
-}
-
-/**
- * returns true if the specified type doesn't need to be pointer-to-type
- * because it's implicitly nil-able.
- * 
- * @param type the type to inspect
- * @returns true if the type is implicitly nil-able
- */
-export function isTypePassedByValue(type: tcgc.SdkType): boolean {
-  if (type.kind === 'nullable') {
-    type = type.type;
-  }
-  return type.kind === 'unknown' || type.kind === 'array' ||
-  type.kind === 'bytes' || type.kind === 'dict' ||
-    (type.kind === 'model' && !!type.discriminatedSubtypes);
 }
 
 interface ModelTypeSdkModelType {

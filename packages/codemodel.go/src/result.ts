@@ -85,9 +85,6 @@ export interface HeaderScalarResponse {
   /** the type of the response header */
   type: param.HeaderScalarType;
 
-  /** indicates if the header is returned by value or by pointer */
-  byValue: boolean;
-
   /** the name of the header sent over the wire */
   headerName: string;
 }
@@ -135,15 +132,13 @@ export interface MonomorphicResult {
   /** the format in which the result is returned */
   format: ResultFormat;
 
-  /** indicates if the response type is returned by value or by pointer */
-  byValue: boolean;
-
   /** optional XML schema metadata */
   xml?: type.XMLInfo;
 }
 
 /** the possible monomorphic result types */
-export type MonomorphicResultType = type.Any | type.Constant | type.EncodedBytes | type.Map | type.RawJSON | type.Scalar | type.Slice | type.String | type.Time;
+export type MonomorphicResultTypeBase = type.Constant | type.Scalar | type.String | type.Time;
+export type MonomorphicResultType = MonomorphicResultTypeBase | type.Any | type.EncodedBytes | type.Map | type.Ptr<MonomorphicResultTypeBase> | type.RawJSON | type.Slice;
 
 /**
  * used for methods that return a discriminated type.
@@ -213,7 +208,7 @@ export function getResultType(result: Result): type.Interface | type.Model | Mon
 }
 
 /** narrows type to a MonomorphicResultType within the conditional block */
-export function isMonomorphicResultType(type: type.WireType): type is MonomorphicResultType {
+export function isMonomorphicResultType(type: type.WireType): type is Exclude<MonomorphicResultType, type.Ptr> {
   switch (type.kind) {
     case 'any':
     case 'constant':
@@ -270,11 +265,10 @@ export class HeaderMapResponse implements HeaderMapResponse {
 }
 
 export class HeaderScalarResponse implements HeaderScalarResponse {
-  constructor(fieldName: string, type: param.HeaderScalarType, headerName: string, byValue: boolean) {
+  constructor(fieldName: string, type: param.HeaderScalarType, headerName: string) {
     this.kind = 'headerScalarResponse';
     this.fieldName = fieldName;
     this.type = type;
-    this.byValue = byValue;
     this.headerName = headerName;
     this.docs = {};
   }
@@ -290,12 +284,11 @@ export class ModelResult implements ModelResult {
 }
 
 export class MonomorphicResult implements MonomorphicResult {
-  constructor(fieldName: string, format: ResultFormat, type: MonomorphicResultType, byValue: boolean) {
+  constructor(fieldName: string, format: ResultFormat, type: MonomorphicResultType) {
     this.kind = 'monomorphicResult';
     this.fieldName = fieldName;
     this.format = format;
     this.monomorphicType = type;
-    this.byValue = byValue;
     this.docs = {};
   }
 }

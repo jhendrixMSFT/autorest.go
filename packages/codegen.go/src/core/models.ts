@@ -290,7 +290,7 @@ function generateToMultipartForm(modelDef: ModelDef) {
     const fieldType = helpers.recursiveUnwrapMapSlice(field.type);
     let setField: string;
     let star = '';
-    if (!field.byValue) {
+    if (field.type.kind === 'ptr') {
       star = '*';
     }
     if (fieldType.kind === 'model' && !fieldType.annotations.multipartFormData) {
@@ -298,7 +298,7 @@ function generateToMultipartForm(modelDef: ModelDef) {
     } else {
       setField = `\tobjectMap["${field.serializedName}"] = ${star}${receiver}.${field.name}\n`;
     }
-    if (!field.byValue) {
+    if (field.type.kind === 'ptr') {
       setField = `\tif ${receiver}.${field.name} != nil {\n\t\t${setField}\t}\n`;
     }
     method += setField;
@@ -368,15 +368,16 @@ function generateJSONMarshallerBody(modelDef: ModelDef, receiver: string, import
       marshaller += `\t\t\tencodedValue[i] = runtime.EncodeByteArray(${receiver}.${field.name}[i], runtime.Base64${field.type.elementType.encoding}Format)\n\t\t}\n`;
       marshaller += '\t\treturn encodedValue\n\t})\n';
       modelDef.SerDe.needsJSONPopulateByteArray = true;
-    } else if (field.type.kind === 'slice' && field.type.elementType.kind === 'time') {
+    } else if (helpers.isSliceOfDateTime(field.type)) {
+      const timeInfo = helpers.isSliceOfDateTime(field.type);
       const source = `${receiver}.${field.name}`;
       let elementPtr = '*';
-      if (field.type.elementTypeByValue) {
+      if (timeInfo?.elemByVal) {
         elementPtr = '';
       }
-      marshaller += `\taux := make([]${elementPtr}${field.type.elementType.format}, len(${source}), len(${source}))\n`;
+      marshaller += `\taux := make([]${elementPtr}${timeInfo?.format}, len(${source}), len(${source}))\n`;
       marshaller += `\tfor i := 0; i < len(${source}); i++ {\n`;
-      marshaller += `\t\taux[i] = (${elementPtr}${field.type.elementType.format})(${source}[i])\n`;
+      marshaller += `\t\taux[i] = (${elementPtr}${timeInfo?.format})(${source}[i])\n`;
       marshaller += '\t}\n';
       marshaller += `\tpopulate(objectMap, "${field.serializedName}", aux)\n`;
       modelDef.SerDe.needsJSONPopulate = true;
@@ -479,10 +480,7 @@ function generateJSONUnmarshallerBody(modelDef: ModelDef, receiver: string, impo
 
   const emitAddlProps = function (tab: string, addlProps: go.Map): string {
     let addlPropsText = `${tab}\t\tif ${receiver}.AdditionalProperties == nil {\n`;
-    let ref = '';
-    if (!addlProps.valueTypeByValue) {
-      ref = '&';
-    }
+    const ref = addlProps.valueType.kind === 'ptr' ? '&' : '';
     addlPropsText += `${tab}\t\t\t${receiver}.AdditionalProperties = ${go.getTypeDeclaration(addlProps, modelDef.Model.pkg)}{}\n`;
     addlPropsText += `${tab}\t\t}\n`;
     addlPropsText += `${tab}\t\tif val != nil {\n`;
@@ -519,13 +517,14 @@ function generateJSONUnmarshallerBody(modelDef: ModelDef, receiver: string, impo
         unmarshalBody += `\t\t\t\terr = unpopulate${capitalize(field.type.format)}(val, "${field.name}", &${receiver}.${field.name})\n`;
         modelDef.SerDe.needsJSONUnpopulate = true;
         needsErrCheck = true;
-      } else if (field.type.kind === 'slice' && field.type.elementType.kind === 'time') {
+      } else if (helpers.isSliceOfDateTime(field.type)) {
+        const timeInfo = helpers.isSliceOfDateTime(field.type);
         imports.add('time');
         let elementPtr = '*';
-        if (field.type.elementTypeByValue) {
+        if (timeInfo?.elemByVal) {
           elementPtr = '';
         }
-        unmarshalBody += `\t\t\tvar aux []${elementPtr}${field.type.elementType.format}\n`;
+        unmarshalBody += `\t\t\tvar aux []${elementPtr}${timeInfo?.format}\n`;
         unmarshalBody += `\t\t\terr = unpopulate(val, "${field.name}", &aux)\n`;
         unmarshalBody += '\t\t\tfor _, au := range aux {\n';
         unmarshalBody += `\t\t\t\t${receiver}.${field.name} = append(${receiver}.${field.name}, (${elementPtr}time.Time)(au))\n`;
@@ -942,7 +941,7 @@ class ModelDef {
       if (this.Format === 'XML' && !field.annotations.isAdditionalProperties) {
         tag = ` \`xml:"${serialization}"\``;
       }
-      text += `\t${field.name} ${helpers.star(field.byValue)}${typeName}${tag}\n`;
+      text += `\t${field.name} ${typeName}${tag}\n`;
       first = false;
     }
 
