@@ -69,6 +69,10 @@ export class TypeAdapter {
       } else if ((modelType.usage & tcgc.UsageFlags.Input) === 0 && (modelType.usage & tcgc.UsageFlags.Output) === 0) {
         // skip types without input and output usage
         continue;
+      } else if (modelType.serializationOptions.binary) {
+        // this is the TypeSpec.Http.File type used for binary payloads.
+        // we don't actually emit this model as we use io types instead.
+        continue;
       }
 
       if (modelType.discriminatedSubtypes) {
