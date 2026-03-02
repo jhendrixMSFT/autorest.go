@@ -53,6 +53,7 @@ const httpSpecsGroup = {
   'dictionarygroup': ['type/dictionary'],
   'extensiblegroup': ['type/enum/extensible'],
   'fixedgroup': ['type/enum/fixed'],
+  'filegroup': ['type/file'],
   'emptygroup': ['type/model/empty', 'single-client=true'],
   'enumdiscgroup': ['type/model/inheritance/enum-discriminator'],
   //'nesteddiscgroup': ['type/model/inheritance/nested-discriminator'], // not a real scenario

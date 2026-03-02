@@ -1080,33 +1080,48 @@ export class ClientAdapter {
       }
     }
 
-    // we have a response type, determine the content type
-    let contentType: go.BodyFormat | undefined;
-    if (sdkMethod.kind === 'lro' || sdkMethod.kind === 'lropaging') {
-      // we can't grovel through the operation responses for LROs as some of them
-      // return only headers, thus have no content type. while it's highly likely
-      // to only ever be JSON, this will be broken for LROs that return text/plain
-      // or a binary response. the former seems unlikely, the latter though...??
-      // TODO: https://github.com/Azure/typespec-azure/issues/535
-      contentType = 'JSON';
-    } else if (sdkResponseType.kind === 'bytes' && sdkResponseType.encode === 'bytes') {
-      // bytes type with bytes encoding indicates a streaming binary response
-      contentType = 'binary';
-    } else if (sdkResponseType.kind === 'union') {
-      // this is a multi-response operation, we assume the content-type to be JSON
-      contentType = 'JSON';
-    } else {
-      for (const httpResp of sdkMethod.operation.responses) {
-        if (!httpResp.type || !httpResp.defaultContentType || httpResp.type.kind !== sdkResponseType.kind) {
-          continue;
-        }
-        contentType = this.adaptContentType(httpResp.defaultContentType);
-        break;
-      }
-    }
+    // we have a response type, determine the content type.
+    // we default to JSON as it's the common case and what tcgc does.
+    let contentType: go.BodyFormat = 'JSON';
 
-    if (!contentType) {
-      throw new AdapterError('InternalError', `didn't find HTTP response for kind ${sdkResponseType.kind} in method ${method.name}`, sdkResponseType.__raw?.node);
+    switch (sdkResponseType.kind) {
+      case 'bytes':
+        if (sdkResponseType.encode === 'bytes') {
+          // legacy authoring for binary response
+          contentType = 'binary';
+        }
+        break;
+      case 'model':
+        if (sdkResponseType.serializationOptions.binary) {
+          if (sdkResponseType.serializationOptions.binary.isText) {
+            contentType = 'Text';
+          } else {
+            contentType = 'binary';
+          }
+        } else if (sdkResponseType.serializationOptions.xml) {
+          contentType = 'XML';
+        }
+        break;
+      case 'union':
+        // this is a multi-response operation, so we assume that the response
+        // types have uniform encodings and thus use the first model to determine
+        // the format.
+        const firstVariant = sdkResponseType.variantTypes[0];
+        if (firstVariant.kind === 'model' && firstVariant.serializationOptions.xml) {
+          contentType = 'XML';
+        }
+        break;
+      default:
+        // fall back to groveling through the operation responses for the content type.
+        // this should only be needed for operations that return text/plain but don't use
+        // the newer TypeSpec.Http.File type to model the response as such.
+        for (const httpResp of sdkMethod.operation.responses) {
+          if (!httpResp.type || !httpResp.defaultContentType || httpResp.type.kind !== sdkResponseType.kind) {
+            continue;
+          }
+          contentType = this.adaptContentType(httpResp.defaultContentType);
+          break;
+        }
     }
 
     if (contentType === 'binary') {
