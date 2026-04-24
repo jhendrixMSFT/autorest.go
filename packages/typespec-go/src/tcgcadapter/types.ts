@@ -248,6 +248,11 @@ export class TypeAdapter {
         if (helpers.isPolymorphicRoot(type) && substituteDiscriminator) {
           return this.getInterfaceType(type);
         } else if (helpers.isHttpFileType(type) || (type.baseModel && helpers.isHttpFileType(type.baseModel))) {
+          // Http.File type can only be binary or multipart/form
+          // so check which serialization option is set
+          if (type.serializationOptions.binary) {
+            return this.getReadSeekCloser(false);
+          }
           return this.getMultipartContent(false);
         }
         return this.getModel(type);
