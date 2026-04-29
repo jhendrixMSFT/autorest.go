@@ -116,7 +116,6 @@ func (client *AppendBlobClient) appendBlockCreateRequest(ctx context.Context, bo
 		req.Raw().Header["x-ms-structured-content-length"] = []string{strconv.FormatInt(*options.StructuredContentLength, 10)}
 	}
 	req.Raw().Header["x-ms-version"] = []string{defaultAppendBlobClientVersion}
-	req.Raw().Header["Content-Type"] = []string{"application/octet-stream"}
 	if err := req.SetBody(body, "application/octet-stream"); err != nil {
 		return nil, err
 	}

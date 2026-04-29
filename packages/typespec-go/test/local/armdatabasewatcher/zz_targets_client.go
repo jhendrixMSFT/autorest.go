@@ -99,7 +99,6 @@ func (client *TargetsClient) createOrUpdateCreateRequest(ctx context.Context, re
 	reqQP.Set("api-version", defaultTargetsClientVersion)
 	req.Raw().URL.RawQuery = reqQP.Encode()
 	req.Raw().Header["Accept"] = []string{"application/json"}
-	req.Raw().Header["Content-Type"] = []string{"application/json"}
 	if err := runtime.MarshalAsJSON(req, resource); err != nil {
 		return nil, err
 	}

@@ -98,7 +98,6 @@ func (client *XMLSimpleModelValueClient) putCreateRequest(ctx context.Context, i
 	if err != nil {
 		return nil, err
 	}
-	req.Raw().Header["Content-Type"] = []string{"application/xml"}
 	if err := runtime.MarshalAsXML(req, input); err != nil {
 		return nil, err
 	}

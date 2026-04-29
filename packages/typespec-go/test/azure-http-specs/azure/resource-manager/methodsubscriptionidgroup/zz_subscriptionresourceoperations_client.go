@@ -195,7 +195,6 @@ func (client *SubscriptionResourceOperationsClient) putCreateRequest(ctx context
 	reqQP.Set("api-version", defaultSubscriptionResourceOperationsClientVersion)
 	req.Raw().URL.RawQuery = reqQP.Encode()
 	req.Raw().Header["Accept"] = []string{"application/json"}
-	req.Raw().Header["Content-Type"] = []string{"application/json"}
 	if err := runtime.MarshalAsJSON(req, resource); err != nil {
 		return nil, err
 	}

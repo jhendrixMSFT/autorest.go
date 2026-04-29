@@ -100,7 +100,6 @@ func (client *WorkspacesClient) createOrUpdateCreateRequest(ctx context.Context,
 	reqQP.Set("api-version", defaultWorkspacesClientVersion)
 	req.Raw().URL.RawQuery = reqQP.Encode()
 	req.Raw().Header["Accept"] = []string{"application/json"}
-	req.Raw().Header["Content-Type"] = []string{"application/json"}
 	if err := runtime.MarshalAsJSON(req, payload); err != nil {
 		return nil, err
 	}

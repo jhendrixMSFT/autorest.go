@@ -100,7 +100,6 @@ func (client *TraitsClient) repeatableActionCreateRequest(ctx context.Context, i
 	if options != nil && options.RepeatabilityRequestID != nil {
 		req.Raw().Header["Repeatability-Request-ID"] = []string{*options.RepeatabilityRequestID}
 	}
-	req.Raw().Header["Content-Type"] = []string{"application/json"}
 	if err := runtime.MarshalAsJSON(req, body); err != nil {
 		return nil, err
 	}

@@ -114,7 +114,6 @@ func (client *AccountsClient) createCreateRequest(ctx context.Context, resourceG
 	reqQP.Set("api-version", defaultAccountsClientVersion)
 	req.Raw().URL.RawQuery = reqQP.Encode()
 	req.Raw().Header["Accept"] = []string{"application/json"}
-	req.Raw().Header["Content-Type"] = []string{"application/json"}
 	if err := runtime.MarshalAsJSON(req, account); err != nil {
 		return nil, err
 	}
@@ -665,7 +664,6 @@ func (client *AccountsClient) regenerateKeyCreateRequest(ctx context.Context, re
 	reqQP.Set("api-version", defaultAccountsClientVersion)
 	req.Raw().URL.RawQuery = reqQP.Encode()
 	req.Raw().Header["Accept"] = []string{"application/json"}
-	req.Raw().Header["Content-Type"] = []string{"application/json"}
 	if err := runtime.MarshalAsJSON(req, parameters); err != nil {
 		return nil, err
 	}
@@ -750,7 +748,6 @@ func (client *AccountsClient) updateCreateRequest(ctx context.Context, resourceG
 	reqQP.Set("api-version", defaultAccountsClientVersion)
 	req.Raw().URL.RawQuery = reqQP.Encode()
 	req.Raw().Header["Accept"] = []string{"application/json"}
-	req.Raw().Header["Content-Type"] = []string{"application/json"}
 	if err := runtime.MarshalAsJSON(req, account); err != nil {
 		return nil, err
 	}

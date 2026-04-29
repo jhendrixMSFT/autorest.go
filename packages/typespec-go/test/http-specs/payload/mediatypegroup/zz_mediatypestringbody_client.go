@@ -154,7 +154,6 @@ func (client *MediaTypeStringBodyClient) sendAsJSONCreateRequest(ctx context.Con
 	if err != nil {
 		return nil, err
 	}
-	req.Raw().Header["Content-Type"] = []string{"application/json"}
 	if err := runtime.MarshalAsJSON(req, textParam); err != nil {
 		return nil, err
 	}
@@ -194,7 +193,6 @@ func (client *MediaTypeStringBodyClient) sendAsTextCreateRequest(ctx context.Con
 		return nil, err
 	}
 	body := streaming.NopCloser(strings.NewReader(textParam))
-	req.Raw().Header["Content-Type"] = []string{"text/plain"}
 	if err := req.SetBody(body, "text/plain"); err != nil {
 		return nil, err
 	}

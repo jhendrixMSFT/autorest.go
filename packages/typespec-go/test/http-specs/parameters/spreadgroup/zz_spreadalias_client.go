@@ -59,7 +59,6 @@ func (client *SpreadAliasClient) spreadAsRequestBodyCreateRequest(ctx context.Co
 	}{
 		Name: name,
 	}
-	req.Raw().Header["Content-Type"] = []string{"application/json"}
 	if err := runtime.MarshalAsJSON(req, body); err != nil {
 		return nil, err
 	}
@@ -108,7 +107,6 @@ func (client *SpreadAliasClient) spreadAsRequestParameterCreateRequest(ctx conte
 	}{
 		Name: name,
 	}
-	req.Raw().Header["Content-Type"] = []string{"application/json"}
 	if err := runtime.MarshalAsJSON(req, body); err != nil {
 		return nil, err
 	}
@@ -161,7 +159,6 @@ func (client *SpreadAliasClient) spreadParameterWithInnerAliasCreateRequest(ctx 
 		Name: name,
 		Age:  age,
 	}
-	req.Raw().Header["Content-Type"] = []string{"application/json"}
 	if err := runtime.MarshalAsJSON(req, body); err != nil {
 		return nil, err
 	}
@@ -210,7 +207,6 @@ func (client *SpreadAliasClient) spreadParameterWithInnerModelCreateRequest(ctx 
 	}{
 		Name: name,
 	}
-	req.Raw().Header["Content-Type"] = []string{"application/json"}
 	if err := runtime.MarshalAsJSON(req, body); err != nil {
 		return nil, err
 	}
@@ -271,7 +267,6 @@ func (client *SpreadAliasClient) spreadWithMultipleParametersCreateRequest(ctx c
 	if options != nil && options.OptionalStringList != nil {
 		body.OptionalStringList = options.OptionalStringList
 	}
-	req.Raw().Header["Content-Type"] = []string{"application/json"}
 	if err := runtime.MarshalAsJSON(req, body); err != nil {
 		return nil, err
 	}

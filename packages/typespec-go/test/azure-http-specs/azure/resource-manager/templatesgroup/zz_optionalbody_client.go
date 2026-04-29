@@ -156,7 +156,6 @@ func (client *OptionalBodyClient) patchCreateRequest(ctx context.Context, resour
 	reqQP.Set("api-version", defaultOptionalBodyClientVersion)
 	req.Raw().URL.RawQuery = reqQP.Encode()
 	req.Raw().Header["Accept"] = []string{"application/json"}
-	req.Raw().Header["Content-Type"] = []string{"application/json"}
 	if err := runtime.MarshalAsJSON(req, properties); err != nil {
 		return nil, err
 	}
@@ -223,7 +222,6 @@ func (client *OptionalBodyClient) postCreateRequest(ctx context.Context, resourc
 	req.Raw().URL.RawQuery = reqQP.Encode()
 	req.Raw().Header["Accept"] = []string{"application/json"}
 	if options != nil && options.Body != nil {
-		req.Raw().Header["Content-Type"] = []string{"application/json"}
 		if err := runtime.MarshalAsJSON(req, *options.Body); err != nil {
 			return nil, err
 		}
@@ -283,7 +281,6 @@ func (client *OptionalBodyClient) providerPostCreateRequest(ctx context.Context,
 	req.Raw().URL.RawQuery = reqQP.Encode()
 	req.Raw().Header["Accept"] = []string{"application/json"}
 	if options != nil && options.Body != nil {
-		req.Raw().Header["Content-Type"] = []string{"application/json"}
 		if err := runtime.MarshalAsJSON(req, *options.Body); err != nil {
 			return nil, err
 		}

@@ -95,7 +95,6 @@ func (client *ManagedIdentityClient) createWithSystemAssignedCreateRequest(ctx c
 	reqQP.Set("api-version", defaultManagedIdentityClientVersion)
 	req.Raw().URL.RawQuery = reqQP.Encode()
 	req.Raw().Header["Accept"] = []string{"application/json"}
-	req.Raw().Header["Content-Type"] = []string{"application/json"}
 	if err := runtime.MarshalAsJSON(req, resource); err != nil {
 		return nil, err
 	}
@@ -225,7 +224,6 @@ func (client *ManagedIdentityClient) updateWithUserAssignedAndSystemAssignedCrea
 	reqQP.Set("api-version", defaultManagedIdentityClientVersion)
 	req.Raw().URL.RawQuery = reqQP.Encode()
 	req.Raw().Header["Accept"] = []string{"application/json"}
-	req.Raw().Header["Content-Type"] = []string{"application/json"}
 	if err := runtime.MarshalAsJSON(req, properties); err != nil {
 		return nil, err
 	}

@@ -91,7 +91,6 @@ func (client *ScheduledActionsClient) virtualMachinesCancelOperationsCreateReque
 	reqQP.Set("api-version", defaultScheduledActionsClientVersion)
 	req.Raw().URL.RawQuery = reqQP.Encode()
 	req.Raw().Header["Accept"] = []string{"application/json"}
-	req.Raw().Header["Content-Type"] = []string{"application/json"}
 	if err := runtime.MarshalAsJSON(req, requestBody); err != nil {
 		return nil, err
 	}
@@ -155,7 +154,6 @@ func (client *ScheduledActionsClient) virtualMachinesExecuteCreateCreateRequest(
 	reqQP.Set("api-version", defaultScheduledActionsClientVersion)
 	req.Raw().URL.RawQuery = reqQP.Encode()
 	req.Raw().Header["Accept"] = []string{"application/json"}
-	req.Raw().Header["Content-Type"] = []string{"application/json"}
 	if err := runtime.MarshalAsJSON(req, requestBody); err != nil {
 		return nil, err
 	}
@@ -219,7 +217,6 @@ func (client *ScheduledActionsClient) virtualMachinesExecuteDeallocateCreateRequ
 	reqQP.Set("api-version", defaultScheduledActionsClientVersion)
 	req.Raw().URL.RawQuery = reqQP.Encode()
 	req.Raw().Header["Accept"] = []string{"application/json"}
-	req.Raw().Header["Content-Type"] = []string{"application/json"}
 	if err := runtime.MarshalAsJSON(req, requestBody); err != nil {
 		return nil, err
 	}
@@ -283,7 +280,6 @@ func (client *ScheduledActionsClient) virtualMachinesExecuteDeleteCreateRequest(
 	reqQP.Set("api-version", defaultScheduledActionsClientVersion)
 	req.Raw().URL.RawQuery = reqQP.Encode()
 	req.Raw().Header["Accept"] = []string{"application/json"}
-	req.Raw().Header["Content-Type"] = []string{"application/json"}
 	if err := runtime.MarshalAsJSON(req, requestBody); err != nil {
 		return nil, err
 	}
@@ -347,7 +343,6 @@ func (client *ScheduledActionsClient) virtualMachinesExecuteHibernateCreateReque
 	reqQP.Set("api-version", defaultScheduledActionsClientVersion)
 	req.Raw().URL.RawQuery = reqQP.Encode()
 	req.Raw().Header["Accept"] = []string{"application/json"}
-	req.Raw().Header["Content-Type"] = []string{"application/json"}
 	if err := runtime.MarshalAsJSON(req, requestBody); err != nil {
 		return nil, err
 	}
@@ -411,7 +406,6 @@ func (client *ScheduledActionsClient) virtualMachinesExecuteStartCreateRequest(c
 	reqQP.Set("api-version", defaultScheduledActionsClientVersion)
 	req.Raw().URL.RawQuery = reqQP.Encode()
 	req.Raw().Header["Accept"] = []string{"application/json"}
-	req.Raw().Header["Content-Type"] = []string{"application/json"}
 	if err := runtime.MarshalAsJSON(req, requestBody); err != nil {
 		return nil, err
 	}
@@ -475,7 +469,6 @@ func (client *ScheduledActionsClient) virtualMachinesGetOperationErrorsCreateReq
 	reqQP.Set("api-version", defaultScheduledActionsClientVersion)
 	req.Raw().URL.RawQuery = reqQP.Encode()
 	req.Raw().Header["Accept"] = []string{"application/json"}
-	req.Raw().Header["Content-Type"] = []string{"application/json"}
 	if err := runtime.MarshalAsJSON(req, requestBody); err != nil {
 		return nil, err
 	}
@@ -539,7 +532,6 @@ func (client *ScheduledActionsClient) virtualMachinesGetOperationStatusCreateReq
 	reqQP.Set("api-version", defaultScheduledActionsClientVersion)
 	req.Raw().URL.RawQuery = reqQP.Encode()
 	req.Raw().Header["Accept"] = []string{"application/json"}
-	req.Raw().Header["Content-Type"] = []string{"application/json"}
 	if err := runtime.MarshalAsJSON(req, requestBody); err != nil {
 		return nil, err
 	}
@@ -603,7 +595,6 @@ func (client *ScheduledActionsClient) virtualMachinesSubmitDeallocateCreateReque
 	reqQP.Set("api-version", defaultScheduledActionsClientVersion)
 	req.Raw().URL.RawQuery = reqQP.Encode()
 	req.Raw().Header["Accept"] = []string{"application/json"}
-	req.Raw().Header["Content-Type"] = []string{"application/json"}
 	if err := runtime.MarshalAsJSON(req, requestBody); err != nil {
 		return nil, err
 	}
@@ -667,7 +658,6 @@ func (client *ScheduledActionsClient) virtualMachinesSubmitHibernateCreateReques
 	reqQP.Set("api-version", defaultScheduledActionsClientVersion)
 	req.Raw().URL.RawQuery = reqQP.Encode()
 	req.Raw().Header["Accept"] = []string{"application/json"}
-	req.Raw().Header["Content-Type"] = []string{"application/json"}
 	if err := runtime.MarshalAsJSON(req, requestBody); err != nil {
 		return nil, err
 	}
@@ -731,7 +721,6 @@ func (client *ScheduledActionsClient) virtualMachinesSubmitStartCreateRequest(ct
 	reqQP.Set("api-version", defaultScheduledActionsClientVersion)
 	req.Raw().URL.RawQuery = reqQP.Encode()
 	req.Raw().Header["Accept"] = []string{"application/json"}
-	req.Raw().Header["Content-Type"] = []string{"application/json"}
 	if err := runtime.MarshalAsJSON(req, requestBody); err != nil {
 		return nil, err
 	}

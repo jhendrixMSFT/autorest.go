@@ -100,7 +100,6 @@ func (client *AlertRuleResourcesClient) createOrUpdateCreateRequest(ctx context.
 	reqQP.Set("api-version", defaultAlertRuleResourcesClientVersion)
 	req.Raw().URL.RawQuery = reqQP.Encode()
 	req.Raw().Header["Accept"] = []string{"application/json"}
-	req.Raw().Header["Content-Type"] = []string{"application/json"}
 	if err := runtime.MarshalAsJSON(req, resource); err != nil {
 		return nil, err
 	}

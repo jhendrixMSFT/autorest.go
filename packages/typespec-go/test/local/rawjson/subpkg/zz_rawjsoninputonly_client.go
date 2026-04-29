@@ -52,7 +52,6 @@ func (client *RawJSONInputOnlyClient) putCreateRequest(ctx context.Context, body
 	if err != nil {
 		return nil, err
 	}
-	req.Raw().Header["Content-Type"] = []string{"application/json"}
 	if err := req.SetBody(streaming.NopCloser(bytes.NewReader(body)), "application/json"); err != nil {
 		return nil, err
 	}

@@ -51,7 +51,6 @@ func (client *NamingUnionEnumClient) unionEnumMemberNameCreateRequest(ctx contex
 	if err != nil {
 		return nil, err
 	}
-	req.Raw().Header["Content-Type"] = []string{"application/json"}
 	if err := runtime.MarshalAsJSON(req, body); err != nil {
 		return nil, err
 	}
@@ -90,7 +89,6 @@ func (client *NamingUnionEnumClient) unionEnumNameCreateRequest(ctx context.Cont
 	if err != nil {
 		return nil, err
 	}
-	req.Raw().Header["Content-Type"] = []string{"application/json"}
 	if err := runtime.MarshalAsJSON(req, body); err != nil {
 		return nil, err
 	}

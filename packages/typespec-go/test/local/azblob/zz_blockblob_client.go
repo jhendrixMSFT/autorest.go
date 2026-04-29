@@ -150,7 +150,6 @@ func (client *BlockBlobClient) commitBlockListCreateRequest(ctx context.Context,
 		req.Raw().Header["x-ms-tags"] = []string{*options.BlobTagsString}
 	}
 	req.Raw().Header["x-ms-version"] = []string{defaultBlockBlobClientVersion}
-	req.Raw().Header["Content-Type"] = []string{"application/xml"}
 	if err := runtime.MarshalAsXML(req, blocks); err != nil {
 		return nil, err
 	}
@@ -386,7 +385,6 @@ func (client *BlockBlobClient) queryCreateRequest(ctx context.Context, queryRequ
 		req.Raw().Header["x-ms-lease-id"] = []string{*options.LeaseID}
 	}
 	req.Raw().Header["x-ms-version"] = []string{defaultBlockBlobClientVersion}
-	req.Raw().Header["Content-Type"] = []string{"application/xml"}
 	if err := runtime.MarshalAsXML(req, queryRequest); err != nil {
 		return nil, err
 	}
@@ -615,7 +613,6 @@ func (client *BlockBlobClient) stageBlockCreateRequest(ctx context.Context, bloc
 		req.Raw().Header["x-ms-structured-content-length"] = []string{strconv.FormatInt(*options.StructuredContentLength, 10)}
 	}
 	req.Raw().Header["x-ms-version"] = []string{defaultBlockBlobClientVersion}
-	req.Raw().Header["Content-Type"] = []string{"application/octet-stream"}
 	if err := req.SetBody(body, "application/octet-stream"); err != nil {
 		return nil, err
 	}
@@ -949,7 +946,6 @@ func (client *BlockBlobClient) uploadCreateRequest(ctx context.Context, body io.
 		req.Raw().Header["x-ms-tags"] = []string{*options.BlobTagsString}
 	}
 	req.Raw().Header["x-ms-version"] = []string{defaultBlockBlobClientVersion}
-	req.Raw().Header["Content-Type"] = []string{"application/octet-stream"}
 	if err := req.SetBody(body, "application/octet-stream"); err != nil {
 		return nil, err
 	}

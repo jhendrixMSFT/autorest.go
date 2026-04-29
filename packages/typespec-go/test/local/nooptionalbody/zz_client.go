@@ -70,7 +70,6 @@ func (client *Client) patchCreateRequest(ctx context.Context, body Widget, _ *Cl
 	if err != nil {
 		return nil, err
 	}
-	req.Raw().Header["Content-Type"] = []string{"application/json"}
 	if err := runtime.MarshalAsJSON(req, body); err != nil {
 		return nil, err
 	}
@@ -106,7 +105,6 @@ func (client *Client) postCreateRequest(ctx context.Context, options *ClientPost
 		return nil, err
 	}
 	if options != nil && options.Body != nil {
-		req.Raw().Header["Content-Type"] = []string{"application/json"}
 		if err := runtime.MarshalAsJSON(req, *options.Body); err != nil {
 			return nil, err
 		}
@@ -143,7 +141,6 @@ func (client *Client) putCreateRequest(ctx context.Context, body Widget, _ *Clie
 	if err != nil {
 		return nil, err
 	}
-	req.Raw().Header["Content-Type"] = []string{"application/json"}
 	if err := runtime.MarshalAsJSON(req, body); err != nil {
 		return nil, err
 	}

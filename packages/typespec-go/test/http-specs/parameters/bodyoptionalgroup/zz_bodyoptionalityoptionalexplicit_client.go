@@ -52,7 +52,6 @@ func (client *BodyOptionalityOptionalExplicitClient) omitCreateRequest(ctx conte
 		return nil, err
 	}
 	if options != nil && options.Body != nil {
-		req.Raw().Header["Content-Type"] = []string{"application/json"}
 		if err := runtime.MarshalAsJSON(req, *options.Body); err != nil {
 			return nil, err
 		}
@@ -94,7 +93,6 @@ func (client *BodyOptionalityOptionalExplicitClient) setCreateRequest(ctx contex
 		return nil, err
 	}
 	if options != nil && options.Body != nil {
-		req.Raw().Header["Content-Type"] = []string{"application/json"}
 		if err := runtime.MarshalAsJSON(req, *options.Body); err != nil {
 			return nil, err
 		}

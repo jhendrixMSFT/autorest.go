@@ -221,7 +221,6 @@ func (client *SavingsPlanModelsClient) updateCreateRequest(ctx context.Context, 
 	reqQP.Set("api-version", defaultSavingsPlanModelsClientVersion)
 	req.Raw().URL.RawQuery = reqQP.Encode()
 	req.Raw().Header["Accept"] = []string{"application/json"}
-	req.Raw().Header["Content-Type"] = []string{"application/json"}
 	if err := runtime.MarshalAsJSON(req, body); err != nil {
 		return nil, err
 	}
@@ -276,7 +275,6 @@ func (client *SavingsPlanModelsClient) validateUpdateCreateRequest(ctx context.C
 	reqQP.Set("api-version", defaultSavingsPlanModelsClientVersion)
 	req.Raw().URL.RawQuery = reqQP.Encode()
 	req.Raw().Header["Accept"] = []string{"application/json"}
-	req.Raw().Header["Content-Type"] = []string{"application/json"}
 	if err := runtime.MarshalAsJSON(req, body); err != nil {
 		return nil, err
 	}

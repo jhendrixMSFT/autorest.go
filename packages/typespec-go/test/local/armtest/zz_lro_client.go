@@ -113,7 +113,6 @@ func (client *LROClient) okResponseWithAsyncHeaderCreateRequest(ctx context.Cont
 	reqQP.Set("api-version", defaultLROClientVersion)
 	req.Raw().URL.RawQuery = reqQP.Encode()
 	req.Raw().Header["Accept"] = []string{"application/json"}
-	req.Raw().Header["Content-Type"] = []string{"application/json"}
 	if err := runtime.MarshalAsJSON(req, resource); err != nil {
 		return nil, err
 	}
@@ -189,7 +188,6 @@ func (client *LROClient) scalarResultCreateRequest(ctx context.Context, resource
 	reqQP.Set("api-version", defaultLROClientVersion)
 	req.Raw().URL.RawQuery = reqQP.Encode()
 	req.Raw().Header["Accept"] = []string{"text/plain"}
-	req.Raw().Header["Content-Type"] = []string{"application/json"}
 	if err := runtime.MarshalAsJSON(req, body); err != nil {
 		return nil, err
 	}

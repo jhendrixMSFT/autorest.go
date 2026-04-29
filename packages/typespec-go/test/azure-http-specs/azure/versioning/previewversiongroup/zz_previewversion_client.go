@@ -203,7 +203,6 @@ func (client *PreviewVersionClient) updateWidgetColorCreateRequest(ctx context.C
 	reqQP.Set("api-version", defaultPreviewVersionClientVersion)
 	req.Raw().URL.RawQuery = reqQP.Encode()
 	req.Raw().Header["Accept"] = []string{"application/json"}
-	req.Raw().Header["Content-Type"] = []string{"application/merge-patch+json"}
 	if err := runtime.MarshalAsJSON(req, colorUpdate); err != nil {
 		return nil, err
 	}

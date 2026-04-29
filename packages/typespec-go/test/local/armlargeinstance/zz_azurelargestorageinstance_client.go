@@ -96,7 +96,6 @@ func (client *AzureLargeStorageInstanceClient) createCreateRequest(ctx context.C
 	reqQP.Set("api-version", defaultAzureLargeStorageInstanceClientVersion)
 	req.Raw().URL.RawQuery = reqQP.Encode()
 	req.Raw().Header["Accept"] = []string{"application/json"}
-	req.Raw().Header["Content-Type"] = []string{"application/json"}
 	if err := runtime.MarshalAsJSON(req, resource); err != nil {
 		return nil, err
 	}
@@ -396,7 +395,6 @@ func (client *AzureLargeStorageInstanceClient) updateCreateRequest(ctx context.C
 	reqQP.Set("api-version", defaultAzureLargeStorageInstanceClientVersion)
 	req.Raw().URL.RawQuery = reqQP.Encode()
 	req.Raw().Header["Accept"] = []string{"application/json"}
-	req.Raw().Header["Content-Type"] = []string{"application/json"}
 	if err := runtime.MarshalAsJSON(req, properties); err != nil {
 		return nil, err
 	}

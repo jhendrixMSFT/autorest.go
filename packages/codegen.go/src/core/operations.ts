@@ -1248,22 +1248,25 @@ function createProtocolRequest(azureARM: boolean, method: go.MethodType | go.Nex
     }
   };
 
-  let contentType: string | undefined;
   for (const param of methodParamGroups.headerParams.sort((a: go.HeaderParameter, b: go.HeaderParameter) => {
     return helpers.sortAscending(a.headerName, b.headerName);
   })) {
-    if (param.headerName.match(/^content-type$/)) {
-      // canonicalize content-type as req.SetBody checks for it via its canonicalized name :(
+    if (param.headerName.match(/^content-type$/i)) {
+      // canonicalize content-type
       param.headerName = 'Content-Type';
+
+      if (go.isClientSideDefault(param.style)) {
+        text += emitClientSideDefault(param as go.HeaderScalarParameter, param.style, () => '', imports, indent);
+      }
+      // content-type is set via whatever runtime helper is being
+      // called. e.g. runtime.MarshalAsJSON() sets it for us. for
+      // runtime.SetBody(), the content type is either a literal
+      // which is the second arg, or a discrete parameter. either
+      // way, there's no need to set it in the emitted code.
+      continue;
     }
 
-    if (param.headerName === 'Content-Type' && param.style === 'literal') {
-      // the content-type header will be set as part of emitSetBodyWithErrCheck
-      // to handle cases where the body param is optional. we don't want to set
-      // the content-type if the body is nil.
-      // we do it like this as tsp specifies content-type while swagger does not.
-      contentType = helpers.formatParamValue(param, imports, indent);
-    } else if (go.isRequiredParameter(param.style) || go.isLiteralParameter(param.style) || go.isClientSideDefault(param.style)) {
+    if (go.isRequiredParameter(param.style) || go.isLiteralParameter(param.style) || go.isClientSideDefault(param.style)) {
       text += emitHeaderSet(param);
     } else if (param.location === 'client' && !param.group) {
       // global optional param
@@ -1287,11 +1290,8 @@ function createProtocolRequest(azureARM: boolean, method: go.MethodType | go.Nex
   const multipartBodyParams = methodParamGroups.multipartBodyParams;
   const partialBodyParams = methodParamGroups.partialBodyParams;
 
-  const emitSetBodyWithErrCheck = function (setBodyParam: string, contentType?: string): string {
+  const emitSetBodyWithErrCheck = function (setBodyParam: string): string {
     let content = '';
-    if (contentType) {
-      content += `${indent.get()}req.Raw().Header["Content-Type"] = []string{${contentType}}\n`;
-    }
     content += `${indent.get()}if err := ${setBodyParam}; err != nil {\n`;
     content += `${indent.push().get()}return nil, err\n`;
     content += `${indent.pop().get()}}\n`;
@@ -1308,6 +1308,9 @@ function createProtocolRequest(azureARM: boolean, method: go.MethodType | go.Nex
           // find the param
           for (const param of method.parameters) {
             if (param.kind === 'headerScalarParam' && param.name === src.name) {
+              if (go.isClientSideDefault(param.style)) {
+                return naming.uncapitalize(param.name) + 'Default';
+              }
               let paramName = helpers.getParamName(param);
               if (param.type.kind === 'constant') {
                 paramName = `string(${paramName})`;
@@ -1383,12 +1386,12 @@ function createProtocolRequest(azureARM: boolean, method: go.MethodType | go.Nex
         setBody = `req.SetBody(streaming.NopCloser(bytes.NewReader(${body})), "application/${bodyParam.bodyFormat.toLowerCase()}")`;
       }
       if (go.isRequiredParameter(bodyParam.style) || go.isLiteralParameter(bodyParam.style)) {
-        text += emitSetBodyWithErrCheck(setBody, contentType);
+        text += emitSetBodyWithErrCheck(setBody);
         text += `${indent.get()}return req, nil\n`;
       } else {
         text += emitParamGroupCheck(bodyParam);
         indent.push();
-        text += emitSetBodyWithErrCheck(setBody, contentType);
+        text += emitSetBodyWithErrCheck(setBody);
         text += `${indent.get()}return req, nil\n`;
         indent.pop();
         text += `${indent.get()}}\n`;
@@ -1396,12 +1399,12 @@ function createProtocolRequest(azureARM: boolean, method: go.MethodType | go.Nex
       }
     } else if (bodyParam.bodyFormat === 'binary') {
       if (go.isRequiredParameter(bodyParam.style)) {
-        text += emitSetBodyWithErrCheck(`req.SetBody(${bodyParam.name}, ${getContentTypeValue(bodyParam.contentType)})`, contentType);
+        text += emitSetBodyWithErrCheck(`req.SetBody(${bodyParam.name}, ${getContentTypeValue(bodyParam.contentType)})`);
         text += `${indent.get()}return req, nil\n`;
       } else {
         text += emitParamGroupCheck(bodyParam);
         indent.push();
-        text += emitSetBodyWithErrCheck(`req.SetBody(${helpers.getParamName(bodyParam)}, ${getContentTypeValue(bodyParam.contentType)})`, contentType);
+        text += emitSetBodyWithErrCheck(`req.SetBody(${helpers.getParamName(bodyParam)}, ${getContentTypeValue(bodyParam.contentType)})`);
         text += `${indent.get()}return req, nil\n`;
         indent.pop();
         text += `${indent.get()}}\n`;
@@ -1412,13 +1415,13 @@ function createProtocolRequest(azureARM: boolean, method: go.MethodType | go.Nex
       imports.add('github.com/Azure/azure-sdk-for-go/sdk/azcore/streaming');
       if (go.isRequiredParameter(bodyParam.style)) {
         text += `${indent.get()}body := streaming.NopCloser(strings.NewReader(${bodyParam.name}))\n`;
-        text += emitSetBodyWithErrCheck(`req.SetBody(body, ${getContentTypeValue(bodyParam.contentType)})`, contentType);
+        text += emitSetBodyWithErrCheck(`req.SetBody(body, ${getContentTypeValue(bodyParam.contentType)})`);
         text += `${indent.get()}return req, nil\n`;
       } else {
         text += emitParamGroupCheck(bodyParam);
         indent.push();
         text += `${indent.get()}body := streaming.NopCloser(strings.NewReader(${helpers.getParamName(bodyParam)}))\n`;
-        text += emitSetBodyWithErrCheck(`req.SetBody(body, ${getContentTypeValue(bodyParam.contentType)})`, contentType);
+        text += emitSetBodyWithErrCheck(`req.SetBody(body, ${getContentTypeValue(bodyParam.contentType)})`);
         text += `${indent.get()}return req, nil\n`;
         indent.pop();
         text += `${indent.get()}}\n`;
@@ -1453,7 +1456,6 @@ function createProtocolRequest(azureARM: boolean, method: go.MethodType | go.Nex
       }
     }
     // TODO: spread params are JSON only https://github.com/Azure/autorest.go/issues/1455
-    text += `${indent.get()}req.Raw().Header["Content-Type"] = []string{"application/json"}\n`;
     text += `${indent.get()}if err := runtime.MarshalAsJSON(req, body); err != nil {\n`;
     text += `${indent.push().get()}return nil, err\n`;
     text += `${indent.pop().get()}}\n`;
@@ -1549,7 +1551,13 @@ function emitClientSideDefault(
       break;
   }
 
-  text += setterFormat(`"${serializedName}"`, helpers.formatValue(defaultVar, param.type, imports)) + '\n';
+  const setterFormatText = setterFormat(`"${serializedName}"`, helpers.formatValue(defaultVar, param.type, imports));
+  text += setterFormatText;
+  // setterFormat can return the empty string in some cases.
+  // if it does, there's no need for an extra new-line char.
+  if (setterFormatText.length > 0) {
+    text += '\n';
+  }
   return text;
 }
 

@@ -114,7 +114,6 @@ func (client *PoolsClient) createOrUpdateCreateRequest(ctx context.Context, reso
 	reqQP.Set("api-version", defaultPoolsClientVersion)
 	req.Raw().URL.RawQuery = reqQP.Encode()
 	req.Raw().Header["Accept"] = []string{"application/json"}
-	req.Raw().Header["Content-Type"] = []string{"application/json"}
 	if err := runtime.MarshalAsJSON(req, resource); err != nil {
 		return nil, err
 	}
@@ -433,7 +432,6 @@ func (client *PoolsClient) updateCreateRequest(ctx context.Context, resourceGrou
 	reqQP.Set("api-version", defaultPoolsClientVersion)
 	req.Raw().URL.RawQuery = reqQP.Encode()
 	req.Raw().Header["Accept"] = []string{"application/json"}
-	req.Raw().Header["Content-Type"] = []string{"application/json"}
 	if err := runtime.MarshalAsJSON(req, properties); err != nil {
 		return nil, err
 	}

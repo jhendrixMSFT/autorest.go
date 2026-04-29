@@ -142,7 +142,6 @@ func (client *NullableBytesClient) patchNonNullCreateRequest(ctx context.Context
 	if err != nil {
 		return nil, err
 	}
-	req.Raw().Header["Content-Type"] = []string{"application/merge-patch+json"}
 	if err := runtime.MarshalAsJSON(req, body); err != nil {
 		return nil, err
 	}
@@ -180,7 +179,6 @@ func (client *NullableBytesClient) patchNullCreateRequest(ctx context.Context, b
 	if err != nil {
 		return nil, err
 	}
-	req.Raw().Header["Content-Type"] = []string{"application/merge-patch+json"}
 	if err := runtime.MarshalAsJSON(req, body); err != nil {
 		return nil, err
 	}

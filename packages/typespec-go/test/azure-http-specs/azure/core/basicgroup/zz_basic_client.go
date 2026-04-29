@@ -95,7 +95,6 @@ func (client *BasicClient) createOrReplaceCreateRequest(ctx context.Context, id 
 	reqQP.Set("api-version", defaultBasicClientVersion)
 	req.Raw().URL.RawQuery = reqQP.Encode()
 	req.Raw().Header["Accept"] = []string{"application/json"}
-	req.Raw().Header["Content-Type"] = []string{"application/json"}
 	if err := runtime.MarshalAsJSON(req, resource); err != nil {
 		return nil, err
 	}
@@ -152,7 +151,6 @@ func (client *BasicClient) createOrUpdateCreateRequest(ctx context.Context, id i
 	reqQP.Set("api-version", defaultBasicClientVersion)
 	req.Raw().URL.RawQuery = reqQP.Encode()
 	req.Raw().Header["Accept"] = []string{"application/json"}
-	req.Raw().Header["Content-Type"] = []string{"application/merge-patch+json"}
 	if err := runtime.MarshalAsJSON(req, resource); err != nil {
 		return nil, err
 	}

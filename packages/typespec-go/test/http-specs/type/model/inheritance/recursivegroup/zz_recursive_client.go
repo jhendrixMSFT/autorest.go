@@ -118,7 +118,6 @@ func (client *RecursiveClient) putCreateRequest(ctx context.Context, input Exten
 	if err != nil {
 		return nil, err
 	}
-	req.Raw().Header["Content-Type"] = []string{"application/json"}
 	if err := runtime.MarshalAsJSON(req, input); err != nil {
 		return nil, err
 	}

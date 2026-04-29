@@ -304,7 +304,6 @@ func (client *SingleDiscriminatorClient) putModelCreateRequest(ctx context.Conte
 	if err != nil {
 		return nil, err
 	}
-	req.Raw().Header["Content-Type"] = []string{"application/json"}
 	if err := runtime.MarshalAsJSON(req, input); err != nil {
 		return nil, err
 	}
@@ -343,7 +342,6 @@ func (client *SingleDiscriminatorClient) putRecursiveModelCreateRequest(ctx cont
 	if err != nil {
 		return nil, err
 	}
-	req.Raw().Header["Content-Type"] = []string{"application/json"}
 	if err := runtime.MarshalAsJSON(req, input); err != nil {
 		return nil, err
 	}

@@ -73,7 +73,6 @@ func (client *UsageClient) inputCreateRequest(ctx context.Context, input InputRe
 	if err != nil {
 		return nil, err
 	}
-	req.Raw().Header["Content-Type"] = []string{"application/json"}
 	if err := runtime.MarshalAsJSON(req, input); err != nil {
 		return nil, err
 	}
@@ -113,7 +112,6 @@ func (client *UsageClient) inputAndOutputCreateRequest(ctx context.Context, body
 		return nil, err
 	}
 	req.Raw().Header["Accept"] = []string{"application/json"}
-	req.Raw().Header["Content-Type"] = []string{"application/json"}
 	if err := runtime.MarshalAsJSON(req, body); err != nil {
 		return nil, err
 	}

@@ -128,7 +128,6 @@ func (client *ProjectCapabilityHostsClient) createOrUpdateCreateRequest(ctx cont
 	reqQP.Set("api-version", defaultProjectCapabilityHostsClientVersion)
 	req.Raw().URL.RawQuery = reqQP.Encode()
 	req.Raw().Header["Accept"] = []string{"application/json"}
-	req.Raw().Header["Content-Type"] = []string{"application/json"}
 	if err := runtime.MarshalAsJSON(req, capabilityHost); err != nil {
 		return nil, err
 	}

@@ -90,7 +90,6 @@ func (client *MongoClustersClient) checkNameAvailabilityCreateRequest(ctx contex
 	reqQP.Set("api-version", defaultMongoClustersClientVersion)
 	req.Raw().URL.RawQuery = reqQP.Encode()
 	req.Raw().Header["Accept"] = []string{"application/json"}
-	req.Raw().Header["Content-Type"] = []string{"application/json"}
 	if err := runtime.MarshalAsJSON(req, body); err != nil {
 		return nil, err
 	}
@@ -179,7 +178,6 @@ func (client *MongoClustersClient) createOrUpdateCreateRequest(ctx context.Conte
 	reqQP.Set("api-version", defaultMongoClustersClientVersion)
 	req.Raw().URL.RawQuery = reqQP.Encode()
 	req.Raw().Header["Accept"] = []string{"application/json"}
-	req.Raw().Header["Content-Type"] = []string{"application/json"}
 	if err := runtime.MarshalAsJSON(req, resource); err != nil {
 		return nil, err
 	}
@@ -562,7 +560,6 @@ func (client *MongoClustersClient) promoteCreateRequest(ctx context.Context, res
 	reqQP := req.Raw().URL.Query()
 	reqQP.Set("api-version", defaultMongoClustersClientVersion)
 	req.Raw().URL.RawQuery = reqQP.Encode()
-	req.Raw().Header["Content-Type"] = []string{"application/json"}
 	if err := runtime.MarshalAsJSON(req, body); err != nil {
 		return nil, err
 	}
@@ -641,7 +638,6 @@ func (client *MongoClustersClient) updateCreateRequest(ctx context.Context, reso
 	reqQP.Set("api-version", defaultMongoClustersClientVersion)
 	req.Raw().URL.RawQuery = reqQP.Encode()
 	req.Raw().Header["Accept"] = []string{"application/json"}
-	req.Raw().Header["Content-Type"] = []string{"application/json"}
 	if err := runtime.MarshalAsJSON(req, properties); err != nil {
 		return nil, err
 	}

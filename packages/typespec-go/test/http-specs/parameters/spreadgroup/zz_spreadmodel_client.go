@@ -59,7 +59,6 @@ func (client *SpreadModelClient) spreadAsRequestBodyCreateRequest(ctx context.Co
 	}{
 		Name: name,
 	}
-	req.Raw().Header["Content-Type"] = []string{"application/json"}
 	if err := runtime.MarshalAsJSON(req, body); err != nil {
 		return nil, err
 	}
@@ -103,7 +102,6 @@ func (client *SpreadModelClient) spreadCompositeRequestCreateRequest(ctx context
 		return nil, err
 	}
 	req.Raw().Header["test-header"] = []string{testHeader}
-	req.Raw().Header["Content-Type"] = []string{"application/json"}
 	if err := runtime.MarshalAsJSON(req, body); err != nil {
 		return nil, err
 	}
@@ -152,7 +150,6 @@ func (client *SpreadModelClient) spreadCompositeRequestMixCreateRequest(ctx cont
 	}{
 		Prop: prop,
 	}
-	req.Raw().Header["Content-Type"] = []string{"application/json"}
 	if err := runtime.MarshalAsJSON(req, body); err != nil {
 		return nil, err
 	}
@@ -191,7 +188,6 @@ func (client *SpreadModelClient) spreadCompositeRequestOnlyWithBodyCreateRequest
 	if err != nil {
 		return nil, err
 	}
-	req.Raw().Header["Content-Type"] = []string{"application/json"}
 	if err := runtime.MarshalAsJSON(req, body); err != nil {
 		return nil, err
 	}

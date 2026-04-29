@@ -120,7 +120,6 @@ func (client *NotDiscriminatedClient) postValidCreateRequest(ctx context.Context
 	if err != nil {
 		return nil, err
 	}
-	req.Raw().Header["Content-Type"] = []string{"application/json"}
 	if err := runtime.MarshalAsJSON(req, input); err != nil {
 		return nil, err
 	}
@@ -161,7 +160,6 @@ func (client *NotDiscriminatedClient) putValidCreateRequest(ctx context.Context,
 		return nil, err
 	}
 	req.Raw().Header["Accept"] = []string{"application/json"}
-	req.Raw().Header["Content-Type"] = []string{"application/json"}
 	if err := runtime.MarshalAsJSON(req, input); err != nil {
 		return nil, err
 	}

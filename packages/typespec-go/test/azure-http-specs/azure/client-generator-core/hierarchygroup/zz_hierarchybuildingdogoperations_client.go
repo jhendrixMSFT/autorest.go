@@ -53,7 +53,6 @@ func (client *HierarchyBuildingDogOperationsClient) updateDogAsDogCreateRequest(
 		return nil, err
 	}
 	req.Raw().Header["Accept"] = []string{"application/json"}
-	req.Raw().Header["Content-Type"] = []string{"application/json"}
 	if err := runtime.MarshalAsJSON(req, dog); err != nil {
 		return nil, err
 	}

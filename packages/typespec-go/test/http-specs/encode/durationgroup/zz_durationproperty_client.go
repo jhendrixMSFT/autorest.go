@@ -53,7 +53,6 @@ func (client *DurationPropertyClient) defaultCreateRequest(ctx context.Context, 
 		return nil, err
 	}
 	req.Raw().Header["Accept"] = []string{"application/json"}
-	req.Raw().Header["Content-Type"] = []string{"application/json"}
 	if err := runtime.MarshalAsJSON(req, body); err != nil {
 		return nil, err
 	}
@@ -103,7 +102,6 @@ func (client *DurationPropertyClient) float64MillisecondsCreateRequest(ctx conte
 		return nil, err
 	}
 	req.Raw().Header["Accept"] = []string{"application/json"}
-	req.Raw().Header["Content-Type"] = []string{"application/json"}
 	if err := runtime.MarshalAsJSON(req, body); err != nil {
 		return nil, err
 	}
@@ -153,7 +151,6 @@ func (client *DurationPropertyClient) float64SecondsCreateRequest(ctx context.Co
 		return nil, err
 	}
 	req.Raw().Header["Accept"] = []string{"application/json"}
-	req.Raw().Header["Content-Type"] = []string{"application/json"}
 	if err := runtime.MarshalAsJSON(req, body); err != nil {
 		return nil, err
 	}
@@ -203,7 +200,6 @@ func (client *DurationPropertyClient) floatMillisecondsCreateRequest(ctx context
 		return nil, err
 	}
 	req.Raw().Header["Accept"] = []string{"application/json"}
-	req.Raw().Header["Content-Type"] = []string{"application/json"}
 	if err := runtime.MarshalAsJSON(req, body); err != nil {
 		return nil, err
 	}
@@ -253,7 +249,6 @@ func (client *DurationPropertyClient) floatMillisecondsArrayCreateRequest(ctx co
 		return nil, err
 	}
 	req.Raw().Header["Accept"] = []string{"application/json"}
-	req.Raw().Header["Content-Type"] = []string{"application/json"}
 	if err := runtime.MarshalAsJSON(req, body); err != nil {
 		return nil, err
 	}
@@ -303,7 +298,6 @@ func (client *DurationPropertyClient) floatMillisecondsLargerUnitCreateRequest(c
 		return nil, err
 	}
 	req.Raw().Header["Accept"] = []string{"application/json"}
-	req.Raw().Header["Content-Type"] = []string{"application/json"}
 	if err := runtime.MarshalAsJSON(req, body); err != nil {
 		return nil, err
 	}
@@ -353,7 +347,6 @@ func (client *DurationPropertyClient) floatSecondsCreateRequest(ctx context.Cont
 		return nil, err
 	}
 	req.Raw().Header["Accept"] = []string{"application/json"}
-	req.Raw().Header["Content-Type"] = []string{"application/json"}
 	if err := runtime.MarshalAsJSON(req, body); err != nil {
 		return nil, err
 	}
@@ -403,7 +396,6 @@ func (client *DurationPropertyClient) floatSecondsArrayCreateRequest(ctx context
 		return nil, err
 	}
 	req.Raw().Header["Accept"] = []string{"application/json"}
-	req.Raw().Header["Content-Type"] = []string{"application/json"}
 	if err := runtime.MarshalAsJSON(req, body); err != nil {
 		return nil, err
 	}
@@ -453,7 +445,6 @@ func (client *DurationPropertyClient) floatSecondsLargerUnitCreateRequest(ctx co
 		return nil, err
 	}
 	req.Raw().Header["Accept"] = []string{"application/json"}
-	req.Raw().Header["Content-Type"] = []string{"application/json"}
 	if err := runtime.MarshalAsJSON(req, body); err != nil {
 		return nil, err
 	}
@@ -503,7 +494,6 @@ func (client *DurationPropertyClient) int32MillisecondsCreateRequest(ctx context
 		return nil, err
 	}
 	req.Raw().Header["Accept"] = []string{"application/json"}
-	req.Raw().Header["Content-Type"] = []string{"application/json"}
 	if err := runtime.MarshalAsJSON(req, body); err != nil {
 		return nil, err
 	}
@@ -553,7 +543,6 @@ func (client *DurationPropertyClient) int32MillisecondsLargerUnitCreateRequest(c
 		return nil, err
 	}
 	req.Raw().Header["Accept"] = []string{"application/json"}
-	req.Raw().Header["Content-Type"] = []string{"application/json"}
 	if err := runtime.MarshalAsJSON(req, body); err != nil {
 		return nil, err
 	}
@@ -603,7 +592,6 @@ func (client *DurationPropertyClient) int32SecondsCreateRequest(ctx context.Cont
 		return nil, err
 	}
 	req.Raw().Header["Accept"] = []string{"application/json"}
-	req.Raw().Header["Content-Type"] = []string{"application/json"}
 	if err := runtime.MarshalAsJSON(req, body); err != nil {
 		return nil, err
 	}
@@ -653,7 +641,6 @@ func (client *DurationPropertyClient) int32SecondsLargerUnitCreateRequest(ctx co
 		return nil, err
 	}
 	req.Raw().Header["Accept"] = []string{"application/json"}
-	req.Raw().Header["Content-Type"] = []string{"application/json"}
 	if err := runtime.MarshalAsJSON(req, body); err != nil {
 		return nil, err
 	}
@@ -703,7 +690,6 @@ func (client *DurationPropertyClient) iso8601CreateRequest(ctx context.Context, 
 		return nil, err
 	}
 	req.Raw().Header["Accept"] = []string{"application/json"}
-	req.Raw().Header["Content-Type"] = []string{"application/json"}
 	if err := runtime.MarshalAsJSON(req, body); err != nil {
 		return nil, err
 	}

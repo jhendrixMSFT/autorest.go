@@ -100,7 +100,6 @@ func (client *DefenderForAISettingsClient) createOrUpdateCreateRequest(ctx conte
 	reqQP.Set("api-version", defaultDefenderForAISettingsClientVersion)
 	req.Raw().URL.RawQuery = reqQP.Encode()
 	req.Raw().Header["Accept"] = []string{"application/json"}
-	req.Raw().Header["Content-Type"] = []string{"application/json"}
 	if err := runtime.MarshalAsJSON(req, defenderForAISettings); err != nil {
 		return nil, err
 	}
@@ -304,7 +303,6 @@ func (client *DefenderForAISettingsClient) updateCreateRequest(ctx context.Conte
 	reqQP.Set("api-version", defaultDefenderForAISettingsClientVersion)
 	req.Raw().URL.RawQuery = reqQP.Encode()
 	req.Raw().Header["Accept"] = []string{"application/json"}
-	req.Raw().Header["Content-Type"] = []string{"application/json"}
 	if err := runtime.MarshalAsJSON(req, defenderForAISettings); err != nil {
 		return nil, err
 	}

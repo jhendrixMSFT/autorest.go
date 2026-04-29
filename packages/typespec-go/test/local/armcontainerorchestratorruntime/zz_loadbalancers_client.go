@@ -107,7 +107,6 @@ func (client *LoadBalancersClient) createOrUpdateCreateRequest(ctx context.Conte
 	reqQP.Set("api-version", defaultLoadBalancersClientVersion)
 	req.Raw().URL.RawQuery = reqQP.Encode()
 	req.Raw().Header["Accept"] = []string{"application/json"}
-	req.Raw().Header["Content-Type"] = []string{"application/json"}
 	if err := runtime.MarshalAsJSON(req, resource); err != nil {
 		return nil, err
 	}

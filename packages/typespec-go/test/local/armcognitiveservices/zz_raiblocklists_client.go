@@ -100,7 +100,6 @@ func (client *RaiBlocklistsClient) createOrUpdateCreateRequest(ctx context.Conte
 	reqQP.Set("api-version", defaultRaiBlocklistsClientVersion)
 	req.Raw().URL.RawQuery = reqQP.Encode()
 	req.Raw().Header["Accept"] = []string{"application/json"}
-	req.Raw().Header["Content-Type"] = []string{"application/json"}
 	if err := runtime.MarshalAsJSON(req, raiBlocklist); err != nil {
 		return nil, err
 	}

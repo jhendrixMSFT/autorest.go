@@ -92,7 +92,6 @@ func (client *TopLevelClient) actionSyncCreateRequest(ctx context.Context, resou
 	reqQP := req.Raw().URL.Query()
 	reqQP.Set("api-version", defaultTopLevelClientVersion)
 	req.Raw().URL.RawQuery = reqQP.Encode()
-	req.Raw().Header["Content-Type"] = []string{"application/json"}
 	if err := runtime.MarshalAsJSON(req, body); err != nil {
 		return nil, err
 	}
@@ -169,7 +168,6 @@ func (client *TopLevelClient) createOrReplaceCreateRequest(ctx context.Context, 
 	reqQP.Set("api-version", defaultTopLevelClientVersion)
 	req.Raw().URL.RawQuery = reqQP.Encode()
 	req.Raw().Header["Accept"] = []string{"application/json"}
-	req.Raw().Header["Content-Type"] = []string{"application/json"}
 	if err := runtime.MarshalAsJSON(req, resource); err != nil {
 		return nil, err
 	}
@@ -488,7 +486,6 @@ func (client *TopLevelClient) updateCreateRequest(ctx context.Context, resourceG
 	reqQP.Set("api-version", defaultTopLevelClientVersion)
 	req.Raw().URL.RawQuery = reqQP.Encode()
 	req.Raw().Header["Accept"] = []string{"application/json"}
-	req.Raw().Header["Content-Type"] = []string{"application/json"}
 	if err := runtime.MarshalAsJSON(req, properties); err != nil {
 		return nil, err
 	}

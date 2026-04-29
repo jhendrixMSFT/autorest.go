@@ -87,7 +87,6 @@ func (client *ServicesClient) createOrUpdateCreateRequest(ctx context.Context, r
 	reqQP.Set("api-version", defaultServicesClientVersion)
 	req.Raw().URL.RawQuery = reqQP.Encode()
 	req.Raw().Header["Accept"] = []string{"application/json"}
-	req.Raw().Header["Content-Type"] = []string{"application/json"}
 	if err := runtime.MarshalAsJSON(req, resource); err != nil {
 		return nil, err
 	}

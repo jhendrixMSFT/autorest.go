@@ -143,7 +143,6 @@ func (client *OptionalRequiredAndOptionalClient) putAllCreateRequest(ctx context
 	if err != nil {
 		return nil, err
 	}
-	req.Raw().Header["Content-Type"] = []string{"application/json"}
 	if err := runtime.MarshalAsJSON(req, body); err != nil {
 		return nil, err
 	}
@@ -182,7 +181,6 @@ func (client *OptionalRequiredAndOptionalClient) putRequiredOnlyCreateRequest(ct
 	if err != nil {
 		return nil, err
 	}
-	req.Raw().Header["Content-Type"] = []string{"application/json"}
 	if err := runtime.MarshalAsJSON(req, body); err != nil {
 		return nil, err
 	}

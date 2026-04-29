@@ -100,7 +100,6 @@ func (client *CommitmentPlansClient) createOrUpdateCreateRequest(ctx context.Con
 	reqQP.Set("api-version", defaultCommitmentPlansClientVersion)
 	req.Raw().URL.RawQuery = reqQP.Encode()
 	req.Raw().Header["Accept"] = []string{"application/json"}
-	req.Raw().Header["Content-Type"] = []string{"application/json"}
 	if err := runtime.MarshalAsJSON(req, commitmentPlan); err != nil {
 		return nil, err
 	}
@@ -191,7 +190,6 @@ func (client *CommitmentPlansClient) createOrUpdateAssociationCreateRequest(ctx 
 	reqQP.Set("api-version", defaultCommitmentPlansClientVersion)
 	req.Raw().URL.RawQuery = reqQP.Encode()
 	req.Raw().Header["Accept"] = []string{"application/json"}
-	req.Raw().Header["Content-Type"] = []string{"application/json"}
 	if err := runtime.MarshalAsJSON(req, association); err != nil {
 		return nil, err
 	}
@@ -268,7 +266,6 @@ func (client *CommitmentPlansClient) createOrUpdatePlanCreateRequest(ctx context
 	reqQP.Set("api-version", defaultCommitmentPlansClientVersion)
 	req.Raw().URL.RawQuery = reqQP.Encode()
 	req.Raw().Header["Accept"] = []string{"application/json"}
-	req.Raw().Header["Content-Type"] = []string{"application/json"}
 	if err := runtime.MarshalAsJSON(req, commitmentPlan); err != nil {
 		return nil, err
 	}
@@ -1002,7 +999,6 @@ func (client *CommitmentPlansClient) updatePlanCreateRequest(ctx context.Context
 	reqQP.Set("api-version", defaultCommitmentPlansClientVersion)
 	req.Raw().URL.RawQuery = reqQP.Encode()
 	req.Raw().Header["Accept"] = []string{"application/json"}
-	req.Raw().Header["Content-Type"] = []string{"application/json"}
 	if err := runtime.MarshalAsJSON(req, commitmentPlan); err != nil {
 		return nil, err
 	}

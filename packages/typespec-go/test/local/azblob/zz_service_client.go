@@ -365,7 +365,6 @@ func (client *ServiceClient) getUserDelegationKeyCreateRequest(ctx context.Conte
 		req.Raw().Header["x-ms-client-request-id"] = []string{*options.ClientRequestID}
 	}
 	req.Raw().Header["x-ms-version"] = []string{defaultServiceClientVersion}
-	req.Raw().Header["Content-Type"] = []string{"application/xml"}
 	if err := runtime.MarshalAsXML(req, keyInfo); err != nil {
 		return nil, err
 	}
@@ -532,7 +531,6 @@ func (client *ServiceClient) setPropertiesCreateRequest(ctx context.Context, sto
 		req.Raw().Header["x-ms-client-request-id"] = []string{*options.ClientRequestID}
 	}
 	req.Raw().Header["x-ms-version"] = []string{defaultServiceClientVersion}
-	req.Raw().Header["Content-Type"] = []string{"application/xml"}
 	if err := runtime.MarshalAsXML(req, storageServiceProperties); err != nil {
 		return nil, err
 	}

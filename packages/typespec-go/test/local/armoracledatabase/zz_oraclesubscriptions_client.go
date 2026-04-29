@@ -103,7 +103,6 @@ func (client *OracleSubscriptionsClient) createOrUpdateCreateRequest(ctx context
 	reqQP.Set("api-version", defaultOracleSubscriptionsClientVersion)
 	req.Raw().URL.RawQuery = reqQP.Encode()
 	req.Raw().Header["Accept"] = []string{"application/json"}
-	req.Raw().Header["Content-Type"] = []string{"application/json"}
 	if err := runtime.MarshalAsJSON(req, resource); err != nil {
 		return nil, err
 	}
@@ -451,7 +450,6 @@ func (client *OracleSubscriptionsClient) updateCreateRequest(ctx context.Context
 	reqQP.Set("api-version", defaultOracleSubscriptionsClientVersion)
 	req.Raw().URL.RawQuery = reqQP.Encode()
 	req.Raw().Header["Accept"] = []string{"application/json"}
-	req.Raw().Header["Content-Type"] = []string{"application/json"}
 	if err := runtime.MarshalAsJSON(req, properties); err != nil {
 		return nil, err
 	}

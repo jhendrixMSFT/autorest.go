@@ -143,7 +143,6 @@ func (client *NullableCollectionsStringClient) patchNonNullCreateRequest(ctx con
 	if err != nil {
 		return nil, err
 	}
-	req.Raw().Header["Content-Type"] = []string{"application/merge-patch+json"}
 	if err := runtime.MarshalAsJSON(req, body); err != nil {
 		return nil, err
 	}
@@ -182,7 +181,6 @@ func (client *NullableCollectionsStringClient) patchNullCreateRequest(ctx contex
 	if err != nil {
 		return nil, err
 	}
-	req.Raw().Header["Content-Type"] = []string{"application/merge-patch+json"}
 	if err := runtime.MarshalAsJSON(req, body); err != nil {
 		return nil, err
 	}

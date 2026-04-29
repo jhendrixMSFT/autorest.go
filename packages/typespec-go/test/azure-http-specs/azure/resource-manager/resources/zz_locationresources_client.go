@@ -95,7 +95,6 @@ func (client *LocationResourcesClient) createOrUpdateCreateRequest(ctx context.C
 	reqQP.Set("api-version", defaultLocationResourcesClientVersion)
 	req.Raw().URL.RawQuery = reqQP.Encode()
 	req.Raw().Header["Accept"] = []string{"application/json"}
-	req.Raw().Header["Content-Type"] = []string{"application/json"}
 	if err := runtime.MarshalAsJSON(req, resource); err != nil {
 		return nil, err
 	}
@@ -335,7 +334,6 @@ func (client *LocationResourcesClient) updateCreateRequest(ctx context.Context, 
 	reqQP.Set("api-version", defaultLocationResourcesClientVersion)
 	req.Raw().URL.RawQuery = reqQP.Encode()
 	req.Raw().Header["Accept"] = []string{"application/json"}
-	req.Raw().Header["Content-Type"] = []string{"application/json"}
 	if err := runtime.MarshalAsJSON(req, properties); err != nil {
 		return nil, err
 	}

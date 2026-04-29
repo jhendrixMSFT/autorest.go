@@ -351,7 +351,6 @@ func (client *EnumDiscriminatorClient) putExtensibleModelCreateRequest(ctx conte
 	if err != nil {
 		return nil, err
 	}
-	req.Raw().Header["Content-Type"] = []string{"application/json"}
 	if err := runtime.MarshalAsJSON(req, input); err != nil {
 		return nil, err
 	}
@@ -391,7 +390,6 @@ func (client *EnumDiscriminatorClient) putFixedModelCreateRequest(ctx context.Co
 	if err != nil {
 		return nil, err
 	}
-	req.Raw().Header["Content-Type"] = []string{"application/json"}
 	if err := runtime.MarshalAsJSON(req, input); err != nil {
 		return nil, err
 	}

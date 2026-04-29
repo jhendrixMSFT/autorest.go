@@ -100,7 +100,6 @@ func (client *RaiBlocklistItemsClient) batchAddCreateRequest(ctx context.Context
 	reqQP.Set("api-version", defaultRaiBlocklistItemsClientVersion)
 	req.Raw().URL.RawQuery = reqQP.Encode()
 	req.Raw().Header["Accept"] = []string{"application/json"}
-	req.Raw().Header["Content-Type"] = []string{"application/json"}
 	if err := runtime.MarshalAsJSON(req, raiBlocklistItems); err != nil {
 		return nil, err
 	}
@@ -171,7 +170,6 @@ func (client *RaiBlocklistItemsClient) batchDeleteCreateRequest(ctx context.Cont
 	reqQP := req.Raw().URL.Query()
 	reqQP.Set("api-version", defaultRaiBlocklistItemsClientVersion)
 	req.Raw().URL.RawQuery = reqQP.Encode()
-	req.Raw().Header["Content-Type"] = []string{"application/json"}
 	if err := runtime.MarshalAsJSON(req, raiBlocklistItemsNames); err != nil {
 		return nil, err
 	}
@@ -240,7 +238,6 @@ func (client *RaiBlocklistItemsClient) createOrUpdateCreateRequest(ctx context.C
 	reqQP.Set("api-version", defaultRaiBlocklistItemsClientVersion)
 	req.Raw().URL.RawQuery = reqQP.Encode()
 	req.Raw().Header["Accept"] = []string{"application/json"}
-	req.Raw().Header["Content-Type"] = []string{"application/json"}
 	if err := runtime.MarshalAsJSON(req, raiBlocklistItem); err != nil {
 		return nil, err
 	}

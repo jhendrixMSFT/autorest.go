@@ -56,7 +56,6 @@ func (client *BasicImplicitBodyClient) simpleCreateRequest(ctx context.Context, 
 	}{
 		Name: name,
 	}
-	req.Raw().Header["Content-Type"] = []string{"application/json"}
 	if err := runtime.MarshalAsJSON(req, body); err != nil {
 		return nil, err
 	}

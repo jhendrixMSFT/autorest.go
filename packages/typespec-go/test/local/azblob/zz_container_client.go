@@ -1384,7 +1384,6 @@ func (client *ContainerClient) setAccessPolicyCreateRequest(ctx context.Context,
 		XMLName      xml.Name             `xml:"SignedIdentifiers"`
 		ContainerACL *[]*SignedIdentifier `xml:"SignedIdentifier"`
 	}
-	req.Raw().Header["Content-Type"] = []string{"application/xml"}
 	if err := runtime.MarshalAsXML(req, wrapper{ContainerACL: &containerACL}); err != nil {
 		return nil, err
 	}

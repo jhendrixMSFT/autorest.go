@@ -387,7 +387,6 @@ func (client *Client) calculateModelCapacityCreateRequest(ctx context.Context, p
 	reqQP.Set("api-version", defaultClientVersion)
 	req.Raw().URL.RawQuery = reqQP.Encode()
 	req.Raw().Header["Accept"] = []string{"application/json"}
-	req.Raw().Header["Content-Type"] = []string{"application/json"}
 	if err := runtime.MarshalAsJSON(req, parameters); err != nil {
 		return nil, err
 	}
@@ -445,7 +444,6 @@ func (client *Client) checkDomainAvailabilityCreateRequest(ctx context.Context, 
 	reqQP.Set("api-version", defaultClientVersion)
 	req.Raw().URL.RawQuery = reqQP.Encode()
 	req.Raw().Header["Accept"] = []string{"application/json"}
-	req.Raw().Header["Content-Type"] = []string{"application/json"}
 	if err := runtime.MarshalAsJSON(req, parameters); err != nil {
 		return nil, err
 	}
@@ -507,7 +505,6 @@ func (client *Client) checkSKUAvailabilityCreateRequest(ctx context.Context, loc
 	reqQP.Set("api-version", defaultClientVersion)
 	req.Raw().URL.RawQuery = reqQP.Encode()
 	req.Raw().Header["Accept"] = []string{"application/json"}
-	req.Raw().Header["Content-Type"] = []string{"application/json"}
 	if err := runtime.MarshalAsJSON(req, parameters); err != nil {
 		return nil, err
 	}

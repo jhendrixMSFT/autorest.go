@@ -113,7 +113,6 @@ func (client *StorageAccountsClient) createOrUpdateCreateRequest(ctx context.Con
 	reqQP.Set("api-version", defaultStorageAccountsClientVersion)
 	req.Raw().URL.RawQuery = reqQP.Encode()
 	req.Raw().Header["Accept"] = []string{"application/json"}
-	req.Raw().Header["Content-Type"] = []string{"application/json"}
 	if err := runtime.MarshalAsJSON(req, resource); err != nil {
 		return nil, err
 	}

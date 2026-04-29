@@ -118,7 +118,6 @@ func (client *NestedClient) createOrReplaceCreateRequest(ctx context.Context, re
 	reqQP.Set("api-version", defaultNestedClientVersion)
 	req.Raw().URL.RawQuery = reqQP.Encode()
 	req.Raw().Header["Accept"] = []string{"application/json"}
-	req.Raw().Header["Content-Type"] = []string{"application/json"}
 	if err := runtime.MarshalAsJSON(req, resource); err != nil {
 		return nil, err
 	}
@@ -404,7 +403,6 @@ func (client *NestedClient) updateCreateRequest(ctx context.Context, resourceGro
 	reqQP.Set("api-version", defaultNestedClientVersion)
 	req.Raw().URL.RawQuery = reqQP.Encode()
 	req.Raw().Header["Accept"] = []string{"application/json"}
-	req.Raw().Header["Content-Type"] = []string{"application/json"}
 	if err := runtime.MarshalAsJSON(req, properties); err != nil {
 		return nil, err
 	}

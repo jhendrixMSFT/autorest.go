@@ -133,7 +133,6 @@ func (client *AgentDeploymentsClient) createOrUpdateCreateRequest(ctx context.Co
 	reqQP.Set("api-version", defaultAgentDeploymentsClientVersion)
 	req.Raw().URL.RawQuery = reqQP.Encode()
 	req.Raw().Header["Accept"] = []string{"application/json"}
-	req.Raw().Header["Content-Type"] = []string{"application/json"}
 	if err := runtime.MarshalAsJSON(req, body); err != nil {
 		return nil, err
 	}

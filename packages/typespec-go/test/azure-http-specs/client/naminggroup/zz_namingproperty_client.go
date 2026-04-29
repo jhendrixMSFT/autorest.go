@@ -50,7 +50,6 @@ func (client *NamingPropertyClient) clientCreateRequest(ctx context.Context, bod
 	if err != nil {
 		return nil, err
 	}
-	req.Raw().Header["Content-Type"] = []string{"application/json"}
 	if err := runtime.MarshalAsJSON(req, body); err != nil {
 		return nil, err
 	}
@@ -89,7 +88,6 @@ func (client *NamingPropertyClient) compatibleWithEncodedNameCreateRequest(ctx c
 	if err != nil {
 		return nil, err
 	}
-	req.Raw().Header["Content-Type"] = []string{"application/json"}
 	if err := runtime.MarshalAsJSON(req, body); err != nil {
 		return nil, err
 	}
@@ -127,7 +125,6 @@ func (client *NamingPropertyClient) languageCreateRequest(ctx context.Context, b
 	if err != nil {
 		return nil, err
 	}
-	req.Raw().Header["Content-Type"] = []string{"application/json"}
 	if err := runtime.MarshalAsJSON(req, body); err != nil {
 		return nil, err
 	}

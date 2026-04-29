@@ -95,7 +95,6 @@ func (client *ArrayModelValueClient) putCreateRequest(ctx context.Context, body 
 	if err != nil {
 		return nil, err
 	}
-	req.Raw().Header["Content-Type"] = []string{"application/json"}
 	if err := runtime.MarshalAsJSON(req, body); err != nil {
 		return nil, err
 	}

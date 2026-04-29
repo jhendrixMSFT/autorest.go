@@ -1,5 +1,11 @@
 # Release History
 
+## 0.11.2 (unreleased)
+
+### Other Changes
+
+* Emitted code no longer sets the `Content-Type` header.  It's implicitly set by `azcore` so was redundant.
+
 ## 0.11.1 (2026-04-29)
 
 ### Bugs Fixed

@@ -989,7 +989,6 @@ func (client *PageBlobClient) uploadPagesCreateRequest(ctx context.Context, body
 		req.Raw().Header["x-ms-structured-content-length"] = []string{strconv.FormatInt(*options.StructuredContentLength, 10)}
 	}
 	req.Raw().Header["x-ms-version"] = []string{defaultPageBlobClientVersion}
-	req.Raw().Header["Content-Type"] = []string{"application/octet-stream"}
 	if err := req.SetBody(body, "application/octet-stream"); err != nil {
 		return nil, err
 	}

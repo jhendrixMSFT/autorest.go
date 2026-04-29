@@ -95,7 +95,6 @@ func (client *ErrorClient) createForUserDefinedErrorCreateRequest(ctx context.Co
 	reqQP.Set("api-version", defaultErrorClientVersion)
 	req.Raw().URL.RawQuery = reqQP.Encode()
 	req.Raw().Header["Accept"] = []string{"application/json"}
-	req.Raw().Header["Content-Type"] = []string{"application/json"}
 	if err := runtime.MarshalAsJSON(req, resource); err != nil {
 		return nil, err
 	}

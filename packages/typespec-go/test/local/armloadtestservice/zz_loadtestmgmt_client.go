@@ -95,7 +95,6 @@ func (client *LoadTestMgmtClient) checkAvailabilityQuotaCreateRequest(ctx contex
 	reqQP.Set("api-version", defaultLoadTestMgmtClientVersion)
 	req.Raw().URL.RawQuery = reqQP.Encode()
 	req.Raw().Header["Accept"] = []string{"application/json"}
-	req.Raw().Header["Content-Type"] = []string{"application/json"}
 	if err := runtime.MarshalAsJSON(req, quotaBucketRequest); err != nil {
 		return nil, err
 	}
@@ -181,7 +180,6 @@ func (client *LoadTestMgmtClient) createOrUpdateLoadtestCreateRequest(ctx contex
 	reqQP.Set("api-version", defaultLoadTestMgmtClientVersion)
 	req.Raw().URL.RawQuery = reqQP.Encode()
 	req.Raw().Header["Accept"] = []string{"application/json"}
-	req.Raw().Header["Content-Type"] = []string{"application/json"}
 	if err := runtime.MarshalAsJSON(req, loadTestResource); err != nil {
 		return nil, err
 	}
@@ -686,7 +684,6 @@ func (client *LoadTestMgmtClient) updateLoadtestCreateRequest(ctx context.Contex
 	reqQP.Set("api-version", defaultLoadTestMgmtClientVersion)
 	req.Raw().URL.RawQuery = reqQP.Encode()
 	req.Raw().Header["Accept"] = []string{"application/json"}
-	req.Raw().Header["Content-Type"] = []string{"application/json"}
 	if err := runtime.MarshalAsJSON(req, loadTestResourcePatchRequestBody); err != nil {
 		return nil, err
 	}

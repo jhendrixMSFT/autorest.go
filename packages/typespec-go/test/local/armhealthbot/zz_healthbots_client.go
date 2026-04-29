@@ -112,7 +112,6 @@ func (client *HealthBotsClient) createCreateRequest(ctx context.Context, resourc
 	reqQP.Set("api-version", defaultHealthBotsClientVersion)
 	req.Raw().URL.RawQuery = reqQP.Encode()
 	req.Raw().Header["Accept"] = []string{"application/json"}
-	req.Raw().Header["Content-Type"] = []string{"application/json"}
 	if err := runtime.MarshalAsJSON(req, parameters); err != nil {
 		return nil, err
 	}
@@ -555,7 +554,6 @@ func (client *HealthBotsClient) updateCreateRequest(ctx context.Context, resourc
 	reqQP.Set("api-version", defaultHealthBotsClientVersion)
 	req.Raw().URL.RawQuery = reqQP.Encode()
 	req.Raw().Header["Accept"] = []string{"application/json"}
-	req.Raw().Header["Content-Type"] = []string{"application/json"}
 	if err := runtime.MarshalAsJSON(req, parameters); err != nil {
 		return nil, err
 	}

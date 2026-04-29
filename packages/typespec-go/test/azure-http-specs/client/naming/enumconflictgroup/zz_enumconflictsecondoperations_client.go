@@ -53,7 +53,6 @@ func (client *EnumConflictSecondOperationsClient) secondCreateRequest(ctx contex
 		return nil, err
 	}
 	req.Raw().Header["Accept"] = []string{"application/json"}
-	req.Raw().Header["Content-Type"] = []string{"application/json"}
 	if err := runtime.MarshalAsJSON(req, body); err != nil {
 		return nil, err
 	}

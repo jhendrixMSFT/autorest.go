@@ -100,7 +100,6 @@ func (client *RaiToolLabelsClient) createOrUpdateCreateRequest(ctx context.Conte
 	reqQP.Set("api-version", defaultRaiToolLabelsClientVersion)
 	req.Raw().URL.RawQuery = reqQP.Encode()
 	req.Raw().Header["Accept"] = []string{"application/json"}
-	req.Raw().Header["Content-Type"] = []string{"application/json"}
 	if err := runtime.MarshalAsJSON(req, raiToolLabel); err != nil {
 		return nil, err
 	}

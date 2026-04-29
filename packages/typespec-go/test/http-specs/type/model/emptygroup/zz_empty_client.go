@@ -120,7 +120,6 @@ func (client *EmptyClient) postRoundTripEmptyCreateRequest(ctx context.Context, 
 		return nil, err
 	}
 	req.Raw().Header["Accept"] = []string{"application/json"}
-	req.Raw().Header["Content-Type"] = []string{"application/json"}
 	if err := runtime.MarshalAsJSON(req, body); err != nil {
 		return nil, err
 	}
@@ -167,7 +166,6 @@ func (client *EmptyClient) putEmptyCreateRequest(ctx context.Context, input Empt
 	if err != nil {
 		return nil, err
 	}
-	req.Raw().Header["Content-Type"] = []string{"application/json"}
 	if err := runtime.MarshalAsJSON(req, input); err != nil {
 		return nil, err
 	}

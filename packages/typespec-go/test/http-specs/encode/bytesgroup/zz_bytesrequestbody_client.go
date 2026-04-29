@@ -51,7 +51,6 @@ func (client *BytesRequestBodyClient) base64CreateRequest(ctx context.Context, v
 	if err != nil {
 		return nil, err
 	}
-	req.Raw().Header["Content-Type"] = []string{"application/json"}
 	if err := runtime.MarshalAsByteArray(req, value, runtime.Base64StdFormat); err != nil {
 		return nil, err
 	}
@@ -90,7 +89,6 @@ func (client *BytesRequestBodyClient) base64URLCreateRequest(ctx context.Context
 	if err != nil {
 		return nil, err
 	}
-	req.Raw().Header["Content-Type"] = []string{"application/json"}
 	if err := runtime.MarshalAsByteArray(req, value, runtime.Base64URLFormat); err != nil {
 		return nil, err
 	}
@@ -129,7 +127,6 @@ func (client *BytesRequestBodyClient) customContentTypeCreateRequest(ctx context
 	if err != nil {
 		return nil, err
 	}
-	req.Raw().Header["Content-Type"] = []string{"image/png"}
 	if err := req.SetBody(value, "image/png"); err != nil {
 		return nil, err
 	}
@@ -168,7 +165,6 @@ func (client *BytesRequestBodyClient) defaultCreateRequest(ctx context.Context, 
 	if err != nil {
 		return nil, err
 	}
-	req.Raw().Header["Content-Type"] = []string{"application/octet-stream"}
 	if err := req.SetBody(value, "application/octet-stream"); err != nil {
 		return nil, err
 	}
@@ -207,7 +203,6 @@ func (client *BytesRequestBodyClient) octetStreamCreateRequest(ctx context.Conte
 	if err != nil {
 		return nil, err
 	}
-	req.Raw().Header["Content-Type"] = []string{"application/octet-stream"}
 	if err := req.SetBody(value, "application/octet-stream"); err != nil {
 		return nil, err
 	}

@@ -81,7 +81,6 @@ func (client *MultipleParamsClient) withBodyCreateRequest(ctx context.Context, b
 	reqQP.Set("region", client.region)
 	req.Raw().URL.RawQuery = reqQP.Encode()
 	req.Raw().Header["name"] = []string{client.name}
-	req.Raw().Header["Content-Type"] = []string{"application/json"}
 	if err := runtime.MarshalAsJSON(req, body); err != nil {
 		return nil, err
 	}

@@ -93,7 +93,6 @@ func (client *BodyRootsClient) actionCreateRequest(ctx context.Context, resource
 	reqQP.Set("api-version", defaultBodyRootsClientVersion)
 	reqQP.Set("filter", "constantValue")
 	req.Raw().URL.RawQuery = reqQP.Encode()
-	req.Raw().Header["Content-Type"] = []string{"application/json"}
 	if err := runtime.MarshalAsJSON(req, action); err != nil {
 		return nil, err
 	}

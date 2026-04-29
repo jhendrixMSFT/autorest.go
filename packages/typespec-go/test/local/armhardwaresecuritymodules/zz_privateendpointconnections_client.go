@@ -101,7 +101,6 @@ func (client *PrivateEndpointConnectionsClient) createCreateRequest(ctx context.
 	reqQP.Set("api-version", defaultPrivateEndpointConnectionsClientVersion)
 	req.Raw().URL.RawQuery = reqQP.Encode()
 	req.Raw().Header["Accept"] = []string{"application/json"}
-	req.Raw().Header["Content-Type"] = []string{"application/json"}
 	if err := runtime.MarshalAsJSON(req, properties); err != nil {
 		return nil, err
 	}

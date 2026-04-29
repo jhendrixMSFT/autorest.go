@@ -117,7 +117,6 @@ func (client *ManagedNetworkProvisionsClient) provisionManagedNetworkCreateReque
 	req.Raw().URL.RawQuery = reqQP.Encode()
 	req.Raw().Header["Accept"] = []string{"application/json"}
 	if options != nil && options.Body != nil {
-		req.Raw().Header["Content-Type"] = []string{"application/json"}
 		if err := runtime.MarshalAsJSON(req, *options.Body); err != nil {
 			return nil, err
 		}

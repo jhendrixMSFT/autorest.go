@@ -2386,7 +2386,6 @@ func (client *Client) setTagsCreateRequest(ctx context.Context, tags Tags, optio
 		req.Raw().Header["x-ms-lease-id"] = []string{*options.LeaseID}
 	}
 	req.Raw().Header["x-ms-version"] = []string{defaultClientVersion}
-	req.Raw().Header["Content-Type"] = []string{"application/xml"}
 	if err := runtime.MarshalAsXML(req, tags); err != nil {
 		return nil, err
 	}

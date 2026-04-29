@@ -666,6 +666,32 @@ export class ClientAdapter {
 
     const paramMapping = this.adaptMethodParameters(sdkMethod, method);
 
+    // check if the method takes a binary body with an explicit content-type param.
+    // if it does, then we need to fix up the body param to reference it. we must
+    // do this after adapting all of the method parameters.
+    const binaryBodyParam = method.parameters.find((param) => param.kind === 'bodyParam' && param.bodyFormat === 'binary');
+    const contentTypeParam = method.parameters.find((param) => param.kind === 'headerScalarParam' && param.headerName.match(/^content-type$/i) && param.style !== 'literal');
+    if (binaryBodyParam && contentTypeParam) {
+      // note that when content-type is a param, the defaultContentType on
+      // the body param will be a '*/*' literal. we want to replace that
+      // with the discrete param, handling and client-side default as required.
+      const bodyParam = <go.BodyParameter>binaryBodyParam;
+      switch (contentTypeParam.style) {
+        case 'optional':
+          // convert the literal to a client-side default
+          contentTypeParam.style = new go.ClientSideDefault(bodyParam.contentType as go.Literal);
+          bodyParam.contentType = new go.ParameterRef(contentTypeParam.name);
+          break;
+        case 'required':
+          bodyParam.contentType = new go.ParameterRef(contentTypeParam.name);
+          break;
+        default: {
+          const style = go.isClientSideDefault(contentTypeParam.style) ? 'client-side default' : contentTypeParam.style;
+          throw new AdapterError('UnsupportedTsp', `unexpected content-type style ${style}`, sdkMethod.__raw?.node);
+        }
+      }
+    }
+
     // we must do this after adapting method params as it can add optional params
     this.ta.getPkg().paramGroups.push(this.adaptParameterGroup(method.optionalParamsGroup));
 
@@ -740,14 +766,11 @@ export class ClientAdapter {
       }
 
       if (opParam.kind === 'header' && opParam.serializedName.match(/^content-type$/i) && param.type.kind === 'constant') {
-        // if the body param is optional, then the content-type param is also optional.
-        // for optional constants, this has the side effect of the param being treated like
-        // a flag which isn't what we want. so, we mark it as required. we ONLY do this
-        // if the content-type is a constant (i.e. literal value).
-        // the content-type will be conditionally set based on the requiredness of the body.
-        // NOTE: we set this on the corresponding method param as it's used when adapting the style.
-        // header param will only have one corresponding method param.
-        opParam.correspondingMethodParams[0].optional = false;
+        // content-type is set by the helper in azcore/runtime
+        // so there's no need to set it in the generated code.
+        // only skip the case when it's a constant. if it's a
+        // formal param, then that's passed to the helper
+        continue;
       }
 
       let adaptedParam: go.MethodParameter;
@@ -1605,6 +1628,10 @@ export class ClientAdapter {
           for (const param of example.parameters) {
             if (param.parameter.isApiVersionParam && param.parameter.clientDefaultValue) {
               // skip the api-version param as it's not a formal parameter
+              continue;
+            } else if (param.parameter.type.kind === 'constant') {
+              // if the param's type is a constant then it's embedded
+              // in the code and not a formal parameter so skip it
               continue;
             }
             const goParams = paramMapping.get(param.parameter);

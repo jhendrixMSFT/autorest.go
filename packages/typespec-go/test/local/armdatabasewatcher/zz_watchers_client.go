@@ -114,7 +114,6 @@ func (client *WatchersClient) createOrUpdateCreateRequest(ctx context.Context, r
 	reqQP.Set("api-version", defaultWatchersClientVersion)
 	req.Raw().URL.RawQuery = reqQP.Encode()
 	req.Raw().Header["Accept"] = []string{"application/json"}
-	req.Raw().Header["Content-Type"] = []string{"application/json"}
 	if err := runtime.MarshalAsJSON(req, resource); err != nil {
 		return nil, err
 	}
@@ -575,7 +574,6 @@ func (client *WatchersClient) updateCreateRequest(ctx context.Context, resourceG
 	reqQP.Set("api-version", defaultWatchersClientVersion)
 	req.Raw().URL.RawQuery = reqQP.Encode()
 	req.Raw().Header["Accept"] = []string{"application/json"}
-	req.Raw().Header["Content-Type"] = []string{"application/json"}
 	if err := runtime.MarshalAsJSON(req, properties); err != nil {
 		return nil, err
 	}

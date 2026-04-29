@@ -107,7 +107,6 @@ func (client *StorageClassClient) createOrUpdateCreateRequest(ctx context.Contex
 	reqQP.Set("api-version", defaultStorageClassClientVersion)
 	req.Raw().URL.RawQuery = reqQP.Encode()
 	req.Raw().Header["Accept"] = []string{"application/json"}
-	req.Raw().Header["Content-Type"] = []string{"application/json"}
 	if err := runtime.MarshalAsJSON(req, resource); err != nil {
 		return nil, err
 	}
@@ -358,7 +357,6 @@ func (client *StorageClassClient) updateCreateRequest(ctx context.Context, resou
 	reqQP.Set("api-version", defaultStorageClassClientVersion)
 	req.Raw().URL.RawQuery = reqQP.Encode()
 	req.Raw().Header["Accept"] = []string{"application/json"}
-	req.Raw().Header["Content-Type"] = []string{"application/json"}
 	if err := runtime.MarshalAsJSON(req, properties); err != nil {
 		return nil, err
 	}

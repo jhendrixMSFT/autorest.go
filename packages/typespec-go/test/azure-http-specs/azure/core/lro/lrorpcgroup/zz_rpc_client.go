@@ -111,7 +111,6 @@ func (client *RPCClient) longRunningRPCCreateRequest(ctx context.Context, body G
 	reqQP.Set("api-version", defaultRPCClientVersion)
 	req.Raw().URL.RawQuery = reqQP.Encode()
 	req.Raw().Header["Accept"] = []string{"application/json"}
-	req.Raw().Header["Content-Type"] = []string{"application/json"}
 	if err := runtime.MarshalAsJSON(req, body); err != nil {
 		return nil, err
 	}

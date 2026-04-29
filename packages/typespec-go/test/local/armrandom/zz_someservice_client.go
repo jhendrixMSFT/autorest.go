@@ -71,7 +71,6 @@ func (client *SomeServiceClient) checkTrialAvailabilityCreateRequest(ctx context
 	}
 	req.Raw().Header["Accept"] = []string{"application/json"}
 	if options != nil && options.SKU != nil {
-		req.Raw().Header["Content-Type"] = []string{"application/json"}
 		if err := runtime.MarshalAsJSON(req, *options.SKU); err != nil {
 			return nil, err
 		}

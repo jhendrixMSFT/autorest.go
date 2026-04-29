@@ -183,7 +183,6 @@ func (client *DiscountsClient) createCreateRequest(ctx context.Context, resource
 	reqQP.Set("api-version", defaultDiscountsClientVersion)
 	req.Raw().URL.RawQuery = reqQP.Encode()
 	req.Raw().Header["Accept"] = []string{"application/json"}
-	req.Raw().Header["Content-Type"] = []string{"application/json"}
 	if err := runtime.MarshalAsJSON(req, body); err != nil {
 		return nil, err
 	}
@@ -502,7 +501,6 @@ func (client *DiscountsClient) updateCreateRequest(ctx context.Context, resource
 	reqQP.Set("api-version", defaultDiscountsClientVersion)
 	req.Raw().URL.RawQuery = reqQP.Encode()
 	req.Raw().Header["Accept"] = []string{"application/json"}
-	req.Raw().Header["Content-Type"] = []string{"application/json"}
 	if err := runtime.MarshalAsJSON(req, body); err != nil {
 		return nil, err
 	}

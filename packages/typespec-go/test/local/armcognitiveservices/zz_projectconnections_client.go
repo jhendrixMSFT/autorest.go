@@ -108,7 +108,6 @@ func (client *ProjectConnectionsClient) createCreateRequest(ctx context.Context,
 	reqQP.Set("api-version", defaultProjectConnectionsClientVersion)
 	req.Raw().URL.RawQuery = reqQP.Encode()
 	req.Raw().Header["Accept"] = []string{"application/json"}
-	req.Raw().Header["Content-Type"] = []string{"application/json"}
 	if err := runtime.MarshalAsJSON(req, connection); err != nil {
 		return nil, err
 	}
@@ -405,7 +404,6 @@ func (client *ProjectConnectionsClient) updateCreateRequest(ctx context.Context,
 	reqQP.Set("api-version", defaultProjectConnectionsClientVersion)
 	req.Raw().URL.RawQuery = reqQP.Encode()
 	req.Raw().Header["Accept"] = []string{"application/json"}
-	req.Raw().Header["Content-Type"] = []string{"application/json"}
 	if err := runtime.MarshalAsJSON(req, connection); err != nil {
 		return nil, err
 	}

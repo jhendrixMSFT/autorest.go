@@ -53,7 +53,6 @@ func (client *NumericPropertyClient) safeintAsStringCreateRequest(ctx context.Co
 		return nil, err
 	}
 	req.Raw().Header["Accept"] = []string{"application/json"}
-	req.Raw().Header["Content-Type"] = []string{"application/json"}
 	if err := runtime.MarshalAsJSON(req, value); err != nil {
 		return nil, err
 	}
@@ -103,7 +102,6 @@ func (client *NumericPropertyClient) uint32AsStringOptionalCreateRequest(ctx con
 		return nil, err
 	}
 	req.Raw().Header["Accept"] = []string{"application/json"}
-	req.Raw().Header["Content-Type"] = []string{"application/json"}
 	if err := runtime.MarshalAsJSON(req, value); err != nil {
 		return nil, err
 	}
@@ -153,7 +151,6 @@ func (client *NumericPropertyClient) uint8AsStringCreateRequest(ctx context.Cont
 		return nil, err
 	}
 	req.Raw().Header["Accept"] = []string{"application/json"}
-	req.Raw().Header["Content-Type"] = []string{"application/json"}
 	if err := runtime.MarshalAsJSON(req, value); err != nil {
 		return nil, err
 	}

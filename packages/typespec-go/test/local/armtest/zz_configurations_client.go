@@ -220,7 +220,6 @@ func (client *ConfigurationsClient) putStreamingContentCreateRequest(ctx context
 	reqQP := req.Raw().URL.Query()
 	reqQP.Set("api-version", defaultConfigurationsClientVersion)
 	req.Raw().URL.RawQuery = reqQP.Encode()
-	req.Raw().Header["Content-Type"] = []string{"application/octet-stream"}
 	if err := req.SetBody(body, "application/octet-stream"); err != nil {
 		return nil, err
 	}

@@ -100,7 +100,6 @@ func (client *XMLModelWithRenamedArraysValueClient) putCreateRequest(ctx context
 	if err != nil {
 		return nil, err
 	}
-	req.Raw().Header["Content-Type"] = []string{"application/xml"}
 	if err := runtime.MarshalAsXML(req, input); err != nil {
 		return nil, err
 	}
