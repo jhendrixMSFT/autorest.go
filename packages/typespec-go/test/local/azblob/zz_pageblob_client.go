@@ -438,26 +438,37 @@ func (client *PageBlobClient) createHandleResponse(resp *http.Response) (PageBlo
 	return result, nil
 }
 
-// GetPageRanges - The Get Page Ranges operation returns the list of valid page ranges for a page blob or snapshot of a page
-// blob.
-// If the operation fails it returns an *azcore.ResponseError type.
-//   - options - PageBlobClientGetPageRangesOptions contains the optional parameters for the PageBlobClient.GetPageRanges method.
-func (client *PageBlobClient) GetPageRanges(ctx context.Context, options *PageBlobClientGetPageRangesOptions) (PageBlobClientGetPageRangesResponse, error) {
-	var err error
-	req, err := client.getPageRangesCreateRequest(ctx, options)
-	if err != nil {
-		return PageBlobClientGetPageRangesResponse{}, err
-	}
-	httpResp, err := client.internal.Pipeline().Do(req)
-	if err != nil {
-		return PageBlobClientGetPageRangesResponse{}, err
-	}
-	if !runtime.HasStatusCode(httpResp, http.StatusOK) {
-		err = runtime.NewResponseError(httpResp)
-		return PageBlobClientGetPageRangesResponse{}, err
-	}
-	resp, err := client.getPageRangesHandleResponse(httpResp)
-	return resp, err
+// NewGetPageRangesPager - The Get Page Ranges operation returns the list of valid page ranges for a page blob or snapshot
+// of a page blob.
+//   - options - PageBlobClientGetPageRangesOptions contains the optional parameters for the PageBlobClient.NewGetPageRangesPager
+//     method.
+func (client *PageBlobClient) NewGetPageRangesPager(options *PageBlobClientGetPageRangesOptions) *runtime.Pager[PageBlobClientGetPageRangesResponse] {
+	return runtime.NewPager(runtime.PagingHandler[PageBlobClientGetPageRangesResponse]{
+		More: func(page PageBlobClientGetPageRangesResponse) bool {
+			return page.NextMarker != nil && len(*page.NextMarker) > 0
+		},
+		Fetcher: func(ctx context.Context, page *PageBlobClientGetPageRangesResponse) (PageBlobClientGetPageRangesResponse, error) {
+			nextOpts := PageBlobClientGetPageRangesOptions{}
+			if options != nil {
+				nextOpts = *options
+			}
+			if page != nil {
+				nextOpts.Marker = page.NextMarker
+			}
+			req, err := client.getPageRangesCreateRequest(ctx, &nextOpts)
+			if err != nil {
+				return PageBlobClientGetPageRangesResponse{}, err
+			}
+			resp, err := client.internal.Pipeline().Do(req)
+			if err != nil {
+				return PageBlobClientGetPageRangesResponse{}, err
+			}
+			if !runtime.HasStatusCode(resp, http.StatusOK) {
+				return PageBlobClientGetPageRangesResponse{}, runtime.NewResponseError(resp)
+			}
+			return client.getPageRangesHandleResponse(resp)
+		},
+	})
 }
 
 // getPageRangesCreateRequest creates the GetPageRanges request.

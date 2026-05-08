@@ -4,6 +4,8 @@
 
 package addlpropsgroup
 
+import "encoding/json"
+
 // ExtendsFloatAdditionalProperties - The model extends from Record<float32> type.
 type ExtendsFloatAdditionalProperties struct {
 	// REQUIRED; The id property
@@ -181,3 +183,134 @@ type ModelForRecord struct {
 	// REQUIRED; The state property
 	State *string
 }
+
+// MultipleSpreadRecord - The model spread Record<string> and Record<float32>
+type MultipleSpreadRecord struct {
+	// REQUIRED; The name property
+	Flag                 *bool
+	AdditionalProperties map[string]StringOrFloat32Value
+}
+
+// SpreadRecordForUnion - The model spread Record<string | float32>
+type SpreadRecordForUnion struct {
+	// REQUIRED; The name property
+	Flag                 *bool
+	AdditionalProperties map[string]StringOrFloat32Value
+}
+
+// SpreadRecordForNonDiscriminatedUnion - The model spread Record<WidgetData0 | WidgetData1>
+type SpreadRecordForNonDiscriminatedUnion struct {
+	// REQUIRED; The name property
+	Name                 *string
+	AdditionalProperties map[string]WidgetData0Or1Classification
+}
+
+// SpreadRecordForNonDiscriminatedUnion2 - The model spread Record<WidgetData2 | WidgetData1>
+type SpreadRecordForNonDiscriminatedUnion2 struct {
+	// REQUIRED; The name property
+	Name                 *string
+	AdditionalProperties map[string]WidgetData2Or1Classification
+}
+
+// SpreadRecordForNonDiscriminatedUnion3 - The model spread Record<WidgetData2[] | WidgetData1>
+type SpreadRecordForNonDiscriminatedUnion3 struct {
+	// REQUIRED; The name property
+	Name                 *string
+	AdditionalProperties map[string]WidgetData2ArrayOrWidgetData1Classification
+}
+
+// WidgetData0 - model for WidgetData0
+type WidgetData0 struct {
+	// REQUIRED
+	Kind *string
+
+	// REQUIRED
+	FooProp *string
+}
+
+// WidgetData1 - model for WidgetData1
+type WidgetData1 struct {
+	// REQUIRED
+	Kind *string
+
+	// REQUIRED
+	Start *string
+
+	End *string
+}
+
+// WidgetData2 - model for WidgetData2
+type WidgetData2 struct {
+	// REQUIRED
+	Kind *string
+
+	// REQUIRED
+	Start *string
+}
+
+// StringOrFloat32Value represents a union of string | float32.
+// Use a type switch to determine the concrete type. The possible types are:
+// - *StringOrFloat32ValueString, *StringOrFloat32ValueFloat32
+type StringOrFloat32Value interface {
+	isStringOrFloat32Value()
+}
+
+// StringOrFloat32ValueString is a string variant of the StringOrFloat32Value union.
+type StringOrFloat32ValueString struct {
+	Value string
+}
+
+func (*StringOrFloat32ValueString) isStringOrFloat32Value() {}
+
+// StringOrFloat32ValueFloat32 is a float32 variant of the StringOrFloat32Value union.
+type StringOrFloat32ValueFloat32 struct {
+	Value float32
+}
+
+func (*StringOrFloat32ValueFloat32) isStringOrFloat32Value() {}
+
+// WidgetData0Or1Classification represents a union of WidgetData0 | WidgetData1.
+// Use a type switch to determine the concrete type. The possible types are:
+// - *WidgetData0, *WidgetData1
+type WidgetData0Or1Classification interface {
+	isWidgetData0Or1Classification()
+}
+
+func (*WidgetData0) isWidgetData0Or1Classification() {}
+func (*WidgetData1) isWidgetData0Or1Classification() {}
+
+// WidgetData2Or1Classification represents a union of WidgetData2 | WidgetData1.
+// Use a type switch to determine the concrete type. The possible types are:
+// - *WidgetData2, *WidgetData1
+type WidgetData2Or1Classification interface {
+	isWidgetData2Or1Classification()
+}
+
+func (*WidgetData2) isWidgetData2Or1Classification() {}
+func (*WidgetData1) isWidgetData2Or1Classification() {}
+
+// WidgetData2ArrayOrWidgetData1Classification represents a union of WidgetData2[] | WidgetData1.
+// Use a type switch to determine the concrete type. The possible types are:
+// - *WidgetData2ArrayValue, *WidgetData1
+type WidgetData2ArrayOrWidgetData1Classification interface {
+	isWidgetData2ArrayOrWidgetData1Classification()
+}
+
+// WidgetData2ArrayValue is an array variant of the WidgetData2ArrayOrWidgetData1Classification union.
+type WidgetData2ArrayValue struct {
+	Value []*WidgetData2
+}
+
+// MarshalJSON implements the json.Marshaller interface for type WidgetData2ArrayValue.
+// Marshals as a JSON array directly (unwrapping the struct).
+func (w WidgetData2ArrayValue) MarshalJSON() ([]byte, error) {
+	return json.Marshal(w.Value)
+}
+
+// UnmarshalJSON implements the json.Unmarshaller interface for type WidgetData2ArrayValue.
+func (w *WidgetData2ArrayValue) UnmarshalJSON(data []byte) error {
+	return json.Unmarshal(data, &w.Value)
+}
+
+func (*WidgetData2ArrayValue) isWidgetData2ArrayOrWidgetData1Classification() {}
+func (*WidgetData1) isWidgetData2ArrayOrWidgetData1Classification()           {}

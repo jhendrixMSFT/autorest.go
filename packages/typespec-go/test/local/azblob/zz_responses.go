@@ -1924,7 +1924,7 @@ type PageBlobClientGetPageRangesDiffResponse struct {
 	Version *string
 }
 
-// PageBlobClientGetPageRangesResponse contains the response from method PageBlobClient.GetPageRanges.
+// PageBlobClientGetPageRangesResponse contains the response from method PageBlobClient.NewGetPageRangesPager.
 type PageBlobClientGetPageRangesResponse struct {
 	// Represents a page list.
 	PageList

@@ -7,8 +7,9 @@ package addlpropsgroup
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/Azure/azure-sdk-for-go/sdk/azcore"
 	"reflect"
+
+	"github.com/Azure/azure-sdk-for-go/sdk/azcore"
 )
 
 // MarshalJSON implements the json.Marshaller interface for type ExtendsFloatAdditionalProperties.
@@ -737,6 +738,328 @@ func (m *ModelForRecord) UnmarshalJSON(data []byte) error {
 		}
 		if err != nil {
 			return fmt.Errorf("unmarshalling type %T: %v", m, err)
+		}
+	}
+	return nil
+}
+
+// MarshalJSON implements the json.Marshaller interface for type MultipleSpreadRecord.
+func (m MultipleSpreadRecord) MarshalJSON() ([]byte, error) {
+	objectMap := make(map[string]any)
+	populate(objectMap, "flag", m.Flag)
+	if m.AdditionalProperties != nil {
+		for key, val := range m.AdditionalProperties {
+			objectMap[key] = marshalStringOrFloat32Value(val)
+		}
+	}
+	return json.Marshal(objectMap)
+}
+
+// UnmarshalJSON implements the json.Unmarshaller interface for type MultipleSpreadRecord.
+func (m *MultipleSpreadRecord) UnmarshalJSON(data []byte) error {
+	var rawMsg map[string]json.RawMessage
+	if err := json.Unmarshal(data, &rawMsg); err != nil {
+		return fmt.Errorf("unmarshalling type %T: %v", m, err)
+	}
+	for key, val := range rawMsg {
+		var err error
+		switch key {
+		case "flag":
+			err = unpopulate(val, "Flag", &m.Flag)
+			delete(rawMsg, key)
+		default:
+			if m.AdditionalProperties == nil {
+				m.AdditionalProperties = map[string]StringOrFloat32Value{}
+			}
+			if val != nil {
+				aux, e := unmarshalStringOrFloat32Value(val)
+				if e != nil {
+					err = e
+				} else {
+					m.AdditionalProperties[key] = aux
+				}
+			}
+			delete(rawMsg, key)
+		}
+		if err != nil {
+			return fmt.Errorf("unmarshalling type %T: %v", m, err)
+		}
+	}
+	return nil
+}
+
+// MarshalJSON implements the json.Marshaller interface for type SpreadRecordForUnion.
+func (s SpreadRecordForUnion) MarshalJSON() ([]byte, error) {
+	objectMap := make(map[string]any)
+	populate(objectMap, "flag", s.Flag)
+	if s.AdditionalProperties != nil {
+		for key, val := range s.AdditionalProperties {
+			objectMap[key] = marshalStringOrFloat32Value(val)
+		}
+	}
+	return json.Marshal(objectMap)
+}
+
+// UnmarshalJSON implements the json.Unmarshaller interface for type SpreadRecordForUnion.
+func (s *SpreadRecordForUnion) UnmarshalJSON(data []byte) error {
+	var rawMsg map[string]json.RawMessage
+	if err := json.Unmarshal(data, &rawMsg); err != nil {
+		return fmt.Errorf("unmarshalling type %T: %v", s, err)
+	}
+	for key, val := range rawMsg {
+		var err error
+		switch key {
+		case "flag":
+			err = unpopulate(val, "Flag", &s.Flag)
+			delete(rawMsg, key)
+		default:
+			if s.AdditionalProperties == nil {
+				s.AdditionalProperties = map[string]StringOrFloat32Value{}
+			}
+			if val != nil {
+				aux, e := unmarshalStringOrFloat32Value(val)
+				if e != nil {
+					err = e
+				} else {
+					s.AdditionalProperties[key] = aux
+				}
+			}
+			delete(rawMsg, key)
+		}
+		if err != nil {
+			return fmt.Errorf("unmarshalling type %T: %v", s, err)
+		}
+	}
+	return nil
+}
+
+// MarshalJSON implements the json.Marshaller interface for type SpreadRecordForNonDiscriminatedUnion.
+func (s SpreadRecordForNonDiscriminatedUnion) MarshalJSON() ([]byte, error) {
+	objectMap := make(map[string]any)
+	populate(objectMap, "name", s.Name)
+	if s.AdditionalProperties != nil {
+		for key, val := range s.AdditionalProperties {
+			objectMap[key] = val
+		}
+	}
+	return json.Marshal(objectMap)
+}
+
+// UnmarshalJSON implements the json.Unmarshaller interface for type SpreadRecordForNonDiscriminatedUnion.
+func (s *SpreadRecordForNonDiscriminatedUnion) UnmarshalJSON(data []byte) error {
+	var rawMsg map[string]json.RawMessage
+	if err := json.Unmarshal(data, &rawMsg); err != nil {
+		return fmt.Errorf("unmarshalling type %T: %v", s, err)
+	}
+	for key, val := range rawMsg {
+		var err error
+		switch key {
+		case "name":
+			err = unpopulate(val, "Name", &s.Name)
+			delete(rawMsg, key)
+		default:
+			if s.AdditionalProperties == nil {
+				s.AdditionalProperties = map[string]WidgetData0Or1Classification{}
+			}
+			if val != nil {
+				aux, e := unmarshalWidgetData0Or1Classification(val)
+				if e != nil {
+					err = e
+				} else {
+					s.AdditionalProperties[key] = aux
+				}
+			}
+			delete(rawMsg, key)
+		}
+		if err != nil {
+			return fmt.Errorf("unmarshalling type %T: %v", s, err)
+		}
+	}
+	return nil
+}
+
+// MarshalJSON implements the json.Marshaller interface for type SpreadRecordForNonDiscriminatedUnion2.
+func (s SpreadRecordForNonDiscriminatedUnion2) MarshalJSON() ([]byte, error) {
+	objectMap := make(map[string]any)
+	populate(objectMap, "name", s.Name)
+	if s.AdditionalProperties != nil {
+		for key, val := range s.AdditionalProperties {
+			objectMap[key] = val
+		}
+	}
+	return json.Marshal(objectMap)
+}
+
+// UnmarshalJSON implements the json.Unmarshaller interface for type SpreadRecordForNonDiscriminatedUnion2.
+func (s *SpreadRecordForNonDiscriminatedUnion2) UnmarshalJSON(data []byte) error {
+	var rawMsg map[string]json.RawMessage
+	if err := json.Unmarshal(data, &rawMsg); err != nil {
+		return fmt.Errorf("unmarshalling type %T: %v", s, err)
+	}
+	for key, val := range rawMsg {
+		var err error
+		switch key {
+		case "name":
+			err = unpopulate(val, "Name", &s.Name)
+			delete(rawMsg, key)
+		default:
+			if s.AdditionalProperties == nil {
+				s.AdditionalProperties = map[string]WidgetData2Or1Classification{}
+			}
+			if val != nil {
+				aux, e := unmarshalWidgetData2Or1Classification(val)
+				if e != nil {
+					err = e
+				} else {
+					s.AdditionalProperties[key] = aux
+				}
+			}
+			delete(rawMsg, key)
+		}
+		if err != nil {
+			return fmt.Errorf("unmarshalling type %T: %v", s, err)
+		}
+	}
+	return nil
+}
+
+// MarshalJSON implements the json.Marshaller interface for type SpreadRecordForNonDiscriminatedUnion3.
+func (s SpreadRecordForNonDiscriminatedUnion3) MarshalJSON() ([]byte, error) {
+	objectMap := make(map[string]any)
+	populate(objectMap, "name", s.Name)
+	if s.AdditionalProperties != nil {
+		for key, val := range s.AdditionalProperties {
+			objectMap[key] = val
+		}
+	}
+	return json.Marshal(objectMap)
+}
+
+// UnmarshalJSON implements the json.Unmarshaller interface for type SpreadRecordForNonDiscriminatedUnion3.
+func (s *SpreadRecordForNonDiscriminatedUnion3) UnmarshalJSON(data []byte) error {
+	var rawMsg map[string]json.RawMessage
+	if err := json.Unmarshal(data, &rawMsg); err != nil {
+		return fmt.Errorf("unmarshalling type %T: %v", s, err)
+	}
+	for key, val := range rawMsg {
+		var err error
+		switch key {
+		case "name":
+			err = unpopulate(val, "Name", &s.Name)
+			delete(rawMsg, key)
+		default:
+			if s.AdditionalProperties == nil {
+				s.AdditionalProperties = map[string]WidgetData2ArrayOrWidgetData1Classification{}
+			}
+			if val != nil {
+				aux, e := unmarshalWidgetData2ArrayOrWidgetData1Classification(val)
+				if e != nil {
+					err = e
+				} else {
+					s.AdditionalProperties[key] = aux
+				}
+			}
+			delete(rawMsg, key)
+		}
+		if err != nil {
+			return fmt.Errorf("unmarshalling type %T: %v", s, err)
+		}
+	}
+	return nil
+}
+
+// MarshalJSON implements the json.Marshaller interface for type WidgetData0.
+func (w WidgetData0) MarshalJSON() ([]byte, error) {
+	objectMap := make(map[string]any)
+	populate(objectMap, "kind", w.Kind)
+	populate(objectMap, "fooProp", w.FooProp)
+	return json.Marshal(objectMap)
+}
+
+// UnmarshalJSON implements the json.Unmarshaller interface for type WidgetData0.
+func (w *WidgetData0) UnmarshalJSON(data []byte) error {
+	var rawMsg map[string]json.RawMessage
+	if err := json.Unmarshal(data, &rawMsg); err != nil {
+		return fmt.Errorf("unmarshalling type %T: %v", w, err)
+	}
+	for key, val := range rawMsg {
+		var err error
+		switch key {
+		case "kind":
+			err = unpopulate(val, "Kind", &w.Kind)
+			delete(rawMsg, key)
+		case "fooProp":
+			err = unpopulate(val, "FooProp", &w.FooProp)
+			delete(rawMsg, key)
+		}
+		if err != nil {
+			return fmt.Errorf("unmarshalling type %T: %v", w, err)
+		}
+	}
+	return nil
+}
+
+// MarshalJSON implements the json.Marshaller interface for type WidgetData1.
+func (w WidgetData1) MarshalJSON() ([]byte, error) {
+	objectMap := make(map[string]any)
+	populate(objectMap, "kind", w.Kind)
+	populate(objectMap, "start", w.Start)
+	populate(objectMap, "end", w.End)
+	return json.Marshal(objectMap)
+}
+
+// UnmarshalJSON implements the json.Unmarshaller interface for type WidgetData1.
+func (w *WidgetData1) UnmarshalJSON(data []byte) error {
+	var rawMsg map[string]json.RawMessage
+	if err := json.Unmarshal(data, &rawMsg); err != nil {
+		return fmt.Errorf("unmarshalling type %T: %v", w, err)
+	}
+	for key, val := range rawMsg {
+		var err error
+		switch key {
+		case "kind":
+			err = unpopulate(val, "Kind", &w.Kind)
+			delete(rawMsg, key)
+		case "start":
+			err = unpopulate(val, "Start", &w.Start)
+			delete(rawMsg, key)
+		case "end":
+			err = unpopulate(val, "End", &w.End)
+			delete(rawMsg, key)
+		}
+		if err != nil {
+			return fmt.Errorf("unmarshalling type %T: %v", w, err)
+		}
+	}
+	return nil
+}
+
+// MarshalJSON implements the json.Marshaller interface for type WidgetData2.
+func (w WidgetData2) MarshalJSON() ([]byte, error) {
+	objectMap := make(map[string]any)
+	populate(objectMap, "kind", w.Kind)
+	populate(objectMap, "start", w.Start)
+	return json.Marshal(objectMap)
+}
+
+// UnmarshalJSON implements the json.Unmarshaller interface for type WidgetData2.
+func (w *WidgetData2) UnmarshalJSON(data []byte) error {
+	var rawMsg map[string]json.RawMessage
+	if err := json.Unmarshal(data, &rawMsg); err != nil {
+		return fmt.Errorf("unmarshalling type %T: %v", w, err)
+	}
+	for key, val := range rawMsg {
+		var err error
+		switch key {
+		case "kind":
+			err = unpopulate(val, "Kind", &w.Kind)
+			delete(rawMsg, key)
+		case "start":
+			err = unpopulate(val, "Start", &w.Start)
+			delete(rawMsg, key)
+		}
+		if err != nil {
+			return fmt.Errorf("unmarshalling type %T: %v", w, err)
 		}
 	}
 	return nil

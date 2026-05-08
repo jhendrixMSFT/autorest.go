@@ -2136,7 +2136,7 @@ type PageBlobClientGetPageRangesDiffOptions struct {
 	Timeout *int32
 }
 
-// PageBlobClientGetPageRangesOptions contains the optional parameters for the PageBlobClient.GetPageRanges method.
+// PageBlobClientGetPageRangesOptions contains the optional parameters for the PageBlobClient.NewGetPageRangesPager method.
 type PageBlobClientGetPageRangesOptions struct {
 	// An opaque, globally-unique, client-generated string identifier for the request.
 	ClientRequestID *string
