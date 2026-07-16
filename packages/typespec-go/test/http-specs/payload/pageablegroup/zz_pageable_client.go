@@ -7,6 +7,9 @@ package pageablegroup
 import (
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/runtime"
+	"pageablegroup/pagesize"
+	"pageablegroup/serverdrivenpagination"
+	"pageablegroup/xmlpagination"
 )
 
 // PageableClient - Test for pageable payload.
@@ -39,25 +42,25 @@ func NewPageableClientWithNoCredential(endpoint string, options *PageableClientO
 	return client, nil
 }
 
-// NewPageablePageSizeClient creates a new instance of [PageablePageSizeClient].
-func (client *PageableClient) NewPageablePageSizeClient() *PageablePageSizeClient {
-	return &PageablePageSizeClient{
+// NewPageablePageSizeClient creates a new instance of [pagesize.PageablePageSizeClient].
+func (client *PageableClient) NewPageablePageSizeClient() *pagesize.PageablePageSizeClient {
+	return &pagesize.PageablePageSizeClient{
 		endpoint: client.endpoint,
 		internal: client.internal,
 	}
 }
 
-// NewPageableServerDrivenPaginationClient creates a new instance of [PageableServerDrivenPaginationClient].
-func (client *PageableClient) NewPageableServerDrivenPaginationClient() *PageableServerDrivenPaginationClient {
-	return &PageableServerDrivenPaginationClient{
+// NewPageableServerDrivenPaginationClient creates a new instance of [serverdrivenpagination.PageableServerDrivenPaginationClient].
+func (client *PageableClient) NewPageableServerDrivenPaginationClient() *serverdrivenpagination.PageableServerDrivenPaginationClient {
+	return &serverdrivenpagination.PageableServerDrivenPaginationClient{
 		endpoint: client.endpoint,
 		internal: client.internal,
 	}
 }
 
-// NewPageableXMLPaginationClient creates a new instance of [PageableXMLPaginationClient].
-func (client *PageableClient) NewPageableXMLPaginationClient() *PageableXMLPaginationClient {
-	return &PageableXMLPaginationClient{
+// NewPageableXMLPaginationClient creates a new instance of [xmlpagination.PageableXMLPaginationClient].
+func (client *PageableClient) NewPageableXMLPaginationClient() *xmlpagination.PageableXMLPaginationClient {
+	return &xmlpagination.PageableXMLPaginationClient{
 		endpoint: client.endpoint,
 		internal: client.internal,
 	}

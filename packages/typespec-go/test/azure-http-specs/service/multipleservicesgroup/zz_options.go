@@ -8,18 +8,3 @@ package multipleservicesgroup
 type ServiceAOperationsClientOpAOptions struct {
 	// placeholder for future optional parameters
 }
-
-// ServiceASubNamespaceClientSubOpAOptions contains the optional parameters for the ServiceASubNamespaceClient.SubOpA method.
-type ServiceASubNamespaceClientSubOpAOptions struct {
-	// placeholder for future optional parameters
-}
-
-// ServiceBOperationsClientOpBOptions contains the optional parameters for the ServiceBOperationsClient.OpB method.
-type ServiceBOperationsClientOpBOptions struct {
-	// placeholder for future optional parameters
-}
-
-// ServiceBSubNamespaceClientSubOpBOptions contains the optional parameters for the ServiceBSubNamespaceClient.SubOpB method.
-type ServiceBSubNamespaceClientSubOpBOptions struct {
-	// placeholder for future optional parameters
-}

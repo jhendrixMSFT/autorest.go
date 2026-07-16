@@ -7,16 +7,18 @@ package fake
 import (
 	"errors"
 	"fmt"
-	"github.com/Azure/azure-sdk-for-go/sdk/azcore/runtime"
+	propertyfake "jsongroup/property/fake"
 	"net/http"
 	"strings"
 	"sync"
+
+	"github.com/Azure/azure-sdk-for-go/sdk/azcore/runtime"
 )
 
 // JSONServer is a fake server for instances of the jsongroup.JSONClient type.
 type JSONServer struct {
 	// JSONPropertyServer contains the fakes for client JSONPropertyClient
-	JSONPropertyServer JSONPropertyServer
+	JSONPropertyServer propertyfake.JSONPropertyServer
 }
 
 // NewJSONServerTransport creates a new instance of JSONServerTransport with the provided implementation.
@@ -31,7 +33,7 @@ func NewJSONServerTransport(srv *JSONServer) *JSONServerTransport {
 type JSONServerTransport struct {
 	srv                  *JSONServer
 	trMu                 sync.Mutex
-	trJSONPropertyServer *JSONPropertyServerTransport
+	trJSONPropertyServer *propertyfake.JSONPropertyServerTransport
 }
 
 // Do implements the policy.Transporter interface for JSONServerTransport.
@@ -51,8 +53,8 @@ func (j *JSONServerTransport) dispatchToClientFake(req *http.Request, client str
 
 	switch client {
 	case "JSONPropertyClient":
-		initServer(&j.trMu, &j.trJSONPropertyServer, func() *JSONPropertyServerTransport {
-			return NewJSONPropertyServerTransport(&j.srv.JSONPropertyServer)
+		initServer(&j.trMu, &j.trJSONPropertyServer, func() *propertyfake.JSONPropertyServerTransport {
+			return propertyfake.NewJSONPropertyServerTransport(&j.srv.JSONPropertyServer)
 		})
 		resp, err = j.trJSONPropertyServer.Do(req)
 	default:

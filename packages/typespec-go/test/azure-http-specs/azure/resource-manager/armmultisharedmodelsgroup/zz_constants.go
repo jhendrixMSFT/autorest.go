@@ -4,11 +4,6 @@
 
 package armmultisharedmodelsgroup
 
-const (
-	version20250201 string = "2025-02-01"
-	version20250501 string = "2025-05-01"
-)
-
 // CreatedByType - The kind of entity that created the resource.
 type CreatedByType string
 

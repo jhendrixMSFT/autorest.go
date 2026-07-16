@@ -6,6 +6,7 @@ package enumconflictgroup
 
 import (
 	"context"
+	"enumconflictgroup/firstnamespace"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/policy"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/runtime"
@@ -23,7 +24,7 @@ type EnumConflictFirstOperationsClient struct {
 // If the operation fails it returns an *azcore.ResponseError type.
 //   - options - EnumConflictFirstOperationsClientFirstOptions contains the optional parameters for the EnumConflictFirstOperationsClient.First
 //     method.
-func (client *EnumConflictFirstOperationsClient) First(ctx context.Context, body FirstModel, options *EnumConflictFirstOperationsClientFirstOptions) (EnumConflictFirstOperationsClientFirstResponse, error) {
+func (client *EnumConflictFirstOperationsClient) First(ctx context.Context, body firstnamespace.FirstModel, options *EnumConflictFirstOperationsClientFirstOptions) (EnumConflictFirstOperationsClientFirstResponse, error) {
 	var err error
 	const operationName = "EnumConflictFirstOperationsClient.First"
 	ctx = context.WithValue(ctx, runtime.CtxAPINameKey{}, operationName)
@@ -46,7 +47,7 @@ func (client *EnumConflictFirstOperationsClient) First(ctx context.Context, body
 }
 
 // firstCreateRequest creates the First request.
-func (client *EnumConflictFirstOperationsClient) firstCreateRequest(ctx context.Context, body FirstModel, _ *EnumConflictFirstOperationsClientFirstOptions) (*policy.Request, error) {
+func (client *EnumConflictFirstOperationsClient) firstCreateRequest(ctx context.Context, body firstnamespace.FirstModel, _ *EnumConflictFirstOperationsClientFirstOptions) (*policy.Request, error) {
 	urlPath := "/client/naming/enum-conflict/first"
 	req, err := runtime.NewRequest(ctx, http.MethodPost, runtime.JoinPaths(client.endpoint, urlPath))
 	if err != nil {

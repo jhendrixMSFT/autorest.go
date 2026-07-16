@@ -5,6 +5,7 @@
 package bodyoptionalgroup
 
 import (
+	"bodyoptionalgroup/optionalexplicit"
 	"context"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/policy"
@@ -42,9 +43,9 @@ func NewBodyOptionalityClientWithNoCredential(endpoint string, options *BodyOpti
 	return client, nil
 }
 
-// NewBodyOptionalityOptionalExplicitClient creates a new instance of [BodyOptionalityOptionalExplicitClient].
-func (client *BodyOptionalityClient) NewBodyOptionalityOptionalExplicitClient() *BodyOptionalityOptionalExplicitClient {
-	return &BodyOptionalityOptionalExplicitClient{
+// NewBodyOptionalityOptionalExplicitClient creates a new instance of [optionalexplicit.BodyOptionalityOptionalExplicitClient].
+func (client *BodyOptionalityClient) NewBodyOptionalityOptionalExplicitClient() *optionalexplicit.BodyOptionalityOptionalExplicitClient {
+	return &optionalexplicit.BodyOptionalityOptionalExplicitClient{
 		endpoint: client.endpoint,
 		internal: client.internal,
 	}

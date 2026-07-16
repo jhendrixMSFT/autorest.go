@@ -5,6 +5,10 @@
 package datetimegroup
 
 import (
+	"datetimegroup/header"
+	"datetimegroup/property"
+	"datetimegroup/query"
+	"datetimegroup/responseheader"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/runtime"
 )
@@ -39,33 +43,33 @@ func NewDatetimeClientWithNoCredential(endpoint string, options *DatetimeClientO
 	return client, nil
 }
 
-// NewDatetimeHeaderClient creates a new instance of [DatetimeHeaderClient].
-func (client *DatetimeClient) NewDatetimeHeaderClient() *DatetimeHeaderClient {
-	return &DatetimeHeaderClient{
+// NewDatetimeHeaderClient creates a new instance of [header.DatetimeHeaderClient].
+func (client *DatetimeClient) NewDatetimeHeaderClient() *header.DatetimeHeaderClient {
+	return &header.DatetimeHeaderClient{
 		endpoint: client.endpoint,
 		internal: client.internal,
 	}
 }
 
-// NewDatetimePropertyClient creates a new instance of [DatetimePropertyClient].
-func (client *DatetimeClient) NewDatetimePropertyClient() *DatetimePropertyClient {
-	return &DatetimePropertyClient{
+// NewDatetimePropertyClient creates a new instance of [property.DatetimePropertyClient].
+func (client *DatetimeClient) NewDatetimePropertyClient() *property.DatetimePropertyClient {
+	return &property.DatetimePropertyClient{
 		endpoint: client.endpoint,
 		internal: client.internal,
 	}
 }
 
-// NewDatetimeQueryClient creates a new instance of [DatetimeQueryClient].
-func (client *DatetimeClient) NewDatetimeQueryClient() *DatetimeQueryClient {
-	return &DatetimeQueryClient{
+// NewDatetimeQueryClient creates a new instance of [query.DatetimeQueryClient].
+func (client *DatetimeClient) NewDatetimeQueryClient() *query.DatetimeQueryClient {
+	return &query.DatetimeQueryClient{
 		endpoint: client.endpoint,
 		internal: client.internal,
 	}
 }
 
-// NewDatetimeResponseHeaderClient creates a new instance of [DatetimeResponseHeaderClient].
-func (client *DatetimeClient) NewDatetimeResponseHeaderClient() *DatetimeResponseHeaderClient {
-	return &DatetimeResponseHeaderClient{
+// NewDatetimeResponseHeaderClient creates a new instance of [responseheader.DatetimeResponseHeaderClient].
+func (client *DatetimeClient) NewDatetimeResponseHeaderClient() *responseheader.DatetimeResponseHeaderClient {
+	return &responseheader.DatetimeResponseHeaderClient{
 		endpoint: client.endpoint,
 		internal: client.internal,
 	}

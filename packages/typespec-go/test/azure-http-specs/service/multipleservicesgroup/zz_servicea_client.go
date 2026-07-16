@@ -7,6 +7,8 @@ package multipleservicesgroup
 import (
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/runtime"
+	"multipleservicesgroup/internal"
+	"multipleservicesgroup/subnamespace"
 )
 
 // ServiceAClient - First service definition in a multiple-services package with versioning.
@@ -29,7 +31,7 @@ func NewServiceAClientWithNoCredential(endpoint string, options *ServiceAClientO
 	if options == nil {
 		options = &ServiceAClientOptions{}
 	}
-	cl, err := azcore.NewClient(moduleName, moduleVersion, runtime.PipelineOptions{}, &options.ClientOptions)
+	cl, err := azcore.NewClient(internal.ModuleName, internal.ModuleVersion, runtime.PipelineOptions{}, &options.ClientOptions)
 	if err != nil {
 		return nil, err
 	}
@@ -48,9 +50,9 @@ func (client *ServiceAClient) NewServiceAOperationsClient() *ServiceAOperationsC
 	}
 }
 
-// NewServiceASubNamespaceClient creates a new instance of [ServiceASubNamespaceClient].
-func (client *ServiceAClient) NewServiceASubNamespaceClient() *ServiceASubNamespaceClient {
-	return &ServiceASubNamespaceClient{
+// NewServiceASubNamespaceClient creates a new instance of [subnamespace.ServiceASubNamespaceClient].
+func (client *ServiceAClient) NewServiceASubNamespaceClient() *subnamespace.ServiceASubNamespaceClient {
+	return &subnamespace.ServiceASubNamespaceClient{
 		endpoint: client.endpoint,
 		internal: client.internal,
 	}

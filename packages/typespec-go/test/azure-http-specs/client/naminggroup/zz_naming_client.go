@@ -9,6 +9,10 @@ import (
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/policy"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/runtime"
+	"naminggroup/header"
+	"naminggroup/model"
+	"naminggroup/property"
+	"naminggroup/unionenum"
 	"net/http"
 	"strings"
 )
@@ -43,33 +47,33 @@ func NewNamingClientWithNoCredential(endpoint string, options *NamingClientOptio
 	return client, nil
 }
 
-// NewNamingHeaderClient creates a new instance of [NamingHeaderClient].
-func (client *NamingClient) NewNamingHeaderClient() *NamingHeaderClient {
-	return &NamingHeaderClient{
+// NewNamingHeaderClient creates a new instance of [header.NamingHeaderClient].
+func (client *NamingClient) NewNamingHeaderClient() *header.NamingHeaderClient {
+	return &header.NamingHeaderClient{
 		endpoint: client.endpoint,
 		internal: client.internal,
 	}
 }
 
-// NewNamingModelClient creates a new instance of [NamingModelClient].
-func (client *NamingClient) NewNamingModelClient() *NamingModelClient {
-	return &NamingModelClient{
+// NewNamingModelClient creates a new instance of [model.NamingModelClient].
+func (client *NamingClient) NewNamingModelClient() *model.NamingModelClient {
+	return &model.NamingModelClient{
 		endpoint: client.endpoint,
 		internal: client.internal,
 	}
 }
 
-// NewNamingPropertyClient creates a new instance of [NamingPropertyClient].
-func (client *NamingClient) NewNamingPropertyClient() *NamingPropertyClient {
-	return &NamingPropertyClient{
+// NewNamingPropertyClient creates a new instance of [property.NamingPropertyClient].
+func (client *NamingClient) NewNamingPropertyClient() *property.NamingPropertyClient {
+	return &property.NamingPropertyClient{
 		endpoint: client.endpoint,
 		internal: client.internal,
 	}
 }
 
-// NewNamingUnionEnumClient creates a new instance of [NamingUnionEnumClient].
-func (client *NamingClient) NewNamingUnionEnumClient() *NamingUnionEnumClient {
-	return &NamingUnionEnumClient{
+// NewNamingUnionEnumClient creates a new instance of [unionenum.NamingUnionEnumClient].
+func (client *NamingClient) NewNamingUnionEnumClient() *unionenum.NamingUnionEnumClient {
+	return &unionenum.NamingUnionEnumClient{
 		endpoint: client.endpoint,
 		internal: client.internal,
 	}

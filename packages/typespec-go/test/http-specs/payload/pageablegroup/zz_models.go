@@ -4,50 +4,6 @@
 
 package pageablegroup
 
-type Filter struct {
-	// REQUIRED
-	Filter *string
-}
-
-type LinkResponse struct {
-	// REQUIRED
-	Pets []*Pet
-	Next *string
-}
-
-type LinkStringResponse struct {
-	// REQUIRED
-	Pets []*Pet
-	Next *string
-}
-
-type ListWithPageSizeResponse struct {
-	// REQUIRED
-	Pets []*Pet
-}
-
-type ListWithoutContinuationResponse struct {
-	// REQUIRED
-	Pets []*Pet
-}
-
-type NestedLinkResponse struct {
-	// REQUIRED
-	NestedItems *NestedLinkResponseNestedItems
-
-	// REQUIRED
-	NestedNext *NestedLinkResponseNestedNext
-}
-
-type NestedLinkResponseNestedItems struct {
-	// REQUIRED
-	Pets []*Pet
-}
-
-type NestedLinkResponseNestedNext struct {
-	Next *string
-}
-
 type Pet struct {
 	// REQUIRED
 	ID *string
@@ -56,57 +12,9 @@ type Pet struct {
 	Name *string
 }
 
-type PostResponse struct {
-	// REQUIRED
-	Pets []*Pet
-	Next *string
-}
-
-type RequestHeaderNestedResponseBodyResponse struct {
-	// REQUIRED
-	NestedItems *RequestHeaderNestedResponseBodyResponseNestedItems
-	NestedNext  *RequestHeaderNestedResponseBodyResponseNestedNext
-}
-
-type RequestHeaderNestedResponseBodyResponseNestedItems struct {
-	// REQUIRED
-	Pets []*Pet
-}
-
-type RequestHeaderNestedResponseBodyResponseNestedNext struct {
-	NextToken *string
-}
-
-type RequestHeaderResponseBodyResponse struct {
-	// REQUIRED
-	Pets      []*Pet
-	NextToken *string
-}
-
 type RequestHeaderResponseHeaderResponse struct {
 	// REQUIRED
 	Pets []*Pet
-}
-
-type RequestQueryNestedResponseBodyResponse struct {
-	// REQUIRED
-	NestedItems *RequestQueryNestedResponseBodyResponseNestedItems
-	NestedNext  *RequestQueryNestedResponseBodyResponseNestedNext
-}
-
-type RequestQueryNestedResponseBodyResponseNestedItems struct {
-	// REQUIRED
-	Pets []*Pet
-}
-
-type RequestQueryNestedResponseBodyResponseNestedNext struct {
-	NextToken *string
-}
-
-type RequestQueryResponseBodyResponse struct {
-	// REQUIRED
-	Pets      []*Pet
-	NextToken *string
 }
 
 type RequestQueryResponseHeaderResponse struct {
@@ -117,22 +25,22 @@ type RequestQueryResponseHeaderResponse struct {
 // XMLPet - An XML pet item.
 type XMLPet struct {
 	// REQUIRED
-	ID *string `xml:"Id"`
+	ID *string
 
 	// REQUIRED
-	Name *string `xml:"Name"`
+	Name *string
 }
 
 // XMLPetListResult - The XML response for listing pets.
 type XMLPetListResult struct {
 	// REQUIRED
-	Pets       []*XMLPet `xml:"Pets>Pet"`
-	NextMarker *string   `xml:"NextMarker"`
+	Pets       []*XMLPet
+	NextMarker *string
 }
 
 // XMLPetListResultWithNextLink - The XML response for listing pets with next link.
 type XMLPetListResultWithNextLink struct {
 	// REQUIRED
-	Pets     []*XMLPet `xml:"Pets>Pet"`
-	NextLink *string   `xml:"NextLink"`
+	Pets     []*XMLPet
+	NextLink *string
 }

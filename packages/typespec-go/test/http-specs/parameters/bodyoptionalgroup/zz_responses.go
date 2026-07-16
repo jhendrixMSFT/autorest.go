@@ -13,13 +13,3 @@ type BodyOptionalityClientRequiredExplicitResponse struct {
 type BodyOptionalityClientRequiredImplicitResponse struct {
 	// placeholder for future response values
 }
-
-// BodyOptionalityOptionalExplicitClientOmitResponse contains the response from method BodyOptionalityOptionalExplicitClient.Omit.
-type BodyOptionalityOptionalExplicitClientOmitResponse struct {
-	// placeholder for future response values
-}
-
-// BodyOptionalityOptionalExplicitClientSetResponse contains the response from method BodyOptionalityOptionalExplicitClient.Set.
-type BodyOptionalityOptionalExplicitClientSetResponse struct {
-	// placeholder for future response values
-}

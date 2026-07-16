@@ -6,6 +6,7 @@ package jsongroup_test
 import (
 	"context"
 	"jsongroup"
+	"jsongroup/property"
 	"testing"
 
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/to"
@@ -23,6 +24,6 @@ func TestJSONClientGet(t *testing.T) {
 func TestJSONClientSend(t *testing.T) {
 	client, err := jsongroup.NewJSONClientWithNoCredential("http://localhost:3000", nil)
 	require.NoError(t, err)
-	_, err = client.NewJSONPropertyClient().Send(context.Background(), jsongroup.JSONEncodedNameModel{DefaultName: to.Ptr(true)}, nil)
+	_, err = client.NewJSONPropertyClient().Send(context.Background(), property.JSONEncodedNameModel{DefaultName: to.Ptr(true)}, nil)
 	require.NoError(t, err)
 }

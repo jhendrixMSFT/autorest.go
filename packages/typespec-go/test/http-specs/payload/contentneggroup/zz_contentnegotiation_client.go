@@ -5,6 +5,8 @@
 package contentneggroup
 
 import (
+	"contentneggroup/differentbody"
+	"contentneggroup/samebody"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/runtime"
 )
@@ -39,17 +41,17 @@ func NewContentNegotiationClientWithNoCredential(endpoint string, options *Conte
 	return client, nil
 }
 
-// NewContentNegotiationDifferentBodyClient creates a new instance of [ContentNegotiationDifferentBodyClient].
-func (client *ContentNegotiationClient) NewContentNegotiationDifferentBodyClient() *ContentNegotiationDifferentBodyClient {
-	return &ContentNegotiationDifferentBodyClient{
+// NewContentNegotiationDifferentBodyClient creates a new instance of [differentbody.ContentNegotiationDifferentBodyClient].
+func (client *ContentNegotiationClient) NewContentNegotiationDifferentBodyClient() *differentbody.ContentNegotiationDifferentBodyClient {
+	return &differentbody.ContentNegotiationDifferentBodyClient{
 		endpoint: client.endpoint,
 		internal: client.internal,
 	}
 }
 
-// NewContentNegotiationSameBodyClient creates a new instance of [ContentNegotiationSameBodyClient].
-func (client *ContentNegotiationClient) NewContentNegotiationSameBodyClient() *ContentNegotiationSameBodyClient {
-	return &ContentNegotiationSameBodyClient{
+// NewContentNegotiationSameBodyClient creates a new instance of [samebody.ContentNegotiationSameBodyClient].
+func (client *ContentNegotiationClient) NewContentNegotiationSameBodyClient() *samebody.ContentNegotiationSameBodyClient {
+	return &samebody.ContentNegotiationSameBodyClient{
 		endpoint: client.endpoint,
 		internal: client.internal,
 	}

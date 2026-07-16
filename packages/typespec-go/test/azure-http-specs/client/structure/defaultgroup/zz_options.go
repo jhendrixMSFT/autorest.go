@@ -14,11 +14,6 @@ type ServiceBarClientSixOptions struct {
 	// placeholder for future optional parameters
 }
 
-// ServiceBazFooClientSevenOptions contains the optional parameters for the ServiceBazFooClient.Seven method.
-type ServiceBazFooClientSevenOptions struct {
-	// placeholder for future optional parameters
-}
-
 // ServiceClientOneOptions contains the optional parameters for the ServiceClient.One method.
 type ServiceClientOneOptions struct {
 	// placeholder for future optional parameters
@@ -36,15 +31,5 @@ type ServiceFooClientFourOptions struct {
 
 // ServiceFooClientThreeOptions contains the optional parameters for the ServiceFooClient.Three method.
 type ServiceFooClientThreeOptions struct {
-	// placeholder for future optional parameters
-}
-
-// ServiceQuxBarClientNineOptions contains the optional parameters for the ServiceQuxBarClient.Nine method.
-type ServiceQuxBarClientNineOptions struct {
-	// placeholder for future optional parameters
-}
-
-// ServiceQuxClientEightOptions contains the optional parameters for the ServiceQuxClient.Eight method.
-type ServiceQuxClientEightOptions struct {
 	// placeholder for future optional parameters
 }

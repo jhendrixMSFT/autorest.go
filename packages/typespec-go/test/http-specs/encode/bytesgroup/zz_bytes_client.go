@@ -5,6 +5,11 @@
 package bytesgroup
 
 import (
+	"bytesgroup/header"
+	"bytesgroup/property"
+	"bytesgroup/query"
+	"bytesgroup/requestbody"
+	"bytesgroup/responsebody"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/runtime"
 )
@@ -39,41 +44,41 @@ func NewBytesClientWithNoCredential(endpoint string, options *BytesClientOptions
 	return client, nil
 }
 
-// NewBytesHeaderClient creates a new instance of [BytesHeaderClient].
-func (client *BytesClient) NewBytesHeaderClient() *BytesHeaderClient {
-	return &BytesHeaderClient{
+// NewBytesHeaderClient creates a new instance of [header.BytesHeaderClient].
+func (client *BytesClient) NewBytesHeaderClient() *header.BytesHeaderClient {
+	return &header.BytesHeaderClient{
 		endpoint: client.endpoint,
 		internal: client.internal,
 	}
 }
 
-// NewBytesPropertyClient creates a new instance of [BytesPropertyClient].
-func (client *BytesClient) NewBytesPropertyClient() *BytesPropertyClient {
-	return &BytesPropertyClient{
+// NewBytesPropertyClient creates a new instance of [property.BytesPropertyClient].
+func (client *BytesClient) NewBytesPropertyClient() *property.BytesPropertyClient {
+	return &property.BytesPropertyClient{
 		endpoint: client.endpoint,
 		internal: client.internal,
 	}
 }
 
-// NewBytesQueryClient creates a new instance of [BytesQueryClient].
-func (client *BytesClient) NewBytesQueryClient() *BytesQueryClient {
-	return &BytesQueryClient{
+// NewBytesQueryClient creates a new instance of [query.BytesQueryClient].
+func (client *BytesClient) NewBytesQueryClient() *query.BytesQueryClient {
+	return &query.BytesQueryClient{
 		endpoint: client.endpoint,
 		internal: client.internal,
 	}
 }
 
-// NewBytesRequestBodyClient creates a new instance of [BytesRequestBodyClient].
-func (client *BytesClient) NewBytesRequestBodyClient() *BytesRequestBodyClient {
-	return &BytesRequestBodyClient{
+// NewBytesRequestBodyClient creates a new instance of [requestbody.BytesRequestBodyClient].
+func (client *BytesClient) NewBytesRequestBodyClient() *requestbody.BytesRequestBodyClient {
+	return &requestbody.BytesRequestBodyClient{
 		endpoint: client.endpoint,
 		internal: client.internal,
 	}
 }
 
-// NewBytesResponseBodyClient creates a new instance of [BytesResponseBodyClient].
-func (client *BytesClient) NewBytesResponseBodyClient() *BytesResponseBodyClient {
-	return &BytesResponseBodyClient{
+// NewBytesResponseBodyClient creates a new instance of [responsebody.BytesResponseBodyClient].
+func (client *BytesClient) NewBytesResponseBodyClient() *responsebody.BytesResponseBodyClient {
+	return &responsebody.BytesResponseBodyClient{
 		endpoint: client.endpoint,
 		internal: client.internal,
 	}

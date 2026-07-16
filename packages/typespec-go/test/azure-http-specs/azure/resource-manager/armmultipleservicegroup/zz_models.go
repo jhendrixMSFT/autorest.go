@@ -6,36 +6,6 @@ package armmultipleservicegroup
 
 import "time"
 
-// Disk resource.
-type Disk struct {
-	// REQUIRED; The geo-location where the resource lives
-	Location *string
-
-	// The resource-specific properties for this resource.
-	Properties *DiskProperties
-
-	// Resource tags.
-	Tags map[string]*string
-
-	// READ-ONLY; Fully qualified resource ID for the resource. Ex - /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/{resourceProviderNamespace}/{resourceType}/{resourceName}
-	ID *string
-
-	// READ-ONLY; The name of the resource
-	Name *string
-
-	// READ-ONLY; Azure Resource Manager metadata containing createdBy and modifiedBy information.
-	SystemData *SystemData
-
-	// READ-ONLY; The type of the resource. E.g. "Microsoft.Compute/virtualMachines" or "Microsoft.Storage/storageAccounts"
-	Type *string
-}
-
-// DiskProperties - Disk resource properties.
-type DiskProperties struct {
-	// READ-ONLY
-	ProvisioningState *ResourceProvisioningState
-}
-
 // SystemData - Metadata pertaining to creation and last modification of the resource.
 type SystemData struct {
 	// The timestamp of resource creation (UTC).
@@ -55,33 +25,4 @@ type SystemData struct {
 
 	// The type of identity that last modified the resource.
 	LastModifiedByType *CreatedByType
-}
-
-// VirtualMachine - Describes a Virtual Machine.
-type VirtualMachine struct {
-	// REQUIRED; The geo-location where the resource lives
-	Location *string
-
-	// The resource-specific properties for this resource.
-	Properties *VirtualMachineProperties
-
-	// Resource tags.
-	Tags map[string]*string
-
-	// READ-ONLY; Fully qualified resource ID for the resource. Ex - /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/{resourceProviderNamespace}/{resourceType}/{resourceName}
-	ID *string
-
-	// READ-ONLY; The name of the resource
-	Name *string
-
-	// READ-ONLY; Azure Resource Manager metadata containing createdBy and modifiedBy information.
-	SystemData *SystemData
-
-	// READ-ONLY; The type of the resource. E.g. "Microsoft.Compute/virtualMachines" or "Microsoft.Storage/storageAccounts"
-	Type *string
-}
-
-type VirtualMachineProperties struct {
-	// READ-ONLY
-	ProvisioningState *ResourceProvisioningState
 }

@@ -6,6 +6,8 @@ package defaultgroup
 
 import (
 	"context"
+	"defaultgroup/baz"
+	"defaultgroup/qux"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/policy"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/runtime"
@@ -61,9 +63,9 @@ func (client *ServiceClient) NewServiceBarClient() *ServiceBarClient {
 	}
 }
 
-// NewServiceBazClient creates a new instance of [ServiceBazClient].
-func (client *ServiceClient) NewServiceBazClient() *ServiceBazClient {
-	return &ServiceBazClient{
+// NewServiceBazClient creates a new instance of [baz.ServiceBazClient].
+func (client *ServiceClient) NewServiceBazClient() *baz.ServiceBazClient {
+	return &baz.ServiceBazClient{
 		endpoint: client.endpoint,
 		internal: client.internal,
 	}
@@ -77,9 +79,9 @@ func (client *ServiceClient) NewServiceFooClient() *ServiceFooClient {
 	}
 }
 
-// NewServiceQuxClient creates a new instance of [ServiceQuxClient].
-func (client *ServiceClient) NewServiceQuxClient() *ServiceQuxClient {
-	return &ServiceQuxClient{
+// NewServiceQuxClient creates a new instance of [qux.ServiceQuxClient].
+func (client *ServiceClient) NewServiceQuxClient() *qux.ServiceQuxClient {
+	return &qux.ServiceQuxClient{
 		endpoint: client.endpoint,
 		internal: client.internal,
 	}

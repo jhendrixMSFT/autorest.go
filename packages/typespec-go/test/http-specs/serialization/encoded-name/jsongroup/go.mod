@@ -15,3 +15,5 @@ require (
 	golang.org/x/text v0.39.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
+
+replace github.com/Azure/azure-sdk-for-go/sdk/azcore => C:/git/Azure/azure-sdk-for-go/sdk/azcore

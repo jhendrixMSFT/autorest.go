@@ -5,6 +5,8 @@
 package collectionfmtgroup
 
 import (
+	"collectionfmtgroup/header"
+	"collectionfmtgroup/query"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/runtime"
 )
@@ -39,17 +41,17 @@ func NewCollectionFormatClientWithNoCredential(endpoint string, options *Collect
 	return client, nil
 }
 
-// NewCollectionFormatHeaderClient creates a new instance of [CollectionFormatHeaderClient].
-func (client *CollectionFormatClient) NewCollectionFormatHeaderClient() *CollectionFormatHeaderClient {
-	return &CollectionFormatHeaderClient{
+// NewCollectionFormatHeaderClient creates a new instance of [header.CollectionFormatHeaderClient].
+func (client *CollectionFormatClient) NewCollectionFormatHeaderClient() *header.CollectionFormatHeaderClient {
+	return &header.CollectionFormatHeaderClient{
 		endpoint: client.endpoint,
 		internal: client.internal,
 	}
 }
 
-// NewCollectionFormatQueryClient creates a new instance of [CollectionFormatQueryClient].
-func (client *CollectionFormatClient) NewCollectionFormatQueryClient() *CollectionFormatQueryClient {
-	return &CollectionFormatQueryClient{
+// NewCollectionFormatQueryClient creates a new instance of [query.CollectionFormatQueryClient].
+func (client *CollectionFormatClient) NewCollectionFormatQueryClient() *query.CollectionFormatQueryClient {
+	return &query.CollectionFormatQueryClient{
 		endpoint: client.endpoint,
 		internal: client.internal,
 	}

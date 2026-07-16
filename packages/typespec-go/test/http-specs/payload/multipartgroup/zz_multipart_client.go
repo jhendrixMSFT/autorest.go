@@ -7,6 +7,7 @@ package multipartgroup
 import (
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/runtime"
+	"multipartgroup/formdata"
 )
 
 // MultiPartClient - Test for multipart
@@ -39,9 +40,9 @@ func NewMultiPartClientWithNoCredential(endpoint string, options *MultiPartClien
 	return client, nil
 }
 
-// NewMultiPartFormDataClient creates a new instance of [MultiPartFormDataClient].
-func (client *MultiPartClient) NewMultiPartFormDataClient() *MultiPartFormDataClient {
-	return &MultiPartFormDataClient{
+// NewMultiPartFormDataClient creates a new instance of [formdata.MultiPartFormDataClient].
+func (client *MultiPartClient) NewMultiPartFormDataClient() *formdata.MultiPartFormDataClient {
+	return &formdata.MultiPartFormDataClient{
 		endpoint: client.endpoint,
 		internal: client.internal,
 	}

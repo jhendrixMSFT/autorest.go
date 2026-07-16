@@ -7,6 +7,8 @@ package multiservicegroup
 import (
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/runtime"
+	"multiservicegroup/servicea"
+	"multiservicegroup/serviceb"
 )
 
 // CombinedClient contains the methods for the Combined group.
@@ -39,17 +41,17 @@ func NewCombinedClientWithNoCredential(endpoint string, options *CombinedClientO
 	return client, nil
 }
 
-// NewCombinedBarClient creates a new instance of [CombinedBarClient].
-func (client *CombinedClient) NewCombinedBarClient() *CombinedBarClient {
-	return &CombinedBarClient{
+// NewCombinedBarClient creates a new instance of [serviceb.CombinedBarClient].
+func (client *CombinedClient) NewCombinedBarClient() *serviceb.CombinedBarClient {
+	return &serviceb.CombinedBarClient{
 		endpoint: client.endpoint,
 		internal: client.internal,
 	}
 }
 
-// NewCombinedFooClient creates a new instance of [CombinedFooClient].
-func (client *CombinedClient) NewCombinedFooClient() *CombinedFooClient {
-	return &CombinedFooClient{
+// NewCombinedFooClient creates a new instance of [servicea.CombinedFooClient].
+func (client *CombinedClient) NewCombinedFooClient() *servicea.CombinedFooClient {
+	return &servicea.CombinedFooClient{
 		endpoint: client.endpoint,
 		internal: client.internal,
 	}

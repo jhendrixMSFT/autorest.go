@@ -8,18 +8,3 @@ package multipleservicesgroup
 type ServiceAOperationsClientOpAResponse struct {
 	// placeholder for future response values
 }
-
-// ServiceASubNamespaceClientSubOpAResponse contains the response from method ServiceASubNamespaceClient.SubOpA.
-type ServiceASubNamespaceClientSubOpAResponse struct {
-	// placeholder for future response values
-}
-
-// ServiceBOperationsClientOpBResponse contains the response from method ServiceBOperationsClient.OpB.
-type ServiceBOperationsClientOpBResponse struct {
-	// placeholder for future response values
-}
-
-// ServiceBSubNamespaceClientSubOpBResponse contains the response from method ServiceBSubNamespaceClient.SubOpB.
-type ServiceBSubNamespaceClientSubOpBResponse struct {
-	// placeholder for future response values
-}

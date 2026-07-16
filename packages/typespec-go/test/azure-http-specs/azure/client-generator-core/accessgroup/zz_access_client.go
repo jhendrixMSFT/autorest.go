@@ -5,6 +5,10 @@
 package accessgroup
 
 import (
+	"accessgroup/internaloperation"
+	"accessgroup/publicoperation"
+	"accessgroup/relativemodelinoperation"
+	"accessgroup/sharedmodelinoperation"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/runtime"
 )
@@ -39,33 +43,33 @@ func NewAccessClientWithNoCredential(endpoint string, options *AccessClientOptio
 	return client, nil
 }
 
-// NewAccessInternalOperationClient creates a new instance of [AccessInternalOperationClient].
-func (client *AccessClient) NewAccessInternalOperationClient() *AccessInternalOperationClient {
-	return &AccessInternalOperationClient{
+// NewAccessInternalOperationClient creates a new instance of [internaloperation.AccessInternalOperationClient].
+func (client *AccessClient) NewAccessInternalOperationClient() *internaloperation.AccessInternalOperationClient {
+	return &internaloperation.AccessInternalOperationClient{
 		endpoint: client.endpoint,
 		internal: client.internal,
 	}
 }
 
-// NewAccessPublicOperationClient creates a new instance of [AccessPublicOperationClient].
-func (client *AccessClient) NewAccessPublicOperationClient() *AccessPublicOperationClient {
-	return &AccessPublicOperationClient{
+// NewAccessPublicOperationClient creates a new instance of [publicoperation.AccessPublicOperationClient].
+func (client *AccessClient) NewAccessPublicOperationClient() *publicoperation.AccessPublicOperationClient {
+	return &publicoperation.AccessPublicOperationClient{
 		endpoint: client.endpoint,
 		internal: client.internal,
 	}
 }
 
-// NewAccessRelativeModelInOperationClient creates a new instance of [AccessRelativeModelInOperationClient].
-func (client *AccessClient) NewAccessRelativeModelInOperationClient() *AccessRelativeModelInOperationClient {
-	return &AccessRelativeModelInOperationClient{
+// NewAccessRelativeModelInOperationClient creates a new instance of [relativemodelinoperation.AccessRelativeModelInOperationClient].
+func (client *AccessClient) NewAccessRelativeModelInOperationClient() *relativemodelinoperation.AccessRelativeModelInOperationClient {
+	return &relativemodelinoperation.AccessRelativeModelInOperationClient{
 		endpoint: client.endpoint,
 		internal: client.internal,
 	}
 }
 
-// NewAccessSharedModelInOperationClient creates a new instance of [AccessSharedModelInOperationClient].
-func (client *AccessClient) NewAccessSharedModelInOperationClient() *AccessSharedModelInOperationClient {
-	return &AccessSharedModelInOperationClient{
+// NewAccessSharedModelInOperationClient creates a new instance of [sharedmodelinoperation.AccessSharedModelInOperationClient].
+func (client *AccessClient) NewAccessSharedModelInOperationClient() *sharedmodelinoperation.AccessSharedModelInOperationClient {
+	return &sharedmodelinoperation.AccessSharedModelInOperationClient{
 		endpoint: client.endpoint,
 		internal: client.internal,
 	}

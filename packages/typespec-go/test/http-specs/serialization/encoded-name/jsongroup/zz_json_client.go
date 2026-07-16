@@ -5,16 +5,16 @@
 package jsongroup
 
 import (
+	"jsongroup/internal/base"
+	"jsongroup/property"
+
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/runtime"
 )
 
 // JSONClient - Encoded names
 // Don't use this type directly, use NewJSONClientWithNoCredential() instead.
-type JSONClient struct {
-	internal *azcore.Client
-	endpoint string
-}
+type JSONClient base.Client
 
 // JSONClientOptions contains the optional values for creating a [JSONClient].
 type JSONClientOptions struct {
@@ -28,21 +28,14 @@ func NewJSONClientWithNoCredential(endpoint string, options *JSONClientOptions) 
 	if options == nil {
 		options = &JSONClientOptions{}
 	}
-	cl, err := azcore.NewClient(moduleName, moduleVersion, runtime.PipelineOptions{}, &options.ClientOptions)
+	b, err := base.NewClient(endpoint, moduleName, moduleVersion, runtime.PipelineOptions{}, &options.ClientOptions)
 	if err != nil {
 		return nil, err
 	}
-	client := &JSONClient{
-		endpoint: endpoint,
-		internal: cl,
-	}
-	return client, nil
+	return (*JSONClient)(b), nil
 }
 
-// NewJSONPropertyClient creates a new instance of [JSONPropertyClient].
-func (client *JSONClient) NewJSONPropertyClient() *JSONPropertyClient {
-	return &JSONPropertyClient{
-		endpoint: client.endpoint,
-		internal: client.internal,
-	}
+// NewJSONPropertyClient creates a new instance of [property.JSONPropertyClient].
+func (client *JSONClient) NewJSONPropertyClient() *property.JSONPropertyClient {
+	return (*property.JSONPropertyClient)(client)
 }

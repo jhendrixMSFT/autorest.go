@@ -6,6 +6,7 @@ package enumconflictgroup
 
 import (
 	"context"
+	"enumconflictgroup/secondnamespace"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/policy"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/runtime"
@@ -23,7 +24,7 @@ type EnumConflictSecondOperationsClient struct {
 // If the operation fails it returns an *azcore.ResponseError type.
 //   - options - EnumConflictSecondOperationsClientSecondOptions contains the optional parameters for the EnumConflictSecondOperationsClient.Second
 //     method.
-func (client *EnumConflictSecondOperationsClient) Second(ctx context.Context, body SecondModel, options *EnumConflictSecondOperationsClientSecondOptions) (EnumConflictSecondOperationsClientSecondResponse, error) {
+func (client *EnumConflictSecondOperationsClient) Second(ctx context.Context, body secondnamespace.SecondModel, options *EnumConflictSecondOperationsClientSecondOptions) (EnumConflictSecondOperationsClientSecondResponse, error) {
 	var err error
 	const operationName = "EnumConflictSecondOperationsClient.Second"
 	ctx = context.WithValue(ctx, runtime.CtxAPINameKey{}, operationName)
@@ -46,7 +47,7 @@ func (client *EnumConflictSecondOperationsClient) Second(ctx context.Context, bo
 }
 
 // secondCreateRequest creates the Second request.
-func (client *EnumConflictSecondOperationsClient) secondCreateRequest(ctx context.Context, body SecondModel, _ *EnumConflictSecondOperationsClientSecondOptions) (*policy.Request, error) {
+func (client *EnumConflictSecondOperationsClient) secondCreateRequest(ctx context.Context, body secondnamespace.SecondModel, _ *EnumConflictSecondOperationsClientSecondOptions) (*policy.Request, error) {
 	urlPath := "/client/naming/enum-conflict/second"
 	req, err := runtime.NewRequest(ctx, http.MethodPost, runtime.JoinPaths(client.endpoint, urlPath))
 	if err != nil {

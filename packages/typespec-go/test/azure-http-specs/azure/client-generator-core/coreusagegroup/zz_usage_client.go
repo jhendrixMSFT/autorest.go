@@ -5,6 +5,8 @@
 package coreusagegroup
 
 import (
+	"coreusagegroup/modelinoperation"
+	"coreusagegroup/namespaceusage"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/runtime"
 )
@@ -39,17 +41,17 @@ func NewUsageClientWithNoCredential(endpoint string, options *UsageClientOptions
 	return client, nil
 }
 
-// NewUsageModelInOperationClient creates a new instance of [UsageModelInOperationClient].
-func (client *UsageClient) NewUsageModelInOperationClient() *UsageModelInOperationClient {
-	return &UsageModelInOperationClient{
+// NewUsageModelInOperationClient creates a new instance of [modelinoperation.UsageModelInOperationClient].
+func (client *UsageClient) NewUsageModelInOperationClient() *modelinoperation.UsageModelInOperationClient {
+	return &modelinoperation.UsageModelInOperationClient{
 		endpoint: client.endpoint,
 		internal: client.internal,
 	}
 }
 
-// NewUsageNamespaceUsageClient creates a new instance of [UsageNamespaceUsageClient].
-func (client *UsageClient) NewUsageNamespaceUsageClient() *UsageNamespaceUsageClient {
-	return &UsageNamespaceUsageClient{
+// NewUsageNamespaceUsageClient creates a new instance of [namespaceusage.UsageNamespaceUsageClient].
+func (client *UsageClient) NewUsageNamespaceUsageClient() *namespaceusage.UsageNamespaceUsageClient {
+	return &namespaceusage.UsageNamespaceUsageClient{
 		endpoint: client.endpoint,
 		internal: client.internal,
 	}

@@ -5,6 +5,9 @@
 package durationgroup
 
 import (
+	"durationgroup/header"
+	"durationgroup/property"
+	"durationgroup/query"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/runtime"
 )
@@ -39,25 +42,25 @@ func NewDurationClientWithNoCredential(endpoint string, options *DurationClientO
 	return client, nil
 }
 
-// NewDurationHeaderClient creates a new instance of [DurationHeaderClient].
-func (client *DurationClient) NewDurationHeaderClient() *DurationHeaderClient {
-	return &DurationHeaderClient{
+// NewDurationHeaderClient creates a new instance of [header.DurationHeaderClient].
+func (client *DurationClient) NewDurationHeaderClient() *header.DurationHeaderClient {
+	return &header.DurationHeaderClient{
 		endpoint: client.endpoint,
 		internal: client.internal,
 	}
 }
 
-// NewDurationPropertyClient creates a new instance of [DurationPropertyClient].
-func (client *DurationClient) NewDurationPropertyClient() *DurationPropertyClient {
-	return &DurationPropertyClient{
+// NewDurationPropertyClient creates a new instance of [property.DurationPropertyClient].
+func (client *DurationClient) NewDurationPropertyClient() *property.DurationPropertyClient {
+	return &property.DurationPropertyClient{
 		endpoint: client.endpoint,
 		internal: client.internal,
 	}
 }
 
-// NewDurationQueryClient creates a new instance of [DurationQueryClient].
-func (client *DurationClient) NewDurationQueryClient() *DurationQueryClient {
-	return &DurationQueryClient{
+// NewDurationQueryClient creates a new instance of [query.DurationQueryClient].
+func (client *DurationClient) NewDurationQueryClient() *query.DurationQueryClient {
+	return &query.DurationQueryClient{
 		endpoint: client.endpoint,
 		internal: client.internal,
 	}

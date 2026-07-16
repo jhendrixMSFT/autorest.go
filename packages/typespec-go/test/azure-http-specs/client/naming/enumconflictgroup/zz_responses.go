@@ -4,12 +4,17 @@
 
 package enumconflictgroup
 
+import (
+	"enumconflictgroup/firstnamespace"
+	"enumconflictgroup/secondnamespace"
+)
+
 // EnumConflictFirstOperationsClientFirstResponse contains the response from method EnumConflictFirstOperationsClient.First.
 type EnumConflictFirstOperationsClientFirstResponse struct {
-	FirstModel
+	firstnamespace.FirstModel
 }
 
 // EnumConflictSecondOperationsClientSecondResponse contains the response from method EnumConflictSecondOperationsClient.Second.
 type EnumConflictSecondOperationsClientSecondResponse struct {
-	SecondModel
+	secondnamespace.SecondModel
 }

@@ -6,5 +6,4 @@ package multipleservicesgroup
 
 const (
 	versionAv2 string = "av2"
-	versionBv2 string = "bv2"
 )

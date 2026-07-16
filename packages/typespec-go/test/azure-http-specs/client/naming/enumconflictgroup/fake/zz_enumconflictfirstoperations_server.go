@@ -7,6 +7,7 @@ package fake
 import (
 	"context"
 	"enumconflictgroup"
+	"enumconflictgroup/firstnamespace"
 	"errors"
 	"fmt"
 	azfake "github.com/Azure/azure-sdk-for-go/sdk/azcore/fake"
@@ -20,7 +21,7 @@ import (
 type EnumConflictFirstOperationsServer struct {
 	// First is the fake for method EnumConflictFirstOperationsClient.First
 	// HTTP status codes to indicate success: http.StatusOK
-	First func(ctx context.Context, body enumconflictgroup.FirstModel, options *enumconflictgroup.EnumConflictFirstOperationsClientFirstOptions) (resp azfake.Responder[enumconflictgroup.EnumConflictFirstOperationsClientFirstResponse], errResp azfake.ErrorResponder)
+	First func(ctx context.Context, body firstnamespace.FirstModel, options *enumconflictgroup.EnumConflictFirstOperationsClientFirstOptions) (resp azfake.Responder[enumconflictgroup.EnumConflictFirstOperationsClientFirstResponse], errResp azfake.ErrorResponder)
 }
 
 // NewEnumConflictFirstOperationsServerTransport creates a new instance of EnumConflictFirstOperationsServerTransport with the provided implementation.
@@ -79,7 +80,7 @@ func (e *EnumConflictFirstOperationsServerTransport) dispatchFirst(req *http.Req
 	if e.srv.First == nil {
 		return nil, &nonRetriableError{errors.New("fake for method First not implemented")}
 	}
-	body, err := server.UnmarshalRequestAsJSON[enumconflictgroup.FirstModel](req)
+	body, err := server.UnmarshalRequestAsJSON[firstnamespace.FirstModel](req)
 	if err != nil {
 		return nil, err
 	}

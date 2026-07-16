@@ -14,11 +14,6 @@ type ServiceBarClientSixResponse struct {
 	// placeholder for future response values
 }
 
-// ServiceBazFooClientSevenResponse contains the response from method ServiceBazFooClient.Seven.
-type ServiceBazFooClientSevenResponse struct {
-	// placeholder for future response values
-}
-
 // ServiceClientOneResponse contains the response from method ServiceClient.One.
 type ServiceClientOneResponse struct {
 	// placeholder for future response values
@@ -36,15 +31,5 @@ type ServiceFooClientFourResponse struct {
 
 // ServiceFooClientThreeResponse contains the response from method ServiceFooClient.Three.
 type ServiceFooClientThreeResponse struct {
-	// placeholder for future response values
-}
-
-// ServiceQuxBarClientNineResponse contains the response from method ServiceQuxBarClient.Nine.
-type ServiceQuxBarClientNineResponse struct {
-	// placeholder for future response values
-}
-
-// ServiceQuxClientEightResponse contains the response from method ServiceQuxClient.Eight.
-type ServiceQuxClientEightResponse struct {
 	// placeholder for future response values
 }

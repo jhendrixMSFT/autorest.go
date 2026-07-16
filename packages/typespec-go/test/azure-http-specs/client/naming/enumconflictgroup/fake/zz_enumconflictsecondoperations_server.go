@@ -7,6 +7,7 @@ package fake
 import (
 	"context"
 	"enumconflictgroup"
+	"enumconflictgroup/secondnamespace"
 	"errors"
 	"fmt"
 	azfake "github.com/Azure/azure-sdk-for-go/sdk/azcore/fake"
@@ -20,7 +21,7 @@ import (
 type EnumConflictSecondOperationsServer struct {
 	// Second is the fake for method EnumConflictSecondOperationsClient.Second
 	// HTTP status codes to indicate success: http.StatusOK
-	Second func(ctx context.Context, body enumconflictgroup.SecondModel, options *enumconflictgroup.EnumConflictSecondOperationsClientSecondOptions) (resp azfake.Responder[enumconflictgroup.EnumConflictSecondOperationsClientSecondResponse], errResp azfake.ErrorResponder)
+	Second func(ctx context.Context, body secondnamespace.SecondModel, options *enumconflictgroup.EnumConflictSecondOperationsClientSecondOptions) (resp azfake.Responder[enumconflictgroup.EnumConflictSecondOperationsClientSecondResponse], errResp azfake.ErrorResponder)
 }
 
 // NewEnumConflictSecondOperationsServerTransport creates a new instance of EnumConflictSecondOperationsServerTransport with the provided implementation.
@@ -79,7 +80,7 @@ func (e *EnumConflictSecondOperationsServerTransport) dispatchSecond(req *http.R
 	if e.srv.Second == nil {
 		return nil, &nonRetriableError{errors.New("fake for method Second not implemented")}
 	}
-	body, err := server.UnmarshalRequestAsJSON[enumconflictgroup.SecondModel](req)
+	body, err := server.UnmarshalRequestAsJSON[secondnamespace.SecondModel](req)
 	if err != nil {
 		return nil, err
 	}

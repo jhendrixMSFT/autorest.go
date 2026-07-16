@@ -6,51 +6,6 @@ package armmultisharedmodelsgroup
 
 import "time"
 
-// SharedMetadata - Common metadata shared across multiple services.
-type SharedMetadata struct {
-	// Creation timestamp of the resource.
-	CreatedAt *time.Time
-
-	// Creator of the resource.
-	CreatedBy *string
-
-	// Tags associated with the resource.
-	Tags map[string]*string
-}
-
-// StorageAccount - Storage account resource.
-type StorageAccount struct {
-	// REQUIRED; The geo-location where the resource lives
-	Location *string
-
-	// The resource-specific properties for this resource.
-	Properties *StorageAccountProperties
-
-	// Resource tags.
-	Tags map[string]*string
-
-	// READ-ONLY; Fully qualified resource ID for the resource. Ex - /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/{resourceProviderNamespace}/{resourceType}/{resourceName}
-	ID *string
-
-	// READ-ONLY; The name of the resource
-	Name *string
-
-	// READ-ONLY; Azure Resource Manager metadata containing createdBy and modifiedBy information.
-	SystemData *SystemData
-
-	// READ-ONLY; The type of the resource. E.g. "Microsoft.Compute/virtualMachines" or "Microsoft.Storage/storageAccounts"
-	Type *string
-}
-
-// StorageAccountProperties - Storage account properties.
-type StorageAccountProperties struct {
-	// Shared metadata for the storage account.
-	Metadata *SharedMetadata
-
-	// READ-ONLY
-	ProvisioningState *ResourceProvisioningState
-}
-
 // SystemData - Metadata pertaining to creation and last modification of the resource.
 type SystemData struct {
 	// The timestamp of resource creation (UTC).
@@ -70,36 +25,4 @@ type SystemData struct {
 
 	// The type of identity that last modified the resource.
 	LastModifiedByType *CreatedByType
-}
-
-// VirtualMachine - Describes a Virtual Machine.
-type VirtualMachine struct {
-	// REQUIRED; The geo-location where the resource lives
-	Location *string
-
-	// The resource-specific properties for this resource.
-	Properties *VirtualMachineProperties
-
-	// Resource tags.
-	Tags map[string]*string
-
-	// READ-ONLY; Fully qualified resource ID for the resource. Ex - /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/{resourceProviderNamespace}/{resourceType}/{resourceName}
-	ID *string
-
-	// READ-ONLY; The name of the resource
-	Name *string
-
-	// READ-ONLY; Azure Resource Manager metadata containing createdBy and modifiedBy information.
-	SystemData *SystemData
-
-	// READ-ONLY; The type of the resource. E.g. "Microsoft.Compute/virtualMachines" or "Microsoft.Storage/storageAccounts"
-	Type *string
-}
-
-type VirtualMachineProperties struct {
-	// Shared metadata for the virtual machine.
-	Metadata *SharedMetadata
-
-	// READ-ONLY
-	ProvisioningState *ResourceProvisioningState
 }

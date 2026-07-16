@@ -4,22 +4,6 @@
 
 package coreusagegroup
 
-// InputModel - Usage additive to roundtrip.
-type InputModel struct {
-	// REQUIRED
-	Name *string
-}
-
-type NamespaceModel struct {
-	// REQUIRED
-	Name *string
-}
-
-type NestedNamespaceModel struct {
-	// REQUIRED
-	Value *string
-}
-
 // OrphanModel - Not used anywhere, but access is override to public so still need to be generated and exported with serialization.
 type OrphanModel struct {
 	// REQUIRED
@@ -27,20 +11,4 @@ type OrphanModel struct {
 
 	// REQUIRED
 	ModelName *string
-}
-
-// OutputModel - Usage additive to roundtrip.
-type OutputModel struct {
-	// REQUIRED
-	Name *string
-}
-
-type ResultModel struct {
-	// REQUIRED
-	Name *string
-}
-
-type RoundTripModel struct {
-	// READ-ONLY
-	Result *ResultModel
 }

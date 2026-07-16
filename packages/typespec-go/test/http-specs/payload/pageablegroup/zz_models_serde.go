@@ -6,239 +6,10 @@ package pageablegroup
 
 import (
 	"encoding/json"
-	"encoding/xml"
 	"fmt"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore"
 	"reflect"
 )
-
-// MarshalJSON implements the json.Marshaller interface for type Filter.
-func (f Filter) MarshalJSON() ([]byte, error) {
-	objectMap := make(map[string]any)
-	populate(objectMap, "filter", f.Filter)
-	return json.Marshal(objectMap)
-}
-
-// UnmarshalJSON implements the json.Unmarshaller interface for type Filter.
-func (f *Filter) UnmarshalJSON(data []byte) error {
-	var rawMsg map[string]json.RawMessage
-	if err := json.Unmarshal(data, &rawMsg); err != nil {
-		return fmt.Errorf("unmarshalling type %T: %s", f, err.Error())
-	}
-	for key, val := range rawMsg {
-		var err error
-		switch key {
-		case "filter":
-			err = unpopulate(val, "Filter", &f.Filter)
-			delete(rawMsg, key)
-		}
-		if err != nil {
-			return fmt.Errorf("unmarshalling type %T: %s", f, err.Error())
-		}
-	}
-	return nil
-}
-
-// MarshalJSON implements the json.Marshaller interface for type LinkResponse.
-func (l LinkResponse) MarshalJSON() ([]byte, error) {
-	objectMap := make(map[string]any)
-	populate(objectMap, "next", l.Next)
-	populate(objectMap, "pets", l.Pets)
-	return json.Marshal(objectMap)
-}
-
-// UnmarshalJSON implements the json.Unmarshaller interface for type LinkResponse.
-func (l *LinkResponse) UnmarshalJSON(data []byte) error {
-	var rawMsg map[string]json.RawMessage
-	if err := json.Unmarshal(data, &rawMsg); err != nil {
-		return fmt.Errorf("unmarshalling type %T: %s", l, err.Error())
-	}
-	for key, val := range rawMsg {
-		var err error
-		switch key {
-		case "next":
-			err = unpopulate(val, "Next", &l.Next)
-			delete(rawMsg, key)
-		case "pets":
-			err = unpopulate(val, "Pets", &l.Pets)
-			delete(rawMsg, key)
-		}
-		if err != nil {
-			return fmt.Errorf("unmarshalling type %T: %s", l, err.Error())
-		}
-	}
-	return nil
-}
-
-// MarshalJSON implements the json.Marshaller interface for type LinkStringResponse.
-func (l LinkStringResponse) MarshalJSON() ([]byte, error) {
-	objectMap := make(map[string]any)
-	populate(objectMap, "next", l.Next)
-	populate(objectMap, "pets", l.Pets)
-	return json.Marshal(objectMap)
-}
-
-// UnmarshalJSON implements the json.Unmarshaller interface for type LinkStringResponse.
-func (l *LinkStringResponse) UnmarshalJSON(data []byte) error {
-	var rawMsg map[string]json.RawMessage
-	if err := json.Unmarshal(data, &rawMsg); err != nil {
-		return fmt.Errorf("unmarshalling type %T: %s", l, err.Error())
-	}
-	for key, val := range rawMsg {
-		var err error
-		switch key {
-		case "next":
-			err = unpopulate(val, "Next", &l.Next)
-			delete(rawMsg, key)
-		case "pets":
-			err = unpopulate(val, "Pets", &l.Pets)
-			delete(rawMsg, key)
-		}
-		if err != nil {
-			return fmt.Errorf("unmarshalling type %T: %s", l, err.Error())
-		}
-	}
-	return nil
-}
-
-// MarshalJSON implements the json.Marshaller interface for type ListWithPageSizeResponse.
-func (l ListWithPageSizeResponse) MarshalJSON() ([]byte, error) {
-	objectMap := make(map[string]any)
-	populate(objectMap, "pets", l.Pets)
-	return json.Marshal(objectMap)
-}
-
-// UnmarshalJSON implements the json.Unmarshaller interface for type ListWithPageSizeResponse.
-func (l *ListWithPageSizeResponse) UnmarshalJSON(data []byte) error {
-	var rawMsg map[string]json.RawMessage
-	if err := json.Unmarshal(data, &rawMsg); err != nil {
-		return fmt.Errorf("unmarshalling type %T: %s", l, err.Error())
-	}
-	for key, val := range rawMsg {
-		var err error
-		switch key {
-		case "pets":
-			err = unpopulate(val, "Pets", &l.Pets)
-			delete(rawMsg, key)
-		}
-		if err != nil {
-			return fmt.Errorf("unmarshalling type %T: %s", l, err.Error())
-		}
-	}
-	return nil
-}
-
-// MarshalJSON implements the json.Marshaller interface for type ListWithoutContinuationResponse.
-func (l ListWithoutContinuationResponse) MarshalJSON() ([]byte, error) {
-	objectMap := make(map[string]any)
-	populate(objectMap, "pets", l.Pets)
-	return json.Marshal(objectMap)
-}
-
-// UnmarshalJSON implements the json.Unmarshaller interface for type ListWithoutContinuationResponse.
-func (l *ListWithoutContinuationResponse) UnmarshalJSON(data []byte) error {
-	var rawMsg map[string]json.RawMessage
-	if err := json.Unmarshal(data, &rawMsg); err != nil {
-		return fmt.Errorf("unmarshalling type %T: %s", l, err.Error())
-	}
-	for key, val := range rawMsg {
-		var err error
-		switch key {
-		case "pets":
-			err = unpopulate(val, "Pets", &l.Pets)
-			delete(rawMsg, key)
-		}
-		if err != nil {
-			return fmt.Errorf("unmarshalling type %T: %s", l, err.Error())
-		}
-	}
-	return nil
-}
-
-// MarshalJSON implements the json.Marshaller interface for type NestedLinkResponse.
-func (n NestedLinkResponse) MarshalJSON() ([]byte, error) {
-	objectMap := make(map[string]any)
-	populate(objectMap, "nestedItems", n.NestedItems)
-	populate(objectMap, "nestedNext", n.NestedNext)
-	return json.Marshal(objectMap)
-}
-
-// UnmarshalJSON implements the json.Unmarshaller interface for type NestedLinkResponse.
-func (n *NestedLinkResponse) UnmarshalJSON(data []byte) error {
-	var rawMsg map[string]json.RawMessage
-	if err := json.Unmarshal(data, &rawMsg); err != nil {
-		return fmt.Errorf("unmarshalling type %T: %s", n, err.Error())
-	}
-	for key, val := range rawMsg {
-		var err error
-		switch key {
-		case "nestedItems":
-			err = unpopulate(val, "NestedItems", &n.NestedItems)
-			delete(rawMsg, key)
-		case "nestedNext":
-			err = unpopulate(val, "NestedNext", &n.NestedNext)
-			delete(rawMsg, key)
-		}
-		if err != nil {
-			return fmt.Errorf("unmarshalling type %T: %s", n, err.Error())
-		}
-	}
-	return nil
-}
-
-// MarshalJSON implements the json.Marshaller interface for type NestedLinkResponseNestedItems.
-func (n NestedLinkResponseNestedItems) MarshalJSON() ([]byte, error) {
-	objectMap := make(map[string]any)
-	populate(objectMap, "pets", n.Pets)
-	return json.Marshal(objectMap)
-}
-
-// UnmarshalJSON implements the json.Unmarshaller interface for type NestedLinkResponseNestedItems.
-func (n *NestedLinkResponseNestedItems) UnmarshalJSON(data []byte) error {
-	var rawMsg map[string]json.RawMessage
-	if err := json.Unmarshal(data, &rawMsg); err != nil {
-		return fmt.Errorf("unmarshalling type %T: %s", n, err.Error())
-	}
-	for key, val := range rawMsg {
-		var err error
-		switch key {
-		case "pets":
-			err = unpopulate(val, "Pets", &n.Pets)
-			delete(rawMsg, key)
-		}
-		if err != nil {
-			return fmt.Errorf("unmarshalling type %T: %s", n, err.Error())
-		}
-	}
-	return nil
-}
-
-// MarshalJSON implements the json.Marshaller interface for type NestedLinkResponseNestedNext.
-func (n NestedLinkResponseNestedNext) MarshalJSON() ([]byte, error) {
-	objectMap := make(map[string]any)
-	populate(objectMap, "next", n.Next)
-	return json.Marshal(objectMap)
-}
-
-// UnmarshalJSON implements the json.Unmarshaller interface for type NestedLinkResponseNestedNext.
-func (n *NestedLinkResponseNestedNext) UnmarshalJSON(data []byte) error {
-	var rawMsg map[string]json.RawMessage
-	if err := json.Unmarshal(data, &rawMsg); err != nil {
-		return fmt.Errorf("unmarshalling type %T: %s", n, err.Error())
-	}
-	for key, val := range rawMsg {
-		var err error
-		switch key {
-		case "next":
-			err = unpopulate(val, "Next", &n.Next)
-			delete(rawMsg, key)
-		}
-		if err != nil {
-			return fmt.Errorf("unmarshalling type %T: %s", n, err.Error())
-		}
-	}
-	return nil
-}
 
 // MarshalJSON implements the json.Marshaller interface for type Pet.
 func (p Pet) MarshalJSON() ([]byte, error) {
@@ -271,153 +42,6 @@ func (p *Pet) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
-// MarshalJSON implements the json.Marshaller interface for type PostResponse.
-func (p PostResponse) MarshalJSON() ([]byte, error) {
-	objectMap := make(map[string]any)
-	populate(objectMap, "next", p.Next)
-	populate(objectMap, "pets", p.Pets)
-	return json.Marshal(objectMap)
-}
-
-// UnmarshalJSON implements the json.Unmarshaller interface for type PostResponse.
-func (p *PostResponse) UnmarshalJSON(data []byte) error {
-	var rawMsg map[string]json.RawMessage
-	if err := json.Unmarshal(data, &rawMsg); err != nil {
-		return fmt.Errorf("unmarshalling type %T: %s", p, err.Error())
-	}
-	for key, val := range rawMsg {
-		var err error
-		switch key {
-		case "next":
-			err = unpopulate(val, "Next", &p.Next)
-			delete(rawMsg, key)
-		case "pets":
-			err = unpopulate(val, "Pets", &p.Pets)
-			delete(rawMsg, key)
-		}
-		if err != nil {
-			return fmt.Errorf("unmarshalling type %T: %s", p, err.Error())
-		}
-	}
-	return nil
-}
-
-// MarshalJSON implements the json.Marshaller interface for type RequestHeaderNestedResponseBodyResponse.
-func (r RequestHeaderNestedResponseBodyResponse) MarshalJSON() ([]byte, error) {
-	objectMap := make(map[string]any)
-	populate(objectMap, "nestedItems", r.NestedItems)
-	populate(objectMap, "nestedNext", r.NestedNext)
-	return json.Marshal(objectMap)
-}
-
-// UnmarshalJSON implements the json.Unmarshaller interface for type RequestHeaderNestedResponseBodyResponse.
-func (r *RequestHeaderNestedResponseBodyResponse) UnmarshalJSON(data []byte) error {
-	var rawMsg map[string]json.RawMessage
-	if err := json.Unmarshal(data, &rawMsg); err != nil {
-		return fmt.Errorf("unmarshalling type %T: %s", r, err.Error())
-	}
-	for key, val := range rawMsg {
-		var err error
-		switch key {
-		case "nestedItems":
-			err = unpopulate(val, "NestedItems", &r.NestedItems)
-			delete(rawMsg, key)
-		case "nestedNext":
-			err = unpopulate(val, "NestedNext", &r.NestedNext)
-			delete(rawMsg, key)
-		}
-		if err != nil {
-			return fmt.Errorf("unmarshalling type %T: %s", r, err.Error())
-		}
-	}
-	return nil
-}
-
-// MarshalJSON implements the json.Marshaller interface for type RequestHeaderNestedResponseBodyResponseNestedItems.
-func (r RequestHeaderNestedResponseBodyResponseNestedItems) MarshalJSON() ([]byte, error) {
-	objectMap := make(map[string]any)
-	populate(objectMap, "pets", r.Pets)
-	return json.Marshal(objectMap)
-}
-
-// UnmarshalJSON implements the json.Unmarshaller interface for type RequestHeaderNestedResponseBodyResponseNestedItems.
-func (r *RequestHeaderNestedResponseBodyResponseNestedItems) UnmarshalJSON(data []byte) error {
-	var rawMsg map[string]json.RawMessage
-	if err := json.Unmarshal(data, &rawMsg); err != nil {
-		return fmt.Errorf("unmarshalling type %T: %s", r, err.Error())
-	}
-	for key, val := range rawMsg {
-		var err error
-		switch key {
-		case "pets":
-			err = unpopulate(val, "Pets", &r.Pets)
-			delete(rawMsg, key)
-		}
-		if err != nil {
-			return fmt.Errorf("unmarshalling type %T: %s", r, err.Error())
-		}
-	}
-	return nil
-}
-
-// MarshalJSON implements the json.Marshaller interface for type RequestHeaderNestedResponseBodyResponseNestedNext.
-func (r RequestHeaderNestedResponseBodyResponseNestedNext) MarshalJSON() ([]byte, error) {
-	objectMap := make(map[string]any)
-	populate(objectMap, "nextToken", r.NextToken)
-	return json.Marshal(objectMap)
-}
-
-// UnmarshalJSON implements the json.Unmarshaller interface for type RequestHeaderNestedResponseBodyResponseNestedNext.
-func (r *RequestHeaderNestedResponseBodyResponseNestedNext) UnmarshalJSON(data []byte) error {
-	var rawMsg map[string]json.RawMessage
-	if err := json.Unmarshal(data, &rawMsg); err != nil {
-		return fmt.Errorf("unmarshalling type %T: %s", r, err.Error())
-	}
-	for key, val := range rawMsg {
-		var err error
-		switch key {
-		case "nextToken":
-			err = unpopulate(val, "NextToken", &r.NextToken)
-			delete(rawMsg, key)
-		}
-		if err != nil {
-			return fmt.Errorf("unmarshalling type %T: %s", r, err.Error())
-		}
-	}
-	return nil
-}
-
-// MarshalJSON implements the json.Marshaller interface for type RequestHeaderResponseBodyResponse.
-func (r RequestHeaderResponseBodyResponse) MarshalJSON() ([]byte, error) {
-	objectMap := make(map[string]any)
-	populate(objectMap, "nextToken", r.NextToken)
-	populate(objectMap, "pets", r.Pets)
-	return json.Marshal(objectMap)
-}
-
-// UnmarshalJSON implements the json.Unmarshaller interface for type RequestHeaderResponseBodyResponse.
-func (r *RequestHeaderResponseBodyResponse) UnmarshalJSON(data []byte) error {
-	var rawMsg map[string]json.RawMessage
-	if err := json.Unmarshal(data, &rawMsg); err != nil {
-		return fmt.Errorf("unmarshalling type %T: %s", r, err.Error())
-	}
-	for key, val := range rawMsg {
-		var err error
-		switch key {
-		case "nextToken":
-			err = unpopulate(val, "NextToken", &r.NextToken)
-			delete(rawMsg, key)
-		case "pets":
-			err = unpopulate(val, "Pets", &r.Pets)
-			delete(rawMsg, key)
-		}
-		if err != nil {
-			return fmt.Errorf("unmarshalling type %T: %s", r, err.Error())
-		}
-	}
-	return nil
-}
-
 // MarshalJSON implements the json.Marshaller interface for type RequestHeaderResponseHeaderResponse.
 func (r RequestHeaderResponseHeaderResponse) MarshalJSON() ([]byte, error) {
 	objectMap := make(map[string]any)
@@ -434,122 +58,6 @@ func (r *RequestHeaderResponseHeaderResponse) UnmarshalJSON(data []byte) error {
 	for key, val := range rawMsg {
 		var err error
 		switch key {
-		case "pets":
-			err = unpopulate(val, "Pets", &r.Pets)
-			delete(rawMsg, key)
-		}
-		if err != nil {
-			return fmt.Errorf("unmarshalling type %T: %s", r, err.Error())
-		}
-	}
-	return nil
-}
-
-// MarshalJSON implements the json.Marshaller interface for type RequestQueryNestedResponseBodyResponse.
-func (r RequestQueryNestedResponseBodyResponse) MarshalJSON() ([]byte, error) {
-	objectMap := make(map[string]any)
-	populate(objectMap, "nestedItems", r.NestedItems)
-	populate(objectMap, "nestedNext", r.NestedNext)
-	return json.Marshal(objectMap)
-}
-
-// UnmarshalJSON implements the json.Unmarshaller interface for type RequestQueryNestedResponseBodyResponse.
-func (r *RequestQueryNestedResponseBodyResponse) UnmarshalJSON(data []byte) error {
-	var rawMsg map[string]json.RawMessage
-	if err := json.Unmarshal(data, &rawMsg); err != nil {
-		return fmt.Errorf("unmarshalling type %T: %s", r, err.Error())
-	}
-	for key, val := range rawMsg {
-		var err error
-		switch key {
-		case "nestedItems":
-			err = unpopulate(val, "NestedItems", &r.NestedItems)
-			delete(rawMsg, key)
-		case "nestedNext":
-			err = unpopulate(val, "NestedNext", &r.NestedNext)
-			delete(rawMsg, key)
-		}
-		if err != nil {
-			return fmt.Errorf("unmarshalling type %T: %s", r, err.Error())
-		}
-	}
-	return nil
-}
-
-// MarshalJSON implements the json.Marshaller interface for type RequestQueryNestedResponseBodyResponseNestedItems.
-func (r RequestQueryNestedResponseBodyResponseNestedItems) MarshalJSON() ([]byte, error) {
-	objectMap := make(map[string]any)
-	populate(objectMap, "pets", r.Pets)
-	return json.Marshal(objectMap)
-}
-
-// UnmarshalJSON implements the json.Unmarshaller interface for type RequestQueryNestedResponseBodyResponseNestedItems.
-func (r *RequestQueryNestedResponseBodyResponseNestedItems) UnmarshalJSON(data []byte) error {
-	var rawMsg map[string]json.RawMessage
-	if err := json.Unmarshal(data, &rawMsg); err != nil {
-		return fmt.Errorf("unmarshalling type %T: %s", r, err.Error())
-	}
-	for key, val := range rawMsg {
-		var err error
-		switch key {
-		case "pets":
-			err = unpopulate(val, "Pets", &r.Pets)
-			delete(rawMsg, key)
-		}
-		if err != nil {
-			return fmt.Errorf("unmarshalling type %T: %s", r, err.Error())
-		}
-	}
-	return nil
-}
-
-// MarshalJSON implements the json.Marshaller interface for type RequestQueryNestedResponseBodyResponseNestedNext.
-func (r RequestQueryNestedResponseBodyResponseNestedNext) MarshalJSON() ([]byte, error) {
-	objectMap := make(map[string]any)
-	populate(objectMap, "nextToken", r.NextToken)
-	return json.Marshal(objectMap)
-}
-
-// UnmarshalJSON implements the json.Unmarshaller interface for type RequestQueryNestedResponseBodyResponseNestedNext.
-func (r *RequestQueryNestedResponseBodyResponseNestedNext) UnmarshalJSON(data []byte) error {
-	var rawMsg map[string]json.RawMessage
-	if err := json.Unmarshal(data, &rawMsg); err != nil {
-		return fmt.Errorf("unmarshalling type %T: %s", r, err.Error())
-	}
-	for key, val := range rawMsg {
-		var err error
-		switch key {
-		case "nextToken":
-			err = unpopulate(val, "NextToken", &r.NextToken)
-			delete(rawMsg, key)
-		}
-		if err != nil {
-			return fmt.Errorf("unmarshalling type %T: %s", r, err.Error())
-		}
-	}
-	return nil
-}
-
-// MarshalJSON implements the json.Marshaller interface for type RequestQueryResponseBodyResponse.
-func (r RequestQueryResponseBodyResponse) MarshalJSON() ([]byte, error) {
-	objectMap := make(map[string]any)
-	populate(objectMap, "nextToken", r.NextToken)
-	populate(objectMap, "pets", r.Pets)
-	return json.Marshal(objectMap)
-}
-
-// UnmarshalJSON implements the json.Unmarshaller interface for type RequestQueryResponseBodyResponse.
-func (r *RequestQueryResponseBodyResponse) UnmarshalJSON(data []byte) error {
-	var rawMsg map[string]json.RawMessage
-	if err := json.Unmarshal(data, &rawMsg); err != nil {
-		return fmt.Errorf("unmarshalling type %T: %s", r, err.Error())
-	}
-	for key, val := range rawMsg {
-		var err error
-		switch key {
-		case "nextToken":
-			err = unpopulate(val, "NextToken", &r.NextToken)
-			delete(rawMsg, key)
 		case "pets":
 			err = unpopulate(val, "Pets", &r.Pets)
 			delete(rawMsg, key)
@@ -588,48 +96,97 @@ func (r *RequestQueryResponseHeaderResponse) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
-// MarshalXML implements the xml.Marshaller interface for type XMLPet.
-func (x XMLPet) MarshalXML(enc *xml.Encoder, start xml.StartElement) error {
-	start.Name.Local = "Pet"
-	type alias XMLPet
-	aux := &struct {
-		*alias
-	}{
-		alias: (*alias)(&x),
-	}
-	return enc.EncodeElement(aux, start)
+// MarshalJSON implements the json.Marshaller interface for type XMLPet.
+func (x XMLPet) MarshalJSON() ([]byte, error) {
+	objectMap := make(map[string]any)
+	populate(objectMap, "Id", x.ID)
+	populate(objectMap, "Name", x.Name)
+	return json.Marshal(objectMap)
 }
 
-// MarshalXML implements the xml.Marshaller interface for type XMLPetListResult.
-func (x XMLPetListResult) MarshalXML(enc *xml.Encoder, start xml.StartElement) error {
-	start.Name.Local = "PetListResult"
-	type alias XMLPetListResult
-	aux := &struct {
-		*alias
-		Pets *[]*XMLPet `xml:"Pets>Pet"`
-	}{
-		alias: (*alias)(&x),
+// UnmarshalJSON implements the json.Unmarshaller interface for type XMLPet.
+func (x *XMLPet) UnmarshalJSON(data []byte) error {
+	var rawMsg map[string]json.RawMessage
+	if err := json.Unmarshal(data, &rawMsg); err != nil {
+		return fmt.Errorf("unmarshalling type %T: %s", x, err.Error())
 	}
-	if x.Pets != nil {
-		aux.Pets = &x.Pets
+	for key, val := range rawMsg {
+		var err error
+		switch key {
+		case "Id":
+			err = unpopulate(val, "ID", &x.ID)
+			delete(rawMsg, key)
+		case "Name":
+			err = unpopulate(val, "Name", &x.Name)
+			delete(rawMsg, key)
+		}
+		if err != nil {
+			return fmt.Errorf("unmarshalling type %T: %s", x, err.Error())
+		}
 	}
-	return enc.EncodeElement(aux, start)
+	return nil
 }
 
-// MarshalXML implements the xml.Marshaller interface for type XMLPetListResultWithNextLink.
-func (x XMLPetListResultWithNextLink) MarshalXML(enc *xml.Encoder, start xml.StartElement) error {
-	start.Name.Local = "PetListResult"
-	type alias XMLPetListResultWithNextLink
-	aux := &struct {
-		*alias
-		Pets *[]*XMLPet `xml:"Pets>Pet"`
-	}{
-		alias: (*alias)(&x),
+// MarshalJSON implements the json.Marshaller interface for type XMLPetListResult.
+func (x XMLPetListResult) MarshalJSON() ([]byte, error) {
+	objectMap := make(map[string]any)
+	populate(objectMap, "NextMarker", x.NextMarker)
+	populate(objectMap, "Pets", x.Pets)
+	return json.Marshal(objectMap)
+}
+
+// UnmarshalJSON implements the json.Unmarshaller interface for type XMLPetListResult.
+func (x *XMLPetListResult) UnmarshalJSON(data []byte) error {
+	var rawMsg map[string]json.RawMessage
+	if err := json.Unmarshal(data, &rawMsg); err != nil {
+		return fmt.Errorf("unmarshalling type %T: %s", x, err.Error())
 	}
-	if x.Pets != nil {
-		aux.Pets = &x.Pets
+	for key, val := range rawMsg {
+		var err error
+		switch key {
+		case "NextMarker":
+			err = unpopulate(val, "NextMarker", &x.NextMarker)
+			delete(rawMsg, key)
+		case "Pets":
+			err = unpopulate(val, "Pets", &x.Pets)
+			delete(rawMsg, key)
+		}
+		if err != nil {
+			return fmt.Errorf("unmarshalling type %T: %s", x, err.Error())
+		}
 	}
-	return enc.EncodeElement(aux, start)
+	return nil
+}
+
+// MarshalJSON implements the json.Marshaller interface for type XMLPetListResultWithNextLink.
+func (x XMLPetListResultWithNextLink) MarshalJSON() ([]byte, error) {
+	objectMap := make(map[string]any)
+	populate(objectMap, "NextLink", x.NextLink)
+	populate(objectMap, "Pets", x.Pets)
+	return json.Marshal(objectMap)
+}
+
+// UnmarshalJSON implements the json.Unmarshaller interface for type XMLPetListResultWithNextLink.
+func (x *XMLPetListResultWithNextLink) UnmarshalJSON(data []byte) error {
+	var rawMsg map[string]json.RawMessage
+	if err := json.Unmarshal(data, &rawMsg); err != nil {
+		return fmt.Errorf("unmarshalling type %T: %s", x, err.Error())
+	}
+	for key, val := range rawMsg {
+		var err error
+		switch key {
+		case "NextLink":
+			err = unpopulate(val, "NextLink", &x.NextLink)
+			delete(rawMsg, key)
+		case "Pets":
+			err = unpopulate(val, "Pets", &x.Pets)
+			delete(rawMsg, key)
+		}
+		if err != nil {
+			return fmt.Errorf("unmarshalling type %T: %s", x, err.Error())
+		}
+	}
+	return nil
 }
 
 func populate(m map[string]any, k string, v any) {

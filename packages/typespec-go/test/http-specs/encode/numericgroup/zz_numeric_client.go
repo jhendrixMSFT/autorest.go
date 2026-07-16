@@ -7,6 +7,7 @@ package numericgroup
 import (
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/runtime"
+	"numericgroup/property"
 )
 
 // NumericClient - Test for encode decorator on integer.
@@ -39,9 +40,9 @@ func NewNumericClientWithNoCredential(endpoint string, options *NumericClientOpt
 	return client, nil
 }
 
-// NewNumericPropertyClient creates a new instance of [NumericPropertyClient].
-func (client *NumericClient) NewNumericPropertyClient() *NumericPropertyClient {
-	return &NumericPropertyClient{
+// NewNumericPropertyClient creates a new instance of [property.NumericPropertyClient].
+func (client *NumericClient) NewNumericPropertyClient() *property.NumericPropertyClient {
+	return &property.NumericPropertyClient{
 		endpoint: client.endpoint,
 		internal: client.internal,
 	}

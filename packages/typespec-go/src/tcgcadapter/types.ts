@@ -25,6 +25,7 @@ export class TypeAdapter {
   // cache of previously created types/constant values
   private readonly types: Map<string, go.WireType>;
   private readonly constValues: Map<string, go.ConstantValue>;
+  private readonly rootNamespace: string = '';
 
   constructor(ctx: tcgc.SdkContext, codeModel: go.CodeModel) {
     this.ctx = ctx;
@@ -32,6 +33,26 @@ export class TypeAdapter {
     this.types = new Map<string, go.WireType>();
     this.constValues = new Map<string, go.ConstantValue>();
     this.fieldsMap = new Map<tcgc.SdkModelPropertyType, go.ModelField>();
+
+    // this and adjacent code was taken from
+    // https://github.com/microsoft/typespec/blob/c0f464728f60fe3672204dd7f2907ea4c047dfcb/packages/http-client-python/emitter/src/utils.ts#L274
+    if (this.ctx.sdkPackage.clients.length > 0) {
+      this.rootNamespace = this.ctx.sdkPackage.clients[0].namespace;
+    } else if (this.ctx.sdkPackage.models.length > 0) {
+      const result = this.ctx.sdkPackage.models
+        .map((model) => model.namespace)
+        .filter((namespace) => !isLibNamespace(namespace));
+      if (result.length > 0) {
+        result.sort();
+        this.rootNamespace = result[0];
+      }
+    } else if (this.ctx.sdkPackage.namespaces.length > 0) {
+      this.rootNamespace = this.ctx.sdkPackage.namespaces[0].fullName;
+    }
+
+    if (this.rootNamespace === '') {
+      throw new AdapterError('UnsupportedTsp', 'unable to determine root namespace');
+    }
   }
 
   /**
@@ -45,16 +66,43 @@ export class TypeAdapter {
     //   foo
     //   foo.bar
     //   foo.bar.baz
-    //
-    // crossLanguagePackageId contains the root namespace which is always the root module/package
-    // so remove it from the provided namespace. if namespace is the same as crossLanguagePackageId
-    // we'll be left with an empty entry so it needs to be filtered out.
-    if (namespace.toLowerCase().startsWith(this.ctx.sdkPackage.crossLanguagePackageId.toLowerCase())) {
-      namespace = namespace.substring(this.ctx.sdkPackage.crossLanguagePackageId.length + 1);
-    }
-    const namespaces = namespace.split('.').filter(Boolean);
 
-    // TODO: broken for namespace switch
+    // if the namespace is empty or it's not under the root namespace or the
+    // root's parent namespace then it belongs to a core library, so redirect
+    // its content to the root namespace.
+    // when the root's parent IS a known library namespace (e.g. Azure.ResourceManager),
+    // sibling namespaces (like CommonTypes) also get redirected to root since they
+    // contain library types, not service types.
+    const nsLower = namespace.toLowerCase();
+    const rootLower = this.rootNamespace.toLowerCase();
+    const rootParentLower = rootLower.includes('.')
+      ? rootLower.substring(0, rootLower.lastIndexOf('.'))
+      : '';
+    const isUnderRoot = nsLower === rootLower || nsLower.startsWith(rootLower + '.');
+    const isParent = rootParentLower !== '' && nsLower === rootParentLower;
+    const isSiblingOfRoot = rootParentLower !== '' && !isUnderRoot && nsLower.startsWith(rootParentLower + '.');
+    const isParentLibrary = LIB_NAMESPACE.includes(rootParentLower);
+    if (namespace === '' || isParent || (!isUnderRoot && (!isSiblingOfRoot || isParentLibrary))) {
+      namespace = this.rootNamespace;
+    }
+
+    // trim off the root namespace. if the result is the empty
+    // string it means the contents goes into the crate's root.
+    // also handle sibling namespaces: if the root namespace is Foo.Bar
+    // and we encounter Foo.Baz, treat Baz as a child module by trimming
+    // the shared parent (Foo) prefix.
+    if (namespace.toLowerCase().startsWith(this.rootNamespace.toLowerCase())) {
+      namespace = namespace.substring(this.rootNamespace.length + 1);
+    } else {
+      const rootParent = this.rootNamespace.includes('.')
+        ? this.rootNamespace.substring(0, this.rootNamespace.lastIndexOf('.'))
+        : '';
+      if (rootParent !== '' && namespace.toLowerCase().startsWith(rootParent.toLowerCase() + '.')) {
+        namespace = namespace.substring(rootParent.length + 1);
+      }
+    }
+
+    const namespaces = namespace.split('.').filter(Boolean);
 
     let cur = this.codeModel.root.kind === 'containingModule' ? this.codeModel.root.package : this.codeModel.root;
     for (const namespace of namespaces) {
@@ -1045,4 +1093,25 @@ function aggregateProperties(sdkContext: tcgc.SdkContext, model: tcgc.SdkModelTy
     parent = parent.baseModel;
   }
   return { props: allProps, addlProps: addlProps };
+}
+
+/**
+ * possible namespaces from core libraries.
+ * all types from these namespaces will be placed
+ * into the root namespace.
+ * if more core libs show up, add their namespaces here.
+ */
+const LIB_NAMESPACE = [
+  "azure.clientgenerator.core",
+  "azure.core",
+  "azure.resourcemanager",
+  "typespec.http",
+  "typespec.rest",
+  "typespec.versioning",
+];
+
+/** returns true if the given namespace is a known library namespace or a child of one */
+function isLibNamespace(namespace: string): boolean {
+  const ns = namespace.toLowerCase();
+  return LIB_NAMESPACE.some((lib) => ns === lib || ns.startsWith(lib + '.'));
 }

@@ -7,6 +7,10 @@ package specialwordsgroup
 import (
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/runtime"
+	"specialwordsgroup/extensiblestrings"
+	"specialwordsgroup/modelproperties"
+	"specialwordsgroup/models"
+	"specialwordsgroup/reservedoperationbodyparams"
 )
 
 // SpecialWordsClient - Scenarios to verify that reserved words can be used in service and generators will handle it appropriately.
@@ -76,25 +80,25 @@ func NewSpecialWordsClientWithNoCredential(endpoint string, options *SpecialWord
 	return client, nil
 }
 
-// NewSpecialWordsExtensibleStringsClient creates a new instance of [SpecialWordsExtensibleStringsClient].
-func (client *SpecialWordsClient) NewSpecialWordsExtensibleStringsClient() *SpecialWordsExtensibleStringsClient {
-	return &SpecialWordsExtensibleStringsClient{
+// NewSpecialWordsExtensibleStringsClient creates a new instance of [extensiblestrings.SpecialWordsExtensibleStringsClient].
+func (client *SpecialWordsClient) NewSpecialWordsExtensibleStringsClient() *extensiblestrings.SpecialWordsExtensibleStringsClient {
+	return &extensiblestrings.SpecialWordsExtensibleStringsClient{
 		endpoint: client.endpoint,
 		internal: client.internal,
 	}
 }
 
-// NewSpecialWordsModelPropertiesClient creates a new instance of [SpecialWordsModelPropertiesClient].
-func (client *SpecialWordsClient) NewSpecialWordsModelPropertiesClient() *SpecialWordsModelPropertiesClient {
-	return &SpecialWordsModelPropertiesClient{
+// NewSpecialWordsModelPropertiesClient creates a new instance of [modelproperties.SpecialWordsModelPropertiesClient].
+func (client *SpecialWordsClient) NewSpecialWordsModelPropertiesClient() *modelproperties.SpecialWordsModelPropertiesClient {
+	return &modelproperties.SpecialWordsModelPropertiesClient{
 		endpoint: client.endpoint,
 		internal: client.internal,
 	}
 }
 
-// NewSpecialWordsModelsClient creates a new instance of [SpecialWordsModelsClient].
-func (client *SpecialWordsClient) NewSpecialWordsModelsClient() *SpecialWordsModelsClient {
-	return &SpecialWordsModelsClient{
+// NewSpecialWordsModelsClient creates a new instance of [models.SpecialWordsModelsClient].
+func (client *SpecialWordsClient) NewSpecialWordsModelsClient() *models.SpecialWordsModelsClient {
+	return &models.SpecialWordsModelsClient{
 		endpoint: client.endpoint,
 		internal: client.internal,
 	}
@@ -116,9 +120,9 @@ func (client *SpecialWordsClient) NewSpecialWordsParametersClient() *SpecialWord
 	}
 }
 
-// NewSpecialWordsReservedOperationBodyParamsClient creates a new instance of [SpecialWordsReservedOperationBodyParamsClient].
-func (client *SpecialWordsClient) NewSpecialWordsReservedOperationBodyParamsClient() *SpecialWordsReservedOperationBodyParamsClient {
-	return &SpecialWordsReservedOperationBodyParamsClient{
+// NewSpecialWordsReservedOperationBodyParamsClient creates a new instance of [reservedoperationbodyparams.SpecialWordsReservedOperationBodyParamsClient].
+func (client *SpecialWordsClient) NewSpecialWordsReservedOperationBodyParamsClient() *reservedoperationbodyparams.SpecialWordsReservedOperationBodyParamsClient {
+	return &reservedoperationbodyparams.SpecialWordsReservedOperationBodyParamsClient{
 		endpoint: client.endpoint,
 		internal: client.internal,
 	}

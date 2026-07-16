@@ -5,6 +5,8 @@
 package basicparamsgroup
 
 import (
+	"basicparamsgroup/explicitbody"
+	"basicparamsgroup/implicitbody"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/runtime"
 )
@@ -39,17 +41,17 @@ func NewBasicClientWithNoCredential(endpoint string, options *BasicClientOptions
 	return client, nil
 }
 
-// NewBasicExplicitBodyClient creates a new instance of [BasicExplicitBodyClient].
-func (client *BasicClient) NewBasicExplicitBodyClient() *BasicExplicitBodyClient {
-	return &BasicExplicitBodyClient{
+// NewBasicExplicitBodyClient creates a new instance of [explicitbody.BasicExplicitBodyClient].
+func (client *BasicClient) NewBasicExplicitBodyClient() *explicitbody.BasicExplicitBodyClient {
+	return &explicitbody.BasicExplicitBodyClient{
 		endpoint: client.endpoint,
 		internal: client.internal,
 	}
 }
 
-// NewBasicImplicitBodyClient creates a new instance of [BasicImplicitBodyClient].
-func (client *BasicClient) NewBasicImplicitBodyClient() *BasicImplicitBodyClient {
-	return &BasicImplicitBodyClient{
+// NewBasicImplicitBodyClient creates a new instance of [implicitbody.BasicImplicitBodyClient].
+func (client *BasicClient) NewBasicImplicitBodyClient() *implicitbody.BasicImplicitBodyClient {
+	return &implicitbody.BasicImplicitBodyClient{
 		endpoint: client.endpoint,
 		internal: client.internal,
 	}

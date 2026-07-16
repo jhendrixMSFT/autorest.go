@@ -7,6 +7,8 @@ package spreadgroup
 import (
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/runtime"
+	"spreadgroup/alias"
+	"spreadgroup/model"
 )
 
 // SpreadClient - Test for the spread operator.
@@ -39,17 +41,17 @@ func NewSpreadClientWithNoCredential(endpoint string, options *SpreadClientOptio
 	return client, nil
 }
 
-// NewSpreadAliasClient creates a new instance of [SpreadAliasClient].
-func (client *SpreadClient) NewSpreadAliasClient() *SpreadAliasClient {
-	return &SpreadAliasClient{
+// NewSpreadAliasClient creates a new instance of [alias.SpreadAliasClient].
+func (client *SpreadClient) NewSpreadAliasClient() *alias.SpreadAliasClient {
+	return &alias.SpreadAliasClient{
 		endpoint: client.endpoint,
 		internal: client.internal,
 	}
 }
 
-// NewSpreadModelClient creates a new instance of [SpreadModelClient].
-func (client *SpreadClient) NewSpreadModelClient() *SpreadModelClient {
-	return &SpreadModelClient{
+// NewSpreadModelClient creates a new instance of [model.SpreadModelClient].
+func (client *SpreadClient) NewSpreadModelClient() *model.SpreadModelClient {
+	return &model.SpreadModelClient{
 		endpoint: client.endpoint,
 		internal: client.internal,
 	}

@@ -7,6 +7,7 @@ package mediatypegroup
 import (
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/runtime"
+	"mediatypegroup/stringbody"
 )
 
 // MediaTypeClient - Test the payload with different media types and different types of the payload itself.
@@ -39,9 +40,9 @@ func NewMediaTypeClientWithNoCredential(endpoint string, options *MediaTypeClien
 	return client, nil
 }
 
-// NewMediaTypeStringBodyClient creates a new instance of [MediaTypeStringBodyClient].
-func (client *MediaTypeClient) NewMediaTypeStringBodyClient() *MediaTypeStringBodyClient {
-	return &MediaTypeStringBodyClient{
+// NewMediaTypeStringBodyClient creates a new instance of [stringbody.MediaTypeStringBodyClient].
+func (client *MediaTypeClient) NewMediaTypeStringBodyClient() *stringbody.MediaTypeStringBodyClient {
+	return &stringbody.MediaTypeStringBodyClient{
 		endpoint: client.endpoint,
 		internal: client.internal,
 	}
