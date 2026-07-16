@@ -42,6 +42,22 @@ export function getServerName(client: go.Client): string {
 }
 
 /**
+ * recursively collects all clients defined in pkg and its sub-packages.
+ * fakes are emitted into a single, flat package so we must gather the
+ * clients from every namespace within the module.
+ *
+ * @param pkg the package content to search
+ * @returns the complete set of clients across the package hierarchy
+ */
+function recursiveGetClients(pkg: go.PackageContent): Array<go.Client> {
+  const clients = new Array<go.Client>(...pkg.clients);
+  for (const subPkg of pkg.packages) {
+    clients.push(...recursiveGetClients(subPkg));
+  }
+  return clients;
+}
+
+/**
  * Generates the contents for the *_server.go files.
  *
  * @param pkg contains the package content
@@ -50,7 +66,10 @@ export function getServerName(client: go.Client): string {
  */
 export function generateServers(pkg: go.FakePackage, target: go.CodeModelType): ServerContent {
   const operations = new Array<OperationGroupContent>();
-  for (const client of pkg.parent.clients) {
+  // fakes are emitted into a single, flat package so gather the clients
+  // from the root package as well as any sub-package (namespace).
+  const allClients = recursiveGetClients(pkg.parent);
+  for (const client of allClients) {
     if (client.clientAccessors.length === 0 && helpers.clientHasNoExportedMethods(client)) {
       // client has no client accessors and no exported methods, skip it
       continue;
@@ -245,12 +264,12 @@ export function generateServers(pkg: go.FakePackage, target: go.CodeModelType): 
     operations.push(new OperationGroupContent(serverName, text));
   }
 
-  if (target === 'azure-arm' && pkg.parent.clients.length > 0) {
+  if (target === 'azure-arm' && allClients.length > 0) {
     // ARM server factory uses the initServer func
     requiredHelpers.initServer = true;
   }
 
-  return new ServerContent(operations, generateServerInternal(pkg, requiredHelpers));
+  return new ServerContent(operations, generateServerInternal(pkg, allClients, requiredHelpers));
 }
 
 function getTransportInterceptorVarName(client: go.Client): string {
@@ -421,7 +440,10 @@ function generateServerTransportMethods(
     return '';
   }
 
-  imports.addForPkg(pkg.parent);
+  // the fakes live in a flat package so import the owning client's package
+  // (namespace) to reference its options/response types. every method shares
+  // the same receiver, so any method's package will do.
+  imports.addForPkg(finalMethods[0].receiver.type.pkg);
   imports.add('github.com/Azure/azure-sdk-for-go/sdk/azcore/fake', 'azfake');
   imports.add('github.com/Azure/azure-sdk-for-go/sdk/azcore/fake/server');
   imports.add('slices');

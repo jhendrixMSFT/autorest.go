@@ -22,6 +22,14 @@ func (nonRetriableError) NonRetriable() {
 	// marker method
 }
 
+func getHeaderValue(h http.Header, k string) string {
+	v := h[k]
+	if len(v) == 0 {
+		return ""
+	}
+	return v[0]
+}
+
 func initServer[T any](mu *sync.Mutex, dst **T, src func() *T) {
 	mu.Lock()
 	if *dst == nil {

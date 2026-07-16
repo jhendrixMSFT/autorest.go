@@ -5,36 +5,30 @@
 package fake
 
 import (
-	headerfake "bytesgroup/header/fake"
-	propertyfake "bytesgroup/property/fake"
-	queryfake "bytesgroup/query/fake"
-	requestbodyfake "bytesgroup/requestbody/fake"
-	responsebodyfake "bytesgroup/responsebody/fake"
 	"errors"
 	"fmt"
+	"github.com/Azure/azure-sdk-for-go/sdk/azcore/runtime"
 	"net/http"
 	"strings"
 	"sync"
-
-	"github.com/Azure/azure-sdk-for-go/sdk/azcore/runtime"
 )
 
 // BytesServer is a fake server for instances of the bytesgroup.BytesClient type.
 type BytesServer struct {
 	// BytesHeaderServer contains the fakes for client BytesHeaderClient
-	BytesHeaderServer headerfake.BytesHeaderServer
+	BytesHeaderServer BytesHeaderServer
 
 	// BytesPropertyServer contains the fakes for client BytesPropertyClient
-	BytesPropertyServer propertyfake.BytesPropertyServer
+	BytesPropertyServer BytesPropertyServer
 
 	// BytesQueryServer contains the fakes for client BytesQueryClient
-	BytesQueryServer queryfake.BytesQueryServer
+	BytesQueryServer BytesQueryServer
 
 	// BytesRequestBodyServer contains the fakes for client BytesRequestBodyClient
-	BytesRequestBodyServer requestbodyfake.BytesRequestBodyServer
+	BytesRequestBodyServer BytesRequestBodyServer
 
 	// BytesResponseBodyServer contains the fakes for client BytesResponseBodyClient
-	BytesResponseBodyServer responsebodyfake.BytesResponseBodyServer
+	BytesResponseBodyServer BytesResponseBodyServer
 }
 
 // NewBytesServerTransport creates a new instance of BytesServerTransport with the provided implementation.
@@ -49,11 +43,11 @@ func NewBytesServerTransport(srv *BytesServer) *BytesServerTransport {
 type BytesServerTransport struct {
 	srv                       *BytesServer
 	trMu                      sync.Mutex
-	trBytesHeaderServer       *headerfake.BytesHeaderServerTransport
-	trBytesPropertyServer     *propertyfake.BytesPropertyServerTransport
-	trBytesQueryServer        *queryfake.BytesQueryServerTransport
-	trBytesRequestBodyServer  *requestbodyfake.BytesRequestBodyServerTransport
-	trBytesResponseBodyServer *responsebodyfake.BytesResponseBodyServerTransport
+	trBytesHeaderServer       *BytesHeaderServerTransport
+	trBytesPropertyServer     *BytesPropertyServerTransport
+	trBytesQueryServer        *BytesQueryServerTransport
+	trBytesRequestBodyServer  *BytesRequestBodyServerTransport
+	trBytesResponseBodyServer *BytesResponseBodyServerTransport
 }
 
 // Do implements the policy.Transporter interface for BytesServerTransport.
@@ -73,28 +67,28 @@ func (b *BytesServerTransport) dispatchToClientFake(req *http.Request, client st
 
 	switch client {
 	case "BytesHeaderClient":
-		initServer(&b.trMu, &b.trBytesHeaderServer, func() *headerfake.BytesHeaderServerTransport {
-			return headerfake.NewBytesHeaderServerTransport(&b.srv.BytesHeaderServer)
+		initServer(&b.trMu, &b.trBytesHeaderServer, func() *BytesHeaderServerTransport {
+			return NewBytesHeaderServerTransport(&b.srv.BytesHeaderServer)
 		})
 		resp, err = b.trBytesHeaderServer.Do(req)
 	case "BytesPropertyClient":
-		initServer(&b.trMu, &b.trBytesPropertyServer, func() *propertyfake.BytesPropertyServerTransport {
-			return propertyfake.NewBytesPropertyServerTransport(&b.srv.BytesPropertyServer)
+		initServer(&b.trMu, &b.trBytesPropertyServer, func() *BytesPropertyServerTransport {
+			return NewBytesPropertyServerTransport(&b.srv.BytesPropertyServer)
 		})
 		resp, err = b.trBytesPropertyServer.Do(req)
 	case "BytesQueryClient":
-		initServer(&b.trMu, &b.trBytesQueryServer, func() *queryfake.BytesQueryServerTransport {
-			return queryfake.NewBytesQueryServerTransport(&b.srv.BytesQueryServer)
+		initServer(&b.trMu, &b.trBytesQueryServer, func() *BytesQueryServerTransport {
+			return NewBytesQueryServerTransport(&b.srv.BytesQueryServer)
 		})
 		resp, err = b.trBytesQueryServer.Do(req)
 	case "BytesRequestBodyClient":
-		initServer(&b.trMu, &b.trBytesRequestBodyServer, func() *requestbodyfake.BytesRequestBodyServerTransport {
-			return requestbodyfake.NewBytesRequestBodyServerTransport(&b.srv.BytesRequestBodyServer)
+		initServer(&b.trMu, &b.trBytesRequestBodyServer, func() *BytesRequestBodyServerTransport {
+			return NewBytesRequestBodyServerTransport(&b.srv.BytesRequestBodyServer)
 		})
 		resp, err = b.trBytesRequestBodyServer.Do(req)
 	case "BytesResponseBodyClient":
-		initServer(&b.trMu, &b.trBytesResponseBodyServer, func() *responsebodyfake.BytesResponseBodyServerTransport {
-			return responsebodyfake.NewBytesResponseBodyServerTransport(&b.srv.BytesResponseBodyServer)
+		initServer(&b.trMu, &b.trBytesResponseBodyServer, func() *BytesResponseBodyServerTransport {
+			return NewBytesResponseBodyServerTransport(&b.srv.BytesResponseBodyServer)
 		})
 		resp, err = b.trBytesResponseBodyServer.Do(req)
 	default:

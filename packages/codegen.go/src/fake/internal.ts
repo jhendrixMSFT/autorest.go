@@ -37,8 +37,8 @@ export class RequiredHelpers {
  * @param requiredHelpers contains data about the helpers to emit
  * @returns the text for the file or the empty string
  */
-export function generateServerInternal(pkg: go.FakePackage, requiredHelpers: RequiredHelpers): string {
-  if (pkg.parent.clients.length === 0) {
+export function generateServerInternal(pkg: go.FakePackage, allClients: Array<go.Client>, requiredHelpers: RequiredHelpers): string {
+  if (allClients.length === 0) {
     return '';
   }
   const text = contentPreamble(pkg);

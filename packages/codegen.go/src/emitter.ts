@@ -86,7 +86,7 @@ export class Emitter {
       }
     }
 
-    await this.recursiveEmit(async (pkg: go.PackageContent, write: (name: string, content: string, subdir?: string) => Promise<void>): Promise<void> => {
+    await this.recursiveEmit(async (pkg: go.PackageContent, write: (name: string, content: string) => Promise<void>): Promise<void> => {
       const clientFactory = generateClientFactory(pkg, this.codeModel.type, this.codeModel.options);
       if (clientFactory.length > 0) {
         await write('client_factory.go', clientFactory);
@@ -137,30 +137,32 @@ export class Emitter {
       if (xmlAddlProps.length > 0) {
         await write('xml_helper.go', xmlAddlProps);
       }
+    });
 
-      if (this.codeModel.options.generateFakes) {
-        const fakePkg = new go.FakePackage(pkg);
-        const serverContent = generateServers(fakePkg, this.codeModel.type);
-        if (serverContent.servers.length > 0) {
-          for (const op of serverContent.servers) {
-            const fileName = `${snakeClientFileName(op.name, 'server')}.go`;
-            await write(fileName, op.content, fakePkg.kind);
-          }
+    // NOTE: we emit fakes as a flat subpackage of the module or containing module (no hierarchy).
+    // having hierarchical fakes complicates the import paths and makes it more difficult to use the fakes in tests.
+    if (this.codeModel.options.generateFakes) {
+      const fakePkg = new go.FakePackage(this.codeModel.root.kind === 'module' ? this.codeModel.root : this.codeModel.root.package);
+      const serverContent = generateServers(fakePkg, this.codeModel.type);
+      if (serverContent.servers.length > 0) {
+        for (const op of serverContent.servers) {
+          const fileName = `${snakeClientFileName(op.name, 'server')}.go`;
+          await this.fs.write(`${fakePkg.kind}/${this.filePrefix}${fileName}`, op.content);
+        }
 
-          const serverFactory = generateServerFactory(fakePkg, this.codeModel.type);
-          if (serverFactory.length > 0) {
-            await write('server_factory.go', serverFactory, fakePkg.kind);
-          }
+        const serverFactory = generateServerFactory(fakePkg, this.codeModel.type);
+        if (serverFactory.length > 0) {
+          await this.fs.write(`${fakePkg.kind}/${this.filePrefix}server_factory.go`, serverFactory);
+        }
 
-          await write('internal.go', serverContent.internals, fakePkg.kind);
+        await this.fs.write(`${fakePkg.kind}/${this.filePrefix}internal.go`, serverContent.internals);
 
-          const polymorphics = generatePolymorphicHelpers(fakePkg);
-          if (polymorphics.length > 0) {
-            await write('polymorphic_helpers.go', polymorphics, fakePkg.kind);
-          }
+        const polymorphics = generatePolymorphicHelpers(fakePkg);
+        if (polymorphics.length > 0) {
+          await this.fs.write(`${fakePkg.kind}/${this.filePrefix}polymorphic_helpers.go`, polymorphics);
         }
       }
-    });
+    }
 
     // only one version.go file per module
     if (this.codeModel.root.kind === 'module') {
@@ -232,10 +234,10 @@ export class Emitter {
    *
    * @param emitForPkg the package contents to emit
    */
-  private async recursiveEmit(emitForPkg: (pkg: go.PackageContent, write: (name: string, content: string, subdir?: string) => Promise<void>) => Promise<void>): Promise<void> {
+  private async recursiveEmit(emitForPkg: (pkg: go.PackageContent, write: (name: string, content: string) => Promise<void>) => Promise<void>): Promise<void> {
     const recursiveEmit = async (pkg: go.PackageContent, dir: string): Promise<void> => {
-      await emitForPkg(pkg, async (name: string, content: string, subdir?: string) => {
-        return await this.fs.write(`${dir}${subdir ? `${subdir}/` : ''}${this.filePrefix}${name}`, content);
+      await emitForPkg(pkg, async (name: string, content: string) => {
+        return await this.fs.write(`${dir}${this.filePrefix}${name}`, content);
       });
 
       // recursively emit any sub-packages
