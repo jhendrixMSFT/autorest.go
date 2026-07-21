@@ -354,6 +354,23 @@ export interface TokenCredential extends QualifiedType {
   scopes: Array<string>;
 }
 
+/** the possible type alias target types */
+export type TypeAliasType = Constant | Interface | Model | PolymorphicModel;
+
+/** a Go type alias */
+export interface TypeAlias<T extends TypeAliasType = TypeAliasType> {
+  kind: 'typeAlias';
+
+  /** the name of the type alias */
+  name: string;
+
+  /** the underlying type of the alias */
+  target: T;
+
+  /** the package to which this type belongs */
+  pkg: PackageContent;
+}
+
 /** bit flags indicating how a model/polymorphic type is used */
 export enum UsageFlags {
   /** the type is unreferenced */
@@ -779,6 +796,15 @@ export class TokenCredential extends QualifiedType implements TokenCredential {
     super('TokenCredential', 'github.com/Azure/azure-sdk-for-go/sdk/azcore');
     this.kind = 'tokenCredential';
     this.scopes = scopes;
+  }
+}
+
+export class TypeAlias<T extends TypeAliasType> implements TypeAlias<T> {
+  constructor(pkg: PackageContent, name: string, target: T) {
+    this.kind = 'typeAlias';
+    this.name = name;
+    this.target = target;
+    this.pkg = pkg;
   }
 }
 

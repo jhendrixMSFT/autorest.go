@@ -27,6 +27,12 @@ export interface ContainingModule {
    * NOTE: callers MUST set this post construction
    */
   package: Package;
+
+  /**
+   * contains any content in the internal/models package.
+   * NOTE: this will be a sub-package under the emitted package.
+   */
+  internalModels: InternalModelsPackage;
 }
 
 /** represents the package used for fakes content */
@@ -35,6 +41,23 @@ export interface FakePackage {
 
   /** the container for this package */
   parent: PackageContent;
+}
+
+/** represents the internal/models package */
+export interface InternalModelsPackage {
+  kind: 'internalModels';
+
+  /** the name of the package */
+  name: 'internal/models';
+
+  /** all of the const types to generate (constants.go file). can be empty */
+  constants: Array<type.Constant>;
+
+  /** all of the interfaces for discriminated types (interfaces.go file) */
+  interfaces: Array<type.Interface>;
+
+  /** all of the struct model types to generate (models.go file). can be empty */
+  models: Array<type.Model | type.PolymorphicModel>;
 }
 
 /** represents a Go module */
@@ -46,6 +69,9 @@ export interface Module extends PackageBase {
    * e.g. github.com/contoso/module
    */
   identity: string;
+
+  /** contains any content in the internal/models package */
+  internalModels: InternalModelsPackage;
 }
 
 /** represents a Go package */
@@ -104,10 +130,10 @@ export function getPackageName(pkg: FakePackage | PackageContent | TestPackage):
 
 interface PackageBase {
   /** all of the struct model types to generate (models.go file). can be empty */
-  models: Array<type.Model | type.PolymorphicModel>;
+  models: Array<type.TypeAlias<type.Model | type.PolymorphicModel>>;
 
   /** all of the const types to generate (constants.go file). can be empty */
-  constants: Array<type.Constant>;
+  constants: Array<type.TypeAlias<type.Constant>>;
 
   /** all of the operation clients. can be empty */
   clients: Array<client.Client>;
@@ -119,7 +145,7 @@ interface PackageBase {
   responseEnvelopes: Array<result.ResponseEnvelope>;
 
   /** all of the interfaces for discriminated types (interfaces.go file) */
-  interfaces: Array<type.Interface>;
+  interfaces: Array<type.TypeAlias<type.Interface>>;
 
   /** any subpackages within this package. can be empty */
   packages: Array<Package>;
@@ -128,9 +154,9 @@ interface PackageBase {
 class PackageBase implements PackageBase {
   constructor() {
     this.clients = new Array<client.Client>();
-    this.constants = new Array<type.Constant>();
-    this.interfaces = new Array<type.Interface>();
-    this.models = new Array<type.Model | type.PolymorphicModel>();
+    this.constants = new Array<type.TypeAlias<type.Constant>>();
+    this.interfaces = new Array<type.TypeAlias<type.Interface>>();
+    this.models = new Array<type.TypeAlias<type.Model | type.PolymorphicModel>>();
     this.packages = new Array<Package>();
     this.paramGroups = new Array<type.Struct>();
     this.responseEnvelopes = new Array<result.ResponseEnvelope>();
@@ -144,6 +170,7 @@ export class ContainingModule implements ContainingModule {
   constructor(identity: string) {
     this.kind = 'containingModule';
     this.identity = identity;
+    this.internalModels = new InternalModelsPackage();
   }
 }
 
@@ -154,11 +181,22 @@ export class FakePackage implements FakePackage {
   }
 }
 
+export class InternalModelsPackage implements InternalModelsPackage {
+  constructor() {
+    this.kind = 'internalModels';
+    this.name = 'internal/models';
+    this.constants = new Array<type.Constant>();
+    this.interfaces = new Array<type.Interface>();
+    this.models = new Array<type.Model | type.PolymorphicModel>();
+  }
+}
+
 export class Module extends PackageBase implements Module {
   constructor(identity: string) {
     super();
     this.kind = 'module';
     this.identity = identity;
+    this.internalModels = new InternalModelsPackage();
   }
 }
 

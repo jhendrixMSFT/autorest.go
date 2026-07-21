@@ -1405,7 +1405,7 @@ export class ClientAdapter {
         respHeaders: pageableRespHeadersMap,
       };
     } else if (sdkResponseType.kind === 'model') {
-      let modelType: go.Model | go.PolymorphicModel | undefined;
+      let modelType: go.TypeAlias<go.Model | go.PolymorphicModel> | undefined;
       const modelName = helpers.getEffectiveName(sdkResponseType).toUpperCase();
       for (const model of this.ta.getPkg().models) {
         if (model.name.toUpperCase() === modelName) {
@@ -1416,20 +1416,21 @@ export class ClientAdapter {
       if (!modelType) {
         throw new AdapterError('InternalError', `didn't find model type name ${sdkResponseType.name} for response envelope ${respEnv.name}`, sdkResponseType.__raw?.node);
       }
-      if (modelType.kind === 'polymorphicModel') {
+      if (modelType.target.kind === 'polymorphicModel') {
+        const polymorphicModel = modelType.target;
         // For polymorphic models, check if we can find a concrete type that matches the discriminator value
         // If no concrete type is found, create a PolymorphicResult that uses the interface type
         // else use the concrete type as the result type
-        const concreteType = modelType.interface.possibleTypes.find((t) => t.discriminatorValue?.literal === modelType.discriminatorValue?.literal);
+        const concreteType = polymorphicModel.interface.possibleTypes.find((t) => t.discriminatorValue?.literal === polymorphicModel.discriminatorValue?.literal);
         if (concreteType === undefined) {
-          respEnv.result = new go.PolymorphicResult(modelType.interface);
+          respEnv.result = new go.PolymorphicResult(polymorphicModel.interface);
         }
       }
       if (respEnv.result === undefined) {
         if (contentType !== 'JSON' && contentType !== 'XML') {
           throw new AdapterError('InternalError', `unexpected content type ${contentType} for model ${modelType.name}`);
         }
-        respEnv.result = new go.ModelResult(modelType, contentType);
+        respEnv.result = new go.ModelResult(modelType.target, contentType);
       }
       respEnv.result.docs.summary = sdkResponseType.summary;
       respEnv.result.docs.description = sdkResponseType.doc;
